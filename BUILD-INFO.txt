@@ -1,0 +1,4 @@
+Version 1.2.0 (build 102)
+Commit 7e011166403592bb8a8ab832fa88e46b12addc09
+Result: success
+Signed with upload key: false

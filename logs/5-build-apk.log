@@ -1,0 +1,4 @@
+Running Gradle task 'assembleRelease'...                        
+Caught exception: Already watching path: /opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/packages/flutter_tools/gradle
+Running Gradle task 'assembleRelease'...                            8.8s
+✓ Built build/app/outputs/flutter-apk/app-release.apk (50.7MB)

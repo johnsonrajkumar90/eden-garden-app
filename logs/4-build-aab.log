@@ -1,0 +1,5 @@
+Running Gradle task 'bundleRelease'...                          
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 3360 bytes (99.8% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+Caught exception: Already watching path: /home/runner/work/eden-garden-app/eden-garden-app/android
+Running Gradle task 'bundleRelease'...                            229.7s
+✓ Built build/app/outputs/bundle/release/app-release.aab (49.9MB)
