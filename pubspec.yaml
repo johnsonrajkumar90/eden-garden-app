@@ -1,0 +1,28 @@
+name: eden_garden_app
+description: Eden Garden Home Stay — book stays, services, homes and plots. Android app for edengardenshomestay.in.
+publish_to: 'none'
+
+# Increase the number after + for every upload to Google Play (1.0.1+2, 1.0.2+3 …).
+version: 1.1.0+2
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.13.0
+  webview_flutter_android: ^4.10.0
+  url_launcher: ^6.3.1
+  image_picker: ^1.1.2
+  file_selector: ^1.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png
