@@ -44,13 +44,13 @@ jobs:
         run: flutter --version
 
       - name: Get packages
-        run: flutter pub get
+        run: mkdir -p logs && set -o pipefail && flutter pub get 2>&1 | tee logs/1-pub-get.log
 
       - name: Check the code
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        run: set -o pipefail && flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee logs/2-analyze.log
 
       - name: Run tests
-        run: flutter test
+        run: set -o pipefail && flutter test 2>&1 | tee logs/3-test.log
 
       - name: Set up the signing key
         env:
@@ -75,10 +75,10 @@ jobs:
       # The build number goes up by one on every run, so every build can be uploaded to Google Play.
       # The version name (1.0.0) comes from pubspec.yaml.
       - name: Build app bundle (.aab) for Google Play
-        run: flutter build appbundle --release --build-number=$((100 + ${{ github.run_number }}))
+        run: set -o pipefail && flutter build appbundle --release --build-number=$((100 + ${{ github.run_number }})) 2>&1 | tee logs/4-build-aab.log
 
       - name: Build APK for testing on a phone
-        run: flutter build apk --release --build-number=$((100 + ${{ github.run_number }}))
+        run: set -o pipefail && flutter build apk --release --build-number=$((100 + ${{ github.run_number }})) 2>&1 | tee logs/5-build-apk.log
 
       - name: Collect files
         run: |
@@ -93,19 +93,19 @@ jobs:
           path: out/
           retention-days: 30
 
-      # Also keep the latest files on the "builds" branch (handy to download without opening Actions)
+      # Keep the latest files (or, if something failed, the logs) on the "builds" branch
       - name: Save to the builds branch
-        if: github.event_name != 'pull_request'
+        if: always() && github.event_name != 'pull_request'
         run: |
           VER=$(grep '^version:' pubspec.yaml | sed 's/version: //; s/+.*//')
           BUILD=$((100 + ${{ github.run_number }}))
-          mkdir -p /tmp/builds && cp out/* /tmp/builds/
+          mkdir -p /tmp/builds/logs
+          cp logs/*.log /tmp/builds/logs/ 2>/dev/null || true
+          [ -f build/app/outputs/flutter-apk/app-release.apk ] && cp build/app/outputs/flutter-apk/app-release.apk "/tmp/builds/eden-garden-$VER-$BUILD.apk"
+          [ -f build/app/outputs/bundle/release/app-release.aab ] && cp build/app/outputs/bundle/release/app-release.aab "/tmp/builds/eden-garden-$VER-$BUILD.aab"
+          printf 'Version %s (build %s)\nCommit %s\nResult: %s\nSigned with upload key: %s\n' "$VER" "$BUILD" "${{ github.sha }}" "${{ job.status }}" "${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}" > /tmp/builds/BUILD-INFO.txt
           cd /tmp/builds
-          mv app-release.apk "eden-garden-$VER-$BUILD.apk"
-          mv app-release.aab "eden-garden-$VER-$BUILD.aab"
-          printf 'Version %s (build %s)\nCommit %s\nSigned with upload key: %s\n' "$VER" "$BUILD" "${{ github.sha }}" "${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}" > BUILD-INFO.txt
           git init -q && git checkout -q -b builds
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git add . && git commit -qm "Build $VER ($BUILD)"
+          git add . && git commit -qm "Build $VER ($BUILD) - ${{ job.status }}"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" builds
-
