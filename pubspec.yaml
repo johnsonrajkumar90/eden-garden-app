@@ -3,7 +3,7 @@ description: Eden Garden Home Stay — book stays, services, homes and plots. An
 publish_to: 'none'
 
 # Increase the number after + for every upload to Google Play (1.0.1+2, 1.0.2+3 …).
-version: 1.1.0+2
+version: 1.2.0+3
 
 environment:
   sdk: ^3.8.0

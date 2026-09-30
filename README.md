@@ -21,13 +21,16 @@ What the app adds on top of the website:
 - **Share a stay's photos**: in *New booking* (hosts, admin) and *Book for a guest* (referral partners), each stay's
   **Share → Send the photos** downloads up to 10 photos and opens **WhatsApp** (or the share sheet) with the photos
   and the stay's details: price, guests, check-in/out times and a link to all photos.
+- **Stays logged in**: guests, hosts, admin and referral partners log in once. The app keeps them logged in, even
+  after closing it or restarting the phone, until they tap *Log out*. It uses the website's secure "remember me"
+  cookie; the password is never stored on the phone.
 - **Back button** goes back through pages; press it twice on the home page to exit.
 - Website pop-ups (*"Cancel this booking?"*) are shown as native dialogs.
 
 | | |
 |---|---|
 | Package name (permanent) | `in.edengardenshomestay.app` |
-| Version | `1.1.0` (in `pubspec.yaml`) — the build number goes up automatically on every GitHub build |
+| Version | `1.2.0` (in `pubspec.yaml`) — the build number goes up automatically on every GitHub build |
 | Target | Android 16 (API 36), as Google Play requires; works on Android 7.0 and newer |
 | Flutter | stable channel (3.47) |
 

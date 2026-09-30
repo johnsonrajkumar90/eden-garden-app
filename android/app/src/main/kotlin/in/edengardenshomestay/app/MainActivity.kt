@@ -66,6 +66,18 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** Save the website's cookies (the login) to storage whenever the app goes to the background or closes,
+     *  so the guest / host / partner is still logged in the next time the app opens. */
+    override fun onPause() {
+        super.onPause()
+        try { android.webkit.CookieManager.getInstance().flush() } catch (e: Exception) { }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try { android.webkit.CookieManager.getInstance().flush() } catch (e: Exception) { }
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         linkFrom(intent)?.let { linkChannel?.invokeMethod("onLink", it) }

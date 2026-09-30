@@ -60,6 +60,13 @@ class _WebShellState extends State<WebShell> {
 
   Future<void> _setUp() async {
     await _web.setJavaScriptMode(JavaScriptMode.unrestricted);
+    // Keep the website's login cookie (the app always ticks "Keep me logged in"), so the app opens logged in
+    final platformCookies = WebViewCookieManager().platform;
+    if (platformCookies is AndroidWebViewCookieManager) {
+      try {
+        await platformCookies.setAcceptThirdPartyCookies(_web.platform as AndroidWebViewController, true);
+      } catch (_) {}
+    }
     await _web.setBackgroundColor(Colors.white);
     await _web.addJavaScriptChannel('EdenApp', onMessageReceived: _onPageMessage);
     await _web.setNavigationDelegate(NavigationDelegate(
