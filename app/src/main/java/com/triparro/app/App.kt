@@ -159,7 +159,7 @@ fun TripArroApp(activity: MainActivity) {
                             },
                             icon = {
                                 val ic = if (current == t.route) t.selectedIcon else t.icon
-                                if (t.route == "account" && unread > 0) BadgedBox(badge = { Badge(containerColor = Brand.Coral) { Text(if (unread > 99) "99+" else unread.toString()) } }) { Icon(ic, contentDescription = "$unread new notifications") }
+                                if (t.route == "account" && unread > 0) BadgedBox(badge = { Badge(containerColor = Brand.Coral, contentColor = Color.White) { Text(if (unread > 99) "99+" else unread.toString()) } }) { Icon(ic, contentDescription = "$unread new notifications") }
                                 else Icon(ic, contentDescription = null)
                             },
                             label = { Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (current == t.route) FontWeight.SemiBold else FontWeight.Medium)) },

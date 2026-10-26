@@ -143,7 +143,7 @@ fun ExploreScreen(nav: NavHostController) {
                 Image(painterResource(R.drawable.logo_full), contentDescription = "TripArro", modifier = Modifier.height(32.dp))
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { nav.navigate(if (session?.user != null) "notifications" else "login") }) {
-                    BadgedBox(badge = { if (unread > 0) Badge(containerColor = Brand.Coral) { Text(if (unread > 9) "9+" else "$unread") } }) {
+                    BadgedBox(badge = { if (unread > 0) Badge(containerColor = Brand.Coral, contentColor = Color.White) { Text(if (unread > 9) "9+" else "$unread") } }) {
                         Icon(Icons.Outlined.Notifications, "Notifications", tint = Brand.Ink)
                     }
                 }
