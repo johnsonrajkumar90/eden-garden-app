@@ -69,7 +69,8 @@ fun NavHostController.openLink(link: String) {
         seg.size >= 2 && seg[0] == "resorts" && seg[1].toIntOrNull() != null -> navigate("property/resort/${seg[1]}")
         seg.size >= 2 && seg[0] == "pet-boarding" && seg[1].toIntOrNull() != null -> navigate("petlisting/${seg[1]}")
         seg.size == 1 && seg[0] == "pet-boarding" -> navigate("pets")
-        appRouteFor(link) != null -> navigate(appRouteFor(link)!!)
+        seg.size == 2 && seg[0] == "pet-booking" -> navigate("petbooking/${seg[1]}")
+        seg.size == 2 && seg[0] in listOf("booking", "pay", "resort-booking", "resort-pay") -> navigate("booking/${seg[1]}")
         else -> openWeb(u.path ?: "/")
     }
 }

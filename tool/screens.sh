@@ -49,6 +49,7 @@ up; up; shot 13-pet-host-reviews 3
 open /pet-booking/P1MX48HI; shot 14-pet-booking 6
 up; shot 15-pet-diary 3
 up; up; shot 16-pet-booking-price 3
+adb shell input keyevent 4; sleep 2; adb shell input keyevent 4; sleep 2
 tap "Trips"; shot 17-trips 5
 tap "Completed"; shot 18-trips-completed 3
 tap "AI"; shot 19-ai 3

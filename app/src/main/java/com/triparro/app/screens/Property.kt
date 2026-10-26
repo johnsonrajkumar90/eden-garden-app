@@ -137,8 +137,8 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                             Gap()
                             Card {
                                 Text("Guests", style = MaterialTheme.typography.titleMedium)
-                                g?.intOrNull("included")?.let { Text("$it guests included in the price" + (g.intOrNull("max")?.let { m -> " · up to $m guests" } ?: ""), color = Brand.InkSoft) }
-                                extraPolicy?.let { Text(it.text("text"), color = Brand.InkSoft) }
+                                if (extraPolicy != null) Text(extraPolicy.text("text") + (g?.intOrNull("max")?.let { m -> " · $m guests at most" } ?: ""), color = Brand.InkSoft)
+                                else g?.intOrNull("included")?.let { Text("$it guests included in the price" + (g.intOrNull("max")?.let { m -> " · up to $m guests" } ?: ""), color = Brand.InkSoft) }
                             }
                         }
                         p.str("description")?.let { Gap(); SectionTitle("About this place"); Text(it, style = MaterialTheme.typography.bodyLarge, color = Brand.InkSoft) }
