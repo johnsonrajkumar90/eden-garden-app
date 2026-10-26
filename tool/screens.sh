@@ -40,8 +40,13 @@ up() { adb shell input swipe 540 1900 540 500 500; }
 open() { adb shell am start -W -a android.intent.action.VIEW -d "https://triparro.com$1" $PKG; }
 adb shell am start -W -n $PKG/com.triparro.app.MainActivity
 shot 01-explore 8
-adb shell input swipe 540 1600 540 300 600; shot 02-explore-favourites 3
-adb shell input swipe 540 1600 540 300 600; shot 02b-explore-more 3
+pos() { adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb shell cat /sdcard/ui.xml | grep -o 'text="Popular places"[^>]*bounds="[^"]*"' | grep -o 'bounds="[^"]*"'; }
+echo "before: $(pos)" >> screens/scroll.txt
+adb shell input swipe 540 1600 540 300 600; sleep 2; echo "swipe@1600: $(pos)" >> screens/scroll.txt; shot 02-explore-favourites 1
+adb shell input swipe 540 2000 540 600 1200; sleep 2; echo "swipe@2000 slow: $(pos)" >> screens/scroll.txt; shot 02b-explore-more 1
+adb shell input swipe 540 1000 540 200 400; sleep 2; echo "swipe@1000: $(pos)" >> screens/scroll.txt; shot 02c-explore-more 1
+adb shell input touchscreen swipe 900 1750 900 250 800; sleep 2; echo "touchscreen@1750 right: $(pos)" >> screens/scroll.txt
+adb logcat -d | grep -iE "triparro|AndroidRuntime" | tail -30 > screens/explore-log.txt
 adb shell input swipe 540 600 540 2000 300; adb shell input swipe 540 600 540 2000 300; sleep 2
 tap "Search stays"; shot 03-search-results 5
 open /stays/1; shot 04-stay 6
