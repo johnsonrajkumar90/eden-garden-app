@@ -58,7 +58,8 @@ import com.triparro.app.core.objs
 import com.triparro.app.core.priceLines
 import com.triparro.app.core.str
 import com.triparro.app.core.text
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.BackBar
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Card
@@ -218,8 +219,8 @@ fun PetBookingScreen(nav: NavHostController, ref: String, notice: String?) {
                                     Text(dateTime(d.str("at")), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
                                     d.str("note")?.let { Text(it, color = Brand.InkSoft) }
                                     d.str("media")?.let { m ->
-                                        if (d.text("media_type") == "video") OutlinedButton(onClick = { nav.openWeb(m, "Video") }, modifier = Modifier.padding(top = 6.dp)) { Icon(Icons.Outlined.PlayCircle, null); Text(" Play video") }
-                                        else Photo(m, Modifier.padding(top = 6.dp).fillMaxWidth().aspectRatio(1.3f).clickable { nav.openWeb(m, d.text("label")) })
+                                        if (d.text("media_type") == "video") OutlinedButton(onClick = { nav.navigate("video?url=" + android.net.Uri.encode(m)) }, modifier = Modifier.padding(top = 6.dp)) { Icon(Icons.Outlined.PlayCircle, null); Text(" Play video") }
+                                        else Photo(m, Modifier.padding(top = 6.dp).fillMaxWidth().aspectRatio(1.3f).clickable { nav.navigate("photo?url=" + android.net.Uri.encode(m) + "&title=" + android.net.Uri.encode(d.text("label"))) })
                                     }
                                 }
                             }
@@ -241,7 +242,7 @@ fun PetBookingScreen(nav: NavHostController, ref: String, notice: String?) {
                 b.arr2("cancellation")?.let { c -> Gap(); Text("${c.first} cancellation. ${c.second}", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft) }
                 Gap()
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if ((b.num("paid") ?: 0.0) > 0) b.str("receipt_url")?.let { u -> OutlinedButton(onClick = { nav.openWeb(u, "Receipt") }) { Icon(Icons.Outlined.ReceiptLong, null); Text(" Receipt / invoice") } }
+                    if ((b.num("paid") ?: 0.0) > 0) b.str("receipt_url")?.let { _ -> OutlinedButton(onClick = { nav.navigate("petreceipt/$ref") }) { Icon(Icons.Outlined.ReceiptLong, null); Text(" Receipt / invoice") } }
                 }
                 if (b.bool("can_cancel")) {
                     Gap()

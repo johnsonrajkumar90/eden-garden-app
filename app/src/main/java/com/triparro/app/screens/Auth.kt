@@ -78,7 +78,8 @@ import com.triparro.app.core.ApiException
 import com.triparro.app.core.bool
 import com.triparro.app.core.str
 import com.triparro.app.core.text
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Gap
 import com.triparro.app.ui.Notice
@@ -112,9 +113,11 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
 
     fun go(s: Step) { step = s; err = null; info = null; fieldErr = emptyMap() }
     fun done() { nav.popBackStack() }
-    /** An older website without the app sign-in answers: use its web pages instead. */
+    /** An older website without the app sign-in answers: say so (the app never opens web pages). */
     fun webFallback(e: ApiException, path: String, title: String): Boolean {
-        if (e.code == "not_json" || e.code == "login_required" || e.status == 404 || e.status == 405) { nav.openWeb(path, title); return true }
+        if (e.code == "not_json" || e.code == "login_required" || e.status == 404 || e.status == 405) {
+            err = "$title isn't available in the app right now — please try again later or sign in with your password."; return true
+        }
         return false
     }
     fun run(block: suspend () -> Unit) {
@@ -218,11 +221,7 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
                     PrimaryButton("Sign in", { signIn() }, coral = true, enabled = email.contains("@") && password.isNotEmpty(), loading = busy)
                     OrDivider()
                     OutlinedButton(onClick = { go(Step.AskCode) }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp)) {
-                        Icon(Icons.Outlined.Password, null, Modifier.size(18.dp)); Spacer(Modifier.size(8.dp)); Text("Sign in with a one-time code")
-                    }
-                    Gap(10)
-                    OutlinedButton(onClick = { nav.openWeb("/auth/google", "Continue with Google") }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp)) {
-                        Text("G", fontWeight = FontWeight.Bold, color = Color(0xFF4285F4)); Spacer(Modifier.size(10.dp)); Text("Continue with Google")
+                        Icon(Icons.Outlined.Password, null, Modifier.size(18.dp)); Spacer(Modifier.size(8.dp)); Text("Sign in with a code instead")
                     }
                     Gap(14)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -244,8 +243,8 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
                     Gap(12)
                     Text("By creating an account you agree to TripArro's privacy and cancellation policies.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                        TextButton(onClick = { nav.openWeb("/privacy-policy", "Privacy policy") }) { Text("Privacy policy") }
-                        TextButton(onClick = { nav.openWeb("/cancellation-policy", "Cancellation policy") }) { Text("Cancellation policy") }
+                        TextButton(onClick = { nav.navigate("page/privacy") }) { Text("Privacy policy") }
+                        TextButton(onClick = { nav.navigate("page/cancellation") }) { Text("Cancellation policy") }
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                         Text("Already have an account? ", color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium)

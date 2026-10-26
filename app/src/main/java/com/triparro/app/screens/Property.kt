@@ -21,6 +21,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.outlined.Bathtub
+import androidx.compose.material.icons.outlined.Bed
+import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.People
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.text.style.TextOverflow
+import com.triparro.app.ui.AmenityGrid
+import com.triparro.app.ui.Avatar
+import com.triparro.app.ui.DetailSection
+import com.triparro.app.ui.ExpandRow
+import com.triparro.app.ui.FactTiles
+import com.triparro.app.ui.HeroGallery
+import com.triparro.app.ui.PriceBar
+import com.triparro.app.ui.RatingBadge
+import com.triparro.app.ui.RefundTimeline
+import com.triparro.app.ui.TimeTiles
+import com.triparro.app.ui.TitleCard
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Share
@@ -77,7 +106,8 @@ import com.triparro.app.core.priceLines
 import com.triparro.app.core.str
 import com.triparro.app.core.strings
 import com.triparro.app.core.text
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.BackBar
 import com.triparro.app.ui.Bordered
 import com.triparro.app.ui.Brand
@@ -118,112 +148,138 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
             p == null && l.loading.value -> Loading()
             p == null -> ErrorBox(l.error.value ?: "Not found.", { l.reload() })
             else -> {
+                val price = p.obj("price") ?: JSONObject()
+                val photos = p.objs("photos").map { it.text("url") }.ifEmpty { listOfNotNull(p.str("image")) }
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                    Box {
-                        Gallery(p.objs("photos").map { it.text("url") }.ifEmpty { listOfNotNull(p.str("image")) })
-                        Row(Modifier.fillMaxWidth().padding(12.dp)) {
-                            RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
-                            Spacer(Modifier.weight(1f))
-                            RoundAction(Icons.Outlined.Share, "Share") { shareLink(ctx, p.text("title"), Api.url((if (kind == "resort") "resorts/" else "stays/") + id)) }
+                    HeroGallery(photos, onOpen = { u -> nav.navigate("photo?url=" + android.net.Uri.encode(u) + "&title=" + android.net.Uri.encode(p.text("title"))) }) {
+                        RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
+                        Spacer(Modifier.weight(1f))
+                        RoundAction(Icons.Outlined.Share, "Share") { shareLink(ctx, p.text("title"), Api.url((if (kind == "resort") "resorts/" else "stays/") + id)) }
+                    }
+                    // title card over the photos
+                    Box(Modifier.offset(y = (-30).dp)) {
+                        TitleCard {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Outlined.Place, null, tint = Brand.Teal, modifier = Modifier.size(16.dp))
+                                Text(" " + listOfNotNull(p.str("area"), p.str("location")).joinToString(", "), color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f), maxLines = 1)
+                            }
+                            Text(p.text("title"), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 4.dp, bottom = 10.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                RatingBadge(p.num("rating"), p.int("reviews"))
+                                val b = p.obj("badges") ?: JSONObject()
+                                if (b.bool("verified")) Pill("✓ Verified", "ok")
+                                if (b.bool("favourite")) Pill("Guest favourite", "info")
+                            }
+                            if (p.text("booking_mode") == "request") { Gap(8); Notice("The host approves each request — you pay only after they accept.", "warn") }
+                            val facts = p.objs("facts").map { it.text("value") }
+                            if (facts.isNotEmpty()) {
+                                Gap(14)
+                                FactTiles(facts.map { f -> (when { "bed" in f.lowercase() -> Icons.Outlined.Bed; "bath" in f.lowercase() -> Icons.Outlined.Bathtub; "guest" in f.lowercase() || "up to" in f.lowercase() -> Icons.Outlined.People; else -> Icons.Outlined.Home }) to f })
+                            }
                         }
                     }
-                    Column(Modifier.offset(y = (-22).dp).clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)).background(Brand.Page).padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Outlined.Place, null, tint = Brand.Teal, modifier = Modifier.size(16.dp))
-                            Text(" " + listOfNotNull(p.str("area"), p.str("location")).joinToString(", "), color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                            Stars(p.num("rating"), p.int("reviews"))
-                        }
-                        Text(p.text("title"), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 4.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 8.dp)) {
-                            val b = p.obj("badges") ?: JSONObject()
-                            if (b.bool("verified")) Pill("Verified stay", "ok")
-                            if (b.bool("favourite")) Pill("Guest favourite", "info")
-                            if (p.text("booking_mode") == "request") Pill("Host approves requests", "warn")
-                        }
-                        Gap()
-                        Chips(p.objs("facts").map { it.text("value") })
+                    Column(Modifier.offset(y = (-24).dp)) {
                         // Guests: included, extra guests and their charge (also what TripArro AI explains)
                         val g = p.obj("guests")
                         val extraPolicy = p.objs("policies").firstOrNull { it.text("title").startsWith("Extra guests") }
-                        if (g != null || extraPolicy != null) {
-                            Gap()
-                            Card {
-                                Text("Guests", style = MaterialTheme.typography.titleMedium)
-                                if (extraPolicy != null) Text(extraPolicy.text("text") + (g?.intOrNull("max")?.let { m -> " · $m guests at most" } ?: ""), color = Brand.InkSoft)
-                                else g?.intOrNull("included")?.let { Text("$it guests included in the price" + (g.intOrNull("max")?.let { m -> " · up to $m guests" } ?: ""), color = Brand.InkSoft) }
+                        if (g != null || extraPolicy != null) DetailSection("Guests", Icons.Outlined.People) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                g?.intOrNull("included")?.let { GuestStat("$it", "included in the price", Modifier.weight(1f)) }
+                                g?.intOrNull("max")?.let { GuestStat("$it", "guests at most", Modifier.weight(1f)) }
                             }
+                            if (extraPolicy != null) { Gap(10); Text(extraPolicy.text("text"), color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium) }
                         }
-                        p.str("description")?.let { Gap(); SectionTitle("About this place"); Text(it, style = MaterialTheme.typography.bodyLarge, color = Brand.InkSoft) }
+                        p.str("description")?.let { d -> DetailSection("About this place", Icons.Outlined.Info) { ExpandText(d) } }
                         val amen = p.strings("amenities")
-                        if (amen.isNotEmpty()) { Gap(); SectionTitle("What this place offers"); Chips(amen) }
+                        if (amen.isNotEmpty()) DetailSection("What this place offers", Icons.Outlined.Checklist) { AmenityGrid(amen) }
                         val rooms = p.objs("rooms")
-                        if (rooms.isNotEmpty()) {
-                            Gap(); SectionTitle("Rooms")
-                            rooms.forEach { r ->
-                                Card(Modifier.padding(bottom = 10.dp)) {
-                                    Photo(r.str("image"), Modifier.fillMaxWidth().aspectRatio(1.8f))
-                                    Text(r.text("name"), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
-                                    Text(listOfNotNull(r.str("bed"), r.str("view"), "${r.int("max_guests")} guests included",
-                                        if (r.int("max_extra") > 0) "up to ${r.int("max_extra")} extra at ${money(r.num("extra_fee"))} each per night" else null).joinToString(" · "),
-                                        style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
-                                    r.objs("plans").forEach { pl ->
-                                        Row(Modifier.fillMaxWidth().padding(top = 6.dp)) {
-                                            Text(pl.text("name"), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                                            Text(money(pl.num("offer_price") ?: pl.num("price")) + " / night", style = MaterialTheme.typography.titleSmall)
+                        if (rooms.isNotEmpty()) DetailSection("Rooms", Icons.Outlined.Bed, sub = "Choose your room and plan when you book") {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                items(rooms) { r ->
+                                    Column(Modifier.width(250.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page)) {
+                                        Photo(r.str("image"), Modifier.fillMaxWidth().aspectRatio(1.6f), corner = 0.dp)
+                                        Column(Modifier.padding(12.dp)) {
+                                            Text(r.text("name"), style = MaterialTheme.typography.titleMedium)
+                                            Text(listOfNotNull(r.str("bed"), r.str("view"), "${r.int("max_guests")} guests").joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+                                            if (r.int("max_extra") > 0) Text("+${r.int("max_extra")} extra · ${money(r.num("extra_fee"))} each / night", style = MaterialTheme.typography.bodySmall, color = Brand.TealDark)
+                                            r.objs("plans").take(3).forEach { pl ->
+                                                Row(Modifier.fillMaxWidth().padding(top = 6.dp)) {
+                                                    Text(pl.text("name"), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                                    Text(money(pl.num("offer_price") ?: pl.num("price")), style = MaterialTheme.typography.titleSmall, color = Brand.BlueDark)
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                        p.obj("times")?.str("label")?.let { Gap(); SectionTitle("Check-in"); Text(it, color = Brand.InkSoft) }
-                        val pol = p.objs("policies")
-                        if (pol.isNotEmpty()) {
-                            Gap(); SectionTitle("Things to know")
-                            pol.forEach { Text(it.text("title"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 6.dp)); Text(it.text("text"), color = Brand.InkSoft) }
+                        val times = p.obj("times")
+                        if (times != null) DetailSection("Check-in and check-out", Icons.Outlined.Schedule) {
+                            val ci = times.str("check_in") ?: times.str("checkin"); val co = times.str("check_out") ?: times.str("checkout")
+                            if (ci != null && co != null) TimeTiles("Check-in from", ci, "Check-out by", co) else Text(times.text("label"), color = Brand.InkSoft)
                         }
-                        p.strings("house_rules").takeIf { it.isNotEmpty() }?.let { r -> Gap(); SectionTitle("House rules"); r.forEach { Text("• $it", color = Brand.InkSoft) } }
+                        val pol = p.objs("policies").filter { !it.text("title").startsWith("Extra guests") }
+                        val rules = p.strings("house_rules")
+                        if (pol.isNotEmpty() || rules.isNotEmpty()) DetailSection("Things to know", Icons.Outlined.Lightbulb) {
+                            pol.forEach { ExpandRow(it.text("title"), it.text("text")) }
+                            if (rules.isNotEmpty()) ExpandRow("House rules", rules.joinToString("\n") { "• $it" })
+                        }
                         p.obj("cancellation_policy")?.let { c ->
-                            Gap(); SectionTitle("Cancellation")
-                            Text(c.text("label"), style = MaterialTheme.typography.titleSmall)
-                            c.objs("policy").forEach { Text("${it.text("when")}: ${it.int("refund_percent")}% refund", color = Brand.InkSoft) }
+                            DetailSection("Cancellation", Icons.Outlined.EventAvailable, sub = c.text("label")) {
+                                RefundTimeline(c.objs("policy").map { it.text("when") to it.int("refund_percent") })
+                            }
                         }
                         val rs = p.obj("reviews_summary")
-                        if (rs != null && rs.int("count") > 0) {
-                            Gap(); SectionTitle("Reviews (${rs.int("count")})")
-                            rs.objs("items").take(6).forEach { r ->
-                                Card(Modifier.padding(bottom = 8.dp)) {
-                                    Row { Text(r.text("name"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f)); Stars(r.num("rating")) }
-                                    Text(r.text("date"), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
-                                    Text(r.text("body"), color = Brand.InkSoft)
-                                    r.obj("reply")?.let { Text("Host: " + it.text("body"), style = MaterialTheme.typography.bodySmall, color = Brand.TealDark, modifier = Modifier.padding(top = 4.dp)) }
+                        if (rs != null && rs.int("count") > 0) DetailSection("Reviews", Icons.Outlined.StarOutline) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(String.format(java.util.Locale.ENGLISH, "%.1f", p.num("rating") ?: 0.0), style = MaterialTheme.typography.displaySmall, color = Brand.Ink)
+                                Column(Modifier.padding(start = 12.dp)) { Stars(p.num("rating")); Text("${rs.int("count")} reviews from guests who stayed", style = MaterialTheme.typography.bodySmall, color = Brand.Muted) }
+                            }
+                            Gap(12)
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                items(rs.objs("items").take(8)) { r ->
+                                    Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page).padding(14.dp)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Avatar(r.text("name").take(1), 34.dp)
+                                            Column(Modifier.padding(start = 8.dp).weight(1f)) { Text(r.text("name"), style = MaterialTheme.typography.titleSmall); Text(r.text("date"), style = MaterialTheme.typography.labelSmall, color = Brand.Muted) }
+                                            Stars(r.num("rating"))
+                                        }
+                                        Text(r.text("body"), color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium, maxLines = 5, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.dp))
+                                        r.obj("reply")?.let { Text("Host: " + it.text("body"), style = MaterialTheme.typography.bodySmall, color = Brand.TealDark, maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp)) }
+                                    }
                                 }
                             }
                         }
-                        p.obj("host")?.let { h -> Gap(); SectionTitle("Your host"); Text("${h.text("name")} · hosting since ${h.int("since")}", color = Brand.InkSoft) }
-                        Gap()
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            val c = p.arr("coords")
-                            if (c != null && c.length() == 2) OutlinedButton(onClick = {
-                                ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${c.optDouble(0)},${c.optDouble(1)}")))
-                            }) { Icon(Icons.Outlined.Directions, null); Text(" Directions") }
-                            if (p.bool("chat")) OutlinedButton(onClick = { nav.openWeb("/" + (if (kind == "resort") "resorts" else "stays") + "/$id", "Chat") }) {
-                                Icon(Icons.Outlined.ChatBubbleOutline, null); Text(" Ask a question")
+                        DetailSection("Your host", Icons.Outlined.Person) {
+                            val h = p.obj("host")
+                            if (h != null) Row(verticalAlignment = Alignment.CenterVertically) {
+                                Avatar(h.text("name").split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""), 48.dp)
+                                Column(Modifier.padding(start = 12.dp)) {
+                                    Text(h.text("name"), style = MaterialTheme.typography.titleMedium)
+                                    if (h.int("since") > 0) Text("Hosting since ${h.int("since")}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                                }
+                            }
+                            Gap(12)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (p.bool("chat")) Button(onClick = { nav.navigate("chat/$kind/$id") }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f)) {
+                                    Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp)); Text("  Ask a question")
+                                }
+                                val c = p.arr("coords")
+                                if (c != null && c.length() == 2) OutlinedButton(onClick = { openMaps(ctx, c.optDouble(0), c.optDouble(1), p.text("title")) }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f)) {
+                                    Icon(Icons.Outlined.Directions, null, Modifier.size(18.dp)); Text("  Directions")
+                                }
                             }
                         }
-                        Gap(30)
+                        Gap(8)
                     }
                 }
                 // Bottom bar: price and the booking panel
-                Surface(color = Color.White, shadowElevation = 8.dp) {
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val price = p.obj("price") ?: JSONObject()
-                        Column(Modifier.weight(1f)) {
-                            Text(money(price.num("offer_nightly") ?: price.num("nightly")), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = Brand.BlueDark)
-                            Text(if (kind == "resort") "per room / night, from" else "per night", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
-                        }
-                        if (p.bool("bookable") || !p.has("bookable")) PrimaryButton("Check availability", { sheet = true }, Modifier.width(200.dp), coral = true)
-                        else Text("Not taking bookings", color = Brand.Warn)
-                    }
+                val offer = price.num("offer_nightly"); val nightly = price.num("nightly")
+                PriceBar(money(offer ?: nightly), if (kind == "resort") "/ room night" else "/ night", was = if (offer != null && nightly != null && offer < nightly) money(nightly) else null,
+                    note = p.str("cancellation") ?: (p.obj("cancellation_policy")?.str("label"))) {
+                    if (p.bool("bookable") || !p.has("bookable")) Button(onClick = { sheet = true }, shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.CoralDark),
+                        contentPadding = PaddingValues(horizontal = 22.dp, vertical = 14.dp)) { Text(if (p.text("booking_mode") == "request") "Request to book" else "Reserve", style = MaterialTheme.typography.labelLarge) }
+                    else Text("Not taking bookings", color = Brand.Warn)
                 }
                 if (sheet) BookingSheet(nav, kind, id, p) { sheet = false }
             }
@@ -330,4 +386,31 @@ private fun BookingSheet(nav: NavHostController, kind: String, id: Int, p: JSONO
             TextButton(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Close") }
         }
     }
+}
+
+
+@Composable
+private fun GuestStat(value: String, label: String, modifier: Modifier) {
+    Column(modifier.clip(RoundedCornerShape(16.dp)).background(Brand.Page).padding(14.dp)) {
+        Text(value, style = MaterialTheme.typography.headlineSmall, color = Brand.BlueDark)
+        Text(label, style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+    }
+}
+
+/** Long text shortened to a few lines, with "Read more". */
+@Composable
+fun ExpandText(text: String, lines: Int = 5) {
+    var open by remember { mutableStateOf(false) }
+    Column(Modifier.animateContentSize()) {
+        Text(text, style = MaterialTheme.typography.bodyLarge, color = Brand.InkSoft, maxLines = if (open) Int.MAX_VALUE else lines, overflow = TextOverflow.Ellipsis)
+        if (text.length > 220) Text(if (open) "Show less" else "Read more", style = MaterialTheme.typography.titleSmall, color = Brand.Blue,
+            modifier = Modifier.padding(top = 6.dp).clickable { open = !open })
+    }
+}
+
+/** Directions in the phone's maps app (not a website). */
+fun openMaps(ctx: android.content.Context, lat: Double, lng: Double, label: String) {
+    val geo = Uri.parse("geo:$lat,$lng?q=$lat,$lng(" + Uri.encode(label) + ")")
+    try { ctx.startActivity(Intent(Intent.ACTION_VIEW, geo)) }
+    catch (_: Exception) { try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=$lat,$lng"))) } catch (_: Exception) { } }
 }

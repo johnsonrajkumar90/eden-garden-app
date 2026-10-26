@@ -194,6 +194,40 @@ object Api {
         return sendWithCsrf { Request.Builder().url(url(path)).post(json.toString().toRequestBody("application/json".toMediaType())) }
     }
 
+    /** GET a website address (not under /api/) that answers JSON to the app (become a host, online check-in…). */
+    suspend fun getSite(path: String, query: Map<String, Any?> = emptyMap()): JSONObject {
+        val b = url(path).toHttpUrl().newBuilder()
+        query.forEach { (k, v) -> if (v != null && v.toString().isNotEmpty()) b.addQueryParameter(k, v.toString()) }
+        return send(Request.Builder().url(b.build()).get())
+    }
+
+    /** POST a form with files to a website address that answers JSON (pet host registration, online check-in). */
+    suspend fun postSiteMultipart(path: String, fields: List<Pair<String, String>>, files: List<Upload>): JSONObject {
+        return sendWithCsrf {
+            val mb = MultipartBody.Builder().setType(MultipartBody.FORM)
+            fields.forEach { (k, v) -> mb.addFormDataPart(k, v) }
+            files.forEach { u -> mb.addFormDataPart(u.field, u.file.name, u.file.readBytes().toRequestBody(u.mime.toMediaType())) }
+            Request.Builder().url(url(path)).post(mb.build())
+        }
+    }
+
+    /** The signed-in session's cookies for a website address (for the video player, which loads media itself). */
+    fun cookieHeader(link: String): String = try { jar.loadForRequest(url(link).toHttpUrl()).joinToString("; ") { "${it.name}=${it.value}" } } catch (_: Exception) { "" }
+
+    /** Download a file of this website (invoice PDF, manual) with the signed-in session, into the app's cache. */
+    suspend fun download(link: String, name: String, dir: File): File = withContext(Dispatchers.IO) {
+        val req = Request.Builder().url(url(link)).get().header("Accept", "application/pdf,*/*").build()
+        val client = http.newBuilder().followRedirects(true).build()
+        val r = try { client.newCall(req).execute() } catch (e: java.io.IOException) { throw ApiException(0, "No connection. Check your internet and try again.", "offline") }
+        r.use {
+            if (!it.isSuccessful) throw ApiException(it.code, if (it.code == 404) "This file is not available." else "Could not open the file (${it.code}).")
+            val f = File(dir.apply { mkdirs() }, name)
+            it.body?.byteStream()?.use { input -> f.outputStream().use { o -> input.copyTo(o) } }
+            if ((it.header("Content-Type") ?: "").contains("html")) throw ApiException(415, "This file is not available in the app yet.", "not_pdf")
+            f
+        }
+    }
+
     /** Sign in from the app's own screen. Falls back to the website's form on an older website. */
     suspend fun signIn(email: String, password: String): User {
         try {

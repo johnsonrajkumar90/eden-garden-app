@@ -62,7 +62,8 @@ import com.triparro.app.core.int
 import com.triparro.app.core.objs
 import com.triparro.app.core.str
 import com.triparro.app.core.text
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Gap
 import com.triparro.app.ui.Segmented
@@ -155,7 +156,7 @@ fun AiScreen(nav: NavHostController) {
                     m.pets.take(5).forEach { c -> Column(Modifier.padding(top = 8.dp)) { PetHostCard(c, compact = true) { nav.navigate("petlisting/${c.int("id")}") } } }
                     m.actions.forEach { a ->
                         val url = a.str("url")
-                        if (url != null) OutlinedButton(onClick = { nav.openWeb(url, a.text("label", "TripArro")) }, modifier = Modifier.padding(top = 6.dp)) { Text(a.text("label", "Open")) }
+                        if (url != null) OutlinedButton(onClick = { nav.openLink(url) }, modifier = Modifier.padding(top = 6.dp)) { Text(a.text("label", "Open")) }
                     }
                 }
             }

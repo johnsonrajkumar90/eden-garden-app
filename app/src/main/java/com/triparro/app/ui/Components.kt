@@ -303,3 +303,20 @@ fun shareLink(context: android.content.Context, title: String, url: String) {
         context.startActivity(android.content.Intent.createChooser(i, "Share").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
     } catch (_: Exception) { }
 }
+
+/** The full-colour header of a screen (navy, white title, back arrow) — the status bar above it takes the same colour. */
+@Composable
+fun ColorHeader(title: String, sub: String? = null, onBack: (() -> Unit)? = null, actions: @Composable () -> Unit = {}) {
+    Column(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue)))
+        .padding(start = if (onBack != null) 4.dp else 16.dp, end = 12.dp, top = 4.dp, bottom = 18.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White) }
+            Spacer(Modifier.weight(1f))
+            actions()
+        }
+        Column(Modifier.padding(start = if (onBack != null) 12.dp else 0.dp, top = 2.dp)) {
+            Text(title, style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            if (sub != null) Text(sub, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 4.dp))
+        }
+    }
+}

@@ -33,6 +33,17 @@ import com.triparro.app.core.Notifier
 import com.triparro.app.core.int
 import com.triparro.app.screens.NotificationsScreen
 import com.triparro.app.screens.AuthScreen
+import com.triparro.app.screens.PageScreen
+import com.triparro.app.screens.DeleteAccountScreen
+import com.triparro.app.screens.BecomeHostScreen
+import com.triparro.app.screens.BecomePetHostScreen
+import com.triparro.app.screens.HostingScreen
+import com.triparro.app.screens.OnlineCheckinScreen
+import com.triparro.app.screens.ChatScreen
+import com.triparro.app.screens.PdfScreen
+import com.triparro.app.screens.PhotoScreen
+import com.triparro.app.screens.VideoScreen
+import com.triparro.app.screens.PetReceiptScreen
 import kotlinx.coroutines.launch
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -90,21 +101,40 @@ private val tabs = listOf(
     Tab("account", "Account", Icons.Outlined.AccountCircle, Icons.Filled.AccountCircle),
 )
 
-/** Opens a website page inside the app. */
-fun NavHostController.openWeb(path: String, title: String = "TripArro") = navigate("web?url=" + Uri.encode(path) + "&title=" + Uri.encode(title))
+/** A PDF of this website (invoice, user manual) shown in the app. */
+fun NavHostController.openPdf(link: String, title: String) = navigate("pdf?url=" + Uri.encode(link) + "&title=" + Uri.encode(title))
 
-/** Opens a link from the website (deep link) on the matching native screen, or as a web page. */
+/**
+ * Opens a link from the website (deep link, notification, AI answer) on the matching screen of the app.
+ * Everything stays in the app: pages without an app screen open the nearest one (never a web page).
+ */
 fun NavHostController.openLink(link: String) {
     val u = Uri.parse(link)
     val seg = u.pathSegments ?: emptyList()
+    val first = seg.firstOrNull() ?: ""
     when {
-        seg.size >= 2 && seg[0] == "stays" && seg[1].toIntOrNull() != null -> navigate("property/stay/${seg[1]}")
-        seg.size >= 2 && seg[0] == "resorts" && seg[1].toIntOrNull() != null -> navigate("property/resort/${seg[1]}")
-        seg.size >= 2 && seg[0] == "pet-boarding" && seg[1].toIntOrNull() != null -> navigate("petlisting/${seg[1]}")
-        seg.size == 1 && seg[0] == "pet-boarding" -> navigate("pets")
-        seg.size == 2 && seg[0] == "pet-booking" -> navigate("petbooking/${seg[1]}")
-        seg.size == 2 && seg[0] in listOf("booking", "pay", "resort-booking", "resort-pay") -> navigate("booking/${seg[1]}")
-        else -> openWeb(u.path ?: "/")
+        seg.size >= 2 && first == "stays" && seg[1].toIntOrNull() != null -> navigate("property/stay/${seg[1]}")
+        seg.size >= 2 && first == "resorts" && seg[1].toIntOrNull() != null -> navigate("property/resort/${seg[1]}")
+        seg.size >= 2 && first == "pet-boarding" && seg[1].toIntOrNull() != null -> navigate("petlisting/${seg[1]}")
+        seg.size == 3 && first == "pet-booking" && seg[2] == "receipt" -> navigate("petreceipt/${seg[1]}")
+        seg.size == 2 && first == "pet-booking" -> navigate("petbooking/${seg[1]}")
+        seg.size == 2 && first in listOf("booking", "pay", "resort-booking", "resort-pay") -> navigate("booking/${seg[1]}")
+        seg.size == 2 && first == "checkin" -> navigate("checkin?url=" + Uri.encode(link))
+        first == "invoices" && (u.path ?: "").endsWith("/pdf") -> openPdf(link, "Invoice")
+        (u.path ?: "").endsWith(".pdf") -> openPdf(link, "Document")
+        first == "pet-boarding" || first == "pets" -> navigate("pets")
+        first in listOf("trips", "my-bookings", "find-booking", "me") -> navigate("trips")
+        first == "privacy-policy" -> navigate("page/privacy")
+        first == "cancellation-policy" -> navigate("page/cancellation")
+        first == "host-terms" -> navigate("page/host-terms")
+        first == "become-a-host" -> navigate("become-host")
+        first == "become-a-pet-host" -> navigate("become-pet-host")
+        first == "delete-account" -> navigate("delete-account")
+        first == "login" -> navigate("login")
+        first == "signup" -> navigate("signup")
+        first in listOf("host", "owner", "pet-host", "referral", "lister", "admin") -> navigate("hosting")
+        first == "ai" -> navigate("ai")
+        else -> navigate("explore") { launchSingleTop = true }
     }
 }
 
@@ -130,7 +160,7 @@ fun TripArroApp(activity: MainActivity) {
             l.startsWith("triparro-app://") -> {   // the app's own links (notifications, sign in, sign up)
                 activity.pendingLink.value = null
                 val r = l.removePrefix("triparro-app://")
-                if (r in listOf("notifications", "login", "signup")) nav.navigate(r)
+                if (listOf("notifications", "login", "signup", "page/", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
             }
         }
     }
@@ -186,7 +216,8 @@ fun TripArroApp(activity: MainActivity) {
     ) { pad ->
         // Full colour at the top: the status bar takes the colour of the screen's header
         val topColor = when {
-            current in listOf("explore", "trips", "ai", "account", "login", "signup") -> Brand.Navy
+            current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat/") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Navy
+            current.startsWith("photo") || current.startsWith("video") -> Color.Black
             current == "pets" -> Brand.TealDark
             current.startsWith("property/") || current.startsWith("petlisting/") -> Color.Black
             else -> Color.White
@@ -231,12 +262,23 @@ fun TripArroApp(activity: MainActivity) {
                 composable("petform/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e ->
                     PetFormScreen(nav, e.arguments?.getInt("id") ?: 0)
                 }
-                composable("web?url={url}&title={title}", arguments = listOf(
-                    navArgument("url") { defaultValue = "/" }, navArgument("title") { defaultValue = "TripArro" },
-                )) { e ->
-                    WebScreen(e.arguments?.getString("url"), e.arguments?.getString("title") ?: "TripArro", onBack = { nav.popBackStack() },
-                        onAppRoute = { r -> nav.popBackStack(); nav.navigate(r) })
+                composable("page/{slug}") { e -> PageScreen(nav, e.arguments?.getString("slug") ?: "privacy") }
+                composable("delete-account") { DeleteAccountScreen(nav) }
+                composable("become-host") { BecomeHostScreen(nav) }
+                composable("become-pet-host") { BecomePetHostScreen(nav) }
+                composable("hosting") { HostingScreen(nav) }
+                composable("checkin?url={url}", arguments = listOf(navArgument("url") { defaultValue = "" })) { e -> OnlineCheckinScreen(nav, e.arguments?.getString("url") ?: "") }
+                composable("chat/{kind}/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e ->
+                    ChatScreen(nav, e.arguments?.getString("kind") ?: "stay", e.arguments?.getInt("id") ?: 0)
                 }
+                composable("pdf?url={url}&title={title}", arguments = listOf(navArgument("url") { defaultValue = "" }, navArgument("title") { defaultValue = "Document" })) { e ->
+                    PdfScreen(nav, e.arguments?.getString("url") ?: "", e.arguments?.getString("title") ?: "Document")
+                }
+                composable("photo?url={url}&title={title}", arguments = listOf(navArgument("url") { defaultValue = "" }, navArgument("title") { defaultValue = "" })) { e ->
+                    PhotoScreen(nav, e.arguments?.getString("url") ?: "", e.arguments?.getString("title") ?: "")
+                }
+                composable("video?url={url}", arguments = listOf(navArgument("url") { defaultValue = "" })) { e -> VideoScreen(nav, e.arguments?.getString("url") ?: "") }
+                composable("petreceipt/{ref}") { e -> PetReceiptScreen(nav, e.arguments?.getString("ref") ?: "") }
                 composable("pay") {
                     val form = AppState.payment.value
                     WebScreen(null, form?.title ?: "Payment", payment = form, onBack = { nav.popBackStack() },

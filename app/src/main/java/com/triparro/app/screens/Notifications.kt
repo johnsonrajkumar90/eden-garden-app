@@ -57,7 +57,7 @@ import com.triparro.app.core.int
 import com.triparro.app.core.objs
 import com.triparro.app.core.text
 import com.triparro.app.openLink
-import com.triparro.app.ui.BackBar
+import com.triparro.app.ui.ColorHeader
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.EmptyBox
 import com.triparro.app.ui.ErrorBox
@@ -81,10 +81,10 @@ fun NotificationsScreen(nav: NavHostController) {
     LaunchedEffect(l.data.value) { l.data.value?.let { Notifier.setUnread(it.int("unread")) } }
 
     Column(Modifier.fillMaxSize()) {
-        BackBar("Notifications", { nav.popBackStack() }) {
+        ColorHeader("Notifications", "Booking updates, check-in and Pet Stay Diary", onBack = { nav.popBackStack() }) {
             if ((l.data.value?.int("unread") ?: 0) > 0) TextButton(onClick = {
                 scope.launch { try { Notifier.setUnread(Api.post("notifications/read", mapOf("all" to true)).int("unread")); tick++ } catch (_: Exception) { } }
-            }) { Text("Mark all read") }
+            }) { Text("Mark all read", color = Color.White) }
         }
         when {
             session?.user == null -> EmptyBox("Sign in to see your notifications", "Booking confirmations, check-in news and Pet Stay Diary updates appear here and on your phone.", "Sign in") { nav.navigate("login") }

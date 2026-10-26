@@ -21,6 +21,16 @@ class H(http.server.BaseHTTPRequestHandler):
             after = int(q.get('after', ['0'])[0] or 0)
             items = sorted([n for n in NOTES if n['id'] > after], key=lambda n: -n['id'])
             return self.send(200, json.dumps({'items': items, 'unread': sum(1 for n in NOTES if not n['read'])}).encode())
+        if p == '/api/pages/privacy':
+            return self.send(200, json.dumps({'title': 'Privacy policy', 'html': '<p class="updated">TripArro · last updated 30 September 2026</p><p>This policy explains what personal information TripArro collects when you use our website and app, why we collect it, and the choices you have.</p><h2>Information we collect</h2><ul><li><strong>Account details</strong> — your name, email address, phone number and a securely hashed password.</li><li><strong>Booking details</strong> — the stay, dates, number of guests and any message to the host.</li><li><strong>Payment information</strong> — processed by our payment partner; we never see your card or UPI PIN.</li></ul><h2>Your choices</h2><p>You can update your profile or delete your account from the app at any time. Questions? <a href="mailto:hello@triparro.com">hello@triparro.com</a></p>'}).encode())
+        if p == '/become-a-host':
+            return self.send(200, json.dumps({'types': ['Villa', 'Cottage', 'Apartment', 'Farm stay'], 'channels': ['Airbnb', 'Booking.com', 'MakeMyTrip', 'None yet'], 'commission': 10, 'fee': 10,
+                'advantages': [['tag', 'Your discounts, your decision', 'Every stay gets its own coupon code. Change or pause it any time.'], ['chart', 'Smart pricing under your control', 'Prices follow demand, always between the lowest and highest price you set.'], ['cal', 'One calendar for every platform', 'Airbnb, Booking.com and MakeMyTrip bookings in one place — no double bookings.']]}).encode())
+        if p == '/become-a-pet-host':
+            return self.send(200, json.dumps({'id_types': [{'value': 'aadhaar', 'label': 'Aadhaar card'}, {'value': 'passport', 'label': 'Passport'}, {'value': 'dl', 'label': 'Driving licence'}]}).encode())
+        if p.startswith('/checkin/'):
+            return self.send(200, json.dumps({'state': 'open', 'kind': 'stay', 'ref': 'D6F5CD3D', 'title': 'TripArro Home stay - Coimbatore BK Pudur', 'location': 'Ooty', 'check_in': '2027-01-15', 'check_out': '2027-01-18', 'max_people': 4,
+                'id_types': [{'value': 'aadhaar', 'label': 'Aadhaar card'}, {'value': 'passport', 'label': 'Passport'}], 'guest': {'name': 'Asha G', 'email': 'petguest1@example.com', 'phone': '9876543210'}, 'sent': None}).encode())
         if p.startswith('/media/'):
             f = os.path.join(HERE, 'fixtures/media', os.path.basename(p))
             if os.path.exists(f): return self.send(200, open(f, 'rb').read(), 'image/png' if f.endswith('.png') else 'image/jpeg')
@@ -39,6 +49,10 @@ class H(http.server.BaseHTTPRequestHandler):
                 if b.get('all') or x['id'] == b.get('id'): x['read'] = True
             return self.send(200, json.dumps({'ok': True, 'unread': sum(1 for x in NOTES if not x['read'])}).encode())
         if p == '/api/visit': return self.send(200, b'{"ok":true}')
+        if p == '/api/chat/start': return self.send(200, json.dumps({'token': 'tok1', 'mode': 'ai', 'status': 'open', 'ai': True, 'listing': {'kind': 'stay', 'id': 1, 'title': 'TripArro Home stay - Coimbatore BK Pudur'}, 'host_name': 'Priya',
+            'messages': [{'id': 1, 'from': 'system', 'body': "Hi! I'm TripArro AI. Ask me anything about this stay — dates, price, rooms, food. You can talk to the host at any time.", 'at': '2026-10-26 10:00:00', 'offer': None},
+                         {'id': 2, 'from': 'guest', 'body': 'Is breakfast included for 4 guests?', 'at': '2026-10-26 10:01:00', 'offer': None},
+                         {'id': 3, 'from': 'ai', 'body': 'Yes — breakfast is included for up to 4 guests. Extra guests (up to 2 more) pay Rs 500 per night each, breakfast included.', 'at': '2026-10-26 10:01:05', 'offer': None}]}).encode())
         if p == '/api/pets/ai': return self.send(200, json.dumps({'reply': 'Here is 1 verified host for dogs in Coimbatore: Happy Paws Home (Rs 600/night).', 'filters': {}, 'ai': False,
             'items': json.load(open(os.path.join(HERE, 'fixtures/pets__search.json')))['items']}).encode())
         self.send(422, b'{"message":"Not available on the test stand-in."}')

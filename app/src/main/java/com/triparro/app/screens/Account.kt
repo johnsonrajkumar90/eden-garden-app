@@ -66,7 +66,8 @@ import com.triparro.app.core.Api
 import com.triparro.app.core.Notifier
 import androidx.compose.material.icons.outlined.Notifications
 import com.triparro.app.core.text
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.Avatar
 import com.triparro.app.ui.BackBar
 import com.triparro.app.ui.Brand
@@ -124,11 +125,11 @@ fun AccountScreen(nav: NavHostController) {
                 }
                 if (u.dashboard != null && u.role != "guest") {
                     Gap()
-                    Button(onClick = { nav.openWeb(u.dashboard, "Dashboard") }, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(14.dp),
+                    Button(onClick = { nav.navigate("hosting") }, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Brand.Blue)) {
-                        Icon(Icons.Outlined.Dashboard, null, Modifier.size(18.dp)); Text("  Open my dashboard")
+                        Icon(Icons.Outlined.Dashboard, null, Modifier.size(18.dp)); Text(if (u.role == "referral") "  Open my partner portal" else "  Open my hosting")
                     }
-                    Text("Bookings, calendar, listings, check-in, earnings and settings — signed in already.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 8.dp))
+                    Text("This month's earnings, guests coming up and your listings.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 8.dp))
                 }
             }
         }
@@ -154,11 +155,11 @@ fun AccountScreen(nav: NavHostController) {
         }
         Gap()
         Card {
-            Item(Icons.Outlined.Home, "Become a host", "List a homestay, villa or resort — free") { nav.openWeb("/become-a-host", "Become a host") }
+            Item(Icons.Outlined.Home, "Become a host", "List a homestay, villa or resort — free") { nav.navigate("become-host") }
             HorizontalDivider(color = Brand.Line)
-            Item(Icons.Outlined.Pets, "Become a pet host", "Board pets and earn from home") { nav.openWeb("/become-a-pet-host", "Become a pet host") }
+            Item(Icons.Outlined.Pets, "Become a pet host", "Board pets and earn from home") { nav.navigate("become-pet-host") }
             HorizontalDivider(color = Brand.Line)
-            Item(Icons.AutoMirrored.Outlined.MenuBook, "Pet boarding user manual", "PDF") { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Api.url("assets/manuals/pet-boarding-manual.pdf")))) }
+            Item(Icons.AutoMirrored.Outlined.MenuBook, "Pet boarding user manual", "PDF") { nav.openPdf("assets/manuals/pet-boarding-manual.pdf", "Pet boarding user manual") }
         }
         Gap()
         Card {
@@ -166,12 +167,12 @@ fun AccountScreen(nav: NavHostController) {
             s?.supportPhone?.let { ph -> Item(Icons.Outlined.Call, "Call customer care", s.supportHours ?: ph) { ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$ph"))) }; HorizontalDivider(color = Brand.Line) }
             s?.supportWhatsapp?.let { wa -> Item(Icons.Outlined.SupportAgent, "WhatsApp us") { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$wa"))) }; HorizontalDivider(color = Brand.Line) }
             s?.supportEmail?.let { em -> Item(Icons.Outlined.Email, "Email us", em) { ctx.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$em"))) }; HorizontalDivider(color = Brand.Line) }
-            Item(Icons.Outlined.Policy, "Privacy policy") { nav.openWeb("/privacy-policy", "Privacy policy") }
+            Item(Icons.Outlined.Policy, "Privacy policy") { nav.navigate("page/privacy") }
             HorizontalDivider(color = Brand.Line)
-            Item(Icons.Outlined.Badge, "Cancellation policy") { nav.openWeb("/cancellation-policy", "Cancellation policy") }
+            Item(Icons.Outlined.Badge, "Cancellation policy") { nav.navigate("page/cancellation") }
             if (u != null) {
                 HorizontalDivider(color = Brand.Line)
-                Item(Icons.Outlined.DeleteOutline, "Delete my account", tint = Brand.Danger) { nav.openWeb("/delete-account", "Delete account") }
+                Item(Icons.Outlined.DeleteOutline, "Delete my account", tint = Brand.Danger) { nav.navigate("delete-account") }
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.AutoMirrored.Outlined.Logout, "Sign out", tint = Brand.Danger) { scope.launch { Api.logout(); Notifier.reset(ctx) } }
             }

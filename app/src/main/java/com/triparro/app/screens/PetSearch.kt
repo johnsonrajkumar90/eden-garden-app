@@ -59,7 +59,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.size
 import com.triparro.app.core.int
 import com.triparro.app.core.objs
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Choice
 import com.triparro.app.ui.DateRangeField
@@ -161,7 +162,7 @@ fun PetSearchScreen(nav: NavHostController) {
                     AssistChip(onClick = { AppState.aiMode.value = "pets"; nav.navigate("ai") }, label = { Text("Ask TripArro AI", color = Color.White) },
                         leadingIcon = { Icon(Icons.Outlined.AutoAwesome, null, tint = Color.White) })
                     AssistChip(onClick = { nav.navigate("mypets") }, label = { Text("My pets", color = Color.White) })
-                    AssistChip(onClick = { nav.openWeb("/become-a-pet-host", "Become a pet host") }, label = { Text("Become a host", color = Color.White) })
+                    AssistChip(onClick = { nav.navigate("become-pet-host") }, label = { Text("Become a host", color = Color.White) })
                 }
             }
         }

@@ -1,3 +1,4 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 package com.triparro.app.screens
 
 import androidx.compose.foundation.background
@@ -13,6 +14,36 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.LocalOffer
+import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material.icons.outlined.Vaccines
+import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.text.style.TextOverflow
+import com.triparro.app.ui.AmenityGrid
+import com.triparro.app.ui.Avatar
+import com.triparro.app.ui.DetailSection
+import com.triparro.app.ui.ExpandRow
+import com.triparro.app.ui.FactTiles
+import com.triparro.app.ui.HeroGallery
+import com.triparro.app.ui.PriceBar
+import com.triparro.app.ui.RatingBadge
+import com.triparro.app.ui.TimeTiles
+import com.triparro.app.ui.TitleCard
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.platform.LocalContext
@@ -157,83 +188,103 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
     }
 
     val p = l.data.value
+    val scroll = rememberScrollState()
+    val bookingView = remember { BringIntoViewRequester() }
     Column(Modifier.fillMaxSize().background(Brand.Page)) {
         if (p == null) BackBar("", { nav.popBackStack() })
         when {
             p == null && l.loading.value -> Loading()
             p == null -> ErrorBox(l.error.value ?: "This pet host is not available.", { l.reload() })
-            else -> Column(Modifier.verticalScroll(rememberScrollState())) {
+            else -> Column(Modifier.fillMaxSize()) { Column(Modifier.weight(1f).verticalScroll(scroll)) {
                 val gallery = p.strings("gallery").ifEmpty { listOfNotNull(p.str("image")) }
-                val pager = rememberPagerState { gallery.size.coerceAtLeast(1) }
-                Box {
-                    HorizontalPager(state = pager) { i -> Photo(gallery.getOrNull(i), Modifier.fillMaxWidth().aspectRatio(1.25f), corner = 0.dp) }
-                    if (gallery.size > 1) Text("${pager.currentPage + 1} / ${gallery.size}", color = Color.White, style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 34.dp).clip(RoundedCornerShape(50)).background(Color(0x99000000)).padding(horizontal = 10.dp, vertical = 4.dp))
-                    Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
-                        Spacer(Modifier.weight(1f))
-                        RoundAction(Icons.Outlined.Share, "Share") { shareLink(ctx, p.text("title"), Api.url("pet-boarding/$id")) }
-                        if (signedIn) {
-                            val on = saved ?: p.bool("saved")
-                            RoundAction(if (on) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, if (on) "Saved" else "Save", tint = if (on) Brand.Coral else Brand.Ink) {
-                                val next = !(saved ?: p.bool("saved"))
-                                saved = next
-                                scope.launch { try { Api.post("pets/saved", mapOf("id" to id, "on" to next)) } catch (_: Exception) { saved = !next } }
-                            }
+                HeroGallery(gallery, onOpen = { u -> nav.navigate("photo?url=" + android.net.Uri.encode(u) + "&title=" + android.net.Uri.encode(p.text("title"))) }) {
+                    RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
+                    Spacer(Modifier.weight(1f))
+                    RoundAction(Icons.Outlined.Share, "Share") { shareLink(ctx, p.text("title"), Api.url("pet-boarding/$id")) }
+                    if (signedIn) {
+                        val on = saved ?: p.bool("saved")
+                        RoundAction(if (on) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, if (on) "Saved" else "Save", tint = if (on) Brand.Coral else Brand.Ink) {
+                            val next = !(saved ?: p.bool("saved"))
+                            saved = next
+                            scope.launch { try { Api.post("pets/saved", mapOf("id" to id, "on" to next)) } catch (_: Exception) { saved = !next } }
                         }
                     }
                 }
-                Column(Modifier.offset(y = (-22).dp).clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)).background(Brand.Page).padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(p.text("location"), color = Brand.InkSoft, modifier = Modifier.weight(1f))
-                        Stars(p.num("rating"), p.int("reviews"))
+                Box(Modifier.offset(y = (-30).dp)) {
+                    TitleCard {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Outlined.Place, null, tint = Brand.Teal, modifier = Modifier.size(16.dp))
+                            Text(" " + p.text("location"), color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f), maxLines = 1)
+                        }
+                        Text(p.text("title"), style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(top = 4.dp, bottom = 10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                            RatingBadge(p.num("rating"), p.int("reviews"))
+                            if (p.bool("instant")) Pill("⚡ Instant booking", "info") else Pill("Host approves", "warn")
+                        }
+                        val host = p.obj("host")
+                        Row(Modifier.padding(top = 14.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Brand.Page).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Avatar((host?.text("person") ?: "").split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""), 42.dp)
+                            Column(Modifier.padding(start = 12.dp).weight(1f)) {
+                                Text("Hosted by ${host?.text("person") ?: ""}", style = MaterialTheme.typography.titleSmall)
+                                if (host?.bool("verified") == true) Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.Verified, null, tint = Brand.Teal, modifier = Modifier.size(14.dp))
+                                    Text(" Verified pet host — ID and home checked", color = Brand.TealDark, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        Gap(14)
+                        FactTiles(listOfNotNull(
+                            Icons.Outlined.Pets to "Up to ${plural(p.int("capacity"), "pet")}",
+                            if (p.bool("vaccination_required")) Icons.Outlined.Vaccines to "Vaccination required" else null,
+                            p.num("multi_discount")?.takeIf { it > 0 }?.let { Icons.Outlined.LocalOffer to "${it.toInt()}% off 2nd pet" },
+                            p.num("daycare_price")?.let { Icons.Outlined.WbSunny to "Daycare ${money(it)}/day" }))
                     }
-                    Text(p.text("title"), style = MaterialTheme.typography.headlineSmall)
-                    val host = p.obj("host")
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-                        Text("Hosted by ${host?.text("person") ?: ""}", color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium)
-                        if (host?.bool("verified") == true) { Icon(Icons.Outlined.Verified, null, tint = Brand.Teal, modifier = Modifier.padding(start = 6.dp).size(16.dp)); Text(" Verified host", color = Brand.Teal, style = MaterialTheme.typography.bodySmall) }
+                }
+                Column(Modifier.offset(y = (-24).dp)) {
+                    DetailSection("Pets welcome", Icons.Outlined.Pets) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            (p.strings("pet_types_label") + p.strings("sizes_label")).forEach { t ->
+                                Text(t, style = MaterialTheme.typography.labelLarge, color = Brand.TealDark, modifier = Modifier.clip(RoundedCornerShape(50)).background(Brand.TealSoft).padding(horizontal = 12.dp, vertical = 7.dp))
+                            }
+                        }
+                        p.str("breeds_note")?.let { Text(it, color = Brand.Muted, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp)) }
                     }
-                    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        if (p.bool("instant")) Pill("Instant booking", "info") else Pill("Host approves requests", "warn")
-                        if (p.num("multi_discount")?.let { it > 0 } == true) Pill("${p.num("multi_discount")?.toInt()}% off 2nd pet", "ok")
+                    DetailSection("Prices", Icons.Outlined.Sell) {
+                        PriceRow("Boarding", "${money(p.num("price"))} per pet / night")
+                        p.num("weekend_price")?.let { PriceRow("Fri & Sat nights", "${money(it)} per pet") }
+                        p.num("daycare_price")?.let { PriceRow("Daycare", "${money(it)} per pet / day") }
+                        p.objs("extras").forEach { x -> PriceRow(x.text("name"), money(x.num("price")) + when (x.text("per")) { "night" -> " / night"; "pet" -> " / pet / night"; else -> "" }) }
+                        if ((p.num("deposit_percent") ?: 0.0) > 0) Text("Pay a ${p.num("deposit_percent")?.toInt()}% deposit to confirm, the rest by check-in.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
                     }
-                    Gap()
-                    Text("${money(p.num("price"))} per pet / night" + (p.num("weekend_price")?.let { " · ${money(it)} Fri & Sat" } ?: "") + (p.num("daycare_price")?.let { " · daycare ${money(it)} / day" } ?: ""),
-                        style = MaterialTheme.typography.titleMedium, color = Brand.BlueDark)
-                    Gap()
-                    Card {
-                        SectionTitle("Pets welcome")
-                        Text((p.strings("pet_types_label") + p.strings("sizes_label")).joinToString(" · "), color = Brand.InkSoft)
-                        Text("Up to ${plural(p.int("capacity"), "pet")} at a time" + (if (p.bool("vaccination_required")) " · vaccination required" else ""), color = Brand.InkSoft)
-                        p.str("breeds_note")?.let { Text(it, color = Brand.Muted, style = MaterialTheme.typography.bodySmall) }
-                    }
-                    p.str("description")?.let { Gap(); SectionTitle("About"); Text(it, color = Brand.InkSoft) }
-                    if (p.strings("facilities").isNotEmpty()) { Gap(); SectionTitle("Facilities"); Chips(p.strings("facilities")) }
+                    p.str("description")?.let { d -> DetailSection("About", Icons.Outlined.Info) { ExpandText(d) } }
+                    if (p.strings("facilities").isNotEmpty()) DetailSection("Facilities", Icons.Outlined.Checklist) { AmenityGrid(p.strings("facilities")) }
                     // Free places for the next weeks
                     val cal = p.objs("calendar").take(30)
-                    if (cal.isNotEmpty()) {
-                        Gap(); SectionTitle("Free places")
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (cal.isNotEmpty()) DetailSection("Free places", Icons.Outlined.CalendarMonth, sub = "The next few weeks") {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(cal) { d ->
                                 val free = d.int("free") > 0 && !d.bool("blocked")
-                                Column(Modifier.clip(RoundedCornerShape(10.dp)).background(if (free) Color.White else Brand.Sky).padding(horizontal = 10.dp, vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(shortDate(d.text("date")), style = MaterialTheme.typography.bodySmall)
-                                    Text(if (d.bool("blocked")) "off" else if (free) "${d.int("free")} free" else "full", style = MaterialTheme.typography.bodySmall, color = if (free) Brand.TealDark else Brand.Muted)
+                                Column(Modifier.width(62.dp).clip(RoundedCornerShape(14.dp)).background(if (free) Brand.TealSoft else Brand.Page).padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(shortDate(d.text("date")).substringBefore(" "), style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+                                    Text(shortDate(d.text("date")).substringAfter(" "), style = MaterialTheme.typography.titleSmall)
+                                    Text(if (d.bool("blocked")) "off" else if (free) "${d.int("free")} free" else "full", style = MaterialTheme.typography.labelSmall, color = if (free) Brand.TealDark else Brand.Muted)
                                 }
                             }
                         }
                     }
-                    Gap(); SectionTitle("Rules")
-                    Text("Drop-off from ${p.text("checkin_time", "—")} · pick-up by ${p.text("checkout_time", "—")} · ${p.int("min_nights")}–${p.int("max_nights")} nights", color = Brand.InkSoft)
-                    p.str("checkin_rules")?.let { Text("Bring: $it", color = Brand.InkSoft) }
-                    p.str("house_rules")?.let { Text(it, color = Brand.InkSoft) }
-                    p.obj("cancellation")?.let { Text("${it.text("name")} cancellation: ${it.text("text")}", color = Brand.InkSoft, modifier = Modifier.padding(top = 4.dp)) }
+                    DetailSection("Drop-off and pick-up", Icons.Outlined.Schedule, sub = "${p.int("min_nights")}–${p.int("max_nights")} nights") {
+                        TimeTiles("Drop-off from", p.text("checkin_time", "—"), "Pick-up by", p.text("checkout_time", "—"))
+                    }
+                    val bring = p.str("checkin_rules"); val houseRules = p.str("house_rules")
+                    if (bring != null || houseRules != null) DetailSection("Things to know", Icons.Outlined.Lightbulb) {
+                        bring?.let { ExpandRow("What to bring", it, startOpen = true) }
+                        houseRules?.let { ExpandRow("House rules", it) }
+                    }
+                    p.obj("cancellation")?.let { c -> DetailSection("Cancellation", Icons.Outlined.EventAvailable, sub = c.text("name")) { Text(c.text("text"), color = Brand.InkSoft) } }
 
                     // Booking
-                    Gap(18)
-                    Card {
-                        SectionTitle("Book a stay")
+                    Box(Modifier.bringIntoViewRequester(bookingView)) {
+                    DetailSection("Book a stay", Icons.Outlined.EventAvailable, sub = if (p.bool("instant")) "Confirmed as soon as you pay" else "The host answers within a day") {
                         if (p.num("daycare_price") != null) { Segmented(listOf("boarding" to "Boarding", "daycare" to "Daycare"), kind) { kind = it }; Gap(8) }
                         DateRangeField(checkIn, checkOut, { a, b -> checkIn = a; checkOut = b })
                         Gap(8)
@@ -294,21 +345,41 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                         PrimaryButton(if (p.bool("instant")) "Book and pay" else "Send request", { book() }, enabled = quote?.bool("ok") == true, loading = busy, coral = true)
                         if (!p.bool("instant")) Text("The host answers within a day. You pay only after they accept.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
                     }
+                    }
                     // Reviews
                     val reviews = p.objs("review_list")
-                    Gap(18); SectionTitle("Verified reviews")
-                    if (reviews.isEmpty()) Text("No reviews yet. Only pet parents who completed a stay here can review it.", color = Brand.InkSoft)
-                    reviews.forEach { r ->
-                        Card(Modifier.padding(bottom = 8.dp)) {
-                            Row { Text(r.text("name"), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f)); Stars(r.num("overall")) }
-                            Text("Verified stay · ${r.text("date")}", style = MaterialTheme.typography.bodySmall, color = Brand.TealDark)
-                            r.str("body")?.let { Text(it, color = Brand.InkSoft) }
-                            r.str("host_response")?.let { Text("Host's reply: $it", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft, modifier = Modifier.padding(top = 4.dp)) }
+                    DetailSection("Verified reviews", Icons.Outlined.StarOutline, sub = "Only pet parents who completed a stay can review") {
+                        if (reviews.isEmpty()) Text("No reviews yet.", color = Brand.InkSoft)
+                        else LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            items(reviews) { r ->
+                                Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page).padding(14.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Avatar(r.text("name").take(1), 34.dp)
+                                        Column(Modifier.padding(start = 8.dp).weight(1f)) { Text(r.text("name"), style = MaterialTheme.typography.titleSmall); Text("Verified stay · ${r.text("date")}", style = MaterialTheme.typography.labelSmall, color = Brand.TealDark) }
+                                        Stars(r.num("overall"))
+                                    }
+                                    r.str("body")?.let { Text(it, color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium, maxLines = 5, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 8.dp)) }
+                                    r.str("host_response")?.let { Text("Host's reply: $it", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft, maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp)) }
+                                }
+                            }
                         }
                     }
-                    Gap(30)
+                    Gap(8)
                 }
             }
+            PriceBar(money(p.num("price")), "/ pet / night", note = if (p.bool("instant")) "Instant booking" else "You pay after the host accepts") {
+                Button(onClick = { scope.launch { bookingView.bringIntoView() } }, shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.CoralDark),
+                    contentPadding = PaddingValues(horizontal = 22.dp, vertical = 14.dp)) { Text("Book a stay", style = MaterialTheme.typography.labelLarge) }
+            }
+            }
         }
+    }
+}
+
+@Composable
+private fun PriceRow(label: String, value: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = Brand.InkSoft, modifier = Modifier.weight(1f))
+        Text(value, style = MaterialTheme.typography.titleSmall, color = Brand.Ink)
     }
 }

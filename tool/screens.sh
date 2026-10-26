@@ -88,6 +88,17 @@ adb shell dumpsys notification --noredact | grep -A3 "pkg=$PKG" | head -20 > scr
 app() { adb shell am start -W -n $PKG/com.triparro.app.MainActivity -d "triparro-app://$1" >/dev/null; }
 app login; shot 25-sign-in 4
 tap "Create account"; shot 26-sign-up 3
-adb shell input keyevent 4; sleep 1; app login; sleep 2; tap "Sign in with a one-time code"; shot 27-code 3
+adb shell input keyevent 4; sleep 1; app login; sleep 2; tap "Sign in with a code instead"; shot 27-code 3
+# screens that used to be web pages — now in the app
+app page/privacy; shot 28-privacy 4
+app become-host; shot 29-become-host 4
+up; shot 29b-become-host-form 2
+app become-pet-host; shot 31-become-pet-host 4
+app chat/stay/1; shot 32-chat 4
+app "checkin?url=http%3A%2F%2F10.0.2.2%3A8000%2Fcheckin%2FD6F5CD3D%3Fk%3Dabc"; shot 33-online-checkin 4
+app delete-account; shot 34-delete-account 3
+app hosting; shot 35-hosting 3
+open /stays/1; sleep 5; up; shot 36-stay-sections 2; up; shot 37-stay-sections-2 2; up; up; shot 38-stay-sections-3 2
+open /pet-boarding/12/happy-paws-home; sleep 5; up; shot 39-pet-sections 2; up; up; shot 40-pet-sections-2 2
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true
 ls -la screens

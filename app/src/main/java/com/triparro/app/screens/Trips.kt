@@ -71,7 +71,8 @@ import com.triparro.app.core.objs
 import com.triparro.app.core.priceLines
 import com.triparro.app.core.str
 import com.triparro.app.core.text
-import com.triparro.app.openWeb
+import com.triparro.app.openLink
+import com.triparro.app.openPdf
 import com.triparro.app.ui.BackBar
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Card
@@ -264,12 +265,12 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
                     Gap(8)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    b.str("invoice_url")?.let { u -> OutlinedButton(onClick = { nav.openWeb(u, "Invoice") }) { Icon(Icons.Outlined.ReceiptLong, null); Text(" Invoice") } }
+                    b.str("invoice_url")?.let { u -> OutlinedButton(onClick = { nav.openPdf(u, "Invoice") }) { Icon(Icons.Outlined.ReceiptLong, null); Text(" Invoice") } }
                     b.str("directions_url")?.let { u -> OutlinedButton(onClick = { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(u))) }) { Icon(Icons.Outlined.Directions, null); Text(" Directions") } }
                     b.obj("host")?.str("phone")?.let { ph -> OutlinedButton(onClick = { ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$ph"))) }) { Icon(Icons.Outlined.Call, null); Text(" Host") } }
                 }
                 b.obj("online_checkin")?.let { oc ->
-                    if (!oc.bool("checked_in")) { Gap(8); OutlinedButton(onClick = { nav.openWeb(oc.text("url"), "Online check-in") }, modifier = Modifier.fillMaxWidth()) {
+                    if (!oc.bool("checked_in")) { Gap(8); OutlinedButton(onClick = { nav.navigate("checkin?url=" + android.net.Uri.encode(oc.text("url"))) }, modifier = Modifier.fillMaxWidth()) {
                         Text(if (oc.bool("done")) "Online check-in sent ✓ — view" else "Check in online before you arrive") } }
                 }
                 if (b.bool("can_message")) {
