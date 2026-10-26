@@ -104,19 +104,14 @@ fun AccountScreen(nav: NavHostController) {
     // Someone may have signed in on a web page (one-time code, Google): read the session again
     LaunchedEffect(Unit) { try { Api.refreshSession() } catch (_: Exception) { } }
     val u = session?.user
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text("Account", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
-        if (u == null) {
-            Card {
-                Text("Welcome to TripArro", style = MaterialTheme.typography.titleLarge)
-                Text("Sign in to book, see your trips and pets, and open your dashboard if you host.", color = Brand.InkSoft)
-                Gap()
-                PrimaryButton("Sign in", { nav.navigate("login") })
-                Gap(8)
-                TextButton(onClick = { nav.openWeb(session?.links?.text("signup") ?: "/signup", "Sign up") }, modifier = Modifier.fillMaxWidth()) { Text("New here? Create an account") }
-            }
-        } else {
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Brush.linearGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF1C5BB0)))).padding(18.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        // full-colour header (continues behind the status bar)
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+            .background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue))).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 22.dp)) {
+            Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(30.dp))
+            Text("Account", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 14.dp, bottom = 10.dp))
+            if (u == null) Text("Sign in to book, see your trips and pets, and open your dashboard if you host.", color = Color(0xFFC9D8F2), style = MaterialTheme.typography.bodyMedium)
+            else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
                         Text(u.initials.take(2).uppercase(), style = MaterialTheme.typography.titleLarge, color = Brand.Blue)
@@ -137,7 +132,17 @@ fun AccountScreen(nav: NavHostController) {
                     Text("Bookings, calendar, listings, check-in, earnings and settings — signed in already.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 8.dp))
                 }
             }
-            Gap()
+        }
+        Column(Modifier.padding(16.dp)) {
+        if (u == null) {
+            Card {
+                Text("Welcome to TripArro", style = MaterialTheme.typography.titleLarge)
+                Gap(10)
+                PrimaryButton("Sign in", { nav.navigate("login") })
+                Gap(8)
+                TextButton(onClick = { nav.openWeb(session?.links?.text("signup") ?: "/signup", "Sign up") }, modifier = Modifier.fillMaxWidth()) { Text("New here? Create an account") }
+            }
+        } else {
             Card {
                 Item(Icons.Outlined.Notifications, if (unread > 0) "Notifications ($unread new)" else "Notifications", "Booking updates, check-in and Pet Stay Diary") { nav.navigate("notifications") }
                 HorizontalDivider(color = Brand.Line)
@@ -175,6 +180,7 @@ fun AccountScreen(nav: NavHostController) {
             }
         }
         Text("TripArro for Android · version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(16.dp))
+        }
     }
     if (server) {
         var v by remember { mutableStateOf(Api.baseUrl) }

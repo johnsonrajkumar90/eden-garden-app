@@ -2,6 +2,10 @@
 
 package com.triparro.app.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
+import com.triparro.app.R
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
@@ -110,9 +114,10 @@ fun TripsScreen(nav: NavHostController) {
         }
     }
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.background(Color.White).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 6.dp)) {
-            Text("My trips", style = MaterialTheme.typography.headlineMedium)
-            Text("Stays, resorts and pet boarding in one place", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+        Column(Modifier.background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue))).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 18.dp)) {
+            Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(28.dp))
+            Text("My trips", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 12.dp))
+            Text("Stays, resorts and pet boarding in one place", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2))
         }
         if (session?.user == null) {
             EmptyBox("Sign in to see your trips", "Your stays, resorts and pet boarding bookings appear here.", "Sign in", icon = Icons.Outlined.Luggage) { nav.navigate("login") }

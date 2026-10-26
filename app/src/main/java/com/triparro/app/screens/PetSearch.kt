@@ -2,6 +2,10 @@
 
 package com.triparro.app.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.res.painterResource
+import com.triparro.app.R
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -134,7 +138,9 @@ fun PetSearchScreen(nav: NavHostController) {
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
         item {
-            Column(Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Brand.TealDark, Brand.Blue))).padding(16.dp)) {
+            Column(Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Brand.TealDark, Brand.Blue))).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp)) {
+                Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(28.dp))
+                Gap(12)
                 Text("Pet boarding with verified hosts", style = MaterialTheme.typography.headlineSmall, color = Color.White)
                 Text("Homes and facilities that look after dogs, cats and other pets while you travel — checked by our team, paid securely.", color = Color(0xFFD7F2EE), style = MaterialTheme.typography.bodyMedium)
                 Gap()

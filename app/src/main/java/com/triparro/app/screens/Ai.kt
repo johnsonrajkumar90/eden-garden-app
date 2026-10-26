@@ -110,7 +110,7 @@ fun AiScreen(nav: NavHostController) {
     }
 
     Column(Modifier.fillMaxSize().imePadding()) {
-        Column(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF4B3FB0)))).padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 14.dp)) {
+        Column(Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Brand.Navy, Color(0xFF243C9A), Color(0xFF4B3FB0)))).padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(38.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.AutoAwesome, null, tint = Color.White) }
                 Column(Modifier.padding(start = 10.dp)) {

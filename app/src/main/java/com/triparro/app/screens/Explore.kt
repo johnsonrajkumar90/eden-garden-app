@@ -139,19 +139,19 @@ fun ExploreScreen(nav: NavHostController) {
     LazyColumn(Modifier.fillMaxSize().background(Brand.Page), contentPadding = PaddingValues(bottom = 28.dp)) {
         item {
             // top bar: logo + notifications
-            Row(Modifier.fillMaxWidth().background(Color.White).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Image(painterResource(R.drawable.logo_full), contentDescription = "TripArro", modifier = Modifier.height(32.dp))
+            Row(Modifier.fillMaxWidth().background(Brand.Navy).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                Image(painterResource(R.drawable.logo_white), contentDescription = "TripArro", modifier = Modifier.height(32.dp))
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { nav.navigate(if (session?.user != null) "notifications" else "login") }) {
                     BadgedBox(badge = { if (unread > 0) Badge(containerColor = Brand.Coral, contentColor = Color.White) { Text(if (unread > 9) "9+" else "$unread") } }) {
-                        Icon(Icons.Outlined.Notifications, "Notifications", tint = Brand.Ink)
+                        Icon(Icons.Outlined.Notifications, "Notifications", tint = Color.White)
                     }
                 }
             }
             Box(Modifier.fillMaxWidth()) {
-                Box(Modifier.fillMaxWidth().height(210.dp).clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(Brush.linearGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF1C5BB0)))))
-                Column(Modifier.padding(horizontal = 16.dp).padding(top = 22.dp)) {
+                Box(Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                    .background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF1C5BB0)))))
+                Column(Modifier.padding(horizontal = 16.dp).padding(top = 14.dp)) {
                     Text(if (first != null) "Hi $first, where to next?" else "Where to next?", style = MaterialTheme.typography.headlineMedium, color = Color.White)
                     Text("Verified homestays, villas and resorts — the full price before you pay.", style = MaterialTheme.typography.bodyMedium, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 4.dp))
                     Gap(18)

@@ -1,5 +1,13 @@
 package com.triparro.app
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -172,6 +180,18 @@ fun TripArroApp(activity: MainActivity) {
             }
         },
     ) { pad ->
+        // Full colour at the top: the status bar takes the colour of the screen's header
+        val topColor = when {
+            current in listOf("explore", "trips", "ai", "account") -> Brand.Navy
+            current == "pets" -> Brand.TealDark
+            current.startsWith("property/") || current.startsWith("petlisting/") -> Color.Black
+            else -> Color.White
+        }
+        val view = LocalView.current
+        SideEffect {
+            WindowCompat.getInsetsController(activity.window, view).isAppearanceLightStatusBars = topColor == Color.White
+        }
+        Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(topColor))
         Box(Modifier.fillMaxSize().padding(pad)) {
             NavHost(nav, startDestination = "explore") {
                 composable("explore") { ExploreScreen(nav) }
