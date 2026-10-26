@@ -32,6 +32,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import com.triparro.app.core.Notifier
 import com.triparro.app.core.int
 import com.triparro.app.screens.NotificationsScreen
+import com.triparro.app.screens.AuthScreen
 import kotlinx.coroutines.launch
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -67,7 +68,6 @@ import com.triparro.app.screens.AccountScreen
 import com.triparro.app.screens.AiScreen
 import com.triparro.app.screens.BookingScreen
 import com.triparro.app.screens.ExploreScreen
-import com.triparro.app.screens.LoginScreen
 import com.triparro.app.screens.MyPetsScreen
 import com.triparro.app.screens.PetBookingScreen
 import com.triparro.app.screens.PetFormScreen
@@ -182,7 +182,7 @@ fun TripArroApp(activity: MainActivity) {
     ) { pad ->
         // Full colour at the top: the status bar takes the colour of the screen's header
         val topColor = when {
-            current in listOf("explore", "trips", "ai", "account") -> Brand.Navy
+            current in listOf("explore", "trips", "ai", "account", "login", "signup") -> Brand.Navy
             current == "pets" -> Brand.TealDark
             current.startsWith("property/") || current.startsWith("petlisting/") -> Color.Black
             else -> Color.White
@@ -199,7 +199,8 @@ fun TripArroApp(activity: MainActivity) {
                 composable("trips") { TripsScreen(nav) }
                 composable("ai") { AiScreen(nav) }
                 composable("account") { AccountScreen(nav) }
-                composable("login") { LoginScreen(nav) }
+                composable("login") { AuthScreen(nav) }
+                composable("signup") { AuthScreen(nav, startSignUp = true) }
                 composable("profile") { ProfileScreen(nav) }
                 composable("notifications") { NotificationsScreen(nav) }
                 composable("mypets") { MyPetsScreen(nav) }

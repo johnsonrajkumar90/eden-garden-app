@@ -100,7 +100,6 @@ fun AccountScreen(nav: NavHostController) {
     val scope = rememberCoroutineScope()
     val session by Api.session.collectAsState()
     val unread by Notifier.unread.collectAsState()
-    var server by remember { mutableStateOf(false) }
     // Someone may have signed in on a web page (one-time code, Google): read the session again
     LaunchedEffect(Unit) { try { Api.refreshSession() } catch (_: Exception) { } }
     val u = session?.user
@@ -140,7 +139,7 @@ fun AccountScreen(nav: NavHostController) {
                 Gap(10)
                 PrimaryButton("Sign in", { nav.navigate("login") })
                 Gap(8)
-                TextButton(onClick = { nav.openWeb(session?.links?.text("signup") ?: "/signup", "Sign up") }, modifier = Modifier.fillMaxWidth()) { Text("New here? Create an account") }
+                TextButton(onClick = { nav.navigate("signup") }, modifier = Modifier.fillMaxWidth()) { Text("New here? Create an account") }
             }
         } else {
             Card {
@@ -170,8 +169,6 @@ fun AccountScreen(nav: NavHostController) {
             Item(Icons.Outlined.Policy, "Privacy policy") { nav.openWeb("/privacy-policy", "Privacy policy") }
             HorizontalDivider(color = Brand.Line)
             Item(Icons.Outlined.Badge, "Cancellation policy") { nav.openWeb("/cancellation-policy", "Cancellation policy") }
-            HorizontalDivider(color = Brand.Line)
-            Item(Icons.Outlined.Dns, "Server", Api.baseUrl, tint = Brand.Muted) { server = true }
             if (u != null) {
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.DeleteOutline, "Delete my account", tint = Brand.Danger) { nav.openWeb("/delete-account", "Delete account") }
@@ -180,53 +177,6 @@ fun AccountScreen(nav: NavHostController) {
             }
         }
         Text("TripArro for Android · version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(16.dp))
-        }
-    }
-    if (server) {
-        var v by remember { mutableStateOf(Api.baseUrl) }
-        AlertDialog(onDismissRequest = { server = false }, title = { Text("Website address") },
-            text = { Column { Text("The TripArro website this app uses. Change it only to try a test site.", style = MaterialTheme.typography.bodySmall); Gap(8); Field("Address", v, { v = it }, keyboard = KeyboardType.Uri) } },
-            confirmButton = { TextButton(onClick = {
-                if (v.startsWith("https://") || v.startsWith("http://")) { Api.baseUrl = v; scope.launch { try { Api.refreshSession() } catch (_: Exception) { } } }
-                server = false
-            }) { Text("Save") } },
-            dismissButton = { TextButton(onClick = { Api.baseUrl = BuildConfig.SITE_URL; server = false; scope.launch { try { Api.refreshSession() } catch (_: Exception) { } } }) { Text("Reset") } })
-    }
-}
-
-/** Sign in with email and password (the website's own log-in, kept on this phone until you sign out). */
-@Composable
-fun LoginScreen(nav: NavHostController) {
-    val scope = rememberCoroutineScope()
-    val session by Api.session.collectAsState()
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var busy by remember { mutableStateOf(false) }
-    var err by remember { mutableStateOf<String?>(null) }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
-        BackBar("Sign in", { nav.popBackStack() })
-        Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
-            Image(painterResource(R.drawable.logo_full), "TripArro", Modifier.height(40.dp))
-            Gap()
-            Text("Sign in to TripArro", style = MaterialTheme.typography.headlineSmall)
-            Text("Guests, hosts, resort owners, pet hosts and partners — one sign-in.", color = Brand.InkSoft)
-            Gap()
-            Field("Email", email, { email = it }, keyboard = KeyboardType.Email)
-            Gap(8)
-            Field("Password", password, { password = it }, password = true, keyboard = KeyboardType.Password)
-            err?.let { Gap(8); Notice(it, "bad") }
-            Gap()
-            PrimaryButton("Sign in", {
-                busy = true; err = null
-                scope.launch {
-                    try { Api.login(email, password); nav.popBackStack() } catch (e: Exception) { err = errorText(e) }
-                    busy = false
-                }
-            }, enabled = email.contains("@") && password.isNotEmpty(), loading = busy)
-            Gap(8)
-            TextButton(onClick = { nav.openWeb(session?.links?.text("login") ?: "/login", "Sign in") }, modifier = Modifier.fillMaxWidth()) { Text("Sign in with a one-time code or Google") }
-            TextButton(onClick = { nav.openWeb("/forgot-password", "Forgot password") }, modifier = Modifier.fillMaxWidth()) { Text("Forgot your password?") }
-            TextButton(onClick = { nav.openWeb(session?.links?.text("signup") ?: "/signup", "Sign up") }, modifier = Modifier.fillMaxWidth()) { Text("Create an account") }
         }
     }
 }

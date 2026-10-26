@@ -84,5 +84,13 @@ adb shell cmd statusbar expand-notifications || adb shell service call statusbar
 adb shell cmd statusbar expand-notifications; adb exec-out screencap -p > screens/24-phone-notification.png
 adb shell cmd statusbar collapse
 adb shell dumpsys notification --noredact | grep -A3 "pkg=$PKG" | head -20 > screens/notifications-dump.txt 2>&1 || true
+# in-app sign in / sign up (signed out)
+adb shell am force-stop $PKG; sleep 1
+adb shell "run-as $PKG sh -c 'rm -f shared_prefs/triparro.xml.bak'" || true
+open /login; sleep 1; adb shell am start -W -n $PKG/com.triparro.app.MainActivity >/dev/null; sleep 2
+tap "Account"; sleep 3; tap "Sign out"; sleep 3
+tap "Sign in"; shot 25-sign-in 4
+tap "Create account"; shot 26-sign-up 3
+tap "Sign in"; sleep 1; tap "Sign in with a one-time code"; shot 27-code 3
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true
 ls -la screens

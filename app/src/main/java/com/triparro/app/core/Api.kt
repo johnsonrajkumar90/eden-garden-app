@@ -187,6 +187,24 @@ object Api {
         return sendWithCsrf { Request.Builder().url(url("api/" + path)).post(json.toString().toRequestBody("application/json".toMediaType())) }
     }
 
+    /** POST to a website address (not under /api/) that answers JSON to the app: sign-in, sign-up, codes, password reset. */
+    suspend fun postSite(path: String, body: Map<String, Any?>): JSONObject {
+        val json = JSONObject()
+        body.forEach { (k, v) -> if (v != null) json.put(k, v) }
+        return sendWithCsrf { Request.Builder().url(url(path)).post(json.toString().toRequestBody("application/json".toMediaType())) }
+    }
+
+    /** Sign in from the app's own screen. Falls back to the website's form on an older website. */
+    suspend fun signIn(email: String, password: String): User {
+        try {
+            postSite("login", mapOf("email" to email.trim(), "password" to password, "remember" to 1))
+        } catch (e: ApiException) {
+            if (e.code == "not_json" || e.code == "login_required") return login(email, password)
+            throw e
+        }
+        return refreshSession().user ?: throw ApiException(401, "Incorrect email or password.")
+    }
+
     suspend fun postMultipart(path: String, fields: List<Pair<String, String>>, files: List<Upload>): JSONObject {
         return sendWithCsrf {
             val mb = MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -215,6 +233,8 @@ object Api {
             val raw = it.body?.string().orEmpty()
             val j = try { if (raw.trimStart().startsWith("{")) JSONObject(raw) else null } catch (_: Exception) { null }
             if (it.code in 200..299 && j != null) return@withContext j
+            // a page instead of JSON: this website is older than the app (sign-in / sign-up then open as web pages)
+            if (it.code in 200..299) throw ApiException(it.code, "This needs the latest TripArro website.", "not_json")
             if (it.code in 300..399) throw ApiException(401, "Please sign in first.", "login_required")
             val errs = mutableMapOf<String, String>()
             j?.obj("errors")?.let { e -> e.keys().forEach { k -> errs[k] = e.optString(k) } }
