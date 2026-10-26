@@ -21,6 +21,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Share
+import com.triparro.app.ui.RoundAction
+import com.triparro.app.ui.shareLink
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -108,14 +113,21 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
     LaunchedEffect(kind, id) { try { Api.post("visit", mapOf("kind" to kind, "id" to id)) } catch (_: Exception) { } }
 
     Column(Modifier.fillMaxSize().background(Brand.Page)) {
-        BackBar(p?.text("title") ?: "", { nav.popBackStack() })
+        if (p == null) BackBar("", { nav.popBackStack() })
         when {
             p == null && l.loading.value -> Loading()
             p == null -> ErrorBox(l.error.value ?: "Not found.", { l.reload() })
             else -> {
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                    Gallery(p.objs("photos").map { it.text("url") }.ifEmpty { listOfNotNull(p.str("image")) })
-                    Column(Modifier.padding(16.dp)) {
+                    Box {
+                        Gallery(p.objs("photos").map { it.text("url") }.ifEmpty { listOfNotNull(p.str("image")) })
+                        Row(Modifier.fillMaxWidth().padding(12.dp)) {
+                            RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
+                            Spacer(Modifier.weight(1f))
+                            RoundAction(Icons.Outlined.Share, "Share") { shareLink(ctx, p.text("title"), Api.url((if (kind == "resort") "resorts/" else "stays/") + id)) }
+                        }
+                    }
+                    Column(Modifier.offset(y = (-22).dp).clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)).background(Brand.Page).padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Place, null, tint = Brand.Teal, modifier = Modifier.size(16.dp))
                             Text(" " + listOfNotNull(p.str("area"), p.str("location")).joinToString(", "), color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -203,7 +215,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                 }
                 // Bottom bar: price and the booking panel
                 Surface(color = Color.White, shadowElevation = 8.dp) {
-                    Row(Modifier.fillMaxWidth().padding(16.dp).navigationBarsPadding(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                         val price = p.obj("price") ?: JSONObject()
                         Column(Modifier.weight(1f)) {
                             Text(money(price.num("offer_nightly") ?: price.num("nightly")), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = Brand.BlueDark)
@@ -221,12 +233,12 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
 
 @Composable
 private fun Gallery(urls: List<String>) {
-    if (urls.isEmpty()) { Photo(null, Modifier.fillMaxWidth().aspectRatio(1.5f), corner = 0.dp); return }
+    if (urls.isEmpty()) { Photo(null, Modifier.fillMaxWidth().aspectRatio(1.25f), corner = 0.dp); return }
     val state = rememberPagerState { urls.size }
     Box {
-        HorizontalPager(state = state) { i -> Photo(urls[i], Modifier.fillMaxWidth().aspectRatio(1.5f), corner = 0.dp) }
+        HorizontalPager(state = state) { i -> Photo(urls[i], Modifier.fillMaxWidth().aspectRatio(1.25f), corner = 0.dp) }
         Text("${state.currentPage + 1} / ${urls.size}", color = Color.White, style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp).clip(RoundedCornerShape(50)).background(Color(0x99000000)).padding(horizontal = 10.dp, vertical = 4.dp))
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 34.dp).clip(RoundedCornerShape(50)).background(Color(0x99000000)).padding(horizontal = 10.dp, vertical = 4.dp))
     }
 }
 

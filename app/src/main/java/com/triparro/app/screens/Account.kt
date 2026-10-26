@@ -1,5 +1,13 @@
 package com.triparro.app.screens
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -73,12 +81,15 @@ private val roleNames = mapOf("guest" to "Guest", "host" to "Host", "resort" to 
 
 @Composable
 private fun Item(icon: ImageVector, text: String, sub: String? = null, tint: Color = Brand.Blue, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = tint, modifier = Modifier.size(22.dp))
+    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(38.dp).clip(RoundedCornerShape(12.dp)).background(if (tint == Brand.Danger) Brand.DangerSoft else Brand.Sky), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = tint, modifier = Modifier.size(20.dp))
+        }
         Column(Modifier.padding(start = 14.dp).weight(1f)) {
             Text(text, style = MaterialTheme.typography.titleSmall, color = if (tint == Brand.Danger) Brand.Danger else Brand.Ink)
             if (sub != null) Text(sub, style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
         }
+        if (tint != Brand.Danger) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Brand.Muted, modifier = Modifier.size(20.dp))
     }
 }
 
@@ -94,8 +105,7 @@ fun AccountScreen(nav: NavHostController) {
     LaunchedEffect(Unit) { try { Api.refreshSession() } catch (_: Exception) { } }
     val u = session?.user
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Image(painterResource(R.drawable.logo_full), "TripArro", Modifier.height(34.dp))
-        Gap()
+        Text("Account", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
         if (u == null) {
             Card {
                 Text("Welcome to TripArro", style = MaterialTheme.typography.titleLarge)
@@ -106,19 +116,25 @@ fun AccountScreen(nav: NavHostController) {
                 TextButton(onClick = { nav.openWeb(session?.links?.text("signup") ?: "/signup", "Sign up") }, modifier = Modifier.fillMaxWidth()) { Text("New here? Create an account") }
             }
         } else {
-            Card {
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Brush.linearGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF1C5BB0)))).padding(18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Avatar(u.initials)
-                    Column(Modifier.padding(start = 12.dp)) {
-                        Text(u.name, style = MaterialTheme.typography.titleMedium)
-                        Text(u.email, style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
-                        Text(roleNames[u.role] ?: u.role, style = MaterialTheme.typography.bodySmall, color = Brand.Teal)
+                    Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
+                        Text(u.initials.take(2).uppercase(), style = MaterialTheme.typography.titleLarge, color = Brand.Blue)
+                    }
+                    Column(Modifier.padding(start = 14.dp).weight(1f)) {
+                        Text(u.name, style = MaterialTheme.typography.titleLarge, color = Color.White)
+                        Text(u.email, style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2))
+                        Text(roleNames[u.role] ?: u.role, style = MaterialTheme.typography.labelMedium, color = Brand.Navy,
+                            modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(50)).background(Color(0xFFBFF0E8)).padding(horizontal = 10.dp, vertical = 3.dp))
                     }
                 }
                 if (u.dashboard != null && u.role != "guest") {
                     Gap()
-                    PrimaryButton("Open my dashboard", { nav.openWeb(u.dashboard, "Dashboard") }, icon = Icons.Outlined.Dashboard)
-                    Text("Bookings, calendar, listings, check-in, earnings and settings — signed in already.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
+                    Button(onClick = { nav.openWeb(u.dashboard, "Dashboard") }, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Brand.Blue)) {
+                        Icon(Icons.Outlined.Dashboard, null, Modifier.size(18.dp)); Text("  Open my dashboard")
+                    }
+                    Text("Bookings, calendar, listings, check-in, earnings and settings — signed in already.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 8.dp))
                 }
             }
             Gap()

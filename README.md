@@ -5,10 +5,10 @@ A fully native Android app for TripArro. It talks to the website's REST API (`/a
 
 | | |
 |---|---|
-| Package | `in.edengardenshomestay.app` (the same Play Store ID as the earlier app, so this one is an update) |
+| Package | `triparro.com` (the Google Play ID — permanent once the app is published) |
 | Version | `2.0.<build>` — the build number goes up on every GitHub build |
 | Android | 7.0 (API 24) and newer · targets Android 16 (API 36) |
-| Website | `https://edengardenshomestay.in` (`app/build.gradle.kts` → `SITE_URL`; testers can change it in Account → Server) |
+| Website | `https://triparro.com` (`app/build.gradle.kts` → `SITE_URL`; testers can change it in Account → Server) |
 
 ## What is native
 

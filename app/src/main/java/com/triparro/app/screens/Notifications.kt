@@ -104,7 +104,7 @@ fun NotificationsScreen(nav: NavHostController) {
                     }
                 }
                 val list = l.data.value?.objs("items").orEmpty()
-                if (list.isEmpty()) item { EmptyBox("No notifications yet", "When you book, we'll let you know here about confirmations, payments, check-in and Pet Stay Diary updates.") }
+                if (list.isEmpty()) item { EmptyBox("No notifications yet", "When you book, we'll let you know here about confirmations, payments, check-in and Pet Stay Diary updates.", icon = Icons.Outlined.Notifications) }
                 items(list, key = { it.int("id") }) { n ->
                     val unread = !n.bool("read")
                     Row(Modifier.fillMaxWidth().background(if (unread) Brand.Sky else Color.White, RoundedCornerShape(14.dp)).clickable {

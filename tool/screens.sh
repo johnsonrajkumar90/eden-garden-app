@@ -2,7 +2,7 @@
 # Emulator test (build-native.yml): installs the APK, points it at a stand-in API with recorded test-site data,
 # opens the main screens and takes screenshots.
 set -x
-PKG=in.edengardenshomestay.app
+PKG=triparro.com
 mkdir -p screens
 (python3 tool/mock_server.py > screens/mock.log 2>&1 &)
 sleep 2
@@ -37,7 +37,7 @@ PY
   [ -n "$b" ] && adb shell input tap $b
 }
 up() { adb shell input swipe 540 1900 540 500 500; }
-open() { adb shell am start -W -a android.intent.action.VIEW -d "https://edengardenshomestay.in$1" $PKG; }
+open() { adb shell am start -W -a android.intent.action.VIEW -d "https://triparro.com$1" $PKG; }
 adb shell am start -W -n $PKG/com.triparro.app.MainActivity
 shot 01-explore 8
 up; shot 02-explore-favourites 3

@@ -41,7 +41,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="edengardenshomestay.in" />
+                <data android:scheme="https" android:host="triparro.com" />
+                <data android:host="www.triparro.com" />
                 <data android:pathPrefix="/stays/" />
                 <data android:pathPrefix="/resorts/" />
                 <data android:pathPrefix="/pet-boarding" />

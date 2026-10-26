@@ -13,6 +13,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Share
+import com.triparro.app.ui.RoundAction
+import com.triparro.app.ui.shareLink
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -87,6 +94,7 @@ import org.json.JSONObject
 @Composable
 fun PetListingScreen(nav: NavHostController, id: Int) {
     val scope = rememberCoroutineScope()
+    val ctx = LocalContext.current
     val session by Api.session.collectAsState()
     val l = rememberLoader(id) { Api.get("pets/listings/$id") }
     val meta = rememberLoader(session?.user?.id) { Api.get("pets/meta") }
@@ -150,13 +158,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
 
     val p = l.data.value
     Column(Modifier.fillMaxSize().background(Brand.Page)) {
-        BackBar(p?.text("title") ?: "", { nav.popBackStack() }) {
-            if (p != null && signedIn) IconButton(onClick = {
-                val on = !(saved ?: p.bool("saved"))
-                saved = on
-                scope.launch { try { Api.post("pets/saved", mapOf("id" to id, "on" to on)) } catch (_: Exception) { saved = !on } }
-            }) { val on = saved ?: p.bool("saved"); Icon(if (on) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, if (on) "Saved" else "Save", tint = if (on) Brand.Coral else Brand.InkSoft) }
-        }
+        if (p == null) BackBar("", { nav.popBackStack() })
         when {
             p == null && l.loading.value -> Loading()
             p == null -> ErrorBox(l.error.value ?: "This pet host is not available.", { l.reload() })
@@ -164,11 +166,24 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                 val gallery = p.strings("gallery").ifEmpty { listOfNotNull(p.str("image")) }
                 val pager = rememberPagerState { gallery.size.coerceAtLeast(1) }
                 Box {
-                    HorizontalPager(state = pager) { i -> Photo(gallery.getOrNull(i), Modifier.fillMaxWidth().aspectRatio(1.5f), corner = 0.dp) }
+                    HorizontalPager(state = pager) { i -> Photo(gallery.getOrNull(i), Modifier.fillMaxWidth().aspectRatio(1.25f), corner = 0.dp) }
                     if (gallery.size > 1) Text("${pager.currentPage + 1} / ${gallery.size}", color = Color.White, style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp).clip(RoundedCornerShape(50)).background(Color(0x99000000)).padding(horizontal = 10.dp, vertical = 4.dp))
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 34.dp).clip(RoundedCornerShape(50)).background(Color(0x99000000)).padding(horizontal = 10.dp, vertical = 4.dp))
+                    Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
+                        Spacer(Modifier.weight(1f))
+                        RoundAction(Icons.Outlined.Share, "Share") { shareLink(ctx, p.text("title"), Api.url("pet-boarding/$id")) }
+                        if (signedIn) {
+                            val on = saved ?: p.bool("saved")
+                            RoundAction(if (on) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder, if (on) "Saved" else "Save", tint = if (on) Brand.Coral else Brand.Ink) {
+                                val next = !(saved ?: p.bool("saved"))
+                                saved = next
+                                scope.launch { try { Api.post("pets/saved", mapOf("id" to id, "on" to next)) } catch (_: Exception) { saved = !next } }
+                            }
+                        }
+                    }
                 }
-                Column(Modifier.padding(16.dp)) {
+                Column(Modifier.offset(y = (-22).dp).clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)).background(Brand.Page).padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(p.text("location"), color = Brand.InkSoft, modifier = Modifier.weight(1f))
                         Stars(p.num("rating"), p.int("reviews"))

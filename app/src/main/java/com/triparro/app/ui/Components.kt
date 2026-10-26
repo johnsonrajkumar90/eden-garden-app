@@ -45,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -113,28 +114,39 @@ fun ErrorBox(message: String, onRetry: (() -> Unit)? = null, modifier: Modifier 
 }
 
 @Composable
-fun EmptyBox(title: String, text: String, action: String? = null, onAction: (() -> Unit)? = null) {
+fun EmptyBox(title: String, text: String, action: String? = null, icon: ImageVector? = null, onAction: (() -> Unit)? = null) {
     Column(Modifier.fillMaxWidth().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        if (icon != null) {
+            Box(Modifier.size(72.dp).clip(CircleShape).background(Brand.Sky), contentAlignment = Alignment.Center) { Icon(icon, null, tint = Brand.Blue, modifier = Modifier.size(34.dp)) }
+            Spacer(Modifier.height(14.dp))
+        }
         Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
         Spacer(Modifier.height(6.dp))
         Text(text, color = Brand.InkSoft, textAlign = TextAlign.Center)
         if (action != null && onAction != null) {
             Spacer(Modifier.height(14.dp))
-            Button(onClick = onAction) { Text(action) }
+            Button(onClick = onAction, shape = RoundedCornerShape(14.dp), contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)) { Text(action) }
         }
     }
 }
 
 @Composable
 fun Card(modifier: Modifier = Modifier, padding: Dp = 16.dp, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
-    val m = modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White)
+    val m = modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(18.dp), ambientColor = Brand.Navy.copy(alpha = 0.10f), spotColor = Brand.Navy.copy(alpha = 0.10f))
+        .clip(RoundedCornerShape(18.dp)).background(Color.White)
         .let { if (onClick != null) it.clickable(onClick = onClick) else it }
     Box(m.padding(padding)) { Column { content() } }
 }
 
 @Composable
-fun SectionTitle(text: String, modifier: Modifier = Modifier) {
-    Text(text, style = MaterialTheme.typography.titleLarge, modifier = modifier.padding(top = 4.dp, bottom = 8.dp))
+fun SectionTitle(text: String, modifier: Modifier = Modifier, sub: String? = null, action: String? = null, onAction: (() -> Unit)? = null) {
+    Row(modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.Bottom) {
+        Column(Modifier.weight(1f)) {
+            Text(text, style = MaterialTheme.typography.titleLarge)
+            if (sub != null) Text(sub, style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+        }
+        if (action != null && onAction != null) Text(action, style = MaterialTheme.typography.titleSmall, color = Brand.Blue, modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = onAction).padding(6.dp))
+    }
 }
 
 @Composable
@@ -273,4 +285,21 @@ fun Bordered(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Surface(modifier = modifier.fillMaxWidth().border(1.dp, Brand.Line, RoundedCornerShape(14.dp)), shape = RoundedCornerShape(14.dp), color = Color.White) {
         Box(Modifier.padding(12.dp)) { content() }
     }
+}
+
+
+/** A round white button on top of a photo (back, share, save). */
+@Composable
+fun RoundAction(icon: ImageVector, description: String, tint: Color = Brand.Ink, onClick: () -> Unit) {
+    Box(Modifier.size(42.dp).shadow(4.dp, CircleShape).clip(CircleShape).background(Color.White).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Icon(icon, description, tint = tint, modifier = Modifier.size(21.dp))
+    }
+}
+
+/** Share a page with the phone's share sheet (WhatsApp, messages…). */
+fun shareLink(context: android.content.Context, title: String, url: String) {
+    try {
+        val i = android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain").putExtra(android.content.Intent.EXTRA_TEXT, "$title — $url")
+        context.startActivity(android.content.Intent.createChooser(i, "Share").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (_: Exception) { }
 }

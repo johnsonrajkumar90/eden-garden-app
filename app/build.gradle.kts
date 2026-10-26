@@ -21,14 +21,14 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        // The app's permanent ID on Google Play (the same as the earlier app, so this one installs as an update)
-        applicationId = "in.edengardenshomestay.app"
+        // The app's permanent ID on Google Play
+        applicationId = "triparro.com"
         minSdk = 24
         targetSdk = 36
         versionCode = 300 + buildNumber
         versionName = "2.0.$buildNumber"
         // The live website whose API the app uses (can be changed in the app: Account → About → Server)
-        buildConfigField("String", "SITE_URL", "\"https://edengardenshomestay.in\"")
+        buildConfigField("String", "SITE_URL", "\"https://triparro.com\"")
     }
 
     signingConfigs {

@@ -2,6 +2,16 @@
 
 package com.triparro.app.screens
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.FlightTakeoff
+import androidx.compose.material.icons.outlined.Hotel
+import androidx.compose.material.icons.outlined.Luggage
+import androidx.compose.material.icons.outlined.TaskAlt
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -16,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Call
@@ -101,9 +110,12 @@ fun TripsScreen(nav: NavHostController) {
         }
     }
     Column(Modifier.fillMaxSize()) {
-        Text("My trips", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.background(Color.White).fillMaxWidth().padding(16.dp))
+        Column(Modifier.background(Color.White).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 6.dp)) {
+            Text("My trips", style = MaterialTheme.typography.headlineMedium)
+            Text("Stays, resorts and pet boarding in one place", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+        }
         if (session?.user == null) {
-            EmptyBox("Sign in to see your trips", "Your stays, resorts and pet boarding bookings appear here.", "Sign in") { nav.navigate("login") }
+            EmptyBox("Sign in to see your trips", "Your stays, resorts and pet boarding bookings appear here.", "Sign in", icon = Icons.Outlined.Luggage) { nav.navigate("login") }
         } else TripsList(nav, tab, { tab = it }, l)
     }
 }
@@ -112,8 +124,12 @@ fun TripsScreen(nav: NavHostController) {
 private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l: Loader<Pair<JSONObject, JSONObject>?>) {
     Column(Modifier.fillMaxSize()) {
         val tabs = listOf("Upcoming", "Staying now", "Completed", "Cancelled")
-        PrimaryScrollableTabRow(selectedTabIndex = tab, containerColor = Color.White, edgePadding = 8.dp) {
-            tabs.forEachIndexed { i, t -> Tab(selected = tab == i, onClick = { setTab(i) }, text = { Text(t) }) }
+        Row(Modifier.fillMaxWidth().background(Color.White).horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            tabs.forEachIndexed { i, t ->
+                val on = tab == i
+                Text(t, style = MaterialTheme.typography.labelLarge, color = if (on) Color.White else Brand.InkSoft,
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(if (on) Brand.Blue else Brand.Sky).clickable { setTab(i) }.padding(horizontal = 16.dp, vertical = 9.dp))
+            }
         }
         val data = l.data.value
         when {
@@ -136,14 +152,14 @@ private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l
                     when (tab) { 0 -> !cancelled && !staying && !done; 1 -> staying; 2 -> done; else -> cancelled }
                 }.let { if (tab == 0 || tab == 1) it.sortedBy { t -> t.checkIn } else it.sortedByDescending { t -> t.checkIn } }
                 if (shown.isEmpty()) EmptyBox(listOf("No upcoming trips", "Nobody staying now", "No completed trips", "No cancelled trips")[tab],
-                    "Find a stay or pet boarding and it will show here.", "Explore") { nav.navigate("explore") }
+                    "Find a stay or pet boarding and it will show here.", "Explore stays", icon = listOf(Icons.Outlined.FlightTakeoff, Icons.Outlined.Hotel, Icons.Outlined.TaskAlt, Icons.Outlined.EventBusy)[tab]) { nav.navigate("explore") }
                 LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(shown, key = { it.ref }) { t ->
                         Card(padding = 12.dp, onClick = { nav.navigate((if (t.pet) "petbooking/" else "booking/") + t.ref) }) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Photo(t.image, Modifier.width(88.dp).aspectRatio(1f))
+                                Photo(t.image, Modifier.width(92.dp).aspectRatio(1f), corner = 16.dp)
                                 Column(Modifier.padding(start = 12.dp).weight(1f)) {
-                                    Text(t.title, style = MaterialTheme.typography.titleSmall, maxLines = 2)
+                                    Text(t.title, style = MaterialTheme.typography.titleMedium, maxLines = 2)
                                     Text("${shortDate(t.checkIn)} → ${shortDate(t.checkOut)}", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
                                     Text(t.sub, style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
                                     Row(Modifier.padding(top = 4.dp)) { Pill(t.statusLabel, t.tone) }

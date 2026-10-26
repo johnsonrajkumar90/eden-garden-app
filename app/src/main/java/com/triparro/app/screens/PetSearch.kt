@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.FilterChip
@@ -176,7 +177,7 @@ fun PetSearchScreen(nav: NavHostController) {
         when {
             list == null && loading -> item { Loading() }
             error != null -> item { ErrorBox(error ?: "", { search() }) }
-            list != null && list.isEmpty() -> item { EmptyBox("No pet hosts found", "Try another area, other dates or fewer filters.") }
+            list != null && list.isEmpty() -> item { EmptyBox("No pet hosts found", "Try another area, other dates or fewer filters.", icon = Icons.Outlined.Pets) }
             list != null -> {
                 item { Text("${list.size} pet ${if (list.size == 1) "host" else "hosts"}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp)) }
                 items(list, key = { it.int("id") }) { c ->

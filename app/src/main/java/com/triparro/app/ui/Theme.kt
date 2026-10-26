@@ -6,7 +6,10 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import com.triparro.app.R
 import androidx.compose.ui.unit.sp
 
 /** The TripArro colours (the same tokens as the website). */
@@ -41,16 +44,32 @@ private val colors = lightColorScheme(
     error = Brand.Danger,
 )
 
+/** Poppins for headings and Inter for text — the same fonts as the website. */
+val Display = FontFamily(
+    Font(R.font.poppins_medium, FontWeight.Medium),
+    Font(R.font.poppins_semibold, FontWeight.SemiBold),
+    Font(R.font.poppins_bold, FontWeight.Bold),
+)
+val Body = FontFamily(
+    Font(R.font.inter_regular, FontWeight.Normal),
+    Font(R.font.inter_medium, FontWeight.Medium),
+    Font(R.font.inter_semibold, FontWeight.SemiBold),
+    Font(R.font.inter_bold, FontWeight.Bold),
+)
+
 private val type = Typography(
-    headlineMedium = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp, color = Brand.Ink),
-    headlineSmall = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp, color = Brand.Ink),
-    titleLarge = TextStyle(fontSize = 19.sp, fontWeight = FontWeight.SemiBold, lineHeight = 25.sp),
-    titleMedium = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.SemiBold, lineHeight = 22.sp),
-    titleSmall = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold, lineHeight = 20.sp),
-    bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 24.sp),
-    bodyMedium = TextStyle(fontSize = 14.sp, lineHeight = 21.sp),
-    bodySmall = TextStyle(fontSize = 12.5.sp, lineHeight = 18.sp),
-    labelLarge = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
+    displaySmall = TextStyle(fontFamily = Display, fontSize = 30.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp, letterSpacing = (-0.3).sp),
+    headlineMedium = TextStyle(fontFamily = Display, fontSize = 26.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp, letterSpacing = (-0.2).sp),
+    headlineSmall = TextStyle(fontFamily = Display, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, lineHeight = 28.sp, letterSpacing = (-0.1).sp),
+    titleLarge = TextStyle(fontFamily = Display, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, lineHeight = 24.sp),
+    titleMedium = TextStyle(fontFamily = Body, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, lineHeight = 22.sp),
+    titleSmall = TextStyle(fontFamily = Body, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, lineHeight = 20.sp),
+    bodyLarge = TextStyle(fontFamily = Body, fontSize = 16.sp, lineHeight = 24.sp),
+    bodyMedium = TextStyle(fontFamily = Body, fontSize = 14.sp, lineHeight = 21.sp),
+    bodySmall = TextStyle(fontFamily = Body, fontSize = 12.5.sp, lineHeight = 18.sp),
+    labelLarge = TextStyle(fontFamily = Body, fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
+    labelMedium = TextStyle(fontFamily = Body, fontSize = 12.sp, fontWeight = FontWeight.Medium),
+    labelSmall = TextStyle(fontFamily = Body, fontSize = 11.sp, fontWeight = FontWeight.Medium),
 )
 
 @Composable

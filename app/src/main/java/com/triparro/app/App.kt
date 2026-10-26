@@ -1,5 +1,15 @@
 package com.triparro.app
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Luggage
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import android.Manifest
 import android.content.Context
 import android.os.Build
@@ -62,14 +72,14 @@ import com.triparro.app.screens.SavedPetsScreen
 import com.triparro.app.screens.TripsScreen
 import com.triparro.app.ui.Brand
 
-private data class Tab(val route: String, val label: String, val icon: ImageVector)
+private data class Tab(val route: String, val label: String, val icon: ImageVector, val selectedIcon: ImageVector = icon)
 
 private val tabs = listOf(
-    Tab("explore", "Explore", Icons.Outlined.Explore),
-    Tab("pets", "Pets", Icons.Outlined.Pets),
-    Tab("trips", "Trips", Icons.Outlined.Luggage),
-    Tab("ai", "AI", Icons.Outlined.AutoAwesome),
-    Tab("account", "Account", Icons.Outlined.AccountCircle),
+    Tab("explore", "Explore", Icons.Outlined.Explore, Icons.Filled.Explore),
+    Tab("pets", "Pets", Icons.Outlined.Pets, Icons.Filled.Pets),
+    Tab("trips", "Trips", Icons.Outlined.Luggage, Icons.Filled.Luggage),
+    Tab("ai", "AI", Icons.Outlined.AutoAwesome, Icons.Filled.AutoAwesome),
+    Tab("account", "Account", Icons.Outlined.AccountCircle, Icons.Filled.AccountCircle),
 )
 
 /** Opens a website page inside the app. */
@@ -134,7 +144,9 @@ fun TripArroApp(activity: MainActivity) {
         containerColor = Brand.Page,
         bottomBar = {
             if (tabs.any { it.route == current }) {
-                NavigationBar(containerColor = Color.White) {
+                Column {
+                HorizontalDivider(color = Brand.Line, thickness = 0.5.dp)
+                NavigationBar(containerColor = Color.White, tonalElevation = 0.dp) {
                     tabs.forEach { t ->
                         NavigationBarItem(
                             selected = current == t.route,
@@ -146,13 +158,16 @@ fun TripArroApp(activity: MainActivity) {
                                 }
                             },
                             icon = {
-                                if (t.route == "account" && unread > 0) BadgedBox(badge = { Badge { Text(if (unread > 99) "99+" else unread.toString()) } }) { Icon(t.icon, contentDescription = "$unread new notifications") }
-                                else Icon(t.icon, contentDescription = null)
+                                val ic = if (current == t.route) t.selectedIcon else t.icon
+                                if (t.route == "account" && unread > 0) BadgedBox(badge = { Badge(containerColor = Brand.Coral) { Text(if (unread > 99) "99+" else unread.toString()) } }) { Icon(ic, contentDescription = "$unread new notifications") }
+                                else Icon(ic, contentDescription = null)
                             },
-                            label = { Text(t.label) },
-                            colors = NavigationBarItemDefaults.colors(selectedIconColor = Brand.Blue, selectedTextColor = Brand.Blue, indicatorColor = Brand.Sky),
+                            label = { Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (current == t.route) FontWeight.SemiBold else FontWeight.Medium)) },
+                            colors = NavigationBarItemDefaults.colors(selectedIconColor = Brand.Blue, selectedTextColor = Brand.Blue, indicatorColor = Brand.Sky,
+                                unselectedIconColor = Brand.Muted, unselectedTextColor = Brand.Muted),
                         )
                     }
+                }
                 }
             }
         },
