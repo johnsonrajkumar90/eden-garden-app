@@ -218,11 +218,11 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
                     PrimaryButton("Sign in", { signIn() }, coral = true, enabled = email.contains("@") && password.isNotEmpty(), loading = busy)
                     OrDivider()
                     OutlinedButton(onClick = { go(Step.AskCode) }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp)) {
-                        Icon(Icons.Outlined.Password, null, Modifier.size(18.dp)); Text("  Sign in with a one-time code")
+                        Icon(Icons.Outlined.Password, null, Modifier.size(18.dp)); Spacer(Modifier.size(8.dp)); Text("Sign in with a one-time code")
                     }
                     Gap(10)
                     OutlinedButton(onClick = { nav.openWeb("/auth/google", "Continue with Google") }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp)) {
-                        Text("G", fontWeight = FontWeight.Bold, color = Color(0xFF4285F4)); Text("   Continue with Google")
+                        Text("G", fontWeight = FontWeight.Bold, color = Color(0xFF4285F4)); Spacer(Modifier.size(10.dp)); Text("Continue with Google")
                     }
                     Gap(14)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
