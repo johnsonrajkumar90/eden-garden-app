@@ -3,11 +3,6 @@
 package com.triparro.app.screens
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -49,10 +44,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.triparro.app.AppState
 import com.triparro.app.core.Api
+import com.triparro.app.core.LocResult
+import com.triparro.app.core.LocationHelper
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.size
 import com.triparro.app.core.int
 import com.triparro.app.core.objs
 import com.triparro.app.openWeb
@@ -70,14 +69,6 @@ import org.json.JSONObject
 
 private val facilityChips = listOf("pickup" to "Pickup & drop", "ac" to "AC", "cctv" to "CCTV", "grooming" to "Grooming", "vet" to "Vet help",
     "supervision" to "24-hour care", "outdoor" to "Outdoor play", "indoor" to "Indoor", "private_room" to "Private room")
-
-@SuppressLint("MissingPermission")
-fun lastLocation(context: Context): Location? {
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) return null
-    val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)
-        .mapNotNull { p -> try { lm.getLastKnownLocation(p) } catch (_: Exception) { null } }.maxByOrNull { it.time }
-}
 
 /** Pet boarding: verified pet hosts by city or near you, dates, pet, filters, and the AI assistant. */
 @Composable
@@ -112,10 +103,31 @@ fun PetSearchScreen(nav: NavHostController) {
             loading = false
         }
     }
+    var locating by remember { mutableStateOf(false) }
+    var locFix by remember { mutableStateOf<(() -> Unit)?>(null) }   // "Turn on location" / "Open settings" button
+    fun useLocation() {
+        locating = true; locFix = null; info = "Finding your location…"
+        scope.launch {
+            when (val r = LocationHelper.current(ctx)) {
+                is LocResult.Found -> { near = r.lat to r.lng; city = ""; sort = "distance"; info = "Showing pet hosts near you."; search() }
+                LocResult.Off -> { info = "Location is switched off on your phone. Turn it on, then tap the location button again."; locFix = { LocationHelper.openLocationSettings(ctx) } }
+                LocResult.Denied -> { info = "Location permission is not allowed. Allow it in the app settings, or type a city."; locFix = { LocationHelper.openAppSettings(ctx) } }
+                LocResult.NotFound -> info = "We couldn't find your location just now (weak signal?). Try again outdoors or type a city."
+            }
+            locating = false
+        }
+    }
     val askLocation = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
-        val loc = if (granted.values.any { it }) lastLocation(ctx) else null
-        if (loc != null) { near = loc.latitude to loc.longitude; city = ""; sort = "distance"; info = "Showing pet hosts near you."; search() }
-        else info = "Location is off or not allowed — type a city instead."
+        if (granted.values.any { it }) useLocation()
+        else {
+            val forever = (ctx as? android.app.Activity)?.let { !androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.ACCESS_COARSE_LOCATION) } ?: false
+            info = "Location is not allowed — type a city instead."
+            locFix = if (forever) ({ LocationHelper.openAppSettings(ctx) }) else null
+        }
+    }
+    fun locate() {
+        if (LocationHelper.hasPermission(ctx)) useLocation()
+        else askLocation.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
     }
     LaunchedEffect(Unit) { if (items == null) search() }
 
@@ -128,7 +140,7 @@ fun PetSearchScreen(nav: NavHostController) {
                 Column(Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(18.dp)).padding(12.dp)) {
                     OutlinedTextField(value = city, onValueChange = { city = it; near = null }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
                         placeholder = { Text(if (near != null) "Near my location" else "City or area, e.g. Coimbatore") },
-                        trailingIcon = { IconButton(onClick = { askLocation.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }) { Icon(Icons.Outlined.MyLocation, "Use my location", tint = Brand.Teal) } })
+                        trailingIcon = { if (locating) CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp, color = Brand.Teal) else IconButton(onClick = { locate() }) { Icon(Icons.Outlined.MyLocation, "Use my location", tint = Brand.Teal) } })
                     Gap(8)
                     DateRangeField(checkIn, checkOut, { a, b -> checkIn = a; checkOut = b })
                     Gap(8)
@@ -158,6 +170,7 @@ fun PetSearchScreen(nav: NavHostController) {
                 Choice("Sort", sort, listOf("relevance" to "Best match", "price_asc" to "Lowest price", "rating" to "Top rated", "distance" to "Nearest"), { sort = it; search() }, Modifier.weight(1f))
             }
             info?.let { Text(it, color = Brand.InkSoft, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(16.dp, 8.dp)) }
+            locFix?.let { fix -> TextButton(onClick = fix, modifier = Modifier.padding(horizontal = 8.dp)) { Text(if (LocationHelper.hasPermission(ctx)) "Turn on location" else "Open app settings") } }
         }
         val list = items
         when {

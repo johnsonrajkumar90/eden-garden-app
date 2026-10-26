@@ -55,6 +55,8 @@ import androidx.navigation.NavHostController
 import com.triparro.app.BuildConfig
 import com.triparro.app.R
 import com.triparro.app.core.Api
+import com.triparro.app.core.Notifier
+import androidx.compose.material.icons.outlined.Notifications
 import com.triparro.app.core.text
 import com.triparro.app.openWeb
 import com.triparro.app.ui.Avatar
@@ -86,6 +88,7 @@ fun AccountScreen(nav: NavHostController) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val session by Api.session.collectAsState()
+    val unread by Notifier.unread.collectAsState()
     var server by remember { mutableStateOf(false) }
     // Someone may have signed in on a web page (one-time code, Google): read the session again
     LaunchedEffect(Unit) { try { Api.refreshSession() } catch (_: Exception) { } }
@@ -120,6 +123,8 @@ fun AccountScreen(nav: NavHostController) {
             }
             Gap()
             Card {
+                Item(Icons.Outlined.Notifications, if (unread > 0) "Notifications ($unread new)" else "Notifications", "Booking updates, check-in and Pet Stay Diary") { nav.navigate("notifications") }
+                HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.Person, "Profile and password") { nav.navigate("profile") }
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.Pets, "My pets", "Care notes the host sees when you book") { nav.navigate("mypets") }
@@ -150,7 +155,7 @@ fun AccountScreen(nav: NavHostController) {
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.DeleteOutline, "Delete my account", tint = Brand.Danger) { nav.openWeb("/delete-account", "Delete account") }
                 HorizontalDivider(color = Brand.Line)
-                Item(Icons.AutoMirrored.Outlined.Logout, "Sign out", tint = Brand.Danger) { scope.launch { Api.logout() } }
+                Item(Icons.AutoMirrored.Outlined.Logout, "Sign out", tint = Brand.Danger) { scope.launch { Api.logout(); Notifier.reset(ctx) } }
             }
         }
         Text("TripArro for Android · version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(16.dp))

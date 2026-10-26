@@ -84,6 +84,7 @@ fun WebScreen(
     var pageTitle by remember { mutableStateOf(title) }
     var web by remember { mutableStateOf<WebView?>(null) }
     var fileCallback by remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
+    var routed by remember { mutableStateOf(false) }
 
     val chooser = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
         val cb = fileCallback
@@ -120,10 +121,24 @@ fun WebScreen(
                             val link = request.url.toString()
                             val scheme = request.url.scheme ?: ""
                             if (scheme != "http" && scheme != "https") { openExternal(context, link); return true }
-                            appRouteFor(link)?.let { Api.pullCookiesFromWebView(); onAppRoute(it + (request.url.encodedQuery?.let { q -> "?$q" } ?: "")); return true }
+                            appRouteFor(link)?.let { if (routed) return true; routed = true; Api.pullCookiesFromWebView(); onAppRoute(it + (request.url.encodedQuery?.let { q -> "?$q" } ?: "")); return true }
                             val host = request.url.host ?: ""
                             if (outsideHosts.any { host == it || host.endsWith(".$it") || link.contains(it) && it.contains("/") }) { openExternal(context, link); return true }
                             return false
+                        }
+
+                        // A gateway's reply can reach the booking page through a redirect after a form post, which
+                        // shouldOverrideUrlLoading doesn't always see — catch it here too
+                        override fun onPageStarted(view: WebView, started: String?, favicon: android.graphics.Bitmap?) {
+                            val s = started ?: return
+                            if (routed) return
+                            appRouteFor(s)?.let { r ->
+                                routed = true
+                                view.stopLoading()
+                                Api.pullCookiesFromWebView()
+                                val q = Uri.parse(s).encodedQuery
+                                onAppRoute(r + (q?.let { "?$it" } ?: ""))
+                            }
                         }
 
                         override fun onPageFinished(view: WebView, finished: String?) {

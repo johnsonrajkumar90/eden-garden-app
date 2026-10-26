@@ -5,6 +5,7 @@ package com.triparro.app.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,6 +89,8 @@ fun BackBar(title: String, onBack: () -> Unit, actions: @Composable () -> Unit =
         navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+        // the app's Scaffold already keeps content below the status bar — don't add that gap twice
+        windowInsets = WindowInsets(0.dp),
     )
 }
 

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- saving downloads (invoices, manuals) to Downloads on Android 9 and older -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
 
     <queries>
         <intent><action android:name="android.intent.action.VIEW" /><data android:scheme="upi" /></intent>
@@ -45,6 +47,8 @@
                 <data android:pathPrefix="/pet-boarding" />
                 <data android:pathPrefix="/pet-booking/" />
                 <data android:pathPrefix="/booking/" />
+                <data android:pathPrefix="/pay/" />
+                <data android:pathPrefix="/resort-booking/" />
             </intent-filter>
         </activity>
 

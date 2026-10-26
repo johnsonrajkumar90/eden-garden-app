@@ -37,7 +37,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.triparro.app.AppState
+import androidx.compose.ui.platform.LocalContext
 import com.triparro.app.core.Api
+import com.triparro.app.core.LocResult
+import com.triparro.app.core.LocationHelper
 import com.triparro.app.core.int
 import com.triparro.app.core.objs
 import com.triparro.app.core.str
@@ -61,6 +64,7 @@ fun AiScreen(nav: NavHostController) {
     var text by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val ctx = LocalContext.current
     val list = rememberLazyListState()
     LaunchedEffect(msgs.size, mode) { if (msgs.isNotEmpty()) list.animateScrollToItem(msgs.size - 1) }
 
@@ -74,7 +78,10 @@ fun AiScreen(nav: NavHostController) {
         scope.launch {
             try {
                 if (mode == "pets") {
-                    val r = Api.post("pets/ai", mapOf("message" to question, "history" to history))
+                    // "near me": send the phone's position when location is already allowed (never asks on its own here)
+                    val wantsNear = Regex("\\b(near|nearby|close to me|around me|my area|my location)\\b", RegexOption.IGNORE_CASE).containsMatchIn(question)
+                    val fix = if (wantsNear && LocationHelper.hasPermission(ctx)) (LocationHelper.lastFix ?: LocationHelper.current(ctx, 8_000) as? LocResult.Found) else null
+                    val r = Api.post("pets/ai", mapOf("message" to question, "history" to history) + (fix?.let { mapOf("lat" to it.lat, "lng" to it.lng) } ?: emptyMap()))
                     target.add(Msg(false, r.text("reply").replace(Regex("\\s*\\[pet:\\d+]"), ""), pets = r.objs("items")))
                 } else {
                     val r = Api.post("ai/chat", mapOf("messages" to history + mapOf("role" to "user", "content" to question)))

@@ -14,6 +14,7 @@ import okhttp3.CookieJar
 import okhttp3.FormBody
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -144,6 +145,19 @@ object Api {
         jar.clear()
         withContext(Dispatchers.Main) { CookieManager.getInstance().removeAllCookies(null) }
         try { refreshSession() } catch (_: Exception) { _session.value = null }
+    }
+
+    /**
+     * A private booking link from an email or notification (…/booking/REF?t=…): opening it once lets this app's session
+     * see that booking, the same as on the website. Only for links to this website.
+     */
+    suspend fun primeLink(link: String) {
+        val u = link.toHttpUrlOrNull() ?: return
+        val base = baseUrl.toHttpUrlOrNull() ?: return
+        if (u.host != base.host || u.queryParameter("t").isNullOrEmpty()) return
+        try {
+            withContext(Dispatchers.IO) { http.newCall(Request.Builder().url(u).get().header("Accept", "text/html").build()).execute().close() }
+        } catch (_: Exception) { }
     }
 
     /* ---------- Requests ---------- */

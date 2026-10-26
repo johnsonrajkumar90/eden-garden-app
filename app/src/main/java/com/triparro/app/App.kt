@@ -1,5 +1,20 @@
 package com.triparro.app
 
+import android.Manifest
+import android.content.Context
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import com.triparro.app.core.Notifier
+import com.triparro.app.core.int
+import com.triparro.app.screens.NotificationsScreen
+import kotlinx.coroutines.launch
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,11 +96,38 @@ fun TripArroApp(activity: MainActivity) {
     val entry by nav.currentBackStackEntryAsState()
     val current = entry?.destination?.route ?: "explore"
     val link by activity.pendingLink
+    val scope = rememberCoroutineScope()
+
+    val session by Api.session.collectAsState()
+    val unread by Notifier.unread.collectAsState()
+    val readId by activity.pendingRead
+    val askNotify = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     LaunchedEffect(Unit) { try { Api.refreshSession() } catch (_: Exception) { } }
     LaunchedEffect(link) {
         val l = link
-        if (l != null && l.startsWith("http")) { nav.openLink(l); activity.pendingLink.value = null }
+        when {
+            l == null -> {}
+            l.startsWith("http") -> { activity.pendingLink.value = null; Api.primeLink(l); nav.openLink(l) }
+            l == "triparro-app://notifications" -> { activity.pendingLink.value = null; nav.navigate("notifications") }
+        }
+    }
+    LaunchedEffect(readId) {
+        if (readId > 0) { try { Notifier.setUnread(Api.post("notifications/read", mapOf("id" to readId)).int("unread")) } catch (_: Exception) { }; activity.pendingRead.value = 0 }
+    }
+    // Signed in: check for updates now (badge), and ask once for permission to show phone notifications (Android 13+)
+    LaunchedEffect(session?.user?.id) {
+        if (session?.user == null) return@LaunchedEffect
+        try { Notifier.check(activity, post = false) } catch (_: Exception) { }
+        val p = activity.getSharedPreferences("triparro", Context.MODE_PRIVATE)
+        if (Build.VERSION.SDK_INT >= 33 && !Notifier.canPost(activity) && !p.getBoolean("asked_notify", false)) {
+            p.edit().putBoolean("asked_notify", true).apply()
+            askNotify.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+    // Back in the app: refresh the badge
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        if (Api.session.value?.user != null) scope.launch { try { Notifier.check(activity) } catch (_: Exception) { } }
     }
 
     Scaffold(
@@ -103,7 +145,10 @@ fun TripArroApp(activity: MainActivity) {
                                     restoreState = true
                                 }
                             },
-                            icon = { Icon(t.icon, contentDescription = null) },
+                            icon = {
+                                if (t.route == "account" && unread > 0) BadgedBox(badge = { Badge { Text(if (unread > 99) "99+" else unread.toString()) } }) { Icon(t.icon, contentDescription = "$unread new notifications") }
+                                else Icon(t.icon, contentDescription = null)
+                            },
                             label = { Text(t.label) },
                             colors = NavigationBarItemDefaults.colors(selectedIconColor = Brand.Blue, selectedTextColor = Brand.Blue, indicatorColor = Brand.Sky),
                         )
@@ -121,6 +166,7 @@ fun TripArroApp(activity: MainActivity) {
                 composable("account") { AccountScreen(nav) }
                 composable("login") { LoginScreen(nav) }
                 composable("profile") { ProfileScreen(nav) }
+                composable("notifications") { NotificationsScreen(nav) }
                 composable("mypets") { MyPetsScreen(nav) }
                 composable("saved") { SavedPetsScreen(nav) }
                 composable("reserve") { ReserveScreen(nav) }
