@@ -30,6 +30,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
@@ -148,11 +151,11 @@ fun Choice(label: String, value: String, options: List<Pair<String, String>>, on
 
 @Composable
 fun Segmented(options: List<Pair<String, String>>, value: String, onChange: (String) -> Unit) {
-    androidx.compose.material3.SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
         options.forEachIndexed { i, (v, l) ->
-            androidx.compose.material3.SegmentedButton(
+            SegmentedButton(
                 selected = v == value, onClick = { onChange(v) },
-                shape = androidx.compose.material3.SegmentedButtonDefaults.itemShape(index = i, count = options.size),
+                shape = SegmentedButtonDefaults.itemShape(index = i, count = options.size),
             ) { Text(l, maxLines = 1) }
         }
     }
