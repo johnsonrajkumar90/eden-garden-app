@@ -116,4 +116,4 @@ jobs:
           rm -rf /tmp/nb/screens && mkdir -p /tmp/nb/screens
           cp -r screens/. /tmp/nb/screens/ 2>/dev/null || echo "nothing to copy" > /tmp/nb/screens/none.txt
           date > /tmp/nb/screens/when.txt
-          cd /tmp/nb && git add -A && git commit -qm "Screenshots ${{ github.run_number }}" && git push origin native-builds
+          cd /tmp/nb && git add -A && git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Screenshots ${{ github.run_number }}" && git push origin native-builds
