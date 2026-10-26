@@ -47,6 +47,7 @@ up; shot 05-stay-details 3
 up; up; shot 06-stay-rules 3
 tap "Check availability"; shot 07-booking-panel 4
 adb shell input keyevent 4; sleep 2
+adb shell input keyevent 4; sleep 2
 tap "Pets"; shot 08-pets 6
 adb emu geo fix 76.9558 11.0168 || true
 tap "Use my location"; shot 08b-pets-near-me 8
@@ -72,7 +73,8 @@ adb shell input keyevent 3; sleep 2
 curl -s http://127.0.0.1:8000/__add
 adb shell am start -W -n $PKG/com.triparro.app.MainActivity; sleep 6
 adb shell input keyevent 3; sleep 2
-adb shell cmd statusbar expand-notifications; shot 24-phone-notification 4
+adb shell cmd statusbar expand-notifications || adb shell service call statusbar 1; sleep 3
+adb shell cmd statusbar expand-notifications; adb exec-out screencap -p > screens/24-phone-notification.png
 adb shell cmd statusbar collapse
 adb shell dumpsys notification --noredact | grep -A3 "pkg=$PKG" | head -20 > screens/notifications-dump.txt 2>&1 || true
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true
