@@ -1,0 +1,20 @@
+== uninstall test build
+Success
+== install release APK
+Performing Streamed Install
+Success
+== signing certificate Android sees
+    Signatures: [43:2C:44:C9:29:CB:64:EC:18:97:E6:15:86:41:6A:D1:BC:16:01:F4:C4:27:D9:86:A2:6E:4A:46:D6:48:B4:A7]
+    versionCode=323 minSdk=24 targetSdk=36
+    versionName=2.0.23
+    signatures=PackageSignatures{e8cde5a version:2, signatures:[715c2cf7], past signatures:[]}
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE HAS_DOMAIN_URLS PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+== launch
+Starting: Intent { cmp=triparro.com/com.triparro.app.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 1731
+WaitTime: 1742
+Complete

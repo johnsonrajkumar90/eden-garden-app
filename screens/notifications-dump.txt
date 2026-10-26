@@ -1,0 +1,7 @@
+    NotificationRecord(0x020f8e98: pkg=triparro.com user=UserHandle{0} id=104 tag=null importance=3 key=0|triparro.com|104|null|10192: Notification(channel=updates shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0xff0e3a7a category=status vis=PRIVATE))
+      uid=10192 userId=0
+      opPkg=triparro.com
+      icon=Icon(typ=RESOURCE pkg=triparro.com id=0x7f050009)
+      flags=0x10
+      originalFlags=0x10
+      pri=0

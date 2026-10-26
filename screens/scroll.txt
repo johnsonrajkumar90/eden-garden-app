@@ -1,0 +1,5 @@
+before: bounds="[42,1720][399,1787]"
+swipe@1600: bounds="[42,521][399,588]"
+swipe@2000 slow: 
+swipe@1000: 
+touchscreen@1750 right: 
