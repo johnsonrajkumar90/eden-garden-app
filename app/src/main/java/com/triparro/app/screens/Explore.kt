@@ -150,7 +150,11 @@ fun ExploreScreen(nav: NavHostController) {
         } else {
             val h = home.data.value
             if (home.loading.value && h == null) item { Loading() }
-            home.error.value?.let { item { ErrorBox(it, { home.reload() }) } }
+            home.error.value?.let { e ->
+                item {
+                    ErrorBox(if (e == "Not found.") "The website at ${Api.baseUrl} does not answer the app yet. Upload the latest TripArro website package to it, then try again." else e, { home.reload() })
+                }
+            }
             if (h != null) {
                 val places = h.objs("destinations")
                 if (places.isNotEmpty()) {
