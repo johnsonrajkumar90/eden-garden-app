@@ -3,6 +3,7 @@
 package com.triparro.app.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import com.triparro.app.R
