@@ -11,10 +11,11 @@ adb shell am start -W -n $PKG/com.triparro.app.MainActivity; sleep 6
 adb exec-out screencap -p > screens/00-live-site.png
 adb shell am force-stop $PKG
 adb root; sleep 4
+adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher || true
 U=$(adb shell stat -c %u /data/data/$PKG | tr -d '\r')
 adb shell "mkdir -p /data/data/$PKG/shared_prefs && echo '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><map><string name=\"base_url\">http://10.0.2.2:8000</string></map>' > /data/data/$PKG/shared_prefs/triparro.xml && chown -R $U:$U /data/data/$PKG/shared_prefs && chmod 660 /data/data/$PKG/shared_prefs/triparro.xml"
 adb logcat -c
-shot() { sleep "${2:-5}"; adb exec-out screencap -p > "screens/$1.png"; }
+shot() { sleep "${2:-5}"; adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1; adb exec-out screencap -p > "screens/$1.png"; }
 tap() {
   adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1
   b=$(python3 - "$1" <<'PY'
