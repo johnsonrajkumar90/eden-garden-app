@@ -68,8 +68,8 @@ private val type = Typography(
     bodyMedium = TextStyle(fontFamily = Body, fontSize = 14.sp, lineHeight = 21.sp),
     bodySmall = TextStyle(fontFamily = Body, fontSize = 12.5.sp, lineHeight = 18.sp),
     labelLarge = TextStyle(fontFamily = Body, fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
-    labelMedium = TextStyle(fontFamily = Body, fontSize = 12.sp, fontWeight = FontWeight.Medium),
-    labelSmall = TextStyle(fontFamily = Body, fontSize = 11.sp, fontWeight = FontWeight.Medium),
+    labelMedium = TextStyle(fontFamily = Body, fontSize = 12.sp, fontWeight = FontWeight.Medium, lineHeight = 16.sp),
+    labelSmall = TextStyle(fontFamily = Body, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, lineHeight = 14.sp),
 )
 
 @Composable

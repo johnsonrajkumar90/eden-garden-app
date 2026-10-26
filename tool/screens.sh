@@ -40,8 +40,10 @@ up() { adb shell input swipe 540 1900 540 500 500; }
 open() { adb shell am start -W -a android.intent.action.VIEW -d "https://triparro.com$1" $PKG; }
 adb shell am start -W -n $PKG/com.triparro.app.MainActivity
 shot 01-explore 8
-up; shot 02-explore-favourites 3
-tap "Search"; shot 03-search-results 5
+adb shell input swipe 540 1600 540 300 600; shot 02-explore-favourites 3
+adb shell input swipe 540 1600 540 300 600; shot 02b-explore-more 3
+adb shell input swipe 540 600 540 2000 300; adb shell input swipe 540 600 540 2000 300; sleep 2
+tap "Search stays"; shot 03-search-results 5
 open /stays/1; shot 04-stay 6
 up; shot 05-stay-details 3
 up; up; shot 06-stay-rules 3
