@@ -18,11 +18,33 @@ A fully native Android app for TripArro. It talks to the website's REST API (`/a
 | Pets | Pet boarding search (city or **near me**, dates, pet, number of pets, facilities, instant, daycare, sort) · pet host page (gallery, pets welcome, facilities, free places, rules, extras, deposit, coupon, live price, verified reviews, save) · book with your pets · pet booking with progress, **Pet Stay Diary** (photos, videos, notes), pay, cancel with the refund shown first, verified review with photos, receipt |
 | Trips | Stays, resorts and pet boarding together: Upcoming, Staying now, Completed, Cancelled · booking details, pay the balance, invoice, directions, call the host, online check-in, messages, review, cancel |
 | AI | TripArro AI for stays and trips (real listings at live prices, guest limits and extra-guest charges) and the pet boarding assistant (real verified hosts only) |
-| Account | Sign in (email + password; one-time code / Google on the web page), profile and password, My pets (care notes, photo), saved pet hosts, **Open my dashboard** for hosts, resort owners, pet hosts, partners and the admin (the website's dashboard inside the app, already signed in), become a host / pet host, pet boarding manual, customer care, privacy, delete account, sign out |
+| Account | Sign in (email + password; one-time code / Google on the web page), **Notifications** (unread badge on the tab), profile and password, My pets (care notes, photo), saved pet hosts, **Open my dashboard** for hosts, resort owners, pet hosts, partners and the admin (the website's dashboard inside the app, already signed in), become a host / pet host, pet boarding manual, customer care, privacy, delete account, sign out |
 
 Payments open the secure PayU / Razorpay page inside the app; when the gateway sends the guest back, the app shows
 its own booking screen. UPI apps, phone, WhatsApp and Maps links open in their own apps. Links to the website
-(`/stays/…`, `/resorts/…`, `/pet-boarding/…`, `/pet-booking/…`, `/booking/…`) open the matching app screen.
+(`/stays/…`, `/resorts/…`, `/pet-boarding/…`, `/pet-booking/…`, `/booking/…`, `/pay/…`, `/resort-booking/…`) open the matching app screen;
+private booking links from emails (`?t=…`) work in the app even when signed out.
+
+## Notifications
+
+Booking confirmations, payment links, check-in / check-out, **Pet Stay Diary** updates and reminders come from the
+website (`GET /api/notifications`). The app checks for new ones when it opens and in the background about every
+15 minutes (WorkManager — Android's shortest background interval; Android may delay it to save battery) and shows each
+new one as a phone notification in the **Booking updates** channel; tapping it opens the booking. Android 13+ asks
+once for permission after sign-in; Account → Notifications has a *Turn on notifications* button if it was refused.
+Hosts and admins get their own dashboard notifications the same way.
+
+**Instant push** (within seconds, even if the app hasn't run for days) needs Firebase Cloud Messaging: a Firebase
+project, its `google-services.json` in `app/`, and the server key on the website. That is not set up yet — the
+15-minute check works without it.
+
+## Location
+
+*Use my location* on Pet boarding asks for permission, checks that location is switched on (with a *Turn on location*
+button to the phone's settings if it is off, or *Open app settings* if permission was refused for good), then gets a
+**fresh** position — network and GPS together, first answer wins, up to 15 seconds — and falls back to the last known
+position only if no new one comes. In the AI's pet mode, "near me" questions send the position when location is
+already allowed.
 
 ## Build
 
@@ -48,7 +70,8 @@ app/src/main/java/com/triparro/app/
   MainActivity.kt   start, splash, deep links      App.kt     tabs and navigation
   Web.kt            in-app web pages, payments, downloads, uploads
   core/Api.kt       API client, sign-in, cookies shared with web pages     core/Json.kt  JSON helpers
+  core/Notifier.kt  notifications (background check, phone notifications, badge)   core/Location.kt  current location
   ui/               theme (TripArro colours), shared components, inputs (dates, steppers, choices)
-  screens/          Explore, Property, Reserve, Trips/Booking, PetSearch, PetListing, PetBooking, Pets, Ai, Account
+  screens/          Explore, Property, Reserve, Trips/Booking, PetSearch, PetListing, PetBooking, Pets, Ai, Account, Notifications
 tool/screens.sh, tool/mock_server.py, tool/fixtures/   the emulator test (recorded test-site data)
 ```
