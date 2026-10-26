@@ -127,7 +127,11 @@ fun TripArroApp(activity: MainActivity) {
         when {
             l == null -> {}
             l.startsWith("http") -> { activity.pendingLink.value = null; Api.primeLink(l); nav.openLink(l) }
-            l == "triparro-app://notifications" -> { activity.pendingLink.value = null; nav.navigate("notifications") }
+            l.startsWith("triparro-app://") -> {   // the app's own links (notifications, sign in, sign up)
+                activity.pendingLink.value = null
+                val r = l.removePrefix("triparro-app://")
+                if (r in listOf("notifications", "login", "signup")) nav.navigate(r)
+            }
         }
     }
     LaunchedEffect(readId) {
