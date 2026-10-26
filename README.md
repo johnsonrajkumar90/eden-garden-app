@@ -46,6 +46,15 @@ button to the phone's settings if it is off, or *Open app settings* if permissio
 position only if no new one comes. In the AI's pet mode, "near me" questions send the position when location is
 already allowed.
 
+## Icon, splash and logo
+
+The launcher icon is the TripArro app icon (`tool/icon/triparro-icon-original.png`). `python3 tool/icon/make_icons.py`
+rebuilds every size from it: adaptive icon (gradient background + white "Triparro" foreground, so it fits round,
+squircle and square launchers), themed/monochrome icon (Android 13+), legacy icons for Android 7, and
+`tool/icon/play-store-icon-512.png` for the Play Console. The splash screen uses the same red with the white wordmark.
+Main screens (Explore, Pets, Trips, AI, Account) have a full-colour header that runs behind the status bar, with the
+white TripArro logo (`res/drawable-nodpi/logo_white.png`).
+
 ## Build
 
 Every push to the `native-app` branch builds on GitHub (`.github/workflows/build-native.yml`), then installs the APK
