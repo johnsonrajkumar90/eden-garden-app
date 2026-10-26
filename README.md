@@ -55,6 +55,24 @@ squircle and square launchers), themed/monochrome icon (Android 13+), legacy ico
 Main screens (Explore, Pets, Trips, AI, Account) have a full-colour header that runs behind the status bar, with the
 white TripArro logo (`res/drawable-nodpi/logo_white.png`).
 
+## Release (Google Play / live)
+
+Release builds must be signed with the **upload key** (`upload-keystore.jks`, kept outside this repository). Either:
+
+- add the 4 GitHub secrets below — every build is then signed automatically; or
+- sign a build yourself (no Android SDK needed — Python 3 with `cryptography`, and a JDK for `keytool`/`jarsigner`):
+
+  ```
+  KEYSTORE=/path/upload-keystore.jks KEY_ALIAS=upload STORE_PASSWORD=… KEY_PASSWORD=… \
+    python3 tool/release/sign_release.py triparro-2.0.N.apk triparro-2.0.N-release.apk triparro-2.0.N.aab triparro-2.0.N-release.aab
+  ```
+
+  The APK gets an APK Signature Scheme v2 signature (Android 7.0+), the `.aab` a JAR signature. Upload the
+  `-release.aab` to Google Play (Play App Signing re-signs it for phones); the `-release.apk` is for direct installs.
+  Upload key certificate SHA-256: `43:2C:44:C9:29:CB:64:EC:18:97:E6:15:86:41:6A:D1:BC:16:01:F4:C4:27:D9:86:A2:6E:4A:46:D6:48:B4:A7`
+  (for `ANDROID_SHA256` on the website, use the **app signing key** fingerprint from Play Console → App integrity once
+  the app is on Play; before that, this upload-key fingerprint works for the release APK).
+
 ## Build
 
 Every push to the `native-app` branch builds on GitHub (`.github/workflows/build-native.yml`), then installs the APK
