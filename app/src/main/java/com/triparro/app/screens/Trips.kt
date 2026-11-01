@@ -74,6 +74,7 @@ import com.triparro.app.core.text
 import com.triparro.app.openLink
 import com.triparro.app.openPdf
 import com.triparro.app.ui.BackBar
+import com.triparro.app.ui.matte
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Card
 import com.triparro.app.ui.EmptyBox
@@ -116,10 +117,10 @@ fun TripsScreen(nav: NavHostController) {
         }
     }
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue))).fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 18.dp)) {
+        Column(Modifier.matte().fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 18.dp)) {
             Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(28.dp))
             Text("My trips", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 12.dp))
-            Text("Stays, resorts and pet boarding in one place", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2))
+            Text("Stays, resorts and pet boarding in one place", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
         }
         if (session?.user == null) {
             EmptyBox("Sign in to see your trips", "Your stays, resorts and pet boarding bookings appear here.", "Sign in", icon = Icons.Outlined.Luggage) { nav.navigate("login") }

@@ -62,6 +62,7 @@ import com.triparro.app.core.objs
 import com.triparro.app.openLink
 import com.triparro.app.openPdf
 import com.triparro.app.ui.Brand
+import com.triparro.app.ui.matte
 import com.triparro.app.ui.Choice
 import com.triparro.app.ui.DateRangeField
 import com.triparro.app.ui.EmptyBox
@@ -139,11 +140,11 @@ fun PetSearchScreen(nav: NavHostController) {
 
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
         item {
-            Column(Modifier.fillMaxWidth().background(Brush.verticalGradient(listOf(Brand.TealDark, Brand.Blue))).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp)) {
+            Column(Modifier.fillMaxWidth().matte().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp)) {
                 Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(28.dp))
                 Gap(12)
                 Text("Pet boarding with verified hosts", style = MaterialTheme.typography.headlineSmall, color = Color.White)
-                Text("Homes and facilities that look after dogs, cats and other pets while you travel — checked by our team, paid securely.", color = Color(0xFFD7F2EE), style = MaterialTheme.typography.bodyMedium)
+                Text("Homes and facilities that look after dogs, cats and other pets while you travel — checked by our team, paid securely.", color = Brand.SunSoft, style = MaterialTheme.typography.bodyMedium)
                 Gap()
                 Column(Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(18.dp)).padding(12.dp)) {
                     OutlinedTextField(value = city, onValueChange = { city = it; near = null }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),

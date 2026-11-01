@@ -69,6 +69,7 @@ import com.triparro.app.core.text
 import com.triparro.app.openLink
 import com.triparro.app.openPdf
 import com.triparro.app.ui.Avatar
+import com.triparro.app.ui.matte
 import com.triparro.app.ui.BackBar
 import com.triparro.app.ui.Brand
 import com.triparro.app.ui.Card
@@ -107,10 +108,10 @@ fun AccountScreen(nav: NavHostController) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         // full-colour header (continues behind the status bar)
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-            .background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue))).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 22.dp)) {
+            .matte().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 22.dp)) {
             Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(30.dp))
             Text("Account", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 14.dp, bottom = 10.dp))
-            if (u == null) Text("Sign in to book, see your trips and pets, and open your dashboard if you host.", color = Color(0xFFC9D8F2), style = MaterialTheme.typography.bodyMedium)
+            if (u == null) Text("Sign in to book, see your trips and pets, and open your dashboard if you host.", color = Color(0xFFFFE0DC), style = MaterialTheme.typography.bodyMedium)
             else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
@@ -118,9 +119,9 @@ fun AccountScreen(nav: NavHostController) {
                     }
                     Column(Modifier.padding(start = 14.dp).weight(1f)) {
                         Text(u.name, style = MaterialTheme.typography.titleLarge, color = Color.White)
-                        Text(u.email, style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2))
-                        Text(roleNames[u.role] ?: u.role, style = MaterialTheme.typography.labelMedium, color = Brand.Navy,
-                            modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(50)).background(Color(0xFFBFF0E8)).padding(horizontal = 10.dp, vertical = 3.dp))
+                        Text(u.email, style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
+                        Text(roleNames[u.role] ?: u.role, style = MaterialTheme.typography.labelMedium, color = Brand.SunInk,
+                            modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(50)).background(Brand.Sun).padding(horizontal = 10.dp, vertical = 3.dp))
                     }
                 }
                 if (u.dashboard != null && u.role != "guest") {
@@ -129,7 +130,7 @@ fun AccountScreen(nav: NavHostController) {
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Brand.Blue)) {
                         Icon(Icons.Outlined.Dashboard, null, Modifier.size(18.dp)); Text(if (u.role == "referral") "  Open my partner portal" else "  Open my hosting")
                     }
-                    Text("This month's earnings, guests coming up and your listings.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 8.dp))
+                    Text("This month's earnings, guests coming up and your listings.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 8.dp))
                 }
             }
         }

@@ -132,7 +132,7 @@ fun EmptyBox(title: String, text: String, action: String? = null, icon: ImageVec
 
 @Composable
 fun Card(modifier: Modifier = Modifier, padding: Dp = 16.dp, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
-    val m = modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(18.dp), ambientColor = Brand.Navy.copy(alpha = 0.10f), spotColor = Brand.Navy.copy(alpha = 0.10f))
+    val m = modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(18.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
         .clip(RoundedCornerShape(18.dp)).background(Color.White)
         .let { if (onClick != null) it.clickable(onClick = onClick) else it }
     Box(m.padding(padding)) { Column { content() } }
@@ -156,7 +156,7 @@ fun Pill(text: String, tone: String = "muted") {
         "warn", "warning" -> Brand.WarnSoft to Brand.Warn
         "bad", "danger" -> Brand.DangerSoft to Brand.Danger
         "info" -> Brand.Sky to Brand.Blue
-        else -> Color(0xFFEEF1F5) to Brand.InkSoft
+        else -> Color(0xFFF1ECE8) to Brand.InkSoft
     }
     Text(text, color = fg, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
         modifier = Modifier.clip(RoundedCornerShape(50)).background(bg).padding(horizontal = 10.dp, vertical = 4.dp))
@@ -307,7 +307,7 @@ fun shareLink(context: android.content.Context, title: String, url: String) {
 /** The full-colour header of a screen (navy, white title, back arrow) — the status bar above it takes the same colour. */
 @Composable
 fun ColorHeader(title: String, sub: String? = null, onBack: (() -> Unit)? = null, actions: @Composable () -> Unit = {}) {
-    Column(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue)))
+    Column(Modifier.fillMaxWidth().matte()
         .padding(start = if (onBack != null) 4.dp else 16.dp, end = 12.dp, top = 4.dp, bottom = 18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White) }
@@ -316,7 +316,7 @@ fun ColorHeader(title: String, sub: String? = null, onBack: (() -> Unit)? = null
         }
         Column(Modifier.padding(start = if (onBack != null) 12.dp else 0.dp, top = 2.dp)) {
             Text(title, style = MaterialTheme.typography.headlineSmall, color = Color.White)
-            if (sub != null) Text(sub, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 4.dp))
+            if (sub != null) Text(sub, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 4.dp))
         }
     }
 }

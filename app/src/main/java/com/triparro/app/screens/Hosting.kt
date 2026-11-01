@@ -33,6 +33,7 @@ import com.triparro.app.core.objs
 import com.triparro.app.core.str
 import com.triparro.app.core.text
 import com.triparro.app.ui.Brand
+import com.triparro.app.ui.matte
 import com.triparro.app.ui.Card
 import com.triparro.app.ui.ColorHeader
 import com.triparro.app.ui.ErrorBox
@@ -50,7 +51,7 @@ import org.json.JSONObject
 private fun Stat(label: String, value: String, modifier: Modifier) {
     Column(modifier.clip(RoundedCornerShape(16.dp)).background(Color.White.copy(alpha = 0.12f)).padding(14.dp)) {
         Text(value, style = MaterialTheme.typography.headlineSmall, color = Color.White)
-        Text(label, style = MaterialTheme.typography.bodySmall, color = Color(0xFFC9D8F2))
+        Text(label, style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
     }
 }
 
@@ -81,7 +82,7 @@ fun HostingScreen(nav: NavHostController) {
     }
     val d = l.data.value
     Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
-        Column(Modifier.background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue)))) {
+        Column(Modifier.matte()) {
             ColorHeader(when (role) { "referral" -> "Partner portal"; "admin" -> "Admin"; else -> "My hosting" }, session?.user?.name, onBack = { nav.popBackStack() })
             if (d != null && role in listOf("host", "resort", "pethost")) {
                 val m = d.obj("month") ?: JSONObject()

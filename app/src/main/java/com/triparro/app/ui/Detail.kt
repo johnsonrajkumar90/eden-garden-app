@@ -118,7 +118,7 @@ fun RatingBadge(rating: Double?, count: Int?) {
 @Composable
 fun TitleCard(content: @Composable () -> Unit) {
     Column(Modifier.padding(horizontal = 12.dp).fillMaxWidth()
-        .shadow(10.dp, RoundedCornerShape(26.dp), ambientColor = Brand.Navy.copy(alpha = 0.16f), spotColor = Brand.Navy.copy(alpha = 0.16f))
+        .shadow(4.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
         .clip(RoundedCornerShape(26.dp)).background(Color.White).padding(18.dp)) { content() }
 }
 

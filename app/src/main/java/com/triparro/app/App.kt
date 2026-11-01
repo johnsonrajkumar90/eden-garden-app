@@ -90,6 +90,7 @@ import com.triparro.app.screens.ReserveScreen
 import com.triparro.app.screens.SavedPetsScreen
 import com.triparro.app.screens.TripsScreen
 import com.triparro.app.ui.Brand
+import com.triparro.app.ui.matte
 
 private data class Tab(val route: String, val label: String, val icon: ImageVector, val selectedIcon: ImageVector = icon)
 
@@ -188,7 +189,7 @@ fun TripArroApp(activity: MainActivity) {
             if (tabs.any { it.route == current }) {
                 Column {
                 HorizontalDivider(color = Brand.Line, thickness = 0.5.dp)
-                NavigationBar(containerColor = Color.White, tonalElevation = 0.dp) {
+                NavigationBar(containerColor = Color.Transparent, tonalElevation = 0.dp, modifier = Modifier.matte(Color.White)) {
                     tabs.forEach { t ->
                         NavigationBarItem(
                             selected = current == t.route,
@@ -216,9 +217,9 @@ fun TripArroApp(activity: MainActivity) {
     ) { pad ->
         // Full colour at the top: the status bar takes the colour of the screen's header
         val topColor = when {
-            current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat/") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Navy
+            current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat/") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Matte
             current.startsWith("photo") || current.startsWith("video") -> Color.Black
-            current == "pets" -> Brand.TealDark
+            current == "pets" -> Brand.Matte
             current.startsWith("property/") || current.startsWith("petlisting/") -> Color.Black
             else -> Color.White
         }

@@ -81,6 +81,7 @@ import com.triparro.app.core.text
 import com.triparro.app.openLink
 import com.triparro.app.openPdf
 import com.triparro.app.ui.Brand
+import com.triparro.app.ui.matte
 import com.triparro.app.ui.Gap
 import com.triparro.app.ui.Notice
 import com.triparro.app.ui.PrimaryButton
@@ -181,7 +182,7 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
     Column(Modifier.fillMaxSize().background(Brand.Page).imePadding().verticalScroll(rememberScrollState())) {
         // full-colour header
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
-            .background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF1C5BB0)))).padding(start = 8.dp, end = 20.dp, top = 4.dp, bottom = 64.dp)) {
+            .matte().padding(start = 8.dp, end = 20.dp, top = 4.dp, bottom = 64.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { if (step in listOf(Step.SignIn, Step.SignUp)) nav.popBackStack() else go(Step.SignIn) }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
@@ -191,12 +192,12 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
             }
             Column(Modifier.padding(start = 12.dp, top = 18.dp)) {
                 Text(title, style = MaterialTheme.typography.headlineMedium, color = Color.White)
-                Text(sub, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 6.dp))
+                Text(sub, style = MaterialTheme.typography.bodyMedium, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 6.dp))
             }
         }
         // the form card, overlapping the header
         Column(Modifier.offset(y = (-40).dp).padding(horizontal = 16.dp).fillMaxWidth()
-            .shadow(8.dp, RoundedCornerShape(24.dp), ambientColor = Brand.Navy.copy(alpha = 0.18f), spotColor = Brand.Navy.copy(alpha = 0.18f))
+            .shadow(4.dp, RoundedCornerShape(24.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
             .clip(RoundedCornerShape(24.dp)).background(Color.White).padding(20.dp)) {
             if (step == Step.SignIn || step == Step.SignUp) {
                 Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(Brand.Sky).padding(4.dp)) {

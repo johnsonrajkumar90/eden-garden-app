@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.triparro.app.core.Notifier
 import com.triparro.app.ui.SectionTitle
+import com.triparro.app.ui.matte
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -150,12 +151,12 @@ fun ExploreScreen(nav: NavHostController) {
             }
             Box(Modifier.fillMaxWidth()) {
                 Box(Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(Brush.verticalGradient(listOf(Brand.Navy, Brand.Blue, Color(0xFF1C5BB0)))))
+                    .matte())
                 Column(Modifier.padding(horizontal = 16.dp).padding(top = 14.dp)) {
                     Text(if (first != null) "Hi $first, where to next?" else "Where to next?", style = MaterialTheme.typography.headlineMedium, color = Color.White)
-                    Text("Verified homestays, villas and resorts — the full price before you pay.", style = MaterialTheme.typography.bodyMedium, color = Color(0xFFC9D8F2), modifier = Modifier.padding(top = 4.dp))
+                    Text("Verified homestays, villas and resorts — the full price before you pay.", style = MaterialTheme.typography.bodyMedium, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 4.dp))
                     Gap(18)
-                    Column(Modifier.fillMaxWidth().shadow(10.dp, RoundedCornerShape(22.dp), ambientColor = Brand.Navy.copy(alpha = 0.25f), spotColor = Brand.Navy.copy(alpha = 0.25f))
+                    Column(Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(22.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
                         .clip(RoundedCornerShape(22.dp)).background(Color.White).padding(14.dp)) {
                         OutlinedTextField(value = q, onValueChange = { q = it }, modifier = Modifier.fillMaxWidth(), singleLine = true,
                             leadingIcon = { Icon(Icons.Outlined.Search, null, tint = Brand.Blue) }, placeholder = { Text("Where to? Ooty, Munnar, Goa…") },
@@ -180,8 +181,8 @@ fun ExploreScreen(nav: NavHostController) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 18.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                 Shortcut(Icons.Outlined.Cottage, "Homestays", Brand.Blue, Brand.Sky) { kind = "stay"; search() }
                 Shortcut(Icons.Outlined.Pool, "Resorts", Brand.TealDark, Brand.TealSoft) { kind = "resort"; search() }
-                Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Color(0xFFFFECEC)) { nav.navigate("pets") { launchSingleTop = true } }
-                Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Color(0xFF6B4BC8), Color(0xFFF0EBFF)) { nav.navigate("ai") { launchSingleTop = true } }
+                Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Brand.Sky) { nav.navigate("pets") { launchSingleTop = true } }
+                Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Brand.SunInk, Brand.SunSoft) { nav.navigate("ai") { launchSingleTop = true } }
             }
         }
         if (searched) {
@@ -214,10 +215,10 @@ fun ExploreScreen(nav: NavHostController) {
                             items(places) { d ->
                                 Box(Modifier.width(150.dp).height(196.dp).clip(RoundedCornerShape(20.dp)).clickable { q = d.text("name"); search() }) {
                                     Photo(d.str("image"), Modifier.fillMaxSize(), corner = 0.dp, description = d.text("name"))
-                                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color(0xCC061A36))))
+                                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color(0xCC3A0A10))))
                                     Column(Modifier.align(Alignment.BottomStart).padding(12.dp)) {
                                         Text(d.text("name"), style = MaterialTheme.typography.titleLarge, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        Text("${d.int("count")} ${if (d.int("count") == 1) "stay" else "stays"}", style = MaterialTheme.typography.bodySmall, color = Color(0xFFDDE7F7))
+                                        Text("${d.int("count")} ${if (d.int("count") == 1) "stay" else "stays"}", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
                                     }
                                 }
                             }
@@ -245,7 +246,7 @@ fun PropertyCard(p: JSONObject, onClick: () -> Unit) {
     val price = p.obj("price") ?: JSONObject()
     val badges = p.obj("badges") ?: JSONObject()
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        .shadow(3.dp, RoundedCornerShape(22.dp), ambientColor = Brand.Navy.copy(alpha = 0.12f), spotColor = Brand.Navy.copy(alpha = 0.12f))
+        .shadow(3.dp, RoundedCornerShape(22.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
         .clip(RoundedCornerShape(22.dp)).background(Color.White).clickable(onClick = onClick)) {
         Box {
             Photo(p.str("image"), Modifier.fillMaxWidth().aspectRatio(1.55f), corner = 0.dp, description = p.text("title"))
