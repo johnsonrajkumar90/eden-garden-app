@@ -320,3 +320,8 @@ fun ColorHeader(title: String, sub: String? = null, onBack: (() -> Unit)? = null
         }
     }
 }
+
+
+/** Initials from a name, letters only: "Priya (Host)" → "P", "Kavya Pet Host" → "KP". */
+fun initialsOf(name: String): String =
+    name.replace(Regex("\\(.*?\\)"), " ").split(" ").mapNotNull { w -> w.firstOrNull { it.isLetter() }?.uppercaseChar() }.take(2).joinToString("").ifEmpty { "?" }

@@ -37,6 +37,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.ui.text.style.TextOverflow
 import com.triparro.app.ui.AmenityGrid
 import com.triparro.app.ui.Avatar
+import com.triparro.app.ui.initialsOf
 import com.triparro.app.ui.DetailSection
 import com.triparro.app.ui.ExpandRow
 import com.triparro.app.ui.FactTiles
@@ -224,7 +225,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                         }
                         val host = p.obj("host")
                         Row(Modifier.padding(top = 14.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Brand.Page).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Avatar((host?.text("person") ?: "").split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""), 42.dp)
+                            Avatar(initialsOf(host?.text("person") ?: ""), 42.dp)
                             Column(Modifier.padding(start = 12.dp).weight(1f)) {
                                 Text("Hosted by ${host?.text("person") ?: ""}", style = MaterialTheme.typography.titleSmall)
                                 if (host?.bool("verified") == true) Row(verticalAlignment = Alignment.CenterVertically) {
@@ -355,7 +356,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                             items(reviews) { r ->
                                 Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page).padding(14.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Avatar(r.text("name").take(1), 34.dp)
+                                        Avatar(initialsOf(r.text("name")), 34.dp)
                                         Column(Modifier.padding(start = 8.dp).weight(1f)) { Text(r.text("name"), style = MaterialTheme.typography.titleSmall); Text("Verified stay · ${r.text("date")}", style = MaterialTheme.typography.labelSmall, color = Brand.TealDark) }
                                         Stars(r.num("overall"))
                                     }

@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.text.style.TextOverflow
 import com.triparro.app.ui.AmenityGrid
 import com.triparro.app.ui.Avatar
+import com.triparro.app.ui.initialsOf
 import com.triparro.app.ui.DetailSection
 import com.triparro.app.ui.ExpandRow
 import com.triparro.app.ui.FactTiles
@@ -240,7 +241,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                                 items(rs.objs("items").take(8)) { r ->
                                     Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page).padding(14.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Avatar(r.text("name").take(1), 34.dp)
+                                            Avatar(initialsOf(r.text("name")), 34.dp)
                                             Column(Modifier.padding(start = 8.dp).weight(1f)) { Text(r.text("name"), style = MaterialTheme.typography.titleSmall); Text(r.text("date"), style = MaterialTheme.typography.labelSmall, color = Brand.Muted) }
                                             Stars(r.num("rating"))
                                         }
@@ -253,7 +254,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                         DetailSection("Your host", Icons.Outlined.Person) {
                             val h = p.obj("host")
                             if (h != null) Row(verticalAlignment = Alignment.CenterVertically) {
-                                Avatar(h.text("name").split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""), 48.dp)
+                                Avatar(initialsOf(h.text("name")), 48.dp)
                                 Column(Modifier.padding(start = 12.dp)) {
                                     Text(h.text("name"), style = MaterialTheme.typography.titleMedium)
                                     if (h.int("since") > 0) Text("Hosting since ${h.int("since")}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
@@ -262,11 +263,11 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                             Gap(12)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (p.bool("chat")) Button(onClick = { nav.navigate("chat/$kind/$id") }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f)) {
-                                    Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp)); Text("  Ask a question")
+                                    Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp)); Text("  Chat", maxLines = 1)
                                 }
                                 val c = p.arr("coords")
                                 if (c != null && c.length() == 2) OutlinedButton(onClick = { openMaps(ctx, c.optDouble(0), c.optDouble(1), p.text("title")) }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f)) {
-                                    Icon(Icons.Outlined.Directions, null, Modifier.size(18.dp)); Text("  Directions")
+                                    Icon(Icons.Outlined.Directions, null, Modifier.size(18.dp)); Text("  Directions", maxLines = 1)
                                 }
                             }
                         }
