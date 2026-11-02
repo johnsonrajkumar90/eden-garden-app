@@ -46,8 +46,8 @@ echo "Planner: $(texts)"
 tap "Where are you going?" || adb shell input tap 540 1150; sleep 1; adb shell input text "Ooty"; sleep 6
 shot 05-planner-search 2
 echo "Search: $(texts)"
-tap "Ooty Lake" || tap "Ooty"; sleep 2
-adb shell input keyevent 4 2>/dev/null; sleep 1
+tap "Government Botanical Garden, Ooty" || tap "Ooty Lake"; sleep 2
+sleep 1
 tap "Plan my trip"; shot 06-plan 45
 echo "Plan: $(texts)"
 adb shell input swipe 540 1900 540 600 500; shot 07-plan-more 3

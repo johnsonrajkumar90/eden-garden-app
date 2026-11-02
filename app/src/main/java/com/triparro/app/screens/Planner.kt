@@ -1,5 +1,9 @@
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+
 package com.triparro.app.screens
 
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.layout.imePadding
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
@@ -177,8 +181,10 @@ private fun SpotSearch(label: String, chosen: Spot?, onChoose: (Spot?) -> Unit, 
         placeholder = { Text("Stay, EV station, pet boarding, town…") }, leadingIcon = { Icon(Icons.Outlined.Search, null) },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }))
     if (busy && items.isEmpty()) Text("Searching…", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
+    val bring = remember { androidx.compose.foundation.relocation.BringIntoViewRequester() }
+    LaunchedEffect(items) { if (items.isNotEmpty()) { kotlinx.coroutines.delay(150); try { bring.bringIntoView() } catch (_: Exception) { } } }
     if (items.isNotEmpty()) {
-        Column(Modifier.padding(top = 6.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).background(Color.White)) {
+        Column(Modifier.bringIntoViewRequester(bring).padding(top = 6.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).background(Color.White)) {
             items.take(10).forEach { d ->
                 Row(Modifier.fillMaxWidth().clickable { onChoose(d.toSpot()); focus.clearFocus() }.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     val emoji = when (d.text("kind")) { "stay" -> "🏡"; "resort" -> "🏝️"; "ev" -> "🔌"; "pet" -> "🐾"; "place" -> "📸"; "booking" -> "🧳"; else -> "📍" }
@@ -221,7 +227,7 @@ fun PlannerScreen(nav: NavHostController) {
     if (p != null) { PlanView(nav, p, null, onBack = { plan = null }); return }
 
     Scaffold(topBar = { BackBar("Travel planner", { nav.popBackStack() }) { IconButton(onClick = { nav.navigate("myplaces") }) { Icon(Icons.Outlined.Star, "My places") } } }, containerColor = Brand.Page) { pad ->
-        Column(Modifier.fillMaxSize().padding(pad).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Column(Modifier.fillMaxSize().padding(pad).imePadding().verticalScroll(rememberScrollState()).padding(16.dp)) {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(PlannerBrush).padding(18.dp)) {
                 Text("Plan your drive", style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.ExtraBold)
                 Text("Restaurants, coffee, petrol pumps and EV chargers on the way — each with directions, and TripArro AI to guide you.", color = Color(0xFFFFE3DE), style = MaterialTheme.typography.bodyMedium)
@@ -295,7 +301,7 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
             scope.launch { try { Api.post("trip/plans/$saved/delete"); onDeleted() } catch (_: Exception) { } }
         }) { Icon(Icons.Outlined.Delete, "Delete plan") }
     } }, containerColor = Brand.Page) { pad ->
-        LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(pad).imePadding(), contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(PlannerBrush).padding(18.dp)) {
                     Text("${plan.obj("from")?.text("name")}  →  ${plan.obj("to")?.text("name")}", color = Color.White, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium)
@@ -568,7 +574,7 @@ fun PlaceEditScreen(nav: NavHostController, id: Int) {
     Scaffold(topBar = { BackBar(if (id == 0) "Add a favourite place" else "Edit place", { nav.popBackStack() }) {
         if (id != 0) IconButton(onClick = { scope.launch { try { Api.post("places/$id/delete"); AppState.refreshTick.value++; nav.popBackStack() } catch (e: Exception) { err = errorText(e) } } }) { Icon(Icons.Outlined.Delete, "Delete") }
     } }, containerColor = Brand.Page) { pad ->
-        Column(Modifier.fillMaxSize().padding(pad).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Column(Modifier.fillMaxSize().padding(pad).imePadding().verticalScroll(rememberScrollState()).padding(16.dp)) {
             Text("Photos", fontWeight = FontWeight.Bold)
             Row(Modifier.padding(top = 6.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 keep.toList().forEach { u -> Box { Photo(u, Modifier.size(96.dp), corner = 14.dp); RemoveDot { keep.remove(u) } } }
