@@ -36,7 +36,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Links to the website open the app (stays, resorts, pet boarding, bookings) once assetlinks.json lists it -->
+            <!-- Links to the website open the app (stays, resorts, pet services, bookings) once assetlinks.json lists it -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

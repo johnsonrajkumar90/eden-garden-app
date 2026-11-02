@@ -61,6 +61,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -145,6 +146,10 @@ fun ExploreScreen(nav: NavHostController) {
         }
     }
 
+    // Back on Explore from another tab: the search words and "searched" are kept, the results are not — load them again
+    // (otherwise Explore showed "0 places" with nothing else until Clear was tapped)
+    LaunchedEffect(Unit) { if (searched && results.isEmpty() && !loading) search(1) }
+
     val unread by Notifier.unread.collectAsState()
     val session by Api.session.collectAsState()
     val first = session?.user?.name?.substringBefore(' ')
@@ -198,7 +203,7 @@ fun ExploreScreen(nav: NavHostController) {
                 Shortcut(Icons.Outlined.Cottage, "Homestays", Brand.Blue, Brand.Sky, 2) { kind = "stay"; search() }
                 Shortcut(Icons.Outlined.Pool, "Resorts", Brand.TealDark, Brand.TealSoft, 3) { kind = "resort"; search() }
                 Shortcut(Icons.Outlined.Map, "Trip planner", Brand.Blue, Brand.SunSoft, 4) { nav.navigate("planner") { launchSingleTop = true } }
-                Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Brand.Sky, 4) { nav.navigate("pets") { launchSingleTop = true } }
+                Shortcut(Icons.Outlined.Pets, "Pet services", Brand.CoralDark, Brand.Sky, 4) { nav.navigate("pets") { launchSingleTop = true } }
                 Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Brand.SunInk, Brand.SunSoft, 5) { nav.navigate("ai") { launchSingleTop = true } }
                 Shortcut(Icons.Outlined.EvStation, "EV chargers", Color(0xFF00704A), Brand.TealSoft, 6) { nav.navigate("chargers") { launchSingleTop = true } }
             }
@@ -411,7 +416,7 @@ fun OverlayTag(text: String) {
         modifier = Modifier.clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.94f)).padding(horizontal = 10.dp, vertical = 5.dp))
 }
 
-/** A round shortcut on Explore (Homestays, Resorts, Pet boarding, Ask AI). */
+/** A round shortcut on Explore (Homestays, Resorts, Pet services, Ask AI). */
 @Composable
 private fun Shortcut(icon: ImageVector, label: String, tint: Color, bg: Color, index: Int = 0, onClick: () -> Unit) {
     Column(Modifier.width(82.dp).appear(index).clip(RoundedCornerShape(16.dp)).pressable(onClick).padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {

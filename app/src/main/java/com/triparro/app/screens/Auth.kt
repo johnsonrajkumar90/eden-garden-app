@@ -184,7 +184,7 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
 
     val (title, sub) = when (step) {
         Step.SignIn -> "Welcome back" to "Sign in to book, see your trips and look after your pets' stays."
-        Step.SignUp -> "Create your account" to "Book verified stays, resorts and pet boarding — in a minute."
+        Step.SignUp -> "Create your account" to "Book verified stays, resorts and pet services — in a minute."
         Step.Code -> "Enter your code" to "Check your email (and SMS) for a 6-digit code."
         Step.AskCode -> "Sign in with a code" to "No password needed — we'll send you a one-time code."
         Step.CheckEmail -> "Confirm your email" to "One last step to switch your account on."

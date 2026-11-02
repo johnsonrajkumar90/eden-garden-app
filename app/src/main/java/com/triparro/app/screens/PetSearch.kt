@@ -96,7 +96,7 @@ import org.json.JSONObject
 private val facilityChips = listOf("pickup" to "Pickup & drop", "ac" to "AC", "cctv" to "CCTV", "grooming" to "Grooming", "vet" to "Vet help",
     "supervision" to "24-hour care", "outdoor" to "Outdoor play", "indoor" to "Indoor", "private_room" to "Private room")
 
-/** Pet boarding: verified pet hosts by city or near you, dates, pet, filters, and the AI assistant. */
+/** Pet services: verified pet hosts by city or near you, dates, pet, filters, and the AI assistant. */
 @Composable
 fun PetSearchScreen(nav: NavHostController) {
     val ctx = LocalContext.current

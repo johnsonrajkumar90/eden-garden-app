@@ -100,11 +100,11 @@ import com.triparro.app.ui.today
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-/** One trip in the list: a stay, a resort or a pet boarding booking. */
+/** One trip in the list: a stay, a resort or a pet services booking. */
 private data class Trip(val ref: String, val pet: Boolean, val title: String, val image: String?, val checkIn: String, val checkOut: String,
                         val status: String, val statusLabel: String, val tone: String, val sub: String)
 
-/** My trips: stays, resorts and pet boarding together — Upcoming, Staying now, Completed, Cancelled. */
+/** My trips: stays, resorts and pet services together — Upcoming, Staying now, Completed, Cancelled. */
 @Composable
 fun TripsScreen(nav: NavHostController) {
     val session by Api.session.collectAsState()
@@ -121,10 +121,10 @@ fun TripsScreen(nav: NavHostController) {
         Column(Modifier.matte().fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 18.dp)) {
             Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(28.dp))
             Text("My trips", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 12.dp))
-            Text("Stays, resorts and pet boarding in one place", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
+            Text("Stays, resorts and pet services in one place", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
         }
         if (session?.user == null) {
-            EmptyBox("Sign in to see your trips", "Your stays, resorts and pet boarding bookings appear here.", "Sign in", icon = Icons.Outlined.Luggage) { nav.navigate("login") }
+            EmptyBox("Sign in to see your trips", "Your stays, resorts and pet services bookings appear here.", "Sign in", icon = Icons.Outlined.Luggage) { nav.navigate("login") }
         } else TripsList(nav, tab, { tab = it }, l)
     }
 }
@@ -152,7 +152,7 @@ private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l
                 fun stayTrip(b: JSONObject) = Trip(b.text("ref"), false, b.obj("listing")?.text("title") ?: "", b.obj("listing")?.str("image"), b.text("check_in"), b.text("check_out"),
                     b.text("status"), b.text("status_label"), b.text("status_tone"), plural(b.int("nights"), "night") + " · " + plural(b.int("guests"), "guest"))
                 fun petTrip(b: JSONObject) = Trip(b.text("ref"), true, b.obj("listing")?.text("title") ?: "", b.obj("listing")?.str("image"), b.text("check_in"), b.text("check_out"),
-                    b.text("status"), b.text("status_label"), b.text("status_tone"), "Pet boarding · " + plural(b.int("pets_count"), "pet"))
+                    b.text("status"), b.text("status_label"), b.text("status_tone"), "Pet services · " + plural(b.int("pets_count"), "pet"))
                 (stays.objs("upcoming") + stays.objs("past") + stays.objs("cancelled")).forEach { all.add(stayTrip(it)) }
                 listOf("upcoming", "active", "completed", "cancelled").forEach { k -> pets.objs(k).forEach { all.add(petTrip(it)) } }
                 val shown = all.filter { t ->
@@ -162,7 +162,7 @@ private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l
                     when (tab) { 0 -> !cancelled && !staying && !done; 1 -> staying; 2 -> done; else -> cancelled }
                 }.let { if (tab == 0 || tab == 1) it.sortedBy { t -> t.checkIn } else it.sortedByDescending { t -> t.checkIn } }
                 if (shown.isEmpty()) EmptyBox(listOf("No upcoming trips", "Nobody staying now", "No completed trips", "No cancelled trips")[tab],
-                    "Find a stay or pet boarding and it will show here.", "Explore stays", icon = listOf(Icons.Outlined.FlightTakeoff, Icons.Outlined.Hotel, Icons.Outlined.TaskAlt, Icons.Outlined.EventBusy)[tab]) { nav.navigate("explore") }
+                    "Find a stay or pet services and it will show here.", "Explore stays", icon = listOf(Icons.Outlined.FlightTakeoff, Icons.Outlined.Hotel, Icons.Outlined.TaskAlt, Icons.Outlined.EventBusy)[tab]) { nav.navigate("explore") { popUpTo("explore"); launchSingleTop = true } }
                 LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(shown, key = { it.ref }) { t ->
                         Card(padding = 12.dp, onClick = { nav.navigate((if (t.pet) "petbooking/" else "booking/") + t.ref) }) {

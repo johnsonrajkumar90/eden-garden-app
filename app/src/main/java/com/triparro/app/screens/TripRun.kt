@@ -270,7 +270,7 @@ fun TripRunScreen(nav: NavHostController, id: Int) {
 
     Scaffold(topBar = { BackBar(title.ifEmpty { "Your trip" }, { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
         when {
-            loading -> Box(Modifier.padding(pad)) { Loading() }
+            loading -> Box(Modifier.padding(pad)) { TripLoadingSmall("Getting your trip ready") }
             t == null -> Box(Modifier.padding(pad).padding(16.dp)) { ErrorBox(err ?: "This trip is not available any more.") }
             else -> LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 item {

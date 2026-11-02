@@ -116,7 +116,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 /*
- * Travel Planner: from where you are to a stay, resort, EV station, pet boarding, tourist place or any town —
+ * Travel Planner: from where you are to a stay, resort, EV station, pet services, tourist place or any town —
  * restaurants, coffee shops, petrol pumps and EV chargers on the way, each with directions, a TripArro AI guide,
  * saved plans (My trips → Trip plans) and favourite places (private, or public for every traveller).
  */
@@ -180,7 +180,7 @@ private fun SpotSearch(label: String, chosen: Spot?, onChoose: (Spot?) -> Unit, 
         return
     }
     OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth(), label = { Text(label) }, singleLine = true, shape = RoundedCornerShape(16.dp),
-        placeholder = { Text("Stay, EV station, pet boarding, town…") }, leadingIcon = { Icon(Icons.Outlined.Search, null) },
+        placeholder = { Text("Stay, EV station, pet services, town…") }, leadingIcon = { Icon(Icons.Outlined.Search, null) },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }))
     if (busy && items.isEmpty()) Text("Searching…", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
     val bring = remember { androidx.compose.foundation.relocation.BringIntoViewRequester() }
@@ -227,6 +227,7 @@ fun PlannerScreen(nav: NavHostController) {
     }
     val p = plan
     if (p != null) { PlanView(nav, p, null, onBack = { plan = null }); return }
+    if (busy) { TripLoading(if (from?.kind == "gps") "Your location" else from?.name, to?.name); return }
 
     Scaffold(topBar = { BackBar("Travel planner", { nav.popBackStack() }) { IconButton(onClick = { nav.navigate("myplaces") }) { Icon(Icons.Outlined.Star, "My places") } } }, containerColor = Brand.Page) { pad ->
         Column(Modifier.fillMaxSize().padding(pad).imePadding().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -522,7 +523,7 @@ fun SavedPlanScreen(nav: NavHostController, id: Int) {
     val p = l.data.value?.obj("plan")
     when {
         p != null -> PlanView(nav, p, id, onBack = { nav.popBackStack() }, onDeleted = { nav.popBackStack() }, tripInfo = l.data.value)
-        l.loading.value -> Scaffold(topBar = { BackBar("Trip plan", { nav.popBackStack() }) }) { pad -> Box(Modifier.padding(pad)) { Loading() } }
+        l.loading.value -> TripLoadingSmall("Opening your trip plan")
         else -> Scaffold(topBar = { BackBar("Trip plan", { nav.popBackStack() }) }) { pad -> Box(Modifier.padding(pad)) { ErrorBox(l.error.value ?: "Could not open this plan.", { l.reload() }) } }
     }
 }

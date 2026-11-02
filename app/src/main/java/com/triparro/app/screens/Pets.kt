@@ -235,7 +235,7 @@ fun SavedPetsScreen(nav: NavHostController) {
         when {
             d == null && l.loading.value -> Loading()
             d == null -> ErrorBox(l.error.value ?: "Could not load.", { l.reload() })
-            d.objs("items").isEmpty() -> EmptyBox("Nothing saved yet", "Tap the heart on a pet host's page to keep it here.", "Find pet boarding") { nav.navigate("pets") }
+            d.objs("items").isEmpty() -> EmptyBox("Nothing saved yet", "Tap the heart on a pet host's page to keep it here.", "Find pet services") { nav.navigate("pets") }
             else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(d.objs("items"), key = { it.int("id") }) { c -> PetHostCard(c) { nav.navigate("petlisting/${c.int("id")}") } }
             }

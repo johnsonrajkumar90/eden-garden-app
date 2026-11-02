@@ -153,13 +153,13 @@ fun VideoScreen(nav: NavHostController, url: String) {
     }
 }
 
-/** The receipt of a pet boarding booking, made in the app from the booking. */
+/** The receipt of a pet services booking, made in the app from the booking. */
 @Composable
 fun PetReceiptScreen(nav: NavHostController, ref: String) {
     val l = rememberLoader(ref) { Api.get("pets/bookings/$ref") }
     val b = l.data.value
     Column(Modifier.fillMaxSize().background(Brand.Page)) {
-        ColorHeader("Receipt", "Pet boarding · $ref", onBack = { nav.popBackStack() })
+        ColorHeader("Receipt", "Pet services · $ref", onBack = { nav.popBackStack() })
         when {
             b == null && l.loading.value -> Loading()
             b == null -> ErrorBox(l.error.value ?: "Could not load the receipt.", { l.reload() })

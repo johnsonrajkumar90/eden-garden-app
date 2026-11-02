@@ -211,7 +211,7 @@ private fun PhotoPick(label: String, uri: Uri?, error: String?, onPick: (Uri) ->
     }
 }
 
-/** Become a pet host: register a pet host account (ID, payouts, emergency contact, photos). The team checks it before listings go live. */
+/** Become a pet host: register a pet host account (ID, pets and services, emergency contact, photos). Payouts are added later on the website (Payouts). The team checks it before listings go live. */
 @Composable
 fun BecomePetHostScreen(nav: NavHostController) {
     val ctx = LocalContext.current
@@ -223,6 +223,8 @@ fun BecomePetHostScreen(nav: NavHostController) {
     var photo by remember { mutableStateOf<Uri?>(null) }
     var wa by remember { mutableStateOf(true) }
     var terms by remember { mutableStateOf(false) }
+    val petTypes = remember { androidx.compose.runtime.mutableStateListOf<String>() }
+    val services = remember { androidx.compose.runtime.mutableStateListOf<String>() }
     var busy by remember { mutableStateOf(false) }
     var locating by remember { mutableStateOf(false) }
     var err by remember { mutableStateOf<String?>(null) }
@@ -276,14 +278,24 @@ fun BecomePetHostScreen(nav: NavHostController) {
             }
             Gap()
             Card {
-                SectionHead(4, "Payouts", "A bank account or a UPI ID — we pay you after each stay.")
-                fld("bank_holder", "Account holder name")(); fld("bank_name", "Bank name")(); fld("bank_account", "Account number", KeyboardType.Number)(); fld("bank_ifsc", "IFSC")()
-                Text("or", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                fld("upi", "UPI ID (e.g. name@okbank)")()
+                SectionHead(4, "Pets and services", "Tick everything you can take care of — you can fine-tune each listing later.")
+                Text("Type of pets", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                (meta.data.value?.objs("pet_types")?.map { it.text("value") to it.text("label") } ?: listOf("dog" to "Dogs", "cat" to "Cats")).forEach { (k, l) ->
+                    CheckRow(l, k in petTypes, { on -> if (on) petTypes.add(k) else petTypes.remove(k) })
+                }
+                errs["pet_types"]?.let { Text(it, color = Brand.Danger, style = MaterialTheme.typography.bodySmall) }
+                Gap(8)
+                Text("Services you offer", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                (meta.data.value?.objs("services")?.map { it.text("value") to it.text("label") } ?: listOf("boarding" to "Overnight boarding", "daycare" to "Daycare")).forEach { (k, l) ->
+                    CheckRow(l, k in services, { on -> if (on) services.add(k) else services.remove(k) })
+                }
+                errs["services"]?.let { Text(it, color = Brand.Danger, style = MaterialTheme.typography.bodySmall) }
+                Gap(4)
+                Text("Your account opens straight away. Add where to send your earnings any time in your pet host dashboard → Payouts.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
             }
             Gap()
             Card {
-                SectionHead(5, "Emergency contact")
+                SectionHead(5, "Emergency contact (optional)")
                 fld("emergency_name", "Name")(); fld("emergency_phone", "Phone", KeyboardType.Phone)()
                 CheckRow("Send me booking updates on WhatsApp", wa, { wa = it })
                 CheckRow("I accept the host terms and will care for every pet as described in its profile", terms, { terms = it })
@@ -300,7 +312,8 @@ fun BecomePetHostScreen(nav: NavHostController) {
                                 idFront?.let { u -> copyToCache(ctx, u, "idf")?.let { Upload("id_front", it.first, it.second) } },
                                 idBack?.let { u -> copyToCache(ctx, u, "idb")?.let { Upload("id_back", it.first, it.second) } },
                                 photo?.let { u -> copyToCache(ctx, u, "me")?.let { Upload("photo", it.first, it.second) } })
-                            val fields = f.entries.map { it.key to it.value } + listOfNotNull("terms" to (if (terms) "1" else ""), if (wa) "whatsapp_optin" to "1" else null)
+                            val fields = f.entries.map { it.key to it.value } + listOfNotNull("terms" to (if (terms) "1" else ""), if (wa) "whatsapp_optin" to "1" else null, "offer" to "1") +
+                                petTypes.map { "pet_types[]" to it } + services.map { "services[]" to it }
                             val r = Api.postSiteMultipart("become-a-pet-host", fields, files)
                             signedIn = r.text("verify").isEmpty()
                             if (signedIn) try { Api.refreshSession() } catch (_: Exception) { }

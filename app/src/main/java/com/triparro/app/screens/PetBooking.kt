@@ -85,7 +85,7 @@ import org.json.JSONObject
 
 private val steps = listOf("awaiting_approval" to "Request sent", "awaiting_payment" to "Payment", "confirmed" to "Confirmed", "checked_in" to "Checked in", "checked_out" to "Checked out")
 
-/** A pet boarding booking: progress, the private Pet Stay Diary, price, pay, cancel, review, receipt. */
+/** A pet services booking: progress, the private Pet Stay Diary, price, pay, cancel, review, receipt. */
 @Composable
 fun PetBookingScreen(nav: NavHostController, ref: String, notice: String?) {
     val ctx = LocalContext.current

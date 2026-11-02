@@ -663,7 +663,7 @@ private fun AgentPortal(nav: NavHostController) {
                         }
                     }
                     Gap()
-                    PrimaryButton("Find a stay for a guest", { nav.navigate("explore") { launchSingleTop = true } })
+                    PrimaryButton("Find a stay for a guest", { nav.navigate("explore") { popUpTo("explore"); launchSingleTop = true } })
                 }
             }
             Gap(24)

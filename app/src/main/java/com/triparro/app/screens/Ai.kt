@@ -73,7 +73,7 @@ import org.json.JSONObject
 
 private class Msg(val user: Boolean, val text: String, val stays: List<JSONObject> = emptyList(), val pets: List<JSONObject> = emptyList(), val actions: List<JSONObject> = emptyList())
 
-/** TripArro AI: the travel companion (real stays at live prices, guest limits and extra-guest charges) and the pet boarding assistant. */
+/** TripArro AI: the travel companion (real stays at live prices, guest limits and extra-guest charges) and the pet services assistant. */
 @Composable
 fun AiScreen(nav: NavHostController) {
     var mode by AppState.aiMode
@@ -122,7 +122,7 @@ fun AiScreen(nav: NavHostController) {
             }
             Gap(12)
             Row(Modifier.clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.14f)).padding(4.dp)) {
-                listOf("travel" to "Stays & trips", "pets" to "Pet boarding").forEach { (k, l) ->
+                listOf("travel" to "Stays & trips", "pets" to "Pet services").forEach { (k, l) ->
                     val on = mode == k
                     Text(l, style = MaterialTheme.typography.labelLarge, color = if (on) Brand.Blue else Color.White,
                         modifier = Modifier.weight(1f).clip(RoundedCornerShape(50)).background(if (on) Color.White else Color.Transparent).clickable { mode = k }.padding(vertical = 9.dp),
@@ -135,7 +135,7 @@ fun AiScreen(nav: NavHostController) {
                 val ideas = if (mode == "pets") listOf("Find dog boarding in Coimbatore", "Cat-friendly boarding with pickup", "Boarding for my Labrador under ₹800", "What should I pack for my dog?")
                             else listOf("A cottage in Ooty for 6 people this weekend", "How many guests can stay, and what do extra guests cost?", "Resorts in Munnar under ₹6,000", "Plan 3 days in Kodaikanal")
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(if (mode == "pets") "Ask about pet boarding" else "How can I help with your trip?", style = MaterialTheme.typography.titleLarge)
+                    Text(if (mode == "pets") "Ask about pet services" else "How can I help with your trip?", style = MaterialTheme.typography.titleLarge)
                     Text(if (mode == "pets") "Tell me the city, dates and your pet — I'll find verified hosts." else "Ask in your own words — places, dates, guests, budget.", style = MaterialTheme.typography.bodyMedium, color = Brand.InkSoft)
                     Gap(4)
                     ideas.forEach { idea ->

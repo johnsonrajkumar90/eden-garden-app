@@ -18,7 +18,7 @@ fun JSONObject.strings(key: String): List<String> = arr(key)?.strings() ?: empty
 fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 fun JSONArray.strings(): List<String> = (0 until length()).mapNotNull { i -> if (isNull(i)) null else optString(i).takeIf { it.isNotEmpty() } }
 
-/** Price lines come either as [label, amount] pairs (pet boarding) or as { label, amount } objects (stays). */
+/** Price lines come either as [label, amount] pairs (pet services) or as { label, amount } objects (stays). */
 data class PriceLine(val label: String, val amount: Double, val note: String? = null)
 
 fun JSONObject.priceLines(key: String = "lines"): List<PriceLine> {

@@ -12,7 +12,7 @@ object AppState {
     /** A payment form from the API ({ action, fields }) and where to go when the gateway sends the guest back. */
     var payment = mutableStateOf<PaymentForm?>(null)
 
-    /** The AI tab: "travel" (stays, resorts, trips) or "pets" (pet boarding assistant). */
+    /** The AI tab: "travel" (stays, resorts, trips) or "pets" (pet services assistant). */
     var aiMode = mutableStateOf("travel")
 
     /** Google sign-in: a message for the sign-in screen when it did not work. */

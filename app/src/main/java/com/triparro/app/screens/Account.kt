@@ -169,7 +169,7 @@ fun AccountScreen(nav: NavHostController) {
             HorizontalDivider(color = Brand.Line)
             Item(Icons.Outlined.Pets, "Become a pet host", "Board pets and earn from home") { nav.navigate("become-pet-host") }
             HorizontalDivider(color = Brand.Line)
-            Item(Icons.AutoMirrored.Outlined.MenuBook, "Pet boarding user manual", "PDF") { nav.openPdf("assets/manuals/pet-boarding-manual.pdf", "Pet boarding user manual") }
+            Item(Icons.AutoMirrored.Outlined.MenuBook, "Pet services user manual", "PDF") { nav.openPdf("assets/manuals/pet-boarding-manual.pdf", "Pet services user manual") }
         }
         Gap()
         Card {
