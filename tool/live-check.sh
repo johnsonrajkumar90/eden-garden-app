@@ -1,23 +1,11 @@
 #!/bin/bash
-# Calls the live site's API from GitHub (the build machines can reach triparro.com) and prints what it answers.
-B=https://triparro.com
-for u in "api/session" "api/chargers/meta" "api/chargers?lat=11.0168&lng=76.9558&distance=25" "api/geocode?q=Ooty" "api/trip/destinations?q=ooty" "api/places/community?lat=11.0168&lng=76.9558&km=25" "api/ev/meta"; do
-  echo "=================== GET $u"
-  curl -s -m 40 -A "EdenGardenApp TripArro" -H "Accept: application/json" -w "\n--> HTTP %{http_code} in %{time_total}s\n" "$B/$u" | head -c 1500 | sed 's/"csrf":"[^"]*"/"csrf":"…"/'
-  echo
+# Probes the OpenStreetMap place servers (Overpass) the way the website calls them.
+Q='[out:json][timeout:20];nwr(around:3000,11.0168,76.9558)["amenity"~"^(cafe|fuel|charging_station)$"];out center 5;'
+UA='TripArro travel planner (https://triparro.com)'
+for url in https://overpass-api.de/api/interpreter https://overpass.private.coffee/api/interpreter https://overpass.kumi.systems/api/interpreter https://maps.mail.ru/osm/tools/overpass/api/interpreter; do
+  echo "== $url (form POST, our UA)"
+  curl -s -m 40 -A "$UA" -H "Accept: application/json" --data-urlencode "data=$Q" -w "\n--> HTTP %{http_code} %{time_total}s\n" "$url" | head -c 400; echo
+  echo "== $url (GET, our UA)"
+  curl -s -m 40 -A "$UA" -G --data-urlencode "data=$Q" -o /dev/null -w "--> HTTP %{http_code} %{time_total}s\n" "$url"
 done
-echo "=================== POST api/trip/plan (with session + CSRF)"
-J=$(curl -s -c c.txt -b c.txt -A "EdenGardenApp" -H "Accept: application/json" "$B/api/session")
-T=$(echo "$J" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("csrf",""))' 2>/dev/null)
-curl -s -m 60 -c c.txt -b c.txt -A "EdenGardenApp" -H "Accept: application/json" -H "Content-Type: application/json" -H "X-CSRF-TOKEN: $T" -H "X-Requested-With: XMLHttpRequest" \
-  -d '{"from_lat":11.0168,"from_lng":76.9558,"from_name":"Coimbatore","to_lat":11.4102,"to_lng":76.695,"to_name":"Ooty","to_kind":"town"}' \
-  -w "\n--> HTTP %{http_code} in %{time_total}s\n" "$B/api/trip/plan" | python3 -c 'import sys
-d=sys.stdin.read()
-try:
-  import json; j=json.loads(d.split("\n-->")[0]); p=j.get("plan",{})
-  print({"message": j.get("message"), "route": {k:p.get("route",{}).get(k) for k in ("km","minutes","by_road")}, "categories": p.get("categories"), "notes": p.get("notes"), "guide": (p.get("guide") or {}).get("source")})
-except Exception as e: print(d[:1500])
-print(d[d.find("-->"):])'
-echo "=================== upstreams from GitHub"
-curl -s -m 20 -o /dev/null -w "OSRM %{http_code}\n" "https://router.project-osrm.org/route/v1/driving/76.9558,11.0168;76.695,11.4102?overview=false"
-curl -s -m 30 -o /dev/null -w "Overpass %{http_code}\n" --data-urlencode 'data=[out:json];node(around:500,11.0168,76.9558)[amenity=cafe];out 1;' https://overpass-api.de/api/interpreter
+echo "== OSRM"; curl -s -m 20 -A "$UA" "https://router.project-osrm.org/route/v1/driving/76.9558,11.0168;76.695,11.4102?overview=false" | head -c 300; echo
