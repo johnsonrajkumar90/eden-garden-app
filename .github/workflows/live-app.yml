@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [live-app]
+permissions:
+  contents: write
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -29,9 +31,7 @@ jobs:
           script: bash tool/live-app.sh > live-run.log 2>&1 || true
       - name: Keep the results
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: live-app
-          path: |
-            live/
-            live-run.log
+        run: |
+          rm -rf /tmp/lr && mkdir -p /tmp/lr && cp -r live live-run.log /tmp/lr/ 2>/dev/null || true
+          cd /tmp/lr && git init -q && git checkout -q -b live-results && git add -A && git -c user.name=github-actions -c user.email=actions@github.com commit -qm "Live app run ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" live-results
