@@ -2,6 +2,7 @@
 
 package com.triparro.app.screens
 
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.EvStation
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -195,6 +196,7 @@ fun ExploreScreen(nav: NavHostController) {
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 18.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 Shortcut(Icons.Outlined.Cottage, "Homestays", Brand.Blue, Brand.Sky, 2) { kind = "stay"; search() }
                 Shortcut(Icons.Outlined.Pool, "Resorts", Brand.TealDark, Brand.TealSoft, 3) { kind = "resort"; search() }
+                Shortcut(Icons.Outlined.Map, "Trip planner", Brand.Blue, Brand.SunSoft, 4) { nav.navigate("planner") { launchSingleTop = true } }
                 Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Brand.Sky, 4) { nav.navigate("pets") { launchSingleTop = true } }
                 Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Brand.SunInk, Brand.SunSoft, 5) { nav.navigate("ai") { launchSingleTop = true } }
                 Shortcut(Icons.Outlined.EvStation, "EV chargers", Color(0xFF00704A), Brand.TealSoft, 6) { nav.navigate("chargers") { launchSingleTop = true } }
