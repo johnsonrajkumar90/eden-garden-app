@@ -64,6 +64,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -200,6 +203,28 @@ fun TripArroApp(activity: MainActivity) {
     // Back in the app: refresh the badge
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (Api.session.value?.user != null) scope.launch { try { Notifier.check(activity) } catch (_: Exception) { } }
+    }
+
+    // the offer popup (Admin → Home page & menu → Offer popup): the admin's offer picture, once every few days
+    var offer by remember { mutableStateOf<org.json.JSONObject?>(null) }
+    LaunchedEffect(session?.offerPopup?.optString("id")) {
+        val o = session?.offerPopup ?: return@LaunchedEffect
+        if (o.optString("image").isEmpty()) return@LaunchedEffect
+        val p = activity.getSharedPreferences("triparro", Context.MODE_PRIVATE)
+        val last = p.getLong("offer_" + o.optString("id"), 0L)
+        if (last > 0 && System.currentTimeMillis() - last < o.optInt("days", 3) * 86_400_000L) return@LaunchedEffect
+        kotlinx.coroutines.delay(o.optInt("delay", 1) * 1000L + 600)
+        offer = o
+    }
+    offer?.let { o ->
+        com.triparro.app.screens.OfferDialog(o, onClose = {
+            activity.getSharedPreferences("triparro", Context.MODE_PRIVATE).edit().putLong("offer_" + o.optString("id"), System.currentTimeMillis()).apply()
+            offer = null
+        }, onOpen = { link ->
+            activity.getSharedPreferences("triparro", Context.MODE_PRIVATE).edit().putLong("offer_" + o.optString("id"), System.currentTimeMillis()).apply()
+            offer = null
+            nav.openLink(Api.url(link))
+        })
     }
 
     Scaffold(

@@ -47,6 +47,8 @@ data class Session(
     val payments: Boolean,
     val loginToBook: Boolean,
     val links: JSONObject,
+    /** The offer popup (admin's offer picture), or null. */
+    val offerPopup: JSONObject? = null,
 )
 
 /**
@@ -105,6 +107,7 @@ object Api {
             supportPhone = s.str("phone"), supportWhatsapp = s.str("whatsapp"), supportEmail = s.str("email"), supportHours = s.str("hours"),
             ai = f.bool("ai"), payments = f.bool("payments"), loginToBook = f.bool("login_to_book"),
             links = j.obj("links") ?: JSONObject(),
+            offerPopup = j.obj("offer_popup"),
         )
         _session.value = session
         return session
