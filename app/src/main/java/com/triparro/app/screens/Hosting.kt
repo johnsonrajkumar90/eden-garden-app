@@ -1,5 +1,6 @@
 package com.triparro.app.screens
 
+import androidx.compose.foundation.clickable
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedContent
