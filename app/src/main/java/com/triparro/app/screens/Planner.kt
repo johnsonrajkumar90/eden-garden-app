@@ -5,6 +5,8 @@ package com.triparro.app.screens
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.imePadding
 import android.Manifest
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Add
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -266,7 +268,7 @@ fun PlannerScreen(nav: NavHostController) {
 
 /** A plan: summary, AI guide, stops by category with directions, save, ask TripArro AI. */
 @Composable
-private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, onBack: () -> Unit, onDeleted: (() -> Unit)? = null) {
+private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, onBack: () -> Unit, onDeleted: (() -> Unit)? = null, tripInfo: JSONObject? = null) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val session by Api.session.collectAsState()
@@ -281,6 +283,44 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
     val route = plan.obj("route") ?: JSONObject()
     val stops = plan.obj("stops")?.let { s -> s.objs(cat) } ?: emptyList()
     val title = plan.str("title") ?: "${plan.obj("from")?.text("name")} → ${plan.obj("to")?.text("name")}"
+    // the traveller's own trip: stops they add, the totals through them, Start
+    val picked = remember { mutableStateListOf<JSONObject>() }
+    val pickedKeys = picked.map { stopKey(it) }
+    var routeTrip by remember { mutableStateOf<JSONObject?>(null) }
+    var routing by remember { mutableStateOf(false) }
+    var starting by remember { mutableStateOf(false) }
+    var openStop by remember { mutableStateOf<JSONObject?>(null) }
+    fun toggle(st: JSONObject) { val k = stopKey(st); val i = picked.indexOfFirst { stopKey(it) == k }; if (i >= 0) picked.removeAt(i) else if (picked.size < 12) picked.add(st) }
+    LaunchedEffect(pickedKeys.joinToString()) {
+        if (picked.isEmpty()) { routeTrip = null; return@LaunchedEffect }
+        routing = true; kotlinx.coroutines.delay(400)
+        try {
+            val body = mutableMapOf<String, Any?>("stops" to picked.toList())
+            if (saved != null) body["plan_id"] = saved else body["token"] = plan.text("token")
+            routeTrip = Api.post("trip/route", body).obj("trip")
+        } catch (_: Exception) { routeTrip = null }
+        routing = false
+    }
+    fun startTrip() {
+        if (picked.isEmpty() || starting) return
+        starting = true
+        scope.launch {
+            try {
+                if (session?.user != null) {
+                    val body = mutableMapOf<String, Any?>("stops" to picked.toList(), "title" to title)
+                    if (saved != null) body["plan_id"] = saved else body["token"] = plan.text("token")
+                    val r = Api.post("trip/start", body)
+                    saved = r.int("id"); AppState.refreshTick.value++
+                    nav.navigate("triprun/${r.int("id")}")
+                } else {
+                    val t = routeTrip ?: Api.post("trip/route", mapOf("stops" to picked.toList(), "token" to plan.text("token"))).obj("trip")
+                    AppState.localTrip.value = t; AppState.localTripDone.value = 0; AppState.localTripTitle.value = title
+                    nav.navigate("triprun/0")
+                }
+            } catch (e: Exception) { saveMsg = errorText(e) }
+            starting = false
+        }
+    }
 
     fun ask() {
         val question = q.trim(); if (question.length < 2) return
@@ -300,8 +340,23 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
         if (saved != null && onDeleted != null) IconButton(onClick = {
             scope.launch { try { Api.post("trip/plans/$saved/delete"); onDeleted() } catch (_: Exception) { } }
         }) { Icon(Icons.Outlined.Delete, "Delete plan") }
-    } }, containerColor = Brand.Page) { pad ->
+    } }, containerColor = Brand.Page,
+        bottomBar = { if (picked.isNotEmpty()) TripTotalsBar(picked.size, routeTrip, routing, starting) { startTrip() } }) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad).imePadding(), contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            tripInfo?.takeIf { it.text("status") in listOf("ready", "on_the_way", "finished") && saved != null }?.let { ti ->
+                item {
+                    val st = ti.text("status")
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(if (st == "finished") Brand.TealSoft else Brand.SunSoft)
+                        .pressable({ nav.navigate("triprun/$saved") }).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(if (st == "finished") "🎉" else "🧭", style = MaterialTheme.typography.titleLarge)
+                        Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+                            Text(if (st == "finished") "You finished this trip" else "Continue your trip", fontWeight = FontWeight.ExtraBold)
+                            Text("${ti.int("done_count")} of ${ti.int("steps")} done · ${ti.obj("trip")?.num("km")} km", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                        }
+                        Text(if (st == "finished") "View" else "Go", color = Brand.Blue, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
             item {
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(PlannerBrush).padding(18.dp)) {
                     Text("${plan.obj("from")?.text("name")}  →  ${plan.obj("to")?.text("name")}", color = Color.White, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium)
@@ -360,8 +415,9 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
                     }
                 }
             }
+            item { Text("Tap a place to see its photos · tap + to add it to your trip, then Start.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted) }
             if (stops.isEmpty()) item { Text("Nothing found in this group along the way.", color = Brand.Muted, style = MaterialTheme.typography.bodySmall) }
-            itemsIndexed(stops) { i, s -> StopRow(s, Modifier.appear(i.coerceAtMost(8))) }
+            itemsIndexed(stops) { i, s -> StopRow(s, Modifier.appear(i.coerceAtMost(8)), stopKey(s) in pickedKeys, { toggle(s) }, { openStop = s }) }
             item {
                 Gap(6)
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(18.dp)).padding(14.dp)) {
@@ -385,16 +441,23 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
             item { Text(plan.text("attribution"), style = MaterialTheme.typography.labelSmall, color = Brand.Muted) }
         }
     }
+    openStop?.let { st -> StopSheet(st, stopKey(st) in pickedKeys, { toggle(st) }) { openStop = null } }
 }
 
 @Composable
-private fun StopRow(s: JSONObject, modifier: Modifier = Modifier) {
+private fun StopRow(s: JSONObject, modifier: Modifier = Modifier, picked: Boolean = false, onToggle: (() -> Unit)? = null, onOpen: (() -> Unit)? = null) {
     val ctx = LocalContext.current
-    Row(modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(18.dp)).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        val photo = s.str("photo")
-        if (photo != null) Photo(photo, Modifier.size(56.dp), corner = 12.dp)
-        else Box(Modifier.size(56.dp).clip(RoundedCornerShape(12.dp)).background(Brand.Sky), contentAlignment = Alignment.Center) {
-            Text(when (s.text("category")) { "coffee" -> "☕"; "petrol" -> "⛽"; "ev" -> "🔌"; "community" -> "⭐"; else -> "🍽️" }, style = MaterialTheme.typography.titleLarge)
+    Row(modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(if (picked) Brand.SunSoft else Color.White)
+        .border(1.5.dp, if (picked) Brand.Sun else Brand.Line, RoundedCornerShape(18.dp)).then(if (onOpen != null) Modifier.pressable(onOpen) else Modifier).padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        val photo = s.strings("photos").firstOrNull() ?: s.str("photo")
+        Box {
+            if (photo != null) Photo(photo, Modifier.size(72.dp), corner = 14.dp)
+            else Box(Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)).background(Brand.Sky), contentAlignment = Alignment.Center) {
+                Text(stopEmoji(s.str("category")), style = MaterialTheme.typography.headlineSmall)
+            }
+            val n = s.strings("photos").size
+            if (n > 1) Text("$n", color = Color.White, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp).clip(RoundedCornerShape(50)).background(Color.Black.copy(alpha = 0.55f)).padding(horizontal = 6.dp))
         }
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Text(s.text("name"), fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -405,9 +468,13 @@ private fun StopRow(s: JSONObject, modifier: Modifier = Modifier) {
             }
             Text(s.text("source"), style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(Modifier.size(44.dp).clip(CircleShape).background(Brand.Sun).pressable({ openUrl(ctx, s.text("directions_url")) }), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Directions, "Directions", tint = Brand.SunInk) }
-            Text("Go", style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (onToggle != null) Box(Modifier.size(40.dp).clip(CircleShape).background(if (picked) Brand.Teal else Brand.Sky).pressable(onToggle), contentAlignment = Alignment.Center) {
+                Icon(if (picked) Icons.Outlined.Check else Icons.Outlined.Add, if (picked) "Remove from my trip" else "Add to my trip", tint = if (picked) Color.White else Brand.Blue)
+            }
+            Box(Modifier.size(40.dp).clip(CircleShape).background(Brand.Sun).pressable({ navigateTo(ctx, s.num("lat"), s.num("lng"), s.str("directions_url")) }), contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.Directions, "Directions", tint = Brand.SunInk)
+            }
         }
     }
 }
@@ -424,12 +491,18 @@ fun SavedPlansList(nav: NavHostController) {
         else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             item { PrimaryButton("Plan a new trip", { nav.navigate("planner") }, icon = Icons.Outlined.Map) }
             itemsIndexed(items) { i, p ->
+                val stt = p.text("status")
                 Row(Modifier.appear(i.coerceAtMost(8)).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(18.dp))
-                    .pressable({ nav.navigate("tripplan/${p.int("id")}") }).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    .pressable({ nav.navigate(if (stt == "ready" || stt == "on_the_way") "triprun/${p.int("id")}" else "tripplan/${p.int("id")}") }).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(46.dp).clip(CircleShape).background(PlannerBrush), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Map, null, tint = Color.White) }
                     Column(Modifier.padding(start = 12.dp).weight(1f)) {
                         Text(p.text("title"), fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text("${p.num("km")} km · ${hm(p.int("minutes"))} · saved ${p.text("created_at").take(10)}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                        Text("${p.num("km")} km · ${hm(p.int("minutes"))}" + (if (p.int("stops") > 0) " · ${p.int("stops")} stops" else "") + " · saved ${p.text("created_at").take(10)}", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                        when (stt) {
+                            "ready" -> Text("Ready to start", style = MaterialTheme.typography.labelMedium, color = Brand.Blue, fontWeight = FontWeight.Bold)
+                            "on_the_way" -> Text("On the way · ${p.int("done_count")} of ${p.int("steps")} done", style = MaterialTheme.typography.labelMedium, color = Brand.SunInk, fontWeight = FontWeight.Bold)
+                            "finished" -> Text("✓ Trip finished", style = MaterialTheme.typography.labelMedium, color = Brand.TealDark, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -444,10 +517,11 @@ fun SavedPlansScreen(nav: NavHostController) {
 
 @Composable
 fun SavedPlanScreen(nav: NavHostController, id: Int) {
-    val l = rememberLoader(id) { Api.get("trip/plans/$id").obj("plan") }
-    val p = l.data.value
+    val tick by AppState.refreshTick
+    val l = rememberLoader(id, tick) { Api.get("trip/plans/$id") }
+    val p = l.data.value?.obj("plan")
     when {
-        p != null -> PlanView(nav, p, id, onBack = { nav.popBackStack() }, onDeleted = { nav.popBackStack() })
+        p != null -> PlanView(nav, p, id, onBack = { nav.popBackStack() }, onDeleted = { nav.popBackStack() }, tripInfo = l.data.value)
         l.loading.value -> Scaffold(topBar = { BackBar("Trip plan", { nav.popBackStack() }) }) { pad -> Box(Modifier.padding(pad)) { Loading() } }
         else -> Scaffold(topBar = { BackBar("Trip plan", { nav.popBackStack() }) }) { pad -> Box(Modifier.padding(pad)) { ErrorBox(l.error.value ?: "Could not open this plan.", { l.reload() }) } }
     }

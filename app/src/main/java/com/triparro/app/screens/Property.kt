@@ -170,6 +170,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                                 val b = p.obj("badges") ?: JSONObject()
                                 if (b.bool("verified")) Pill("✓ Verified", "ok")
                                 if (b.bool("favourite")) Pill("Guest favourite", "info")
+                                RefundTag(p.obj("cancellation_policy")?.isRefundable() ?: true)
                             }
                             if (p.text("booking_mode") == "request") { Gap(8); Notice("The host approves each request — you pay only after they accept.", "warn") }
                             val facts = p.objs("facts").map { it.text("value") }

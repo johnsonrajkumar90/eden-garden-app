@@ -263,6 +263,7 @@ fun TripArroApp(activity: MainActivity) {
                 composable("planner") { com.triparro.app.screens.PlannerScreen(nav) }
                 composable("tripplans") { com.triparro.app.screens.SavedPlansScreen(nav) }
                 composable("tripplan/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.SavedPlanScreen(nav, e.arguments?.getInt("id") ?: 0) }
+                composable("triprun/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.TripRunScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("myplaces") { com.triparro.app.screens.MyPlacesScreen(nav) }
                 composable("placeedit/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.PlaceEditScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("trips") { TripsScreen(nav) }

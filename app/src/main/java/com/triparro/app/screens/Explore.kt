@@ -286,6 +286,7 @@ fun PropertyCard(p: JSONObject, onClick: () -> Unit) {
             Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (badges.bool("sponsored")) OverlayTag("Sponsored")
                 if (badges.bool("favourite")) OverlayTag("★ Guest favourite")
+                RefundTag(p.isRefundable())
             }
             p.num("rating")?.takeIf { it > 0 }?.let { r ->
                 Row(Modifier.align(Alignment.BottomEnd).padding(12.dp).clip(RoundedCornerShape(50)).background(Color.White).padding(horizontal = 10.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -327,7 +328,7 @@ fun PropertyCard(p: JSONObject, onClick: () -> Unit) {
                         Text(" / night", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
                     }
                 }
-                p.str("cancellation")?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Brand.TealDark, modifier = Modifier.padding(top = 2.dp)) }
+                p.str("cancellation")?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = if (p.isRefundable()) Brand.TealDark else Color(0xFF0B3D91), modifier = Modifier.padding(top = 2.dp)) }
             } else Text("Not taking bookings right now", style = MaterialTheme.typography.bodySmall, color = Brand.Warn, modifier = Modifier.padding(top = 6.dp))
         }
     }
@@ -356,6 +357,7 @@ fun GridPropertyCard(p: JSONObject, modifier: Modifier = Modifier, onClick: () -
             Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (badges.bool("sponsored")) OverlayTag("Sponsored")
                 if (badges.bool("favourite")) OverlayTag("★ Favourite")
+                RefundTag(p.isRefundable())
             }
             val offer = price.num("offer_nightly"); val nightly = price.num("nightly")
             if (offer != null && nightly != null && offer < nightly) Text("${Math.round((1 - offer / nightly) * 100)}% OFF", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold), color = Brand.SunInk,
@@ -392,6 +394,16 @@ fun GridPropertyCard(p: JSONObject, modifier: Modifier = Modifier, onClick: () -
 }
 
 /** A label on top of a photo (white chip). */
+/** Refundable (dark green, the default) or Non-refundable (dark blue) — the host's cancellation choice. */
+@Composable
+fun RefundTag(refundable: Boolean, modifier: Modifier = Modifier) {
+    Text(if (refundable) "Refundable" else "Non-refundable", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold), color = Color.White,
+        modifier = modifier.clip(RoundedCornerShape(50)).background(if (refundable) Color(0xFF0B6B3A) else Color(0xFF0B3D91)).padding(horizontal = 10.dp, vertical = 5.dp))
+}
+
+/** True unless the listing says it is non-refundable (older servers don't say: refundable). */
+fun JSONObject.isRefundable(): Boolean = !(has("refundable") && !isNull("refundable") && !optBoolean("refundable", true))
+
 @Composable
 fun OverlayTag(text: String) {
     Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold), color = Brand.Ink,

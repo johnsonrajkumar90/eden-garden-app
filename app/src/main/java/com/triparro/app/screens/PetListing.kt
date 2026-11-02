@@ -282,7 +282,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                         bring?.let { ExpandRow("What to bring", it, startOpen = true) }
                         houseRules?.let { ExpandRow("House rules", it) }
                     }
-                    p.obj("cancellation")?.let { c -> DetailSection("Cancellation", Icons.Outlined.EventAvailable, sub = c.text("name")) { Text(c.text("text"), color = Brand.InkSoft) } }
+                    p.obj("cancellation")?.let { c -> DetailSection("Cancellation", Icons.Outlined.EventAvailable, sub = c.text("name")) { RefundTag(c.isRefundable()); Gap(6); Text(c.text("text"), color = Brand.InkSoft) } }
 
                     // Booking
                     Box(Modifier.bringIntoViewRequester(bookingView)) {

@@ -262,8 +262,11 @@ fun PetGridCard(c: JSONObject, modifier: Modifier = Modifier, onClick: () -> Uni
         androidx.compose.foundation.layout.Box {
             com.triparro.app.ui.Photo(c.str("image"), Modifier.fillMaxWidth().aspectRatio(0.95f), corner = 0.dp, description = c.text("title"))
             androidx.compose.foundation.layout.Box(Modifier.matchParentSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color(0x99300A10))))
-            if (c.bool("verified")) Text("✓ Verified", style = MaterialTheme.typography.labelSmall, color = Brand.TealDark,
-                modifier = Modifier.padding(8.dp).clip(RoundedCornerShape(50)).background(Color.White).padding(horizontal = 8.dp, vertical = 3.dp))
+            Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (c.bool("verified")) Text("✓ Verified", style = MaterialTheme.typography.labelSmall, color = Brand.TealDark,
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(Color.White).padding(horizontal = 8.dp, vertical = 3.dp))
+                RefundTag(c.isRefundable())
+            }
             Text(c.strings("pet_types").joinToString("") { petEmoji[it] ?: "🐾" }, fontSize = 16.sp, modifier = Modifier.align(Alignment.BottomStart).padding(10.dp))
             c.num("rating")?.takeIf { it > 0 }?.let { r -> Text("★ " + String.format(java.util.Locale.ENGLISH, "%.1f", r), style = MaterialTheme.typography.labelMedium, color = Color.White, modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)) }
         }

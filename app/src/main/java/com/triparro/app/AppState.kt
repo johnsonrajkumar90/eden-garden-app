@@ -18,6 +18,11 @@ object AppState {
     /** Google sign-in: a message for the sign-in screen when it did not work. */
     var authMessage = mutableStateOf<String?>(null)
 
+    /** A trip started without signing in (Travel planner): the trip, how many steps are done, its title. */
+    var localTrip = mutableStateOf<org.json.JSONObject?>(null)
+    var localTripDone = mutableStateOf(0)
+    var localTripTitle = mutableStateOf("")
+
     /** Bumped after a payment or a change, so lists reload. */
     var refreshTick = mutableStateOf(0)
 }
