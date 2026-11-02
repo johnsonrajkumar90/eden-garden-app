@@ -69,7 +69,7 @@ Release builds must be signed with the **upload key** (`upload-keystore.jks`, ke
 
   The APK gets an APK Signature Scheme v2 signature (Android 7.0+), the `.aab` a JAR signature. Upload the
   `-release.aab` to Google Play (Play App Signing re-signs it for phones); the `-release.apk` is for direct installs.
-  Upload key certificate SHA-256: `43:2C:44:C9:29:CB:64:EC:18:97:E6:15:86:41:6A:D1:BC:16:01:F4:C4:27:D9:86:A2:6E:4A:46:D6:48:B4:A7`
+  Upload key certificate SHA-256: `67:4C:95:66:98:1F:0B:18:0D:53:CE:3B:EB:DB:31:16:1F:8D:9C:9B:12:52:E4:49:54:1D:68:65:03:36:07:49` (new upload key, made 3 Nov 2026)
   (for `ANDROID_SHA256` on the website, use the **app signing key** fingerprint from Play Console → App integrity once
   the app is on Play; before that, this upload-key fingerprint works for the release APK).
 
