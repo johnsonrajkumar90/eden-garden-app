@@ -156,7 +156,7 @@ fun AccountScreen(nav: NavHostController) {
         }
         Gap()
         Card {
-            Item(Icons.Outlined.Home, "Become a host", "List a homestay, villa or resort — free") { nav.navigate("become-host") }
+            Item(Icons.Outlined.Home, "List your property", "A homestay, villa or resort — free to join") { nav.navigate("become-host") }
             HorizontalDivider(color = Brand.Line)
             Item(Icons.Outlined.Pets, "Become a pet host", "Board pets and earn from home") { nav.navigate("become-pet-host") }
             HorizontalDivider(color = Brand.Line)

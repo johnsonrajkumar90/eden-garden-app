@@ -119,7 +119,7 @@ fun BecomeHostScreen(nav: NavHostController) {
     var sent by remember { mutableStateOf<String?>(null) }
     val m = meta.data.value
     Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
-        ColorHeader("Become a host", "List your homestay, villa or resort on TripArro — free to join.", onBack = { nav.popBackStack() })
+        ColorHeader("List your property", "List your homestay, villa or resort on TripArro — free to join.", onBack = { nav.popBackStack() })
         Column(Modifier.padding(16.dp)) {
             if (sent != null) { Done("Application sent", sent!!, "Back to TripArro") { nav.popBackStack() }; return@Column }
             if (m != null) {

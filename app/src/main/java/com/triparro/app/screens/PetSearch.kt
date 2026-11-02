@@ -206,7 +206,7 @@ fun PetSearchScreen(nav: NavHostController) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 PetTile("✨", "Ask AI", Brand.SunSoft, Modifier.weight(1f).appear(3)) { AppState.aiMode.value = "pets"; nav.navigate("ai") }
                 PetTile("🐶", "My pets", Brand.Sky, Modifier.weight(1f).appear(4)) { nav.navigate("mypets") }
-                PetTile("🏡", "Become a host", Brand.TealSoft, Modifier.weight(1f).appear(5)) { nav.navigate("become-pet-host") }
+                PetTile("🏡", "Pet host", Brand.TealSoft, Modifier.weight(1f).appear(5)) { nav.navigate("become-pet-host") }
             }
         }
         item {
