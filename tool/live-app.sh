@@ -3,13 +3,16 @@
 PKG=triparro.com
 mkdir -p live
 adb install -r app.apk
+adb root; sleep 4
+adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher || true
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
 adb shell pm grant $PKG android.permission.ACCESS_FINE_LOCATION || true
 adb shell pm grant $PKG android.permission.ACCESS_COARSE_LOCATION || true
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb shell settings put secure location_mode 3 || true
 adb emu geo fix 76.9558 11.0168 || true
 adb logcat -c
-shot() { sleep "${2:-5}"; adb exec-out screencap -p > "live/$1.png"; }
+shot() { sleep "${2:-5}"; adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1; adb exec-out screencap -p > "live/$1.png"; }
 tap() {
   adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1
   b=$(python3 - "$1" <<'PY'
