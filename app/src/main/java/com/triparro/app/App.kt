@@ -64,6 +64,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -272,6 +276,7 @@ fun TripArroApp(activity: MainActivity) {
             WindowCompat.getInsetsController(activity.window, view).isAppearanceLightStatusBars = topColor == Color.White
         }
         Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(topColor))
+        OfferPopup(activity, session?.offer) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
         Box(Modifier.fillMaxSize().padding(pad)) {
             NavHost(nav, startDestination = "explore") {
                 composable("explore") { ExploreScreen(nav) }
@@ -349,4 +354,40 @@ private fun notice(paid: String?, failed: String?, refund: String?): String? = w
     !failed.isNullOrEmpty() -> "failed"
     !refund.isNullOrEmpty() -> "refund"
     else -> null
+}
+
+/**
+ * The offer picture the admin set (Admin → Home page & menu → Offer popup), shown once when the app opens
+ * and again only after the admin's number of days (or when the admin changes the picture).
+ */
+@Composable
+private fun OfferPopup(activity: MainActivity, offer: org.json.JSONObject?, open: (String) -> Unit) {
+    val prefs = remember { activity.getSharedPreferences("triparro", Context.MODE_PRIVATE) }
+    var shownThisRun by remember { androidx.compose.runtime.mutableStateOf(false) }
+    var visible by remember { androidx.compose.runtime.mutableStateOf(false) }
+    val id = offer?.optString("id").orEmpty()
+    LaunchedEffect(id) {
+        if (offer == null || id.isEmpty() || shownThisRun) return@LaunchedEffect
+        val key = "offer_seen_$id"
+        val last = prefs.getLong(key, 0L)
+        val days = offer.optInt("days", 1)
+        if (last > 0 && System.currentTimeMillis() - last < days * 86_400_000L) return@LaunchedEffect
+        shownThisRun = true
+        visible = true
+        prefs.edit().putLong(key, System.currentTimeMillis()).apply()
+    }
+    if (!visible || offer == null) return
+    val close = { visible = false }
+    androidx.compose.ui.window.Dialog(onDismissRequest = close, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            val link = offer.optString("link").takeIf { it.isNotEmpty() && it != "null" }
+            coil.compose.AsyncImage(model = offer.optString("image"), contentDescription = "Offer", contentScale = androidx.compose.ui.layout.ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(26.dp))
+                    .let { m -> if (link != null) m.clickable { visible = false; open(link) } else m })
+            Box(Modifier.align(androidx.compose.ui.Alignment.TopEnd).padding(8.dp).size(40.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                .background(Color.White.copy(alpha = 0.85f)).clickable { visible = false }, contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Icon(androidx.compose.material.icons.Icons.Filled.Close, "Close", tint = Brand.Ink)
+            }
+        }
+    }
 }
