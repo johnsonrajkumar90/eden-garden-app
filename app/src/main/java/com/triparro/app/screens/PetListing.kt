@@ -370,7 +370,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                 }
             }
             PriceBar(money(p.num("price")), "/ pet / night", note = if (p.bool("instant")) "Instant booking" else "You pay after the host accepts") {
-                Button(onClick = { scope.launch { bookingView.bringIntoView() } }, shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.CoralDark),
+                Button(onClick = { scope.launch { bookingView.bringIntoView() } }, shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.Sun, contentColor = Brand.SunInk),
                     contentPadding = PaddingValues(horizontal = 22.dp, vertical = 14.dp)) { Text("Book a stay", style = MaterialTheme.typography.labelLarge) }
             }
             }

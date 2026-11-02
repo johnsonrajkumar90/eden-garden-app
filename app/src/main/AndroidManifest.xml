@@ -51,6 +51,13 @@
                 <data android:pathPrefix="/pay/" />
                 <data android:pathPrefix="/resort-booking/" />
             </intent-filter>
+            <!-- Back from Google sign-in in the browser: triparro-app://auth?code=… -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="triparro-app" android:host="auth" />
+            </intent-filter>
         </activity>
 
         <provider

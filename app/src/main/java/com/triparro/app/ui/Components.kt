@@ -46,6 +46,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -97,7 +99,17 @@ fun BackBar(title: String, onBack: () -> Unit, actions: @Composable () -> Unit =
 
 @Composable
 fun Loading(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize().padding(40.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Brand.Blue) }
+    // three bouncing dots in the brand colours
+    val t = androidx.compose.animation.core.rememberInfiniteTransition(label = "dots")
+    Box(modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            listOf(Brand.Blue, Brand.Coral, Brand.Sun).forEachIndexed { i, c ->
+                val y by t.animateFloat(0f, -12f, androidx.compose.animation.core.infiniteRepeatable(
+                    androidx.compose.animation.core.keyframes { durationMillis = 900; 0f at (i * 120); -12f at (i * 120 + 220); 0f at (i * 120 + 440) }), label = "d$i")
+                Box(Modifier.size(12.dp).graphicsLayer { translationY = y }.clip(CircleShape).background(c))
+            }
+        }
+    }
 }
 
 @Composable
@@ -125,16 +137,16 @@ fun EmptyBox(title: String, text: String, action: String? = null, icon: ImageVec
         Text(text, color = Brand.InkSoft, textAlign = TextAlign.Center)
         if (action != null && onAction != null) {
             Spacer(Modifier.height(14.dp))
-            Button(onClick = onAction, shape = RoundedCornerShape(14.dp), contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)) { Text(action) }
+            Button(onClick = onAction, shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.Sun, contentColor = Brand.SunInk), contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)) { Text(action) }
         }
     }
 }
 
 @Composable
 fun Card(modifier: Modifier = Modifier, padding: Dp = 16.dp, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
-    val m = modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(18.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
-        .clip(RoundedCornerShape(18.dp)).background(Color.White)
-        .let { if (onClick != null) it.clickable(onClick = onClick) else it }
+    val m = modifier.fillMaxWidth().shadow(3.dp, RoundedCornerShape(20.dp), ambientColor = Color(0x22000000), spotColor = Color(0x26B81D2B))
+        .clip(RoundedCornerShape(20.dp)).background(Color.White)
+        .let { if (onClick != null) it.pressable(onClick) else it }
     Box(m.padding(padding)) { Column { content() } }
 }
 
@@ -236,19 +248,24 @@ fun Photo(url: String?, modifier: Modifier = Modifier, corner: Dp = 14.dp, descr
     }
 }
 
+/** The main action: a sunflower-yellow button with dark text (red is the brand, yellow means "do this"). */
 @Composable
 fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, loading: Boolean = false, coral: Boolean = false, icon: ImageVector? = null) {
-    Button(
-        onClick = onClick, enabled = enabled && !loading,
-        modifier = modifier.fillMaxWidth().heightIn(min = 50.dp),
-        shape = RoundedCornerShape(14.dp),
-        colors = if (coral) ButtonDefaults.buttonColors(containerColor = Brand.CoralDark) else ButtonDefaults.buttonColors(),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 12.dp),
+    val on = enabled && !loading
+    Box(
+        modifier.fillMaxWidth().heightIn(min = 52.dp)
+            .shadow(if (on) 6.dp else 0.dp, RoundedCornerShape(16.dp), ambientColor = Color(0x55E0A800), spotColor = Color(0x66E08A00))
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (on) SunBrush else androidx.compose.ui.graphics.SolidColor(Color(0xFFEFE7DF)))
+            .pressable(onClick, enabled = on)
+            .padding(horizontal = 18.dp, vertical = 13.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        if (loading) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
-        else {
-            if (icon != null) { Icon(icon, null, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)) }
-            Text(text)
+        if (loading) CircularProgressIndicator(Modifier.size(22.dp), color = Brand.SunInk, strokeWidth = 2.5.dp)
+        else Row(verticalAlignment = Alignment.CenterVertically) {
+            val tint = if (on) Brand.SunInk else Brand.Muted
+            if (icon != null) { Icon(icon, null, Modifier.size(19.dp), tint = tint); Spacer(Modifier.width(8.dp)) }
+            Text(text, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold), color = tint)
         }
     }
 }
@@ -307,7 +324,7 @@ fun shareLink(context: android.content.Context, title: String, url: String) {
 /** The full-colour header of a screen (navy, white title, back arrow) — the status bar above it takes the same colour. */
 @Composable
 fun ColorHeader(title: String, sub: String? = null, onBack: (() -> Unit)? = null, actions: @Composable () -> Unit = {}) {
-    Column(Modifier.fillMaxWidth().matte()
+    Column(Modifier.fillMaxWidth().background(RedBrush).matte(Color.Transparent)
         .padding(start = if (onBack != null) 4.dp else 16.dp, end = 12.dp, top = 4.dp, bottom = 18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White) }

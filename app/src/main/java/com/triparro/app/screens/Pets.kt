@@ -76,7 +76,7 @@ fun MyPetsScreen(nav: NavHostController) {
     val l = rememberLoader(session?.user?.id) { if (session?.user == null) null else Api.get("pets/my") }
     Scaffold(
         topBar = { BackBar("My pets", { nav.popBackStack() }) },
-        floatingActionButton = { if (session?.user != null) ExtendedFloatingActionButton(onClick = { nav.navigate("petform/0") }, icon = { Icon(Icons.Filled.Add, null) }, text = { Text("Add a pet") }) },
+        floatingActionButton = { if (session?.user != null) ExtendedFloatingActionButton(onClick = { nav.navigate("petform/0") }, containerColor = Brand.Sun, contentColor = Brand.SunInk, icon = { Icon(Icons.Filled.Add, null) }, text = { Text("Add a pet") }) },
         containerColor = Brand.Page,
     ) { pad ->
         Box(Modifier.padding(pad)) {

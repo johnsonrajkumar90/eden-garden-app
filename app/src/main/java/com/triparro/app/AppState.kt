@@ -14,6 +14,9 @@ object AppState {
     /** The AI tab: "travel" (stays, resorts, trips) or "pets" (pet boarding assistant). */
     var aiMode = mutableStateOf("travel")
 
+    /** Google sign-in: a message for the sign-in screen when it did not work. */
+    var authMessage = mutableStateOf<String?>(null)
+
     /** Bumped after a payment or a change, so lists reload. */
     var refreshTick = mutableStateOf(0)
 }

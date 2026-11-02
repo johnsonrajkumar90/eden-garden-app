@@ -116,6 +116,9 @@ fun NavHostController.openLink(link: String) {
     when {
         seg.size >= 2 && first == "stays" && seg[1].toIntOrNull() != null -> navigate("property/stay/${seg[1]}")
         seg.size >= 2 && first == "resorts" && seg[1].toIntOrNull() != null -> navigate("property/resort/${seg[1]}")
+        !u.getQueryParameter("chat").isNullOrEmpty() && (first == "stays" || first == "resorts") -> navigate("chatt/${u.getQueryParameter("chat")}")
+        first in listOf("host", "owner") && seg.getOrNull(1) == "chats" && u.getQueryParameter("thread")?.toIntOrNull() != null -> navigate("hostchat/${u.getQueryParameter("thread")}")
+        seg.size >= 2 && (first == "places" || first == "place") && seg[1].toIntOrNull() != null -> navigate("place/${seg[1]}")
         seg.size >= 2 && first == "pet-boarding" && seg[1].toIntOrNull() != null -> navigate("petlisting/${seg[1]}")
         seg.size == 3 && first == "pet-booking" && seg[2] == "receipt" -> navigate("petreceipt/${seg[1]}")
         seg.size == 2 && first == "pet-booking" -> navigate("petbooking/${seg[1]}")
@@ -158,10 +161,26 @@ fun TripArroApp(activity: MainActivity) {
         when {
             l == null -> {}
             l.startsWith("http") -> { activity.pendingLink.value = null; Api.primeLink(l); nav.openLink(l) }
+            l.startsWith("triparro-app://auth") -> {   // back from Google sign-in in the browser
+                activity.pendingLink.value = null
+                val u = Uri.parse(l)
+                val code = u.getQueryParameter("code")
+                if (code.isNullOrEmpty()) { AppState.authMessage.value = u.getQueryParameter("error") ?: "Google sign-in did not work — please try again."; nav.navigate("login") { launchSingleTop = true } }
+                else scope.launch {
+                    try {
+                        Api.post("app-login", mapOf("code" to code))
+                        Api.refreshSession()
+                        nav.navigate("account") { popUpTo("explore"); launchSingleTop = true }
+                    } catch (e: Exception) {
+                        AppState.authMessage.value = com.triparro.app.screens.errorText(e)
+                        nav.navigate("login") { launchSingleTop = true }
+                    }
+                }
+            }
             l.startsWith("triparro-app://") -> {   // the app's own links (notifications, sign in, sign up)
                 activity.pendingLink.value = null
                 val r = l.removePrefix("triparro-app://")
-                if (listOf("notifications", "login", "signup", "page/", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
+                if (listOf("notifications", "login", "signup", "page/", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "chatt/", "hostchat/", "messages", "place/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
             }
         }
     }
@@ -206,7 +225,7 @@ fun TripArroApp(activity: MainActivity) {
                                 else Icon(ic, contentDescription = null)
                             },
                             label = { Text(t.label, style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (current == t.route) FontWeight.SemiBold else FontWeight.Medium)) },
-                            colors = NavigationBarItemDefaults.colors(selectedIconColor = Brand.Blue, selectedTextColor = Brand.Blue, indicatorColor = Brand.Sky,
+                            colors = NavigationBarItemDefaults.colors(selectedIconColor = Brand.SunInk, selectedTextColor = Brand.Blue, indicatorColor = Brand.Sun,
                                 unselectedIconColor = Brand.Muted, unselectedTextColor = Brand.Muted),
                         )
                     }
@@ -217,10 +236,10 @@ fun TripArroApp(activity: MainActivity) {
     ) { pad ->
         // Full colour at the top: the status bar takes the colour of the screen's header
         val topColor = when {
-            current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat/") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Matte
+            current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications", "messages", "hostchats") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat") || current.startsWith("hostchat") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Matte
             current.startsWith("photo") || current.startsWith("video") -> Color.Black
             current == "pets" -> Brand.Matte
-            current.startsWith("property/") || current.startsWith("petlisting/") -> Color.Black
+            current.startsWith("property/") || current.startsWith("petlisting/") || current.startsWith("place/") -> Color.Black
             else -> Color.White
         }
         val view = LocalView.current
@@ -268,6 +287,11 @@ fun TripArroApp(activity: MainActivity) {
                 composable("become-host") { BecomeHostScreen(nav) }
                 composable("become-pet-host") { BecomePetHostScreen(nav) }
                 composable("hosting") { HostingScreen(nav) }
+                composable("hostchats") { com.triparro.app.screens.HostChatsScreen(nav) }
+                composable("hostchat/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.HostChatScreen(nav, e.arguments?.getInt("id") ?: 0) }
+                composable("messages") { com.triparro.app.screens.MessagesScreen(nav) }
+                composable("chatt/{token}") { e -> com.triparro.app.screens.ChatTokenScreen(nav, e.arguments?.getString("token") ?: "") }
+                composable("place/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.PlaceScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("checkin?url={url}", arguments = listOf(navArgument("url") { defaultValue = "" })) { e -> OnlineCheckinScreen(nav, e.arguments?.getString("url") ?: "") }
                 composable("chat/{kind}/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e ->
                     ChatScreen(nav, e.arguments?.getString("kind") ?: "stay", e.arguments?.getInt("id") ?: 0)

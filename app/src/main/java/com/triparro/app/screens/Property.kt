@@ -262,7 +262,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                             }
                             Gap(12)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (p.bool("chat")) Button(onClick = { nav.navigate("chat/$kind/$id") }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f)) {
+                                if (p.bool("chat")) Button(onClick = { nav.navigate("chat/$kind/$id") }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Brand.Sun, contentColor = Brand.SunInk)) {
                                     Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp)); Text("  Chat", maxLines = 1)
                                 }
                                 val c = p.arr("coords")
@@ -278,7 +278,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                 val offer = price.num("offer_nightly"); val nightly = price.num("nightly")
                 PriceBar(money(offer ?: nightly), if (kind == "resort") "/ room night" else "/ night", was = if (offer != null && nightly != null && offer < nightly) money(nightly) else null,
                     note = p.str("cancellation") ?: (p.obj("cancellation_policy")?.str("label"))) {
-                    if (p.bool("bookable") || !p.has("bookable")) Button(onClick = { sheet = true }, shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.CoralDark),
+                    if (p.bool("bookable") || !p.has("bookable")) Button(onClick = { sheet = true }, shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Brand.Sun, contentColor = Brand.SunInk),
                         contentPadding = PaddingValues(horizontal = 22.dp, vertical = 14.dp)) { Text(if (p.text("booking_mode") == "request") "Request to book" else "Reserve", style = MaterialTheme.typography.labelLarge) }
                     else Text("Not taking bookings", color = Brand.Warn)
                 }

@@ -28,6 +28,7 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.Email
@@ -79,7 +80,7 @@ import com.triparro.app.ui.Notice
 import com.triparro.app.ui.PrimaryButton
 import kotlinx.coroutines.launch
 
-private val roleNames = mapOf("guest" to "Guest", "host" to "Host", "resort" to "Resort owner", "admin" to "Admin", "pethost" to "Pet host", "referral" to "Booking partner", "lister" to "Property partner")
+private val roleNames = mapOf("guest" to "Guest", "host" to "Host", "resort" to "Resort owner", "admin" to "Admin", "pethost" to "Pet host", "referral" to "TripArro Agent", "lister" to "Property TripArro Agent")
 
 @Composable
 private fun Item(icon: ImageVector, text: String, sub: String? = null, tint: Color = Brand.Blue, onClick: () -> Unit) {
@@ -108,7 +109,7 @@ fun AccountScreen(nav: NavHostController) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         // full-colour header (continues behind the status bar)
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-            .matte().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 22.dp)) {
+            .background(com.triparro.app.ui.RedBrush).matte(Color.Transparent).padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 22.dp)) {
             Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(30.dp))
             Text("Account", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 14.dp, bottom = 10.dp))
             if (u == null) Text("Sign in to book, see your trips and pets, and open your dashboard if you host.", color = Color(0xFFFFE0DC), style = MaterialTheme.typography.bodyMedium)
@@ -124,13 +125,10 @@ fun AccountScreen(nav: NavHostController) {
                             modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(50)).background(Brand.Sun).padding(horizontal = 10.dp, vertical = 3.dp))
                     }
                 }
-                if (u.dashboard != null && u.role != "guest") {
+                if (u.role in listOf("host", "resort", "pethost", "referral")) {
                     Gap()
-                    Button(onClick = { nav.navigate("hosting") }, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Brand.Blue)) {
-                        Icon(Icons.Outlined.Dashboard, null, Modifier.size(18.dp)); Text(if (u.role == "referral") "  Open my partner portal" else "  Open my hosting")
-                    }
-                    Text("This month's earnings, guests coming up and your listings.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 8.dp))
+                    com.triparro.app.ui.PrimaryButton(if (u.role == "referral") "Open my TripArro Agent portal" else "Open my hosting", { nav.navigate("hosting") }, icon = Icons.Outlined.Dashboard)
+                    Text(if (u.role == "referral") "Your bookings and commission." else "Requests, check-ins, calendar, prices, money and guest chats — all in the app.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 8.dp))
                 }
             }
         }
@@ -146,6 +144,8 @@ fun AccountScreen(nav: NavHostController) {
         } else {
             Card {
                 Item(Icons.Outlined.Notifications, if (unread > 0) "Notifications ($unread new)" else "Notifications", "Booking updates, check-in and Pet Stay Diary") { nav.navigate("notifications") }
+                HorizontalDivider(color = Brand.Line)
+                Item(Icons.Outlined.ChatBubbleOutline, "Messages", "Your chats with hosts") { nav.navigate("messages") }
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.Person, "Profile and password") { nav.navigate("profile") }
                 HorizontalDivider(color = Brand.Line)

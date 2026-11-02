@@ -42,6 +42,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import com.triparro.app.ui.appear
+import com.triparro.app.ui.floaty
+import com.triparro.app.ui.pressable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Place
@@ -115,6 +119,8 @@ fun ExploreScreen(nav: NavHostController) {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val home = rememberLoader("home") { Api.get("home") }
+    val sights = rememberLoader("sights") { Api.get("explore", mapOf("limit" to 10)) }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
 
     fun search(p: Int = 1) {
         searched = true
@@ -130,6 +136,8 @@ fun ExploreScreen(nav: NavHostController) {
                 r.str("date_error")?.let { error = it }
             } catch (e: Exception) { error = errorText(e) }
             loading = false
+            // show the results: glide down to the list below the search box
+            if (p == 1) try { listState.animateScrollToItem(1) } catch (_: Exception) { }
         }
     }
 
@@ -137,10 +145,10 @@ fun ExploreScreen(nav: NavHostController) {
     val session by Api.session.collectAsState()
     val first = session?.user?.name?.substringBefore(' ')
 
-    LazyColumn(Modifier.fillMaxSize().background(Brand.Page), contentPadding = PaddingValues(bottom = 28.dp)) {
+    LazyColumn(Modifier.fillMaxSize().background(Brand.Page), state = listState, contentPadding = PaddingValues(bottom = 28.dp)) {
         item {
             // top bar: logo + notifications
-            Row(Modifier.fillMaxWidth().background(Brand.Navy).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth().background(Brand.Matte).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 Image(painterResource(R.drawable.logo_white), contentDescription = "TripArro", modifier = Modifier.height(32.dp))
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { nav.navigate(if (session?.user != null) "notifications" else "login") }) {
@@ -150,14 +158,17 @@ fun ExploreScreen(nav: NavHostController) {
                 }
             }
             Box(Modifier.fillMaxWidth()) {
-                Box(Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .matte())
+                Box(Modifier.fillMaxWidth().height(230.dp).clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
+                    .background(com.triparro.app.ui.RedBrush).matte(Color.Transparent))
+                // soft glowing circles for depth
+                Box(Modifier.padding(start = 250.dp, top = 10.dp).size(150.dp).floaty(8f, 2600).clip(CircleShape).background(Color(0x33FFC42E)))
+                Box(Modifier.padding(start = 20.dp, top = 150.dp).size(70.dp).floaty(6f, 2100).clip(CircleShape).background(Color(0x22FFFFFF)))
                 Column(Modifier.padding(horizontal = 16.dp).padding(top = 14.dp)) {
-                    Text(if (first != null) "Hi $first, where to next?" else "Where to next?", style = MaterialTheme.typography.headlineMedium, color = Color.White)
+                    Text(if (first != null) "Hi $first, where to next?" else "Where to next?", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.appear())
                     Text("Verified homestays, villas and resorts — the full price before you pay.", style = MaterialTheme.typography.bodyMedium, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 4.dp))
                     Gap(18)
-                    Column(Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(22.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
-                        .clip(RoundedCornerShape(22.dp)).background(Color.White).padding(14.dp)) {
+                    Column(Modifier.fillMaxWidth().appear(1).shadow(10.dp, RoundedCornerShape(26.dp), ambientColor = Color(0x33000000), spotColor = Color(0x44B81D2B))
+                        .clip(RoundedCornerShape(26.dp)).background(Color.White).padding(14.dp)) {
                         OutlinedTextField(value = q, onValueChange = { q = it }, modifier = Modifier.fillMaxWidth(), singleLine = true,
                             leadingIcon = { Icon(Icons.Outlined.Search, null, tint = Brand.Blue) }, placeholder = { Text("Where to? Ooty, Munnar, Goa…") },
                             shape = RoundedCornerShape(14.dp),
@@ -169,7 +180,7 @@ fun ExploreScreen(nav: NavHostController) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(vertical = 6.dp)) {
                             listOf("all" to "All", "stay" to "Homestays", "resort" to "Resorts").forEach { (k, l) ->
                                 FilterChip(selected = kind == k, onClick = { kind = k }, label = { Text(l) }, shape = RoundedCornerShape(50),
-                                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Brand.Blue, selectedLabelColor = Color.White))
+                                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Brand.Matte, selectedLabelColor = Color.White))
                             }
                         }
                         Gap(4)
@@ -179,10 +190,10 @@ fun ExploreScreen(nav: NavHostController) {
             }
             // shortcuts
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 18.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                Shortcut(Icons.Outlined.Cottage, "Homestays", Brand.Blue, Brand.Sky) { kind = "stay"; search() }
-                Shortcut(Icons.Outlined.Pool, "Resorts", Brand.TealDark, Brand.TealSoft) { kind = "resort"; search() }
-                Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Brand.Sky) { nav.navigate("pets") { launchSingleTop = true } }
-                Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Brand.SunInk, Brand.SunSoft) { nav.navigate("ai") { launchSingleTop = true } }
+                Shortcut(Icons.Outlined.Cottage, "Homestays", Brand.Blue, Brand.Sky, 2) { kind = "stay"; search() }
+                Shortcut(Icons.Outlined.Pool, "Resorts", Brand.TealDark, Brand.TealSoft, 3) { kind = "resort"; search() }
+                Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Brand.Sky, 4) { nav.navigate("pets") { launchSingleTop = true } }
+                Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Brand.SunInk, Brand.SunSoft, 5) { nav.navigate("ai") { launchSingleTop = true } }
             }
         }
         if (searched) {
@@ -194,7 +205,10 @@ fun ExploreScreen(nav: NavHostController) {
                 error?.let { ErrorBox(it) }
                 if (!loading && results.isEmpty() && error == null) EmptyBox("No places found", "Try another place, other dates or fewer guests.", icon = Icons.Outlined.TravelExplore)
             }
-            items(results, key = { it.text("kind") + it.int("id") }) { p -> PropertyCard(p) { nav.navigate("property/${p.text("kind", "stay")}/${p.int("id")}") } }
+            if (loading && results.isEmpty()) item { com.triparro.app.ui.SkeletonGrid(2) }
+            itemsIndexed(results.chunked(2), key = { _, row -> row.joinToString("|") { it.text("kind") + it.int("id") } }) { i, row ->
+                GridRow(row, i) { p -> nav.navigate("property/${p.text("kind", "stay")}/${p.int("id")}") }
+            }
             if (page < pages) item {
                 OutlinedButton(onClick = { search(page + 1) }, modifier = Modifier.fillMaxWidth().padding(16.dp)) { Text(if (loading) "Loading…" else "Show more") }
             }
@@ -225,15 +239,28 @@ fun ExploreScreen(nav: NavHostController) {
                         }
                     }
                 }
+                val spots = sights.data.value?.objs("places").orEmpty()
+                if (spots.isNotEmpty()) {
+                    item { SectionTitle("Places to visit", Modifier.padding(start = 16.dp, end = 16.dp, top = 22.dp), sub = "With today's weather and the best time to go") }
+                    item {
+                        LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            itemsIndexed(spots) { i, pl -> PlaceCard(pl, Modifier.width(220.dp).appear(i)) { nav.navigate("place/${pl.int("id")}") } }
+                        }
+                    }
+                }
                 val fav = h.objs("favourites")
                 if (fav.isNotEmpty()) {
                     item { SectionTitle("Guest favourites", Modifier.padding(start = 16.dp, end = 16.dp, top = 22.dp), sub = "Loved by guests, rated highly") }
-                    items(fav, key = { "f" + it.text("kind") + it.int("id") }) { p -> PropertyCard(p) { nav.navigate("property/${p.text("kind", "stay")}/${p.int("id")}") } }
+                    itemsIndexed(fav.chunked(2), key = { _, row -> "f" + row.joinToString("|") { it.text("kind") + it.int("id") } }) { i, row ->
+                        GridRow(row, i) { p -> nav.navigate("property/${p.text("kind", "stay")}/${p.int("id")}") }
+                    }
                 }
                 val sp = h.objs("sponsored")
                 if (sp.isNotEmpty()) {
                     item { SectionTitle("Sponsored", Modifier.padding(start = 16.dp, end = 16.dp, top = 22.dp), sub = "Paid placements, labelled") }
-                    items(sp, key = { "s" + it.text("kind") + it.int("id") }) { p -> PropertyCard(p) { nav.navigate("property/${p.text("kind", "stay")}/${p.int("id")}") } }
+                    itemsIndexed(sp.chunked(2), key = { _, row -> "s" + row.joinToString("|") { it.text("kind") + it.int("id") } }) { i, row ->
+                        GridRow(row, i) { p -> nav.navigate("property/${p.text("kind", "stay")}/${p.int("id")}") }
+                    }
                 }
             }
         }
@@ -301,6 +328,63 @@ fun PropertyCard(p: JSONObject, onClick: () -> Unit) {
 }
 
 
+/** Two listings side by side (left and right); a single last one keeps half the width. */
+@Composable
+fun GridRow(row: List<JSONObject>, index: Int, open: (JSONObject) -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        row.forEachIndexed { j, p -> GridPropertyCard(p, Modifier.weight(1f).appear(index * 2 + j)) { open(p) } }
+        if (row.size == 1) Spacer(Modifier.weight(1f))
+    }
+}
+
+/** A stay or resort as a tall grid card: photo with rating and tags, place, name and the honest price. */
+@Composable
+fun GridPropertyCard(p: JSONObject, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val price = p.obj("price") ?: JSONObject()
+    val badges = p.obj("badges") ?: JSONObject()
+    Column(modifier.shadow(5.dp, RoundedCornerShape(22.dp), ambientColor = Color(0x22000000), spotColor = Color(0x33B81D2B))
+        .clip(RoundedCornerShape(22.dp)).background(Color.White).pressable(onClick)) {
+        Box {
+            Photo(p.str("image"), Modifier.fillMaxWidth().aspectRatio(0.92f), corner = 0.dp, description = p.text("title"))
+            Box(Modifier.matchParentSize().background(Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color(0x99300A10))))
+            Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (badges.bool("sponsored")) OverlayTag("Sponsored")
+                if (badges.bool("favourite")) OverlayTag("★ Favourite")
+            }
+            val offer = price.num("offer_nightly"); val nightly = price.num("nightly")
+            if (offer != null && nightly != null && offer < nightly) Text("${Math.round((1 - offer / nightly) * 100)}% OFF", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold), color = Brand.SunInk,
+                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).clip(RoundedCornerShape(50)).background(com.triparro.app.ui.SunBrush).padding(horizontal = 8.dp, vertical = 4.dp))
+            Row(Modifier.align(Alignment.BottomStart).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                p.num("rating")?.takeIf { it > 0 }?.let { r ->
+                    Icon(Icons.Filled.Star, null, tint = Brand.Sun, modifier = Modifier.size(15.dp))
+                    Text(" " + String.format(java.util.Locale.ENGLISH, "%.1f", r), style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold), color = Color.White)
+                }
+                if (badges.bool("verified")) { Spacer(Modifier.width(6.dp)); Icon(Icons.Outlined.Verified, "Verified", tint = Color.White, modifier = Modifier.size(15.dp)) }
+            }
+        }
+        Column(Modifier.padding(start = 11.dp, end = 11.dp, top = 9.dp, bottom = 12.dp)) {
+            Text(p.text("title"), style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
+                Icon(Icons.Outlined.Place, null, tint = Brand.Blue, modifier = Modifier.size(13.dp))
+                Text(" " + (p.str("area") ?: p.str("location") ?: ""), style = MaterialTheme.typography.labelMedium, color = Brand.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (p.bool("bookable") || !p.has("bookable")) {
+                val total = price.obj("total"); val offer = price.num("offer_nightly"); val nightly = price.num("nightly")
+                Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(top = 6.dp)) {
+                    if (total != null) {
+                        Text(money(total.num("amount")), style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold), color = Brand.BlueDark)
+                        Text(" · ${total.int("nights")}n", style = MaterialTheme.typography.labelMedium, color = Brand.Muted)
+                    } else {
+                        Text(money(offer ?: nightly), style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold), color = Brand.BlueDark)
+                        Text(" /night", style = MaterialTheme.typography.labelMedium, color = Brand.Muted)
+                    }
+                }
+                if (total == null && offer != null && nightly != null && offer < nightly) Text(money(nightly), style = MaterialTheme.typography.labelMedium.copy(textDecoration = TextDecoration.LineThrough), color = Brand.Muted)
+            } else Text("Not taking bookings", style = MaterialTheme.typography.labelMedium, color = Brand.Warn, modifier = Modifier.padding(top = 6.dp))
+        }
+    }
+}
+
 /** A label on top of a photo (white chip). */
 @Composable
 fun OverlayTag(text: String) {
@@ -310,9 +394,9 @@ fun OverlayTag(text: String) {
 
 /** A round shortcut on Explore (Homestays, Resorts, Pet boarding, Ask AI). */
 @Composable
-private fun Shortcut(icon: ImageVector, label: String, tint: Color, bg: Color, onClick: () -> Unit) {
-    Column(Modifier.width(82.dp).clip(RoundedCornerShape(16.dp)).clickable(onClick = onClick).padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(56.dp).clip(CircleShape).background(bg), contentAlignment = Alignment.Center) { Icon(icon, null, tint = tint, modifier = Modifier.size(26.dp)) }
+private fun Shortcut(icon: ImageVector, label: String, tint: Color, bg: Color, index: Int = 0, onClick: () -> Unit) {
+    Column(Modifier.width(82.dp).appear(index).clip(RoundedCornerShape(16.dp)).pressable(onClick).padding(vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(58.dp).shadow(4.dp, CircleShape, spotColor = tint.copy(alpha = 0.4f)).clip(CircleShape).background(bg), contentAlignment = Alignment.Center) { Icon(icon, null, tint = tint, modifier = Modifier.size(26.dp)) }
         Text(label, style = MaterialTheme.typography.labelMedium, color = Brand.Ink, modifier = Modifier.padding(top = 6.dp), maxLines = 1)
     }
 }

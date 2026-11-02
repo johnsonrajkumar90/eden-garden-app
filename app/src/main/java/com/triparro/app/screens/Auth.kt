@@ -1,6 +1,7 @@
 package com.triparro.app.screens
 
 import android.content.Intent
+import com.triparro.app.ui.pressable
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -113,6 +114,17 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
     var fieldErr by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     fun go(s: Step) { step = s; err = null; info = null; fieldErr = emptyMap() }
+    androidx.compose.runtime.LaunchedEffect(Unit) { com.triparro.app.AppState.authMessage.value?.let { err = it; com.triparro.app.AppState.authMessage.value = null } }
+    /** Google sign-in: Google's own page opens in a browser tab, then TripArro sends the person back to the app signed in. */
+    fun google() {
+        try {
+            androidx.browser.customtabs.CustomTabsIntent.Builder().setShowTitle(true)
+                .setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams.Builder().setToolbarColor(0xFFB81D2B.toInt()).build())
+                .build().launchUrl(ctx, android.net.Uri.parse(Api.url("auth/google?app=1")))
+        } catch (_: Exception) {
+            try { ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(Api.url("auth/google?app=1")))) } catch (_: Exception) { err = "Could not open Google sign-in on this phone." }
+        }
+    }
     fun done() { nav.popBackStack() }
     /** An older website without the app sign-in answers: say so (the app never opens web pages). */
     fun webFallback(e: ApiException, path: String, title: String): Boolean {
@@ -221,6 +233,8 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
                     Gap(8)
                     PrimaryButton("Sign in", { signIn() }, coral = true, enabled = email.contains("@") && password.isNotEmpty(), loading = busy)
                     OrDivider()
+                    GoogleButton("Continue with Google") { google() }
+                    Gap(10)
                     OutlinedButton(onClick = { go(Step.AskCode) }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp)) {
                         Icon(Icons.Outlined.Password, null, Modifier.size(18.dp)); Spacer(Modifier.size(8.dp)); Text("Sign in with a code instead")
                     }
@@ -241,6 +255,8 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
                         error = fieldErr["password"], hint = "At least 8 characters", done = { signUp() })
                     Gap(16)
                     PrimaryButton("Create account", { signUp() }, coral = true, enabled = name.isNotBlank() && email.contains("@") && password.length >= 8, loading = busy)
+                    OrDivider()
+                    GoogleButton("Sign up with Google") { google() }
                     Gap(12)
                     Text("By creating an account you agree to TripArro's privacy and cancellation policies.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -317,6 +333,26 @@ private fun AuthField(label: String, value: String, onChange: (String) -> Unit, 
         shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Brand.Line, focusedBorderColor = Brand.Blue, unfocusedContainerColor = Brand.Page, focusedContainerColor = Color.White),
     )
+}
+
+@Composable
+/** "Continue with Google": white, with Google's four-colour G. */
+@Composable
+private fun GoogleButton(label: String, onClick: () -> Unit) {
+    Row(Modifier.fillMaxWidth().height(52.dp).shadow(2.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).background(Color.White)
+        .border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).then(Modifier.pressable(onClick)), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+        androidx.compose.foundation.Canvas(Modifier.size(20.dp)) {
+            val w = size.minDimension; val st = androidx.compose.ui.graphics.drawscope.Stroke(width = w * 0.2f)
+            val inset = w * 0.1f; val tl = androidx.compose.ui.geometry.Offset(inset, inset); val sz = androidx.compose.ui.geometry.Size(w - 2 * inset, w - 2 * inset)
+            drawArc(Color(0xFFEA4335), -45f, -90f, false, tl, sz, style = st)
+            drawArc(Color(0xFFFBBC05), -135f, -90f, false, tl, sz, style = st)
+            drawArc(Color(0xFF34A853), -225f, -90f, false, tl, sz, style = st)
+            drawArc(Color(0xFF4285F4), 45f, -90f, false, tl, sz, style = st)
+            drawLine(Color(0xFF4285F4), androidx.compose.ui.geometry.Offset(w / 2, w / 2), androidx.compose.ui.geometry.Offset(w - inset, w / 2), strokeWidth = w * 0.2f)
+        }
+        Spacer(Modifier.size(10.dp))
+        Text(label, style = MaterialTheme.typography.labelLarge, color = Brand.Ink)
+    }
 }
 
 @Composable
