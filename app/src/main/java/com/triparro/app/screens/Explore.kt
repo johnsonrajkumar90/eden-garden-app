@@ -155,6 +155,7 @@ fun ExploreScreen(nav: NavHostController) {
             Row(Modifier.fillMaxWidth().background(Brand.Matte).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 Image(painterResource(R.drawable.logo_white), contentDescription = "TripArro", modifier = Modifier.height(32.dp))
                 Spacer(Modifier.weight(1f))
+                WalletChip(nav)   // rewards wallet balance, top right
                 IconButton(onClick = { nav.navigate(if (session?.user != null) "notifications" else "login") }) {
                     BadgedBox(badge = { if (unread > 0) Badge(containerColor = Brand.Coral, contentColor = Color.White) { Text(if (unread > 9) "9+" else "$unread") } }) {
                         Icon(Icons.Outlined.Notifications, "Notifications", tint = Color.White)

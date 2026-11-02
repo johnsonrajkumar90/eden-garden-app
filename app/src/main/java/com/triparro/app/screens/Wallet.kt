@@ -1,5 +1,8 @@
 package com.triparro.app.screens
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,7 +79,7 @@ fun WalletScreen(nav: NavHostController) {
                     if (w.bool("on")) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).padding(16.dp)) {
                         Text("How you earn", fontWeight = FontWeight.ExtraBold)
                         if ((r.num("signup") ?: 0.0) > 0) Text("🎁 ${money(r.num("signup"))} when you sign up (after confirming your email)", style = MaterialTheme.typography.bodyMedium)
-                        if ((r.num("first_booking") ?: 0.0) > 0) Text("🏡 ${money(r.num("first_booking"))} after your first stay is completed", style = MaterialTheme.typography.bodyMedium)
+                        if ((r.num("first_booking") ?: 0.0) > 0) Text("🏡 ${money(r.num("first_booking"))} after ${if (r.text("booking_mode") == "first") "your first stay" else "every stay"} — added once you have checked out", style = MaterialTheme.typography.bodyMedium)
                         Gap(6)
                         Text(r.text("text"), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
                     } else Notice("Wallet rewards are paused right now. Your balance is kept.", "info")
@@ -136,5 +139,38 @@ fun NotifyPrefsScreen(nav: NavHostController) {
                 item { Text("Guests arriving today and tomorrow are sent in the morning (Admin → Notifications sets the hour). The app checks about every 15 minutes.", style = MaterialTheme.typography.labelSmall, color = Brand.Muted) }
             }
         }
+    }
+}
+
+/**
+ * The rewards wallet at the top right of the app: the balance for signed-in guests (tap → My wallet),
+ * or the sign-up reward for visitors (tap → create an account). Refreshed when the app's data changes.
+ */
+@Composable
+fun WalletChip(nav: NavHostController) {
+    val session by Api.session.collectAsState()
+    val tick by com.triparro.app.AppState.refreshTick
+    val u = session?.user
+    if (u != null && u.role != "guest") return
+    var bal by remember { mutableStateOf(u?.wallet) }
+    var signup by remember { mutableStateOf<Double?>(null) }
+    androidx.compose.runtime.LaunchedEffect(u?.id, tick) {
+        try {
+            val w = Api.get("wallet")
+            if (!w.bool("on") && (w.num("balance") ?: 0.0) <= 0) { bal = null; return@LaunchedEffect }
+            bal = w.num("balance")
+        } catch (_: Exception) {
+            if (u == null) signup = null
+        }
+    }
+    val label = when {
+        u != null && bal != null -> money(bal)
+        u == null -> "Rewards"
+        else -> return
+    }
+    Row(Modifier.padding(end = 4.dp).clip(RoundedCornerShape(50)).background(Brand.Sun)
+        .clickable { nav.navigate(if (u != null) "wallet" else "signup") }.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(Icons.Outlined.AccountBalanceWallet, "Rewards wallet", tint = Brand.SunInk, modifier = Modifier.size(18.dp))
+        Text(" $label", color = Brand.SunInk, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.labelLarge)
     }
 }
