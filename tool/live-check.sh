@@ -1,11 +1,12 @@
 #!/bin/bash
-# Probes the OpenStreetMap place servers (Overpass) the way the website calls them.
-Q='[out:json][timeout:20];nwr(around:3000,11.0168,76.9558)["amenity"~"^(cafe|fuel|charging_station)$"];out center 5;'
-UA='TripArro travel planner (https://triparro.com)'
-for url in https://overpass-api.de/api/interpreter https://overpass.private.coffee/api/interpreter https://overpass.kumi.systems/api/interpreter https://maps.mail.ru/osm/tools/overpass/api/interpreter; do
-  echo "== $url (form POST, our UA)"
-  curl -s -m 40 -A "$UA" -H "Accept: application/json" --data-urlencode "data=$Q" -w "\n--> HTTP %{http_code} %{time_total}s\n" "$url" | head -c 400; echo
-  echo "== $url (GET, our UA)"
-  curl -s -m 40 -A "$UA" -G --data-urlencode "data=$Q" -o /dev/null -w "--> HTTP %{http_code} %{time_total}s\n" "$url"
+# Calls the live site's API from GitHub (the build machines can reach triparro.com) and prints what it answers.
+B=https://triparro.com
+for u in "api/chargers/meta" "api/chargers?lat=11.0168&lng=76.9558&distance=25" "api/chargers?lat=11.0168&lng=76.9558&distance=50&sort=power" "api/trip/destinations?q=ooty" "ev-charging" "app/web/" ; do
+  echo "=================== GET $u"
+  curl -s -m 60 -A "Mozilla/5.0 TripArro-check" -H "Accept: application/json" -w "\n--> HTTP %{http_code} in %{time_total}s\n" "$B/$u" | head -c 1800
+  echo
 done
-echo "== OSRM"; curl -s -m 20 -A "$UA" "https://router.project-osrm.org/route/v1/driving/76.9558,11.0168;76.695,11.4102?overview=false" | head -c 300; echo
+echo "=================== EV page HTML: which build is served"
+curl -s -m 30 "$B/ev-charging" | grep -o 'app/web/[^"]*\.js' | head -5
+echo "=================== does the built JS contain the public chargers tab?"
+for js in $(curl -s -m 30 "$B/ev-charging" | grep -o '/app/web/[^"]*\.js' | head -3); do echo "$js: $(curl -s -m 30 "$B$js" | grep -c 'All public chargers')"; done
