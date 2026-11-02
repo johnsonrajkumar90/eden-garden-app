@@ -2,6 +2,9 @@
 
 package com.triparro.app.screens
 
+import androidx.compose.material.icons.outlined.EvStation
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Star
@@ -189,11 +192,12 @@ fun ExploreScreen(nav: NavHostController) {
                 }
             }
             // shortcuts
-            Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 18.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 18.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 Shortcut(Icons.Outlined.Cottage, "Homestays", Brand.Blue, Brand.Sky, 2) { kind = "stay"; search() }
                 Shortcut(Icons.Outlined.Pool, "Resorts", Brand.TealDark, Brand.TealSoft, 3) { kind = "resort"; search() }
                 Shortcut(Icons.Outlined.Pets, "Pet boarding", Brand.CoralDark, Brand.Sky, 4) { nav.navigate("pets") { launchSingleTop = true } }
                 Shortcut(Icons.Outlined.AutoAwesome, "Ask AI", Brand.SunInk, Brand.SunSoft, 5) { nav.navigate("ai") { launchSingleTop = true } }
+                Shortcut(Icons.Outlined.EvStation, "EV chargers", Color(0xFF00704A), Brand.TealSoft, 6) { nav.navigate("chargers") { launchSingleTop = true } }
             }
         }
         if (searched) {

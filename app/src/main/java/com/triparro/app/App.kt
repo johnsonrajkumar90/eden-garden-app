@@ -259,6 +259,7 @@ fun TripArroApp(activity: MainActivity) {
             NavHost(nav, startDestination = "explore") {
                 composable("explore") { ExploreScreen(nav) }
                 composable("pets") { PetSearchScreen(nav) }
+                composable("chargers") { com.triparro.app.screens.ChargersScreen(nav) }
                 composable("trips") { TripsScreen(nav) }
                 composable("ai") { AiScreen(nav) }
                 composable("account") { AccountScreen(nav) }
