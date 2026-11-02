@@ -209,28 +209,6 @@ fun TripArroApp(activity: MainActivity) {
         if (Api.session.value?.user != null) scope.launch { try { Notifier.check(activity) } catch (_: Exception) { } }
     }
 
-    // the offer popup (Admin → Home page & menu → Offer popup): the admin's offer picture, once every few days
-    var offer by remember { mutableStateOf<org.json.JSONObject?>(null) }
-    LaunchedEffect(session?.offerPopup?.optString("id")) {
-        val o = session?.offerPopup ?: return@LaunchedEffect
-        if (o.optString("image").isEmpty()) return@LaunchedEffect
-        val p = activity.getSharedPreferences("triparro", Context.MODE_PRIVATE)
-        val last = p.getLong("offer_" + o.optString("id"), 0L)
-        if (last > 0 && System.currentTimeMillis() - last < o.optInt("days", 3) * 86_400_000L) return@LaunchedEffect
-        kotlinx.coroutines.delay(o.optInt("delay", 1) * 1000L + 600)
-        offer = o
-    }
-    offer?.let { o ->
-        com.triparro.app.screens.OfferDialog(o, onClose = {
-            activity.getSharedPreferences("triparro", Context.MODE_PRIVATE).edit().putLong("offer_" + o.optString("id"), System.currentTimeMillis()).apply()
-            offer = null
-        }, onOpen = { link ->
-            activity.getSharedPreferences("triparro", Context.MODE_PRIVATE).edit().putLong("offer_" + o.optString("id"), System.currentTimeMillis()).apply()
-            offer = null
-            nav.openLink(Api.url(link))
-        })
-    }
-
     Scaffold(
         containerColor = Brand.Page,
         bottomBar = {
@@ -276,7 +254,7 @@ fun TripArroApp(activity: MainActivity) {
             WindowCompat.getInsetsController(activity.window, view).isAppearanceLightStatusBars = topColor == Color.White
         }
         Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(topColor))
-        OfferPopup(activity, session?.offer) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
+        OfferPopup(activity, session?.offerPopup) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
         Box(Modifier.fillMaxSize().padding(pad)) {
             NavHost(nav, startDestination = "explore") {
                 composable("explore") { ExploreScreen(nav) }
