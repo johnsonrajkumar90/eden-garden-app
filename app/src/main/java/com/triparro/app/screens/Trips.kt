@@ -2,6 +2,7 @@
 
 package com.triparro.app.screens
 
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.graphics.Brush
@@ -197,13 +198,18 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
     var message by remember { mutableStateOf("") }
     val b = l.data.value
 
+    var useWallet by remember { mutableStateOf(true) }
     fun pay(kind: String) {
         busy = true; msg = null
+        val withWallet = useWallet && (b?.obj("wallet")?.num("usable") ?: 0.0) > 0
         scope.launch {
             try {
-                val p = Api.post("payments", mapOf("ref" to ref, "kind" to kind))
-                AppState.payment.value = PaymentForm(p.text("action"), p.obj("fields") ?: JSONObject(), "Pay securely")
-                nav.navigate("pay")
+                val p = Api.post("payments", mapOf("ref" to ref, "kind" to (if (withWallet) "full" else kind), "use_wallet" to withWallet))
+                if (p.bool("paid")) { msg = p.text("message"); AppState.refreshTick.value++ }   // the wallet paid all of it
+                else {
+                    AppState.payment.value = PaymentForm(p.text("action"), p.obj("fields") ?: JSONObject(), "Pay securely")
+                    nav.navigate("pay")
+                }
             } catch (e: Exception) { msg = errorText(e) }
             busy = false
         }
@@ -261,8 +267,21 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
                     val confirmed = b.text("status") == "confirmed"
                     if (confirmed) PrimaryButton("Pay the balance · ${money(b.num("balance"))}", { pay("balance") }, loading = busy, coral = true)
                     else {
-                        if (b.bool("pay_full")) PrimaryButton("Pay ${money(b.num("total"))}", { pay("full") }, loading = busy, coral = true)
-                        if ((b.num("advance") ?: 0.0) > 0) { Gap(8); OutlinedButton(onClick = { pay("advance") }, modifier = Modifier.fillMaxWidth()) { Text("Pay the advance · ${money(b.num("advance"))}") } }
+                        val w = b.obj("wallet"); val usable = w?.num("usable") ?: 0.0
+                        if (usable > 0) {
+                            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Brand.SunSoft).clickable { useWallet = !useWallet }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                androidx.compose.material3.Checkbox(checked = useWallet, onCheckedChange = { useWallet = it })
+                                Column(Modifier.weight(1f)) {
+                                    Text("Use my TripArro wallet: ${money(usable)} off", fontWeight = FontWeight.Bold)
+                                    Text("Wallet balance ${money(w?.num("balance"))} · up to ${w?.num("max_percent")?.toInt()}% of a booking", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                                }
+                            }
+                            Gap(8)
+                        }
+                        if ((w?.num("used") ?: 0.0) > 0) { Text("${money(w?.num("used"))} paid from your wallet.", color = Brand.TealDark, fontWeight = FontWeight.SemiBold); Gap(6) }
+                        val due = (b.num("balance") ?: 0.0) - (if (useWallet) usable else 0.0)
+                        if (b.bool("pay_full") || usable > 0) PrimaryButton(if (due <= 0.01) "Pay from my wallet" else "Pay ${money(due)}", { pay("full") }, loading = busy, coral = true)
+                        if ((b.num("advance") ?: 0.0) > 0 && !(useWallet && usable > 0) && (w?.num("used") ?: 0.0) == 0.0) { Gap(8); OutlinedButton(onClick = { pay("advance") }, modifier = Modifier.fillMaxWidth()) { Text("Pay the advance · ${money(b.num("advance"))}") } }
                     }
                     Gap(8)
                 }

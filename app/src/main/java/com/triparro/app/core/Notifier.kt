@@ -90,7 +90,7 @@ object Notifier {
         val items = j.objs("items")
         val top = items.maxOfOrNull { it.int("id").toLong() } ?: last
         if (last < 0) { p.edit().putLong(key, maxOf(top, 0L)).apply(); return 0 }
-        val fresh = items.filter { !it.bool("read") && it.int("id") > last }.sortedBy { it.int("id") }
+        val fresh = items.filter { !it.bool("read") && it.int("id") > last && !it.bool("muted") }.sortedBy { it.int("id") }   // muted: the person switched that topic off
         if (post && canPost(context)) fresh.takeLast(5).forEach { show(context, it) }
         if (top > last) p.edit().putLong(key, top).apply()
         return fresh.size

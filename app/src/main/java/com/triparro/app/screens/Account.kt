@@ -1,5 +1,8 @@
 package com.triparro.app.screens
 
+import com.triparro.app.ui.money
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -125,10 +128,10 @@ fun AccountScreen(nav: NavHostController) {
                             modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(50)).background(Brand.Sun).padding(horizontal = 10.dp, vertical = 3.dp))
                     }
                 }
-                if (u.role in listOf("host", "resort", "pethost", "referral")) {
+                if (u.role in listOf("host", "resort", "pethost", "referral", "admin")) {
                     Gap()
-                    com.triparro.app.ui.PrimaryButton(if (u.role == "referral") "Open my TripArro Agent portal" else "Open my hosting", { nav.navigate("hosting") }, icon = Icons.Outlined.Dashboard)
-                    Text(if (u.role == "referral") "Your bookings and commission." else "Requests, check-ins, calendar, prices, money and guest chats — all in the app.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 8.dp))
+                    com.triparro.app.ui.PrimaryButton(if (u.role == "referral") "Open my TripArro Agent portal" else if (u.role == "admin") "Open the admin dashboard" else "Open my hosting", { nav.navigate("hosting") }, icon = Icons.Outlined.Dashboard)
+                    Text(if (u.role == "referral") "Your bookings and commission." else if (u.role == "admin") "Today's and tomorrow's arrivals, requests, what is waiting for you, and guest chats." else "Requests, check-ins, calendar, prices, money and guest chats — all in the app.", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC), modifier = Modifier.padding(top = 8.dp))
                 }
             }
         }
@@ -148,6 +151,12 @@ fun AccountScreen(nav: NavHostController) {
                 Item(Icons.Outlined.ChatBubbleOutline, "Messages", "Your chats with hosts") { nav.navigate("messages") }
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.Person, "Profile and password") { nav.navigate("profile") }
+                HorizontalDivider(color = Brand.Line)
+                Item(Icons.Outlined.NotificationsActive, "Notification settings", if (u.role == "guest") "Choose what reaches your phone" else "Guests arriving today / tomorrow, messages, bookings") { nav.navigate("notifyprefs") }
+                if (u.role == "guest") {
+                    HorizontalDivider(color = Brand.Line)
+                    Item(Icons.Outlined.AccountBalanceWallet, "My wallet", u.wallet?.let { "Balance ${money(it)} — use it on your next booking" } ?: "Rewards for your bookings") { nav.navigate("wallet") }
+                }
                 HorizontalDivider(color = Brand.Line)
                 Item(Icons.Outlined.Pets, "My pets", "Care notes the host sees when you book") { nav.navigate("mypets") }
                 HorizontalDivider(color = Brand.Line)

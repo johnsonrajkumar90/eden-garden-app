@@ -1,0 +1,140 @@
+package com.triparro.app.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.triparro.app.core.Api
+import com.triparro.app.core.Notifier
+import com.triparro.app.core.bool
+import com.triparro.app.core.num
+import com.triparro.app.core.obj
+import com.triparro.app.core.objs
+import com.triparro.app.core.str
+import com.triparro.app.core.text
+import com.triparro.app.ui.BackBar
+import com.triparro.app.ui.Brand
+import com.triparro.app.ui.ErrorBox
+import com.triparro.app.ui.Gap
+import com.triparro.app.ui.Loading
+import com.triparro.app.ui.Notice
+import com.triparro.app.ui.appear
+import com.triparro.app.ui.money
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+
+/** The guest's TripArro wallet: balance, how rewards are earned, and every change. */
+@Composable
+fun WalletScreen(nav: NavHostController) {
+    val l = rememberLoader(Unit) { Api.get("wallet") }
+    Scaffold(topBar = { BackBar("My wallet", { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
+        val w = l.data.value
+        when {
+            w == null && l.loading.value -> Box(Modifier.padding(pad)) { Loading() }
+            w == null -> Box(Modifier.padding(pad).padding(16.dp)) { ErrorBox(l.error.value ?: "Could not load your wallet.", { l.reload() }) }
+            else -> LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                item {
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(Brush.linearGradient(listOf(Color(0xFF8E0F1D), Color(0xFFD7192A), Color(0xFFFF6A3D)))).padding(20.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Outlined.AccountBalanceWallet, null, tint = Color.White); Text("  TripArro wallet", color = Color(0xFFFFE3DE), fontWeight = FontWeight.Bold) }
+                        Text(money(w.num("balance")), style = MaterialTheme.typography.displaySmall, color = Color.White, fontWeight = FontWeight.ExtraBold)
+                        Text("Rewards earned so far: ${money(w.num("rewards_earned"))}", color = Color(0xFFFFE3DE))
+                    }
+                }
+                item {
+                    val r = w.obj("rules") ?: JSONObject()
+                    if (w.bool("on")) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).padding(16.dp)) {
+                        Text("How you earn", fontWeight = FontWeight.ExtraBold)
+                        if ((r.num("signup") ?: 0.0) > 0) Text("🎁 ${money(r.num("signup"))} when you sign up (after confirming your email)", style = MaterialTheme.typography.bodyMedium)
+                        if ((r.num("first_booking") ?: 0.0) > 0) Text("🏡 ${money(r.num("first_booking"))} after your first stay is completed", style = MaterialTheme.typography.bodyMedium)
+                        Gap(6)
+                        Text(r.text("text"), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                    } else Notice("Wallet rewards are paused right now. Your balance is kept.", "info")
+                }
+                item { Text("History", fontWeight = FontWeight.ExtraBold) }
+                val items = w.objs("items")
+                if (items.isEmpty()) item { Text("Nothing yet.", color = Brand.Muted) }
+                items(items) { i ->
+                    val amt = i.num("amount") ?: 0.0
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(i.text("label"), fontWeight = FontWeight.Bold)
+                            Text(listOfNotNull(i.str("note"), i.text("date").take(16).replace("T", " ")).joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                        }
+                        Text((if (amt >= 0) "+" else "−") + money(kotlin.math.abs(amt)), fontWeight = FontWeight.ExtraBold, color = if (amt >= 0) Brand.TealDark else Brand.Danger)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Which notifications reach the phone: guests arriving today / tomorrow, messages, bookings… (saved on the website, also for push). */
+@Composable
+fun NotifyPrefsScreen(nav: NavHostController) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+    val l = rememberLoader(Unit) { Api.get("notify-prefs").objs("topics") }
+    var topics by remember { mutableStateOf<List<JSONObject>?>(null) }
+    var err by remember { mutableStateOf<String?>(null) }
+    val list = topics ?: l.data.value
+    Scaffold(topBar = { BackBar("Notification settings", { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
+        when {
+            list == null && l.loading.value -> Box(Modifier.padding(pad)) { Loading() }
+            list == null -> Box(Modifier.padding(pad).padding(16.dp)) { ErrorBox(l.error.value ?: "Could not load your settings.", { l.reload() }) }
+            else -> LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (!Notifier.canPost(ctx)) item { Notice("Notifications are switched off for TripArro on this phone — allow them in the phone's settings to get these.", "warn") }
+                item { Text("Choose what reaches your phone. Everything still shows in Notifications in the app.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted) }
+                item {
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White)) {
+                        list.forEachIndexed { i, t ->
+                            if (i > 0) HorizontalDivider(color = Brand.Line)
+                            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text(t.text("label"), Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                                Switch(checked = t.bool("on"), onCheckedChange = { on ->
+                                    val key = t.text("key")
+                                    topics = list.map { if (it.text("key") == key) JSONObject(it.toString()).put("on", on) else it }
+                                    scope.launch {
+                                        try { topics = Api.post("notify-prefs", mapOf(key to on)).objs("topics"); err = null } catch (e: Exception) { err = errorText(e) }
+                                    }
+                                }, colors = SwitchDefaults.colors(checkedTrackColor = Brand.Teal))
+                            }
+                        }
+                    }
+                }
+                err?.let { e -> item { Notice(e, "bad") } }
+                item { Text("Guests arriving today and tomorrow are sent in the morning (Admin → Notifications sets the hour). The app checks about every 15 minutes.", style = MaterialTheme.typography.labelSmall, color = Brand.Muted) }
+            }
+        }
+    }
+}

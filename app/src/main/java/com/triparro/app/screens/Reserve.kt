@@ -79,6 +79,10 @@ fun ReserveScreen(nav: NavHostController) {
     val advance = d.quote.obj("advance")
     var payAdvance by remember { mutableStateOf(advance?.bool("only") == true) }
     val isRequest = d.quote.text("booking_mode") == "request"
+    // the guest's rewards wallet (homestays); the server works out how much it can pay (admin's % of the booking)
+    val walletBal = session?.user?.wallet ?: 0.0
+    var useWallet by remember { mutableStateOf(true) }
+    val walletOn = !isRequest && d.kind == "stay" && walletBal > 0 && useWallet
     var idType by remember { mutableStateOf("aadhaar") }
     var idFront by remember { mutableStateOf<Uri?>(null) }
     var idBack by remember { mutableStateOf<Uri?>(null) }
@@ -111,11 +115,13 @@ fun ReserveScreen(nav: NavHostController) {
                 val ref = r.text("ref")
                 AppState.refreshTick.value++
                 if (r.text("next") == "payment") {
-                    val pay = Api.post("payments", mapOf("ref" to ref, "kind" to (if (payAdvance) "advance" else "full")))
-                    AppState.payment.value = PaymentForm(pay.text("action"), pay.obj("fields") ?: org.json.JSONObject(), "Pay securely")
+                    val pay = Api.post("payments", mapOf("ref" to ref, "kind" to (if (payAdvance && !walletOn) "advance" else "full"), "use_wallet" to walletOn))
                     nav.popBackStack()
                     nav.navigate("booking/$ref")
-                    nav.navigate("pay")
+                    if (!pay.bool("paid")) {   // paid = the wallet covered all of it
+                        AppState.payment.value = PaymentForm(pay.text("action"), pay.obj("fields") ?: org.json.JSONObject(), "Pay securely")
+                        nav.navigate("pay")
+                    }
                 } else {
                     nav.popBackStack()
                     nav.navigate("booking/$ref")
@@ -142,7 +148,11 @@ fun ReserveScreen(nav: NavHostController) {
                 }
                 Gap()
                 PriceTable(d.quote.priceLines(), d.quote.num("total"))
-                if (advance != null) {
+                if (!isRequest && d.kind == "stay" && walletBal > 0) {
+                    Gap(8)
+                    CheckRow("Use my TripArro wallet (balance ${money(walletBal)})", useWallet, { useWallet = !useWallet }, note = "Part of this booking is paid from your rewards — you pay the rest online.")
+                }
+                if (advance != null && !walletOn) {
                     Gap(8)
                     if (advance.bool("only")) Notice("Pay ${money(advance.num("amount"))} now; the balance ${money(advance.num("balance"))} is paid later.", "info")
                     else {

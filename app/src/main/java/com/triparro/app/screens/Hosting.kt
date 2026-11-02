@@ -120,13 +120,13 @@ fun HostingScreen(nav: NavHostController) {
     val session by Api.session.collectAsState()
     val role = session?.user?.role ?: ""
     when (role) {
-        "host", "resort", "pethost" -> HostDashboard(nav, role)
+        "host", "resort", "pethost", "admin" -> HostDashboard(nav, role)
         "referral" -> AgentPortal(nav)
         else -> Column(Modifier.fillMaxSize().background(Brand.Page)) {
             com.triparro.app.ui.ColorHeader("My hosting", session?.user?.name, onBack = { nav.popBackStack() })
             Column(Modifier.padding(16.dp)) {
-                Notice(if (role == "admin") "The admin dashboard runs on a computer. In the app you can book, chat and get every notification." else "My hosting is for hosts, resort owners and pet hosts. List your property to get started.", "info")
-                if (role != "admin") { Gap(); PrimaryButton("List your property", { nav.navigate("become-host") }) }
+                Notice("My hosting is for hosts, resort owners and pet hosts. List your property to get started.", "info")
+                Gap(); PrimaryButton("List your property", { nav.navigate("become-host") })
             }
         }
     }
@@ -153,7 +153,7 @@ private fun HostDashboard(nav: NavHostController, role: String) {
             Row(Modifier.padding(start = 4.dp, end = 12.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White) }
                 Column(Modifier.weight(1f)) {
-                    Text(if (pets) "Pet hosting" else if (role == "resort") "My resort" else "My hosting", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                    Text(if (pets) "Pet hosting" else if (role == "resort") "My resort" else if (role == "admin") "Admin dashboard" else "My hosting", style = MaterialTheme.typography.headlineSmall, color = Color.White)
                     Text("Hi ${h?.text("name")?.substringBefore(' ') ?: ""} — everything for your guests, here in the app", style = MaterialTheme.typography.labelMedium, color = Color(0xFFFFE0DC), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
@@ -218,10 +218,16 @@ private fun TodayTab(nav: NavHostController, home: Loader<JSONObject>, pets: Boo
                     req.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
                     Gap(6)
                 }
+                h.obj("admin")?.let { a -> AdminCards(nav, a); Gap(10) }
                 val today = h.objs("today")
                 SectionTitle("Today", sub = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)))
                 if (today.isEmpty()) Notice(if (pets) "No pets arriving or leaving today." else "Nobody is arriving or leaving today.", "info")
                 today.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
+                Gap(10)
+                val tomorrow = h.objs("tomorrow")
+                SectionTitle("Arriving tomorrow", sub = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)))
+                if (tomorrow.isEmpty()) Notice(if (pets) "No pets arriving tomorrow." else "Nobody is arriving tomorrow.", "info")
+                tomorrow.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
                 Gap(10)
                 val up = h.objs("upcoming")
                 SectionTitle("Coming up")
@@ -232,6 +238,35 @@ private fun TodayTab(nav: NavHostController, home: Loader<JSONObject>, pets: Boo
                     PrimaryButton("${h.int("unread_chats")} unread guest messages", { nav.navigate("hostchats") }, icon = Icons.Outlined.ChatBubbleOutline)
                 }
                 Gap(20)
+            }
+        }
+    }
+}
+
+/** The admin's cards on the app dashboard: this month and what is waiting (opens the website's admin page). */
+@Composable
+private fun AdminCards(nav: NavHostController, a: JSONObject) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val m = a.obj("month") ?: JSONObject()
+    SectionTitle("This month", sub = "All stays and resorts")
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf("Bookings" to "${m.int("bookings")}", "Value" to money(m.num("bookings_value")), "Fee + commission" to money(m.num("platform")), "New guests" to "${m.int("new_guests")}").forEach { (k, v) ->
+            Column(Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Color.White).padding(10.dp)) {
+                Text(v, fontWeight = FontWeight.ExtraBold, maxLines = 1); Text(k, style = MaterialTheme.typography.labelSmall, color = Brand.Muted, maxLines = 2)
+            }
+        }
+    }
+    a.obj("wallet")?.let { w -> Text("Guest wallets: ${money(w.num("in_wallets"))} unused · ${money(w.num("used"))} used on bookings", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp)) }
+    val waiting = a.objs("waiting")
+    if (waiting.isNotEmpty()) {
+        Gap(12)
+        SectionTitle("Waiting for you")
+        waiting.forEach { x ->
+            Row(Modifier.fillMaxWidth().padding(bottom = 6.dp).clip(RoundedCornerShape(14.dp)).background(Brand.SunSoft)
+                .clickable { try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(Api.url(x.text("link"))))) } catch (_: Exception) { } }
+                .padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(x.text("label"), modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
+                Text("${x.int("count")}", fontWeight = FontWeight.ExtraBold, color = Brand.SunInk)
             }
         }
     }
