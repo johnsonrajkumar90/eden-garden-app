@@ -115,7 +115,7 @@ fun ChargersScreen(nav: NavHostController) {
     var error by remember { mutableStateOf<String?>(null) }
     var info by remember { mutableStateOf<String?>(null) }
     var q by remember { mutableStateOf("") }
-    var details by remember { mutableStateOf<Int?>(null) }
+    var details by remember { mutableStateOf<Long?>(null) }
     var meta by remember { mutableStateOf<JSONObject?>(null) }
 
     LaunchedEffect(Unit) {
@@ -227,10 +227,10 @@ fun ChargersScreen(nav: NavHostController) {
                         Text("Choose a bigger distance or remove a filter.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
                     }
                 }
-                else -> itemsIndexed(items, key = { _, c -> c.optInt("id") }) { i, c -> ChargerCard(c, Modifier.appear(i.coerceAtMost(8))) { details = c.optInt("id") } }
+                else -> itemsIndexed(items, key = { _, c -> c.optLong("id") }) { i, c -> ChargerCard(c, Modifier.appear(i.coerceAtMost(8))) { details = c.optLong("id") } }
             }
             item {
-                Text("Public chargers come from Open Charge Map, a community database — status and prices can be out of date. Map data © OpenStreetMap contributors · Charging data © Open Charge Map contributors.",
+                Text("Public chargers come from community databases (Open Charge Map / OpenStreetMap) — status and prices can be out of date. Data © Open Charge Map and OpenStreetMap contributors.",
                     style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
             }
         }
@@ -282,7 +282,7 @@ private fun ChargerCard(c: JSONObject, modifier: Modifier = Modifier, onClick: (
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChargerSheet(id: Int, onClose: () -> Unit) {
+private fun ChargerSheet(id: Long, onClose: () -> Unit) {
     val ctx = LocalContext.current
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val load = rememberLoader(id) { Api.get("chargers/$id").obj("data") }
@@ -324,7 +324,7 @@ private fun ChargerSheet(id: Int, onClose: () -> Unit) {
                     c.str("directions_url")?.let { u -> PrimaryButton("Get directions", { open(u) }, icon = Icons.Outlined.Directions) }
                     Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         c.obj("operator")?.str("website")?.let { u -> OutlinedButton(onClick = { open(u) }) { Icon(Icons.Outlined.OpenInNew, null, Modifier.size(16.dp)); Text(" Operator") } }
-                        c.str("ocm_url")?.let { u -> OutlinedButton(onClick = { open(u) }) { Icon(Icons.Outlined.OpenInNew, null, Modifier.size(16.dp)); Text(" Open Charge Map") } }
+                        (c.str("source_url") ?: c.str("ocm_url"))?.let { u -> OutlinedButton(onClick = { open(u) }) { Icon(Icons.Outlined.OpenInNew, null, Modifier.size(16.dp)); Text(" " + (c.str("source") ?: "Open Charge Map")) } }
                     }
                 }
             }

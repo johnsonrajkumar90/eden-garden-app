@@ -22,10 +22,14 @@ fun <T> rememberLoader(vararg keys: Any?, load: suspend () -> T): Loader<T> {
     LaunchedEffect(*keys, tick.intValue) {
         loading.value = true
         error.value = null
-        try { data.value = load() } catch (e: ApiException) { error.value = e.message } catch (e: Exception) { error.value = e.message ?: "Something went wrong." }
+        try { data.value = load() } catch (e: Exception) { error.value = errorText(e) }
         loading.value = false
     }
     return Loader(data, error, loading, tick)
 }
 
-fun errorText(e: Throwable): String = (e as? ApiException)?.message ?: e.message ?: "Something went wrong."
+fun errorText(e: Throwable): String {
+    val m = (e as? ApiException)?.message ?: e.message ?: return "Something went wrong."
+    // the website hasn't been updated with this feature yet
+    return if (m == "Unknown API address.") "This part of TripArro isn't available yet — please try again later." else m
+}
