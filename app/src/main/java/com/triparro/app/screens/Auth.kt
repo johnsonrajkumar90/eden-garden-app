@@ -335,7 +335,6 @@ private fun AuthField(label: String, value: String, onChange: (String) -> Unit, 
     )
 }
 
-@Composable
 /** "Continue with Google": white, with Google's four-colour G. */
 @Composable
 private fun GoogleButton(label: String, onClick: () -> Unit) {
