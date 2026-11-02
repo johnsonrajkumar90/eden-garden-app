@@ -5,8 +5,6 @@ import org.json.JSONObject
 
 /** What one screen hands to the next (a booking being prepared, a payment form to open). */
 object AppState {
-    /** Bumped after a change elsewhere (e.g. a favourite place saved) so lists load again. */
-    val refreshTick = mutableStateOf(0)
 
     /** Stay / resort booking being prepared: the listing, the quote and the chosen dates and guests. */
     var reserve = mutableStateOf<ReserveDraft?>(null)
