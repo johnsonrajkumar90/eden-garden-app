@@ -417,7 +417,7 @@ private fun FavouritesPanel(g: JSONObject, ctx: Context, onAdd: () -> Unit, togg
             Text("Favourite places", style = MaterialTheme.typography.titleMedium)
             Text("${favs.size} saved · ${favs.count { it.obj("fav")?.bool("visited") == true }} visited", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
         }
-        PrimaryButton("Add", onAdd, icon = Icons.Outlined.Favorite, coral = true)
+        PrimaryButton("Add", onAdd, Modifier.width(112.dp), icon = Icons.Outlined.Favorite, coral = true)
     }
     Gap(10)
     if (favs.isEmpty()) Text("Found a great restaurant, café or view? Take a photo or find it on Google and save it here for everyone.", color = Brand.InkSoft, style = MaterialTheme.typography.bodyMedium)
