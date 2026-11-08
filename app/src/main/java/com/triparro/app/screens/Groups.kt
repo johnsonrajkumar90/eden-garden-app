@@ -45,6 +45,7 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -111,6 +112,7 @@ fun GroupTripsList(nav: NavHostController) {
     var joining by remember { mutableStateOf(false) }
     var sharing by remember { mutableStateOf<JSONObject?>(null) }
     var made by remember { mutableStateOf<JSONObject?>(null) }
+    val scope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         Card {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -127,6 +129,11 @@ fun GroupTripsList(nav: NavHostController) {
         }
         Gap()
         val data = l.data.value
+        data?.objs("invites")?.forEach { inv ->
+            InvitationCard(inv, onJoin = { nav.navigate("groupjoin/${inv.text("code")}") }) {
+                scope.launch { try { Api.post("trip-groups/invites/${inv.int("id")}/decline"); AppState.refreshTick.value++ } catch (_: Exception) { } }
+            }
+        }
         when {
             data == null && l.loading.value -> Loading()
             data == null -> ErrorBox(l.error.value ?: "Could not load your group trips.", { l.reload() })
@@ -236,7 +243,7 @@ internal fun ShareTripDialog(g: JSONObject, justMade: Boolean, onClose: () -> Un
     AlertDialog(onDismissRequest = onClose, icon = { Icon(Icons.Outlined.Groups, null, tint = Brand.Blue) },
         title = { Text(if (justMade) "“${g.text("title")}” is ready" else "Share “${g.text("title")}”") },
         text = {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text("Send this link to family and friends. Whoever joins sees this trip's plan, expenses, favourites and chat — your other trips stay private.", style = MaterialTheme.typography.bodyMedium)
                 Row(Modifier.padding(top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).border(1.dp, Brand.Line, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
@@ -249,6 +256,8 @@ internal fun ShareTripDialog(g: JSONObject, justMade: Boolean, onClose: () -> Un
                     PrimaryButton("Share", { shareLink(ctx, text, link) }, Modifier.weight(1f), icon = Icons.Outlined.Share)
                     OutlinedButton(onClick = { openGroupUrl(ctx, "https://wa.me/?text=" + Uri.encode("$text $link")) }, modifier = Modifier.weight(1f).height(52.dp)) { Text("WhatsApp") }
                 }
+                HorizontalDivider(Modifier.padding(vertical = 12.dp), color = Brand.Line)
+                InviteByEmail(g)
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text(if (justMade) "Open the trip" else "Done") } })
@@ -364,6 +373,8 @@ internal fun InviteCard(g: JSONObject, ctx: Context, newCode: () -> Unit) {
             }, modifier = Modifier.weight(1f).height(52.dp)) { Text("WhatsApp") }
         }
         if (g.bool("owner")) TextButton(onClick = newCode) { Text("Make a new code (the old link stops working)") }
+        HorizontalDivider(Modifier.padding(vertical = 10.dp), color = Brand.Line)
+        InviteByEmail(g)
     }
 }
 
@@ -549,6 +560,67 @@ internal fun AddToGroup(id: Int, done: (JSONObject) -> Unit) {
                     post(b)
                 }, Modifier.fillMaxWidth(), loading = busy, coral = true)
             }
+        }
+    }
+}
+
+
+/**
+ * Invite by email: someone already on TripArro sees the invitation in My trips; anyone else is emailed the trip link
+ * (and can be sent it on WhatsApp too). Also: send the link from your own email app.
+ */
+@Composable
+internal fun InviteByEmail(g: JSONObject, onGroup: (JSONObject) -> Unit = {}) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var email by remember { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var msg by remember { mutableStateOf<Pair<String, String>?>(null) }   // status to message
+    val text = g.text("share_text").ifBlank { "Join my trip \"${g.text("title")}\" on TripArro:" }
+    Column {
+        Text("Invite by email", style = MaterialTheme.typography.titleSmall)
+        Text("Friends already on TripArro get the invitation in their app; others get the link by email.", style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+        Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Field("Email address", email, { email = it.trim().take(190) }, Modifier.weight(1f), keyboard = androidx.compose.ui.text.input.KeyboardType.Email)
+            TextButton(enabled = !busy && email.contains("@"), onClick = {
+                busy = true; msg = null
+                scope.launch {
+                    try {
+                        val r = Api.post("trip-groups/${g.int("id")}/invite", mapOf("email" to email))
+                        msg = r.text("status") to r.text("message"); r.obj("group")?.let(onGroup)
+                        if (r.text("status") in listOf("invited", "emailed")) email = ""
+                    } catch (e: Exception) { msg = "error" to errorText(e) }
+                    busy = false
+                }
+            }) { Text(if (busy) "Sending…" else "Invite") }
+        }
+        msg?.let { (st, m) ->
+            Notice(m, if (st == "invited" || st == "emailed" || st == "member") "ok" else "bad", Modifier.padding(top = 6.dp))
+            if (st == "emailed" || st == "not_sent") OutlinedButton(onClick = { openGroupUrl(ctx, "https://wa.me/?text=" + Uri.encode(text + " " + g.text("link"))) }, modifier = Modifier.padding(top = 6.dp).fillMaxWidth()) { Text("Also send on WhatsApp") }
+        }
+        TextButton(onClick = {
+            try {
+                val i = android.content.Intent(android.content.Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+                    .putExtra(android.content.Intent.EXTRA_SUBJECT, "Join my trip: " + g.text("title"))
+                    .putExtra(android.content.Intent.EXTRA_TEXT, text + "\n" + g.text("link"))
+                ctx.startActivity(i)
+            } catch (_: Exception) { }
+        }) { Text("Or send the link from your email app") }
+    }
+}
+
+/** An invitation waiting for me: join or say no. */
+@Composable
+private fun InvitationCard(inv: JSONObject, onJoin: () -> Unit, onDecline: () -> Unit) {
+    Column(Modifier.padding(bottom = 10.dp).fillMaxWidth().appear().clip(RoundedCornerShape(22.dp)).background(Brush.linearGradient(listOf(Color(0xFFFFF4D6), Color(0xFFFFE3DE))))
+        .border(1.dp, Color(0x33B81D2B), RoundedCornerShape(22.dp)).padding(16.dp)) {
+        Text("${inv.text("by")} invited you", style = MaterialTheme.typography.labelLarge, color = Brand.Blue)
+        Text(inv.text("trip"), style = MaterialTheme.typography.titleLarge)
+        val sub = listOf(inv.text("destination"), inv.text("dates")).filter { it.isNotBlank() }.joinToString(" · ")
+        if (sub.isNotBlank()) Text(sub, style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+        Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PrimaryButton("Join the trip", onJoin, Modifier.weight(1f), coral = true)
+            OutlinedButton(onClick = onDecline, modifier = Modifier.height(52.dp)) { Text("No thanks") }
         }
     }
 }

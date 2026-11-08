@@ -173,6 +173,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
     val coverCamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) pendingCover?.let { upload("trip-groups/$id/cover", emptyList(), it) } }
     val coverGallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> u?.let { upload("trip-groups/$id/cover", emptyList(), it) } }
     var coverMenu by remember { mutableStateOf(false) }
+    var inviting by remember { mutableStateOf(false) }
 
     val g = data
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Night, NightPlum, Night)))) {
@@ -233,7 +234,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                     Gap()
                     // invite strip
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(30.dp)).background(Color(0xFF2A2414)).border(1.dp, Color(0x55E0B44A), RoundedCornerShape(30.dp))
-                        .pressable({ shareLink(ctx, g.text("share_text"), g.text("link")) }).padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        .pressable({ inviting = true }).padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.PersonAdd, null, tint = Color(0xFFF2C14E))
                         Text(if (g.objs("members").size < 2) "Invite family & friends" else "Invite more people", color = Color(0xFFF2C14E), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 10.dp).weight(1f))
                         Text("· Code " + g.text("code"), color = Color.White, style = MaterialTheme.typography.titleSmall)
@@ -275,6 +276,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
         }
     }
 
+    data?.let { gg -> if (inviting) ShareTripDialog(gg, justMade = false) { inviting = false } }
     if (coverMenu) AlertDialog(onDismissRequest = { coverMenu = false }, title = { Text("Trip photo") }, text = { Text("Take a photo or choose one — everyone in the trip sees it at the top.") },
         confirmButton = { TextButton(onClick = { coverMenu = false; try { val u = newPhoto(ctx, "cover"); pendingCover = u; coverCamera.launch(u) } catch (_: Exception) { } }) { Text("Camera") } },
         dismissButton = { TextButton(onClick = { coverMenu = false; coverGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) { Text("Gallery") } })
@@ -690,6 +692,19 @@ private fun PeopleSheet(g: JSONObject, ctx: Context, newCode: () -> Unit, remove
                         style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
                 }
                 if (g.bool("owner") && !m.bool("you")) TextButton(onClick = { remove(m.int("id")) }) { Text("Remove") }
+            }
+        }
+        // invited by email, not joined yet
+        g.objs("invited").takeIf { it.isNotEmpty() }?.let { inv ->
+            Text("Invited", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
+            inv.forEach { i ->
+                Row(Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(42.dp).clip(CircleShape).background(Brand.Sky), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.PersonAdd, null, tint = Brand.Blue) }
+                    Column(Modifier.padding(start = 12.dp)) {
+                        Text(i.text("who"), style = MaterialTheme.typography.titleSmall)
+                        Text(if (i.bool("on_triparro")) "Invited in the app — not joined yet" else "Link sent by email — not joined yet", style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+                    }
+                }
             }
         }
         Gap()
