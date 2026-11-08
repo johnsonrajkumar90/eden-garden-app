@@ -261,6 +261,7 @@ fun TripArroApp(activity: MainActivity) {
         val topColor = when {
             current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications", "messages", "hostchats") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat") || current.startsWith("hostchat") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Matte
             current.startsWith("photo") || current.startsWith("video") -> Color.Black
+            current.startsWith("group/") -> Color(0xFF15161C)
             current == "pets" -> Brand.Matte
             current.startsWith("property/") || current.startsWith("petlisting/") || current.startsWith("place/") -> Color.Black
             else -> Color.White
