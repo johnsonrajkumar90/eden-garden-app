@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.Checkbox
@@ -160,7 +161,7 @@ fun Choice(label: String, value: String, options: List<Pair<String, String>>, on
         ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }, shape = RoundedCornerShape(18.dp), containerColor = Color.White, shadowElevation = 10.dp) {
             options.forEach { (v, l) ->
                 DropdownMenuItem(text = { Text(l, fontWeight = if (v == value) androidx.compose.ui.text.font.FontWeight.SemiBold else null, color = if (v == value) Brand.Blue else Brand.Ink) },
-                    trailingIcon = if (v == value) ({ androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Filled.Check, null, tint = Brand.Blue) }) else null,
+                    trailingIcon = if (v == value) ({ androidx.compose.material3.Icon(Icons.Filled.Done, null, tint = Brand.Blue) }) else null,
                     onClick = { onChange(v); open = false })
             }
         }
