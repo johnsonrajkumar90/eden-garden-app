@@ -74,11 +74,13 @@ fun WalletScreen(nav: NavHostController) {
                         Text("Rewards earned so far: ${money(w.num("rewards_earned"))}", color = Color(0xFFFFE3DE))
                     }
                 }
+                item { ReferCard() }
                 item {
                     val r = w.obj("rules") ?: JSONObject()
                     if (w.bool("on")) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).padding(16.dp)) {
                         Text("How you earn", fontWeight = FontWeight.ExtraBold)
                         if ((r.num("signup") ?: 0.0) > 0) Text("🎁 ${money(r.num("signup"))} when you sign up (after confirming your email)", style = MaterialTheme.typography.bodyMedium)
+                        if ((r.num("refer") ?: 0.0) > 0) Text("🤝 ${money(r.num("refer"))} for every friend you invite who completes a stay", style = MaterialTheme.typography.bodyMedium)
                         if ((r.num("first_booking") ?: 0.0) > 0) Text("🏡 ${money(r.num("first_booking"))} after ${if (r.text("booking_mode") == "first") "your first stay" else "every stay"} — added once you have checked out", style = MaterialTheme.typography.bodyMedium)
                         Gap(6)
                         Text(r.text("text"), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
@@ -182,5 +184,30 @@ fun WalletChip(nav: NavHostController) {
         .clickable { nav.navigate(if (u != null) "wallet" else "signup") }.padding(horizontal = 10.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Outlined.AccountBalanceWallet, "Rewards wallet", tint = Brand.SunInk, modifier = Modifier.size(18.dp))
         Text(" $label", color = Brand.SunInk, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+
+/** Refer & earn in the app: the guest's invite link, a share button, how it works and how many friends joined. */
+@Composable
+private fun ReferCard() {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val l = rememberLoader("refer") { Api.get("refer") }
+    val r = l.data.value ?: return
+    if (!r.bool("on") || r.str("link") == null) return
+    val friendTotal = (r.num("signup_reward") ?: 0.0) + (r.num("friend_gets") ?: 0.0)
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Brand.SunSoft).padding(16.dp)) {
+        Text("🎁 Refer & earn ${money(r.num("you_get"))}", fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium, color = Brand.SunInk)
+        Text("Invite friends with your link. They start with ${money(friendTotal)} in their wallet, and you get ${money(r.num("you_get"))} when they complete their first stay.",
+            style = MaterialTheme.typography.bodyMedium, color = Brand.SunInk)
+        Gap(8)
+        Text("Your code: ${r.text("code")}", fontWeight = FontWeight.Bold, color = Brand.Ink)
+        Gap(8)
+        com.triparro.app.ui.PrimaryButton("Share my invite link", { com.triparro.app.ui.shareLink(ctx, r.text("share_text"), r.text("link")) }, Modifier.fillMaxWidth(), coral = true)
+        Gap(8)
+        Text("1. Share your link  ·  2. Your friend signs up and confirms their email  ·  3. After their first stay (check-out) you get the bonus  ·  Wallet pays up to ${r.num("wallet_max_percent")?.toInt() ?: 50}% of a homestay booking",
+            style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+        Gap(6)
+        Text("${r.optInt("invited")} invited · ${r.optInt("stayed")} stayed · ${money(r.num("earned"))} earned", style = MaterialTheme.typography.labelLarge, color = Brand.Ink)
     }
 }
