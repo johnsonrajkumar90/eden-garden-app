@@ -110,8 +110,7 @@ tap "Track spending ›"; shot 44-group-expenses 3
 adb shell input keyevent 4; sleep 1
 app tickets; shot 45-tickets 5
 # bottom tabs: Pets → Account → Explore must come back to Explore; the floating Group trips button; red bars
-adb shell input keyevent 4; sleep 1; adb shell input keyevent 4; sleep 1
-app login; sleep 2; adb shell input keyevent 4; sleep 2
+adb shell am force-stop $PKG; sleep 1; adb shell am start -W -n $PKG/com.triparro.app.MainActivity; sleep 8
 tap "Pets"; sleep 3; tap "Account"; sleep 3; tap "Explore"; shot 46-back-to-explore 4
 tap "Group trips"; shot 47-group-trips-hub 5
 tap "Trip plans"; shot 48-hub-trip-plans 3
