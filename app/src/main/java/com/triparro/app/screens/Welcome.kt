@@ -1,7 +1,6 @@
 package com.triparro.app.screens
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -91,10 +90,14 @@ fun WelcomeScreen(welcome: JSONObject?, onEmail: () -> Unit, onExplore: () -> Un
     val ctx = LocalContext.current
     var page by remember { mutableIntStateOf(0) }
     var err by remember { mutableStateOf<String?>(null) }
-    val progress = remember { Animatable(0f) }
-    LaunchedEffect(page) {   // each slide shows for 4.5 seconds, then the next one
-        progress.snapTo(0f)
-        progress.animateTo(1f, tween(4500, easing = LinearEasing))
+    var progressValue by remember { mutableStateOf(0f) }
+    LaunchedEffect(page) {   // each slide shows for 4.5 seconds, then the next one (timed by the clock, so it also works with animations switched off)
+        val start = System.currentTimeMillis()
+        while (true) {
+            progressValue = ((System.currentTimeMillis() - start) / 4500f).coerceIn(0f, 1f)
+            if (progressValue >= 1f) break
+            delay(40)
+        }
         page = (page + 1) % slides.size
     }
     val zoom by rememberInfiniteTransition(label = "bg").animateFloat(1f, 1.08f, infiniteRepeatable(tween(16000, easing = LinearEasing), RepeatMode.Reverse), label = "zoom")
@@ -113,7 +116,7 @@ fun WelcomeScreen(welcome: JSONObject?, onEmail: () -> Unit, onExplore: () -> Un
                 Row(Modifier.padding(top = 14.dp).width(220.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     slides.indices.forEach { i ->
                         Box(Modifier.weight(1f).height(4.dp).clip(RoundedCornerShape(2.dp)).background(Color(0x40102030)).clickable { page = i }) {
-                            val f = if (i < page) 1f else if (i == page) progress.value else 0f
+                            val f = if (i < page) 1f else if (i == page) progressValue else 0f
                             Box(Modifier.fillMaxWidth(f).height(4.dp).background(Color(0xFF14232E)))
                         }
                     }
