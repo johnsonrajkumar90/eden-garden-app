@@ -199,6 +199,7 @@ fun ChargersScreen(nav: NavHostController) {
                     }
                 }
             }
+            center?.let { c -> item(key = "triparro") { TripArroStations(c.first, c.second, distance) } }
             item {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {

@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
@@ -143,6 +144,7 @@ private fun HostDashboard(nav: NavHostController, role: String) {
         add(HTab("listings", "Listings", Icons.Outlined.Home))
         add(HTab("money", "Money", Icons.Outlined.Payments))
         if (!pets) add(HTab("chats", "Messages", Icons.Outlined.ChatBubbleOutline))
+        add(HTab("more", "More", Icons.Outlined.Apps))
     }
     var tab by rememberSaveable { mutableStateOf("today") }
     var tick by remember { mutableStateOf(0) }
@@ -185,11 +187,12 @@ private fun HostDashboard(nav: NavHostController, role: String) {
             Box(Modifier.fillMaxSize()) {
                 when (t) {
                     "today" -> TodayTab(nav, home, pets) { tick++ }
-                    "bookings" -> BookingsTab(pets) { tick++ }
+                    "bookings" -> BookingsTab(nav, pets) { tick++ }
                     "calendar" -> CalendarTab()
                     "listings" -> ListingsTab(pets) { tick++ }
                     "money" -> MoneyTab()
                     "chats" -> ChatsTab(nav)
+                    "more" -> HostToolsTab(nav)
                 }
             }
         }
@@ -216,24 +219,24 @@ private fun TodayTab(nav: NavHostController, home: Loader<JSONObject>, pets: Boo
                 val req = h.objs("requests")
                 if (req.isNotEmpty()) {
                     SectionTitle("Waiting for your answer", sub = "Approve or decline before the time runs out")
-                    req.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
+                    req.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i), nav) { changed() }; Gap(10) }
                     Gap(6)
                 }
                 h.obj("admin")?.let { a -> AdminCards(nav, a); Gap(10) }
                 val today = h.objs("today")
                 SectionTitle("Today", sub = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)))
                 if (today.isEmpty()) Notice(if (pets) "No pets arriving or leaving today." else "Nobody is arriving or leaving today.", "info")
-                today.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
+                today.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i), nav) { changed() }; Gap(10) }
                 Gap(10)
                 val tomorrow = h.objs("tomorrow")
                 SectionTitle("Arriving tomorrow", sub = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.ENGLISH)))
                 if (tomorrow.isEmpty()) Notice(if (pets) "No pets arriving tomorrow." else "Nobody is arriving tomorrow.", "info")
-                tomorrow.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
+                tomorrow.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i), nav) { changed() }; Gap(10) }
                 Gap(10)
                 val up = h.objs("upcoming")
                 SectionTitle("Coming up")
                 if (up.isEmpty()) Notice("No upcoming bookings yet.", "info")
-                up.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { changed() }; Gap(10) }
+                up.forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i), nav) { changed() }; Gap(10) }
                 if (!pets && h.int("unread_chats") > 0) {
                     Gap(6)
                     PrimaryButton("${h.int("unread_chats")} unread guest messages", { nav.navigate("hostchats") }, icon = Icons.Outlined.ChatBubbleOutline)
@@ -275,7 +278,7 @@ private fun AdminCards(nav: NavHostController, a: JSONObject) {
 
 /* ---------- One booking, with what the host can do now ---------- */
 @Composable
-fun BookingCard(b: JSONObject, modifier: Modifier = Modifier, changed: () -> Unit) {
+fun BookingCard(b: JSONObject, modifier: Modifier = Modifier, nav: NavHostController? = null, changed: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf<String?>(null) }
@@ -328,9 +331,10 @@ fun BookingCard(b: JSONObject, modifier: Modifier = Modifier, changed: () -> Uni
                     }
                 }
                 acts.forEach { a ->
-                    val label = mapOf("approve" to "Approve", "decline" to "Decline", "check_in" to "Check in", "check_out" to "Check out", "complete" to "Complete")[a] ?: a
+                    val idCheckin = a == "check_in" && b.text("kind") == "stay" && nav != null   // stays: with the guest's ID (camera or photo)
+                    val label = if (idCheckin) "Check in · ID" else mapOf("approve" to "Approve", "decline" to "Decline", "check_in" to "Check in", "check_out" to "Check out", "complete" to "Complete")[a] ?: a
                     if (a == "decline") OutlinedButton(onClick = { ask = a }, modifier = Modifier.weight(1f).height(46.dp), shape = RoundedCornerShape(14.dp)) { Text(label, color = Brand.Danger) }
-                    else PrimaryButton(label, { if (a == "approve") { ask = a } else { run(a) } }, Modifier.weight(1f), loading = busy == a)
+                    else PrimaryButton(label, { if (idCheckin) nav?.navigate("hostcheckin/${b.int("id")}") else if (a == "approve") { ask = a } else { run(a) } }, Modifier.weight(1f), loading = busy == a)
                 }
             }
         }
@@ -358,7 +362,7 @@ fun BookingCard(b: JSONObject, modifier: Modifier = Modifier, changed: () -> Uni
 
 /* ---------- Bookings ---------- */
 @Composable
-private fun BookingsTab(pets: Boolean, changed: () -> Unit) {
+private fun BookingsTab(nav: NavHostController, pets: Boolean, changed: () -> Unit) {
     var which by rememberSaveable { mutableStateOf("upcoming") }
     var tick by remember { mutableStateOf(0) }
     val l = rememberLoader("hb", which, tick) { Api.get("hostapp/bookings", mapOf("which" to which)) }
@@ -376,7 +380,7 @@ private fun BookingsTab(pets: Boolean, changed: () -> Unit) {
                 d == null && l.loading.value -> Loading()
                 d == null -> ErrorBox(l.error.value ?: "Could not load bookings.", { l.reload() })
                 d.objs("bookings").isEmpty() -> EmptyBox("Nothing here", when (which) { "requests" -> "No requests waiting for you."; "past" -> "No past bookings yet."; else -> "No bookings in this list." }, icon = Icons.Outlined.ListAlt)
-                else -> d.objs("bookings").forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i)) { tick++; changed() }; Gap(10) }
+                else -> d.objs("bookings").forEachIndexed { i, b -> BookingCard(b, Modifier.appear(i), nav) { tick++; changed() }; Gap(10) }
             }
             Gap(20)
         }
@@ -408,7 +412,10 @@ private fun CalendarTab() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         if (d == null) { if (l.loading.value) Loading() else ErrorBox(l.error.value ?: "Could not load the calendar.", { l.reload() }); return@Column }
         val ls = d.objs("listings")
+        val all = d.bool("all")
         if (ls.size > 1) Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("All in one", style = MaterialTheme.typography.labelLarge, color = if (all) Brand.SunInk else Brand.InkSoft, maxLines = 1,
+                modifier = Modifier.clip(RoundedCornerShape(50)).background(if (all) SunBrush else androidx.compose.ui.graphics.SolidColor(Color.White)).pressable({ listing = "all"; first = null; last = null }).padding(horizontal = 14.dp, vertical = 8.dp))
             ls.forEach { x ->
                 val on = x.text("tag") == (d.obj("listing")?.text("tag") ?: listing)
                 Text(x.text("title"), style = MaterialTheme.typography.labelLarge, color = if (on) Brand.SunInk else Brand.InkSoft, maxLines = 1,
@@ -416,6 +423,7 @@ private fun CalendarTab() {
             }
         }
         Gap(12)
+        if (all) { AllListingsCalendar(d, month, { month = it }, { listing = it }); Gap(20); return@Column }
         Card(padding = 12.dp) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { month = YearMonth.parse(month).minusMonths(1).toString() }, enabled = YearMonth.parse(month) > YearMonth.now()) { Icon(Icons.Outlined.ChevronLeft, "Previous month") }

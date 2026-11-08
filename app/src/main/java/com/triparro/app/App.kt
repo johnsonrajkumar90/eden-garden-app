@@ -255,6 +255,7 @@ fun TripArroApp(activity: MainActivity) {
         }
         Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(topColor))
         OfferPopup(activity, session?.offerPopup) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
+        com.triparro.app.screens.RewardPopup(activity, session?.user?.reward) { nav.navigate("wallet") }
         Box(Modifier.fillMaxSize().padding(pad)) {
             NavHost(nav, startDestination = "explore") {
                 composable("explore") { ExploreScreen(nav) }
@@ -304,6 +305,10 @@ fun TripArroApp(activity: MainActivity) {
                 composable("become-host") { BecomeHostScreen(nav) }
                 composable("become-pet-host") { BecomePetHostScreen(nav) }
                 composable("hosting") { HostingScreen(nav) }
+                composable("site?path={path}&title={title}", arguments = listOf(navArgument("path") { defaultValue = "/" }, navArgument("title") { defaultValue = "TripArro" })) { e ->
+                    WebScreen(e.arguments?.getString("path") ?: "/", e.arguments?.getString("title") ?: "TripArro", onBack = { nav.popBackStack() }, onAppRoute = { r -> nav.navigate(r) })
+                }
+                composable("hostcheckin/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.HostCheckinScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("hostchats") { com.triparro.app.screens.HostChatsScreen(nav) }
                 composable("hostchat/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.HostChatScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("messages") { com.triparro.app.screens.MessagesScreen(nav) }

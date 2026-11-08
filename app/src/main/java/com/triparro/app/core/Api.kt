@@ -33,7 +33,7 @@ class ApiException(val status: Int, override val message: String, val code: Stri
 class Upload(val field: String, val file: File, val mime: String)
 
 /** The signed-in person, from GET /api/session. */
-data class User(val id: Int, val name: String, val email: String, val role: String, val initials: String, val dashboard: String?, val wallet: Double? = null)
+data class User(val id: Int, val name: String, val email: String, val role: String, val initials: String, val dashboard: String?, val wallet: Double? = null, val reward: org.json.JSONObject? = null)
 
 data class Session(
     val user: User?,
@@ -101,7 +101,7 @@ object Api {
         val s = j.obj("support") ?: JSONObject()
         val f = j.obj("features") ?: JSONObject()
         val session = Session(
-            user = u?.let { User(it.int("id"), it.text("name"), it.text("email"), it.text("role", "guest"), it.text("initials", "?"), it.str("dashboard"), it.num("wallet")) },
+            user = u?.let { User(it.int("id"), it.text("name"), it.text("email"), it.text("role", "guest"), it.text("initials", "?"), it.str("dashboard"), it.num("wallet"), it.obj("wallet_reward")) },
             csrf = j.text("csrf"),
             brand = j.obj("brand")?.text("name", "TripArro") ?: "TripArro",
             supportPhone = s.str("phone"), supportWhatsapp = s.str("whatsapp"), supportEmail = s.str("email"), supportHours = s.str("hours"),
