@@ -48,6 +48,13 @@ android {
             isMinifyEnabled = false
             signingConfig = if (keystorePropertiesFile.exists()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
+        // triparro.storeBuild=true (gradle.properties): Android Studio's plain "Build APK(s)" / "Build Bundle(s)" make a
+        // store-ready build — not debuggable, signed with the upload key — without switching the build variant
+        if (project.findProperty("triparro.storeBuild") == "true") getByName("debug") {
+            isDebuggable = false
+            isJniDebuggable = false
+            if (keystorePropertiesFile.exists()) signingConfig = signingConfigs.getByName("release")
+        }
     }
     buildFeatures {
         compose = true
