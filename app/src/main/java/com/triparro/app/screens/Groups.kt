@@ -341,7 +341,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                             Gap()
                             val items = g.objs("items")
                             if (items.isEmpty()) EmptyBox("Start planning", "Share your booking, add places to visit, notes and a packing list — everyone in the trip sees them.", "Add to the plan", Icons.Outlined.Add) { adding = true }
-                            listOf("booking" to "Stays booked", "plan" to "Trip plans", "place" to "Places to visit", "todo" to "To-do & packing", "note" to "Notes").forEach { (k, head) ->
+                            listOf("booking" to "Stays booked", "ticket" to "Travel tickets", "plan" to "Trip plans", "place" to "Places to visit", "todo" to "To-do & packing", "note" to "Notes").forEach { (k, head) ->
                                 val list = items.filter { it.text("kind") == k }
                                 if (list.isNotEmpty()) {
                                     Text(head, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp, bottom = 6.dp))
@@ -435,6 +435,17 @@ private fun openUrl(ctx: Context, url: String) {
 @Composable
 private fun GroupItem(nav: NavHostController, groupId: Int, item: JSONObject, ctx: Context, toggle: () -> Unit, delete: () -> Unit) {
     val kind = item.text("kind")
+    if (kind == "ticket") {   // a member's travel ticket, as a boarding pass
+        item.obj("ticket")?.let { t ->
+            BoardingPass(t) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Shared by " + item.text("by"), style = MaterialTheme.typography.labelMedium, color = Brand.Muted, modifier = Modifier.weight(1f))
+                    if (item.bool("can_delete")) TextButton(onClick = delete) { Text(if (item.bool("mine")) "Stop sharing" else "Remove", color = Brand.Muted) }
+                }
+            }
+        }
+        return
+    }
     Row(Modifier.padding(bottom = 8.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(16.dp))
         .clickable {
             when (kind) {
@@ -524,7 +535,7 @@ private fun AddToGroup(id: Int, done: (JSONObject) -> Unit) {
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
         Text("Add to the plan", style = MaterialTheme.typography.titleLarge)
         Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("place" to "Place", "booking" to "My booking", "plan" to "My trip plan", "todo" to "To-do", "note" to "Note").forEach { (v, t) ->
+            listOf("place" to "Place", "booking" to "My booking", "ticket" to "My ticket", "plan" to "My trip plan", "todo" to "To-do", "note" to "Note").forEach { (v, t) ->
                 val on = kind == v
                 Text(t, style = MaterialTheme.typography.labelLarge, color = if (on) Color.White else Brand.InkSoft,
                     modifier = Modifier.clip(RoundedCornerShape(50)).background(if (on) Brand.Blue else Brand.Sky).clickable { kind = v; err = null }.padding(horizontal = 14.dp, vertical = 8.dp))
@@ -532,16 +543,16 @@ private fun AddToGroup(id: Int, done: (JSONObject) -> Unit) {
         }
         err?.let { Notice(it, "bad"); Gap(8) }
         when (kind) {
-            "booking", "plan" -> {
+            "booking", "plan", "ticket" -> {
                 val s = share.data.value
-                val list = s?.objs(if (kind == "booking") "bookings" else "plans") ?: emptyList()
+                val list = s?.objs(when (kind) { "booking" -> "bookings"; "ticket" -> "tickets"; else -> "plans" }) ?: emptyList()
                 when {
                     s == null && share.loading.value -> Loading()
-                    list.isEmpty() -> Text(if (kind == "booking") "You have no upcoming stay or resort bookings to share." else "You have no saved trip plans yet — make one in the Travel planner.", color = Brand.Muted)
+                    list.isEmpty() -> Text(when (kind) { "booking" -> "You have no upcoming stay or resort bookings to share."; "ticket" -> "No tickets yet — add them in My trips → Tickets (from Gmail or by hand)."; else -> "You have no saved trip plans yet — make one in the Travel planner." }, color = Brand.Muted)
                     else -> list.forEach { x ->
                         Row(Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(14.dp)).border(1.dp, Brand.Line, RoundedCornerShape(14.dp)).clickable(enabled = !busy) { post(mapOf("kind" to kind, "ref" to x.text("ref"))) }.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically) {
-                            Icon(if (kind == "booking") Icons.Outlined.Hotel else Icons.Outlined.Route, null, tint = Brand.Blue)
+                            Icon(when (kind) { "booking" -> Icons.Outlined.Hotel; "ticket" -> kindIcon(x.text("kind")); else -> Icons.Outlined.Route }, null, tint = Brand.Blue)
                             Column(Modifier.padding(start = 10.dp).weight(1f)) {
                                 Text(x.text("title"), style = MaterialTheme.typography.titleSmall)
                                 x.str("dates")?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft) }
