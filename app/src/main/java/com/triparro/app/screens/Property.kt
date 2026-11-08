@@ -143,7 +143,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
 
     LaunchedEffect(kind, id) { try { Api.post("visit", mapOf("kind" to kind, "id" to id)) } catch (_: Exception) { } }
 
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         if (p == null) BackBar("", { nav.popBackStack() })
         when {
             p == null && l.loading.value -> Loading()
@@ -199,7 +199,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                         if (rooms.isNotEmpty()) DetailSection("Rooms", Icons.Outlined.Bed, sub = "Choose your room and plan when you book") {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 items(rooms) { r ->
-                                    Column(Modifier.width(250.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page)) {
+                                    Column(Modifier.width(250.dp).clip(RoundedCornerShape(18.dp)).background(com.triparro.app.ui.PageGlass)) {
                                         Photo(r.str("image"), Modifier.fillMaxWidth().aspectRatio(1.6f), corner = 0.dp)
                                         Column(Modifier.padding(12.dp)) {
                                             Text(r.text("name"), style = MaterialTheme.typography.titleMedium)
@@ -241,7 +241,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
                             Gap(12)
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 items(rs.objs("items").take(8)) { r ->
-                                    Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page).padding(14.dp)) {
+                                    Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(com.triparro.app.ui.PageGlass).padding(14.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Avatar(initialsOf(r.text("name")), 34.dp)
                                             Column(Modifier.padding(start = 8.dp).weight(1f)) { Text(r.text("name"), style = MaterialTheme.typography.titleSmall); Text(r.text("date"), style = MaterialTheme.typography.labelSmall, color = Brand.Muted) }
@@ -394,7 +394,7 @@ private fun BookingSheet(nav: NavHostController, kind: String, id: Int, p: JSONO
 
 @Composable
 private fun GuestStat(value: String, label: String, modifier: Modifier) {
-    Column(modifier.clip(RoundedCornerShape(16.dp)).background(Brand.Page).padding(14.dp)) {
+    Column(modifier.clip(RoundedCornerShape(16.dp)).background(com.triparro.app.ui.PageGlass).padding(14.dp)) {
         Text(value, style = MaterialTheme.typography.headlineSmall, color = Brand.BlueDark)
         Text(label, style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
     }
@@ -439,7 +439,7 @@ private fun ListingOfferDialog(key: String, title: String, price: JSONObject, o:
             }
             Column(Modifier.padding(20.dp)) {
                 if (nightly > 0) Text("Offer price ${money(nightly)} per night", style = MaterialTheme.typography.titleMedium)
-                Row(Modifier.padding(top = 10.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Brand.Page).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.padding(top = 10.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(com.triparro.app.ui.PageGlass).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) { Text("Your coupon code", style = MaterialTheme.typography.labelMedium, color = Brand.Muted); Text(code, style = MaterialTheme.typography.titleLarge) }
                     androidx.compose.material3.TextButton(onClick = {
                         (ctx.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("Coupon", code))

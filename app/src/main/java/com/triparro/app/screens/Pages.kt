@@ -66,7 +66,7 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
 fun PageScreen(nav: NavHostController, slug: String) {
     val l = rememberLoader(slug) { Api.get("pages/$slug") }
     val d = l.data.value
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         ColorHeader(d?.text("title") ?: when (slug) { "privacy" -> "Privacy policy"; "cancellation" -> "Cancellation policy"; else -> "Host terms" }, onBack = { nav.popBackStack() })
         when {
             d == null && l.loading.value -> Loading()
@@ -91,7 +91,7 @@ fun DeleteAccountScreen(nav: NavHostController) {
     var err by remember { mutableStateOf<String?>(null) }
     var done by remember { mutableStateOf<String?>(null) }
     val u = session?.user
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         ColorHeader("Delete my account", "This can't be undone.", onBack = { nav.popBackStack() })
         Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
             when {

@@ -101,7 +101,7 @@ fun PetBookingScreen(nav: NavHostController, ref: String, notice: String?) {
     val pickPhotos = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(4)) { reviewPhotos.clear(); reviewPhotos.addAll(it) }
     val b = l.data.value
 
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar("Pet booking $ref", { nav.popBackStack() })
         when {
             b == null && l.loading.value -> Loading()

@@ -92,6 +92,7 @@ import com.triparro.app.core.str
 import com.triparro.app.core.intOrNull
 import com.triparro.app.core.text
 import com.triparro.app.ui.Brand
+import com.triparro.app.ui.glass
 import com.triparro.app.ui.DateRangeField
 import com.triparro.app.ui.EmptyBox
 import com.triparro.app.ui.ErrorBox
@@ -154,7 +155,7 @@ fun ExploreScreen(nav: NavHostController) {
     val session by Api.session.collectAsState()
     val first = session?.user?.name?.substringBefore(' ')
 
-    LazyColumn(Modifier.fillMaxSize().background(Brand.Page), state = listState, contentPadding = PaddingValues(bottom = 28.dp)) {
+    LazyColumn(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass), state = listState, contentPadding = PaddingValues(bottom = 28.dp)) {
         item {
             // top bar: logo + notifications
             Row(Modifier.fillMaxWidth().background(Brand.Matte).padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -284,9 +285,9 @@ fun ExploreScreen(nav: NavHostController) {
 fun PropertyCard(p: JSONObject, onClick: () -> Unit) {
     val price = p.obj("price") ?: JSONObject()
     val badges = p.obj("badges") ?: JSONObject()
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        .shadow(3.dp, RoundedCornerShape(22.dp), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
-        .clip(RoundedCornerShape(22.dp)).background(Color.White).clickable(onClick = onClick)) {
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp).appear()
+        .shadow(2.dp, RoundedCornerShape(22.dp), ambientColor = Color(0x14000000), spotColor = Color(0x14000000))
+        .glass(RoundedCornerShape(22.dp), strength = 0.75f).clickable(onClick = onClick)) {
         Box {
             Photo(p.str("image"), Modifier.fillMaxWidth().aspectRatio(1.55f), corner = 0.dp, description = p.text("title"))
             Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

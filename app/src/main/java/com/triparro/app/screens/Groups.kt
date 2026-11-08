@@ -229,7 +229,7 @@ fun GroupJoinScreen(nav: NavHostController, code: String) {
     var busy by remember { mutableStateOf(false) }
     var err by remember { mutableStateOf<String?>(null) }
     var relation by remember { mutableStateOf("") }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar("Join a group trip", { nav.popBackStack() })
         val p = l.data.value
         when {
@@ -292,7 +292,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
         scope.launch { try { data = Api.post(path, body); err = null } catch (e: Exception) { err = errorText(e) } }
     }
     val g = data
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar(g?.text("title") ?: "Group trip", { nav.popBackStack() }) {
             if (g != null) IconButton(onClick = { shareLink(ctx, g.text("share_text"), g.text("link")) }) { Icon(Icons.Outlined.Share, "Invite") }
         }

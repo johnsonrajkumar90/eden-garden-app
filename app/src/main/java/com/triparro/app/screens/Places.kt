@@ -94,7 +94,7 @@ fun PlaceScreen(nav: NavHostController, id: Int) {
     val ctx = LocalContext.current
     val l = rememberLoader("place", id) { Api.get("places/$id") }
     val p = l.data.value
-    Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass).verticalScroll(rememberScrollState())) {
         when {
             p == null && l.loading.value -> { Spacer(Modifier.height(80.dp)); Loading() }
             p == null -> { Spacer(Modifier.height(60.dp)); ErrorBox(l.error.value ?: "Could not load this place.", { l.reload() }) }

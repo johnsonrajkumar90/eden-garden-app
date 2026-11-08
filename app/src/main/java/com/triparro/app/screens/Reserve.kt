@@ -133,7 +133,7 @@ fun ReserveScreen(nav: NavHostController) {
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar(if (isRequest) "Request to book" else "Confirm and pay", { nav.popBackStack() })
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
             Card {

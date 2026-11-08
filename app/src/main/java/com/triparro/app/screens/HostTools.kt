@@ -324,7 +324,7 @@ fun HostCheckinScreen(nav: NavHostController, id: Int) {
         if (online.isEmpty()) guests.add(HcGuest(d.text("guest")))
         else online.forEach { o -> guests.add(HcGuest(o.text("name"), online = o.int("index"), type = o.str("type")?.takeIf { it.isNotBlank() } ?: "other")) }
     }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         ColorHeader("Check in guest", d?.let { "${it.text("guest")} · ${it.text("listing")}" }, onBack = { nav.popBackStack() })
         when {
             d == null && l.loading.value -> Loading()

@@ -183,7 +183,7 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
         Step.Forgot, Step.ForgotSent -> "Forgot your password?" to "We'll email you a link to choose a new one."
     }
 
-    Column(Modifier.fillMaxSize().background(Brand.Page).imePadding().verticalScroll(rememberScrollState())) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass).imePadding().verticalScroll(rememberScrollState())) {
         // full-colour header
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
             .matte().padding(start = 8.dp, end = 20.dp, top = 4.dp, bottom = 64.dp)) {

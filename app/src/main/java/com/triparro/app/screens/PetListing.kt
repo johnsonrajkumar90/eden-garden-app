@@ -192,7 +192,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
     val p = l.data.value
     val scroll = rememberScrollState()
     val bookingView = remember { BringIntoViewRequester() }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         if (p == null) BackBar("", { nav.popBackStack() })
         when {
             p == null && l.loading.value -> Loading()
@@ -224,7 +224,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                             if (p.bool("instant")) Pill("⚡ Instant booking", "info") else Pill("Host approves", "warn")
                         }
                         val host = p.obj("host")
-                        Row(Modifier.padding(top = 14.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Brand.Page).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(Modifier.padding(top = 14.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(com.triparro.app.ui.PageGlass).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Avatar(initialsOf(host?.text("person") ?: ""), 42.dp)
                             Column(Modifier.padding(start = 12.dp).weight(1f)) {
                                 Text("Hosted by ${host?.text("person") ?: ""}", style = MaterialTheme.typography.titleSmall)
@@ -354,7 +354,7 @@ fun PetListingScreen(nav: NavHostController, id: Int) {
                         if (reviews.isEmpty()) Text("No reviews yet.", color = Brand.InkSoft)
                         else LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             items(reviews) { r ->
-                                Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(Brand.Page).padding(14.dp)) {
+                                Column(Modifier.width(260.dp).clip(RoundedCornerShape(18.dp)).background(com.triparro.app.ui.PageGlass).padding(14.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Avatar(initialsOf(r.text("name")), 34.dp)
                                         Column(Modifier.padding(start = 8.dp).weight(1f)) { Text(r.text("name"), style = MaterialTheme.typography.titleSmall); Text("Verified stay · ${r.text("date")}", style = MaterialTheme.typography.labelSmall, color = Brand.TealDark) }

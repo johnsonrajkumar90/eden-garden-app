@@ -72,6 +72,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import dev.chrisbanes.haze.hazeSource
+import com.triparro.app.ui.glass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
@@ -185,6 +187,14 @@ fun TripArroApp(activity: MainActivity) {
                     }
                 }
             }
+            l.startsWith("triparro-app://tickets") -> {   // back from Gmail: what was found (or why not)
+                activity.pendingLink.value = null
+                val u = Uri.parse(l)
+                val n = u.getQueryParameter("found")?.toIntOrNull()
+                val msg = u.getQueryParameter("error") ?: when (n) { null -> ""; 0 -> "No new tickets found in your Gmail. Gmail access has been given back."; 1 -> "Found 1 ticket — keep it if it's yours. Gmail access has been given back."; else -> "Found $n tickets — keep the ones that are yours. Gmail access has been given back." }
+                AppState.refreshTick.value++
+                nav.navigate("tickets?msg=" + Uri.encode(msg)) { launchSingleTop = true }
+            }
             l.startsWith("triparro-app://") -> {   // the app's own links (notifications, sign in, sign up)
                 activity.pendingLink.value = null
                 val r = l.removePrefix("triparro-app://")
@@ -210,13 +220,18 @@ fun TripArroApp(activity: MainActivity) {
         if (Api.session.value?.user != null) scope.launch { try { Notifier.check(activity) } catch (_: Exception) { } }
     }
 
+    // Glass look: a soft colour backdrop under the whole app; cards and bars are frosted glass over it
+    val appHaze = dev.chrisbanes.haze.rememberHazeState()
+    Box(Modifier.fillMaxSize()) {
+    com.triparro.app.ui.GlassBackdrop(Modifier.fillMaxSize().then(Modifier.hazeSourceCompat(appHaze)))
+    androidx.compose.runtime.CompositionLocalProvider(com.triparro.app.ui.LocalHaze provides appHaze) {
     Scaffold(
-        containerColor = Brand.Page,
+        containerColor = Color.Transparent,
         bottomBar = {
             if (tabs.any { it.route == current }) {
                 Column {
                 HorizontalDivider(color = Brand.Line, thickness = 0.5.dp)
-                NavigationBar(containerColor = Color.Transparent, tonalElevation = 0.dp, modifier = Modifier.matte(Color.White)) {
+                NavigationBar(containerColor = Color.Transparent, tonalElevation = 0.dp, modifier = Modifier.glass(androidx.compose.ui.graphics.RectangleShape, strength = 0.7f)) {
                     tabs.forEach { t ->
                         NavigationBarItem(
                             selected = current == t.route,
@@ -267,7 +282,13 @@ fun TripArroApp(activity: MainActivity) {
         OfferPopup(activity, if (session?.user != null || welcomeDone) session?.offerPopup else null) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
         com.triparro.app.screens.RewardPopup(activity, session?.user?.reward) { nav.navigate("wallet") }
         Box(Modifier.fillMaxSize().padding(pad)) {
-            NavHost(nav, startDestination = "explore") {
+            NavHost(nav, startDestination = "explore",
+                // every screen slides in softly and fades; going back slides the other way
+                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260)) + androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320)) { it / 10 } },
+                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) },
+                popEnterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260)) + androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320)) { -it / 10 } },
+                popExitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) + androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(260)) { it / 10 } },
+            ) {
                 composable("explore") { ExploreScreen(nav) }
                 composable("pets") { PetSearchScreen(nav) }
                 composable("chargers") { com.triparro.app.screens.ChargersScreen(nav) }
@@ -275,6 +296,7 @@ fun TripArroApp(activity: MainActivity) {
                 composable("tripplans") { com.triparro.app.screens.SavedPlansScreen(nav) }
                 composable("groups") { Column(Modifier.fillMaxSize()) { com.triparro.app.ui.BackBar("Group trips", { nav.popBackStack() }); com.triparro.app.screens.GroupTripsList(nav) } }
                 composable("group/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.GroupTripScreen(nav, e.arguments?.getInt("id") ?: 0) }
+                composable("tickets?msg={msg}", arguments = listOf(navArgument("msg") { defaultValue = "" })) { e -> com.triparro.app.screens.TicketsScreen(nav, e.arguments?.getString("msg")?.takeIf { it.isNotBlank() }) }
                 composable("groupjoin/{code}") { e -> com.triparro.app.screens.GroupJoinScreen(nav, e.arguments?.getString("code") ?: "") }
                 composable("tripplan/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.SavedPlanScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("wallet") { com.triparro.app.screens.WalletScreen(nav) }
@@ -357,6 +379,8 @@ fun TripArroApp(activity: MainActivity) {
             }
         }
     }
+    }
+    }
 }
 
 private fun notice(paid: String?, failed: String?, refund: String?): String? = when {
@@ -408,3 +432,7 @@ private fun OfferPopup(activity: MainActivity, offer: org.json.JSONObject?, open
         }
     }
 }
+
+
+/** The app's colour backdrop is what every glass surface blurs. */
+private fun Modifier.hazeSourceCompat(state: dev.chrisbanes.haze.HazeState): Modifier = this.then(Modifier.hazeSource(state))

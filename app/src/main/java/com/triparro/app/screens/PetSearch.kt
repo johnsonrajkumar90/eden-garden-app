@@ -162,7 +162,7 @@ fun PetSearchScreen(nav: NavHostController) {
     LaunchedEffect(loading) { if (!loading && userSearched) { try { listState.animateScrollToItem(2) } catch (_: Exception) { }; userSearched = false } }
     fun go() { userSearched = true; search() }
 
-    LazyColumn(Modifier.fillMaxSize().background(Brand.Page), state = listState, contentPadding = PaddingValues(bottom = 24.dp)) {
+    LazyColumn(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass), state = listState, contentPadding = PaddingValues(bottom = 24.dp)) {
         item {
             androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth()) {
                 // red hero with floating paws

@@ -132,7 +132,7 @@ fun TripsScreen(nav: NavHostController) {
 @Composable
 private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l: Loader<Pair<JSONObject, JSONObject>?>) {
     Column(Modifier.fillMaxSize()) {
-        val tabs = listOf("Upcoming", "Staying now", "Completed", "Cancelled", "Trip plans", "Group trips")
+        val tabs = listOf("Upcoming", "Staying now", "Completed", "Cancelled", "Trip plans", "Group trips", "Tickets")
         Row(Modifier.fillMaxWidth().background(Color.White).horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             tabs.forEachIndexed { i, t ->
                 val on = tab == i
@@ -144,6 +144,7 @@ private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l
         when {
             tab == 4 -> SavedPlansList(nav)
             tab == 5 -> GroupTripsList(nav)
+            tab == 6 -> TicketsList(nav)
             data == null && l.loading.value -> Loading()
             data == null -> ErrorBox(l.error.value ?: "Could not load your trips.", { l.reload() })
             else -> {
@@ -216,7 +217,7 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar("Booking $ref", { nav.popBackStack() })
         when {
             b == null && l.loading.value -> Loading()

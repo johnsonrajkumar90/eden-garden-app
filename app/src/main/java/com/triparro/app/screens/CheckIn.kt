@@ -129,7 +129,7 @@ fun OnlineCheckinScreen(nav: NavHostController, link: String) {
         else old.forEachIndexed { i, o -> guests.add(CiGuest(o.text("name"), o.intOrNull("age")?.toString().orEmpty(), o.str("id_type") ?: "aadhaar", keep = i, hadFront = o.bool("has_front"), last4 = o.str("id_last4"))) }
         consent = sent != null
     }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         ColorHeader("Online check-in", d?.let { "${it.text("title")} · ${prettyDate(it.text("check_in"))}" } ?: "Save time at arrival", onBack = { nav.popBackStack() })
         when {
             d == null && l.loading.value -> Loading()

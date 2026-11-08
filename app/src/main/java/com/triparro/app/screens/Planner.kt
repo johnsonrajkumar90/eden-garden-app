@@ -229,7 +229,7 @@ fun PlannerScreen(nav: NavHostController) {
     if (p != null) { PlanView(nav, p, null, onBack = { plan = null }); return }
     if (busy) { TripLoading(if (from?.kind == "gps") "Your location" else from?.name, to?.name); return }
 
-    Scaffold(topBar = { BackBar("Travel planner", { nav.popBackStack() }) { IconButton(onClick = { nav.navigate("myplaces") }) { Icon(Icons.Outlined.Star, "My places") } } }, containerColor = Brand.Page) { pad ->
+    Scaffold(topBar = { BackBar("Travel planner", { nav.popBackStack() }) { IconButton(onClick = { nav.navigate("myplaces") }) { Icon(Icons.Outlined.Star, "My places") } } }, containerColor = com.triparro.app.ui.PageGlass) { pad ->
         Column(Modifier.fillMaxSize().padding(pad).imePadding().verticalScroll(rememberScrollState()).padding(16.dp)) {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(PlannerBrush).padding(18.dp)) {
                 Text("Plan your drive", style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.ExtraBold)
@@ -341,7 +341,7 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
         if (saved != null && onDeleted != null) IconButton(onClick = {
             scope.launch { try { Api.post("trip/plans/$saved/delete"); onDeleted() } catch (_: Exception) { } }
         }) { Icon(Icons.Outlined.Delete, "Delete plan") }
-    } }, containerColor = Brand.Page,
+    } }, containerColor = com.triparro.app.ui.PageGlass,
         bottomBar = { if (picked.isNotEmpty()) TripTotalsBar(picked.size, routeTrip, routing, starting) { startTrip() } }) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad).imePadding(), contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             tripInfo?.takeIf { it.text("status") in listOf("ready", "on_the_way", "finished") && saved != null }?.let { ti ->
@@ -513,7 +513,7 @@ fun SavedPlansList(nav: NavHostController) {
 
 @Composable
 fun SavedPlansScreen(nav: NavHostController) {
-    Scaffold(topBar = { BackBar("Saved trip plans", { nav.popBackStack() }) }, containerColor = Brand.Page) { pad -> Box(Modifier.padding(pad)) { SavedPlansList(nav) } }
+    Scaffold(topBar = { BackBar("Saved trip plans", { nav.popBackStack() }) }, containerColor = com.triparro.app.ui.PageGlass) { pad -> Box(Modifier.padding(pad)) { SavedPlansList(nav) } }
 }
 
 @Composable
@@ -541,7 +541,7 @@ fun MyPlacesScreen(nav: NavHostController) {
     val mine = rememberLoader(session?.user?.id, tick) { if (session?.user == null) null else Api.get("places/mine").objs("items") }
     val community = rememberLoader(here, tick) { here?.let { (a, b) -> Api.get("places/community", mapOf("lat" to a, "lng" to b, "km" to 50)).objs("items") } }
     LaunchedEffect(tab) { if (tab == 1 && here == null) locate() }
-    Scaffold(topBar = { BackBar("Favourite places", { nav.popBackStack() }) }, containerColor = Brand.Page,
+    Scaffold(topBar = { BackBar("Favourite places", { nav.popBackStack() }) }, containerColor = com.triparro.app.ui.PageGlass,
         floatingActionButton = { if (session?.user != null) FloatingActionButton(onClick = { nav.navigate("placeedit/0") }, containerColor = Brand.Sun) { Icon(Icons.Outlined.AddAPhoto, "Add a place", tint = Brand.SunInk) } }) { pad ->
         Column(Modifier.fillMaxSize().padding(pad)) {
             Row(Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -648,7 +648,7 @@ fun PlaceEditScreen(nav: NavHostController, id: Int) {
 
     Scaffold(topBar = { BackBar(if (id == 0) "Add a favourite place" else "Edit place", { nav.popBackStack() }) {
         if (id != 0) IconButton(onClick = { scope.launch { try { Api.post("places/$id/delete"); AppState.refreshTick.value++; nav.popBackStack() } catch (e: Exception) { err = errorText(e) } } }) { Icon(Icons.Outlined.Delete, "Delete") }
-    } }, containerColor = Brand.Page) { pad ->
+    } }, containerColor = com.triparro.app.ui.PageGlass) { pad ->
         Column(Modifier.fillMaxSize().padding(pad).imePadding().verticalScroll(rememberScrollState()).padding(16.dp)) {
             Text("Photos", fontWeight = FontWeight.Bold)
             Row(Modifier.padding(top = 6.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

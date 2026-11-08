@@ -77,7 +77,7 @@ fun MyPetsScreen(nav: NavHostController) {
     Scaffold(
         topBar = { BackBar("My pets", { nav.popBackStack() }) },
         floatingActionButton = { if (session?.user != null) ExtendedFloatingActionButton(onClick = { nav.navigate("petform/0") }, containerColor = Brand.Sun, contentColor = Brand.SunInk, icon = { Icon(Icons.Filled.Add, null) }, text = { Text("Add a pet") }) },
-        containerColor = Brand.Page,
+        containerColor = com.triparro.app.ui.PageGlass,
     ) { pad ->
         Box(Modifier.padding(pad)) {
             val d = l.data.value
@@ -150,7 +150,7 @@ fun PetFormScreen(nav: NavHostController, id: Int) {
         vetName = p.text("vet_name"); vetPhone = p.text("vet_phone"); emName = p.text("emergency_name"); emPhone = p.text("emergency_phone")
     }
 
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar(if (id == 0) "Add a pet" else name.ifEmpty { "Edit pet" }, { nav.popBackStack() })
         if (!ready) { if (l.loading.value) Loading() else ErrorBox(l.error.value ?: "Pet not found.") }
         else Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -229,7 +229,7 @@ fun PetFormScreen(nav: NavHostController, id: Int) {
 @Composable
 fun SavedPetsScreen(nav: NavHostController) {
     val l = rememberLoader("saved") { Api.get("pets/saved") }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar("Saved pet hosts", { nav.popBackStack() })
         val d = l.data.value
         when {
@@ -258,7 +258,7 @@ fun ProfileScreen(nav: NavHostController) {
     var busy by remember { mutableStateOf(false) }
     val p = l.data.value
     if (p != null && !loaded) { loaded = true; name = p.text("name"); phone = p.text("phone"); emails = p.bool("search_emails") }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         BackBar("Profile", { nav.popBackStack() })
         when {
             p == null && l.loading.value -> Loading()

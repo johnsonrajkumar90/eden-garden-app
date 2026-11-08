@@ -163,7 +163,7 @@ fun ChargersScreen(nav: NavHostController) {
         }
     }
 
-    Scaffold(topBar = { BackBar("EV chargers", { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
+    Scaffold(topBar = { BackBar("EV chargers", { nav.popBackStack() }) }, containerColor = com.triparro.app.ui.PageGlass) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 32.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Color.White).padding(14.dp)) {
@@ -271,7 +271,7 @@ private fun ChargerCard(c: JSONObject, modifier: Modifier = Modifier, onClick: (
         }
         val types = c.objs("connections").map { it.text("type") }.distinct().take(4)
         if (types.isNotEmpty()) FlowRow(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            types.forEach { Text("⚡ $it", style = MaterialTheme.typography.labelSmall, modifier = Modifier.clip(RoundedCornerShape(50)).background(Brand.Page).padding(horizontal = 8.dp, vertical = 3.dp)) }
+            types.forEach { Text("⚡ $it", style = MaterialTheme.typography.labelSmall, modifier = Modifier.clip(RoundedCornerShape(50)).background(com.triparro.app.ui.PageGlass).padding(horizontal = 8.dp, vertical = 3.dp)) }
         }
         c.str("directions_url")?.let { u ->
             OutlinedButton(onClick = { try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(u))) } catch (_: Exception) { } }, modifier = Modifier.padding(top = 8.dp)) {
@@ -310,7 +310,7 @@ private fun ChargerSheet(id: Long, onClose: () -> Unit) {
                     ).forEach { (k, v) ->
                         Row(Modifier.fillMaxWidth().padding(vertical = 5.dp)) { Text(k, Modifier.width(140.dp), color = Brand.Muted, style = MaterialTheme.typography.bodySmall); Text(v, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium) }
                     }
-                    listOfNotNull(c.str("access_comments"), c.str("general_comments")).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(12.dp)).background(Brand.Page).padding(10.dp)) }
+                    listOfNotNull(c.str("access_comments"), c.str("general_comments")).forEach { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp).clip(RoundedCornerShape(12.dp)).background(com.triparro.app.ui.PageGlass).padding(10.dp)) }
                     val conns = c.objs("connections")
                     if (conns.isNotEmpty()) {
                         Gap(14); Text("Connectors", fontWeight = FontWeight.ExtraBold)

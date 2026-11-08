@@ -92,7 +92,8 @@ fun BackBar(title: String, onBack: () -> Unit, actions: @Composable () -> Unit =
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium) },
         navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
         actions = { actions() },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+        modifier = Modifier.glass(androidx.compose.ui.graphics.RectangleShape, strength = 0.75f),
         // the app's Scaffold already keeps content below the status bar — don't add that gap twice
         windowInsets = WindowInsets(0.dp),
     )
@@ -145,8 +146,9 @@ fun EmptyBox(title: String, text: String, action: String? = null, icon: ImageVec
 
 @Composable
 fun Card(modifier: Modifier = Modifier, padding: Dp = 16.dp, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
-    val m = modifier.fillMaxWidth().shadow(3.dp, RoundedCornerShape(20.dp), ambientColor = Color(0x22000000), spotColor = Color(0x26B81D2B))
-        .clip(RoundedCornerShape(20.dp)).background(Color.White)
+    // frosted glass over the app's colour backdrop, appearing with a short fade and rise
+    val m = modifier.fillMaxWidth().appear().shadow(2.dp, RoundedCornerShape(20.dp), ambientColor = Color(0x14000000), spotColor = Color(0x1AB81D2B))
+        .glass(RoundedCornerShape(20.dp), strength = 0.7f)
         .let { if (onClick != null) it.pressable(onClick) else it }
     Box(m.padding(padding)) { Column { content() } }
 }

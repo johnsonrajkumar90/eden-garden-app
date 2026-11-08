@@ -90,6 +90,8 @@ dependencies {
     implementation("androidx.browser:browser:1.8.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    // frosted-glass blur behind cards and bars (Android 12+; a clear tint on older phones)
+    implementation("dev.chrisbanes.haze:haze:1.6.10")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("androidx.work:work-runtime-ktx:2.10.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")

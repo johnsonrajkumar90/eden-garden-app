@@ -124,7 +124,7 @@ fun HostingScreen(nav: NavHostController) {
     when (role) {
         "host", "resort", "pethost", "admin" -> HostDashboard(nav, role)
         "referral" -> AgentPortal(nav)
-        else -> Column(Modifier.fillMaxSize().background(Brand.Page)) {
+        else -> Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
             com.triparro.app.ui.ColorHeader("My hosting", session?.user?.name, onBack = { nav.popBackStack() })
             Column(Modifier.padding(16.dp)) {
                 Notice("My hosting is for hosts, resort owners and pet hosts. List your property to get started.", "info")
@@ -150,7 +150,7 @@ private fun HostDashboard(nav: NavHostController, role: String) {
     var tick by remember { mutableStateOf(0) }
     val home = rememberLoader("hosthome", tick) { Api.get("hostapp/home") }
     val h = home.data.value
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         // header with this month's figures
         Column(Modifier.fillMaxWidth().background(RedBrush).matte(Color.Transparent).padding(bottom = 14.dp)) {
             Row(Modifier.padding(start = 4.dp, end = 12.dp, top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -639,7 +639,7 @@ fun HostChatsScreen(nav: NavHostController) {
 private fun AgentPortal(nav: NavHostController) {
     val l = rememberLoader("agent") { Api.get("partner/overview") }
     val d = l.data.value
-    Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass).verticalScroll(rememberScrollState())) {
         Column(Modifier.fillMaxWidth().background(RedBrush).matte(Color.Transparent).padding(bottom = 16.dp)) {
             com.triparro.app.ui.ColorHeader("TripArro Agent", "Book for your guests and earn on every stay", onBack = { nav.popBackStack() })
             if (d != null) {

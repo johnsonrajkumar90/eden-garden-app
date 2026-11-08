@@ -99,7 +99,7 @@ fun PdfScreen(nav: NavHostController, link: String, title: String) {
             }
         } catch (e: Exception) { err = errorText(e) }
     }
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         ColorHeader(title, onBack = { nav.popBackStack() }) {
             file?.let { f ->
                 IconButton(onClick = {
@@ -158,7 +158,7 @@ fun VideoScreen(nav: NavHostController, url: String) {
 fun PetReceiptScreen(nav: NavHostController, ref: String) {
     val l = rememberLoader(ref) { Api.get("pets/bookings/$ref") }
     val b = l.data.value
-    Column(Modifier.fillMaxSize().background(Brand.Page)) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass)) {
         ColorHeader("Receipt", "Pet services · $ref", onBack = { nav.popBackStack() })
         when {
             b == null && l.loading.value -> Loading()

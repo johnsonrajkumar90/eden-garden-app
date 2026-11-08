@@ -61,7 +61,7 @@ import org.json.JSONObject
 @Composable
 fun WalletScreen(nav: NavHostController) {
     val l = rememberLoader(Unit) { Api.get("wallet") }
-    Scaffold(topBar = { BackBar("My wallet", { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
+    Scaffold(topBar = { BackBar("My wallet", { nav.popBackStack() }) }, containerColor = com.triparro.app.ui.PageGlass) { pad ->
         val w = l.data.value
         when {
             w == null && l.loading.value -> Box(Modifier.padding(pad)) { Loading() }
@@ -113,7 +113,7 @@ fun NotifyPrefsScreen(nav: NavHostController) {
     var topics by remember { mutableStateOf<List<JSONObject>?>(null) }
     var err by remember { mutableStateOf<String?>(null) }
     val list = topics ?: l.data.value
-    Scaffold(topBar = { BackBar("Notification settings", { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
+    Scaffold(topBar = { BackBar("Notification settings", { nav.popBackStack() }) }, containerColor = com.triparro.app.ui.PageGlass) { pad ->
         when {
             list == null && l.loading.value -> Box(Modifier.padding(pad)) { Loading() }
             list == null -> Box(Modifier.padding(pad).padding(16.dp)) { ErrorBox(l.error.value ?: "Could not load your settings.", { l.reload() }) }

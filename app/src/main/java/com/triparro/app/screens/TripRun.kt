@@ -268,7 +268,7 @@ fun TripRunScreen(nav: NavHostController, id: Int) {
     }
     LaunchedEffect(banner) { if (banner != null) { delay(7_000); banner = null } }
 
-    Scaffold(topBar = { BackBar(title.ifEmpty { "Your trip" }, { nav.popBackStack() }) }, containerColor = Brand.Page) { pad ->
+    Scaffold(topBar = { BackBar(title.ifEmpty { "Your trip" }, { nav.popBackStack() }) }, containerColor = com.triparro.app.ui.PageGlass) { pad ->
         when {
             loading -> Box(Modifier.padding(pad)) { TripLoadingSmall("Getting your trip ready") }
             t == null -> Box(Modifier.padding(pad).padding(16.dp)) { ErrorBox(err ?: "This trip is not available any more.") }

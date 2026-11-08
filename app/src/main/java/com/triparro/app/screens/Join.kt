@@ -123,7 +123,7 @@ fun BecomeHostScreen(nav: NavHostController) {
     var offerSeen by rememberSaveable { mutableStateOf(false) }
     val zeroDays = m?.optInt("zero_days", 0) ?: 0
     if (m != null && zeroDays > 0 && !offerSeen && sent == null) ZeroCommissionOffer(zeroDays, m.text("commission")) { offerSeen = true }
-    Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass).verticalScroll(rememberScrollState())) {
         ColorHeader("List your property", "List your homestay, villa or resort on TripArro — free to join.", onBack = { nav.popBackStack() })
         Column(Modifier.padding(16.dp)) {
             if (sent != null) { Done("Application sent", sent!!, "Back to TripArro") { nav.popBackStack() }; return@Column }
@@ -202,7 +202,7 @@ private fun PhotoPick(label: String, uri: Uri?, error: String?, onPick: (Uri) ->
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { it?.let(onPick) }
     Column(Modifier.padding(vertical = 4.dp)) {
         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).border(1.dp, if (error != null) Brand.Danger else Brand.Line, RoundedCornerShape(14.dp))
-            .background(Brand.Page).clickable { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            .background(com.triparro.app.ui.PageGlass).clickable { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(56.dp).clip(RoundedCornerShape(10.dp)).background(Brand.Sky), contentAlignment = Alignment.Center) {
                 if (uri != null) AsyncImage(model = uri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 else Icon(Icons.Outlined.AddAPhoto, null, tint = Brand.Blue)
@@ -239,7 +239,7 @@ fun BecomePetHostScreen(nav: NavHostController) {
     fun fld(key: String, label: String, kb: KeyboardType = KeyboardType.Text, pw: Boolean = false, lines: Int = 1): @Composable () -> Unit = {
         Field(label, f[key] ?: "", { f[key] = it }, keyboard = kb, password = pw, lines = lines, error = errs[key]); Gap(8)
     }
-    Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
+    Column(Modifier.fillMaxSize().background(com.triparro.app.ui.PageGlass).verticalScroll(rememberScrollState())) {
         ColorHeader("Become a pet host", "Board dogs, cats and other pets from home — verified pet parents, paid securely.", onBack = { nav.popBackStack() })
         Column(Modifier.padding(16.dp)) {
             if (sent != null) {
