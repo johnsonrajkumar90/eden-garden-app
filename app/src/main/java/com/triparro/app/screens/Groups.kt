@@ -109,17 +109,19 @@ fun GroupTripsList(nav: NavHostController) {
     val l = rememberLoader(tick) { Api.get("trip-groups") }
     var creating by remember { mutableStateOf(false) }
     var joining by remember { mutableStateOf(false) }
+    var sharing by remember { mutableStateOf<JSONObject?>(null) }
+    var made by remember { mutableStateOf<JSONObject?>(null) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         Card {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(44.dp).clip(CircleShape).background(Brand.Sky), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Groups, null, tint = Brand.Blue) }
                 Column(Modifier.padding(start = 12.dp).weight(1f)) {
-                    Text("Plan a trip together", style = MaterialTheme.typography.titleMedium)
-                    Text("Invite friends and family, share your bookings, pick places on the map and chat — all in one trip.", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+                    Text("Make a trip, share its link", style = MaterialTheme.typography.titleMedium)
+                    Text("Give each trip a name and send its own link to family and friends. Everyone who joins sees the plan, expenses, favourites and chat.", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
                 }
             }
             Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PrimaryButton("New group trip", { creating = true }, Modifier.weight(1f), icon = Icons.Outlined.Add)
+                PrimaryButton("New trip", { creating = true }, Modifier.weight(1f), icon = Icons.Outlined.Add)
                 OutlinedButton(onClick = { joining = true }, modifier = Modifier.weight(1f).height(52.dp)) { Text("Join with a code") }
             }
         }
@@ -128,13 +130,20 @@ fun GroupTripsList(nav: NavHostController) {
         when {
             data == null && l.loading.value -> Loading()
             data == null -> ErrorBox(l.error.value ?: "Could not load your group trips.", { l.reload() })
-            data.objs("items").isEmpty() -> Text("No group trips yet. Make one and send the invite to your group.", style = MaterialTheme.typography.bodyMedium, color = Brand.Muted, modifier = Modifier.padding(8.dp))
+            data.objs("items").isEmpty() -> Text("No trips yet. Make one — for example “Ooty with family” or “Goa with college friends” — and share its link.", style = MaterialTheme.typography.bodyMedium, color = Brand.Muted, modifier = Modifier.padding(8.dp))
             else -> data.objs("items").forEach { g ->
                 // a trip card: its photo, name, place and dates, and who has joined
                 Box(Modifier.padding(bottom = 12.dp).fillMaxWidth().height(170.dp).appear().clip(RoundedCornerShape(26.dp)).background(Brush.linearGradient(listOf(Color(0xFF6A1019), Color(0xFFB81D2B), Color(0xFFFF8A3D))))
                     .clickable { nav.navigate("group/${g.int("id")}") }) {
                     g.str("cover")?.let { coil.compose.AsyncImage(model = it, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
                     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x11000000), Color(0xCC15161C)))))
+                    // share this trip's own link
+                    Row(Modifier.align(Alignment.TopEnd).padding(10.dp).clip(RoundedCornerShape(50)).background(Color(0x66000000)).clickable { sharing = g }.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Share, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                        Text(" Share link", color = Color.White, style = MaterialTheme.typography.labelMedium)
+                    }
+                    if (g.text("role") == "owner") Text("Your trip", color = Brand.Ink, style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.align(Alignment.TopStart).padding(12.dp).clip(RoundedCornerShape(50)).background(Brand.Sun).padding(horizontal = 9.dp, vertical = 4.dp))
                     Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
                         val sub = listOf(g.text("destination"), g.text("dates")).filter { it.isNotBlank() }.joinToString(" · ")
                         if (sub.isNotBlank()) Text(sub, style = MaterialTheme.typography.labelMedium, color = Color(0xCCFFFFFF))
@@ -154,12 +163,15 @@ fun GroupTripsList(nav: NavHostController) {
             }
         }
     }
-    if (creating) NewGroupDialog({ creating = false }) { id -> creating = false; AppState.refreshTick.value++; nav.navigate("group/$id") }
+    if (creating) NewGroupDialog({ creating = false }) { g -> creating = false; AppState.refreshTick.value++; made = g }
+    // just made: share its link straight away, then open it
+    made?.let { g -> ShareTripDialog(g, justMade = true, onClose = { made = null; nav.navigate("group/${g.int("id")}") }) }
+    sharing?.let { g -> ShareTripDialog(g, justMade = false, onClose = { sharing = null }) }
     if (joining) JoinCodeDialog({ joining = false }) { code -> joining = false; nav.navigate("groupjoin/$code") }
 }
 
 @Composable
-private fun NewGroupDialog(onClose: () -> Unit, onMade: (Int) -> Unit) {
+private fun NewGroupDialog(onClose: () -> Unit, onMade: (JSONObject) -> Unit) {
     val scope = rememberCoroutineScope()
     var title by rememberSaveable { mutableStateOf("") }
     var dest by remember { mutableStateOf<JSONObject?>(null) }
@@ -167,15 +179,16 @@ private fun NewGroupDialog(onClose: () -> Unit, onMade: (Int) -> Unit) {
     var end by rememberSaveable { mutableStateOf("") }
     var err by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
-    AlertDialog(onDismissRequest = onClose, title = { Text("New group trip") }, text = {
+    var pickDates by remember { mutableStateOf(false) }
+    AlertDialog(onDismissRequest = onClose, title = { Text("New trip") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState())) {
-            Field("Trip name", title, { title = it }, placeholder = "Ooty with family")
+            Field("Name the trip", title, { title = it.take(80) }, placeholder = "Ooty with family")
             Gap(8)
             PlacePicker("Where to (optional)", dest) { dest = it }
             Gap(8)
-            Field("First day (YYYY-MM-DD, optional)", start, { start = it.take(10) })
-            Gap(8)
-            Field("Last day (YYYY-MM-DD, optional)", end, { end = it.take(10) })
+            OutlinedButton(onClick = { pickDates = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (start.isBlank()) "Add dates (optional)" else prettyRange(start, end))
+            }
             err?.let { Notice(it, "bad", Modifier.padding(top = 8.dp)) }
         }
     }, confirmButton = {
@@ -185,12 +198,60 @@ private fun NewGroupDialog(onClose: () -> Unit, onMade: (Int) -> Unit) {
                 try {
                     val body = mutableMapOf<String, Any?>("title" to title, "start_date" to start.ifBlank { null }, "end_date" to end.ifBlank { null })
                     dest?.let { body["destination"] = it.text("name"); body["lat"] = it.optDouble("lat"); body["lng"] = it.optDouble("lng") }
-                    onMade(Api.post("trip-groups", body).int("id"))
+                    onMade(Api.post("trip-groups", body).obj("group") ?: JSONObject())
                 } catch (e: Exception) { err = errorText(e) }
                 busy = false
             }
         }) { Text("Make the trip") }
     }, dismissButton = { TextButton(onClick = onClose) { Text("Cancel") } })
+    if (pickDates) TripDatesPicker(start, end, { pickDates = false }) { a, b -> start = a; end = b; pickDates = false }
+}
+
+private fun prettyRange(a: String, b: String): String = try {
+    val f = java.time.format.DateTimeFormatter.ofPattern("EEE d MMM")
+    val x = java.time.LocalDate.parse(a).format(f)
+    if (b.isBlank() || b == a) x else x + "  →  " + java.time.LocalDate.parse(b).format(f)
+} catch (_: Exception) { a }
+
+/** Pick the trip's first and last day on a calendar. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TripDatesPicker(start: String, end: String, onClose: () -> Unit, onPick: (String, String) -> Unit) {
+    fun millis(d: String): Long? = try { java.time.LocalDate.parse(d).atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli() } catch (_: Exception) { null }
+    fun day(m: Long?): String = m?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate().toString() } ?: ""
+    val state = androidx.compose.material3.rememberDateRangePickerState(initialSelectedStartDateMillis = millis(start), initialSelectedEndDateMillis = millis(end))
+    androidx.compose.material3.DatePickerDialog(onDismissRequest = onClose,
+        confirmButton = { TextButton(enabled = state.selectedStartDateMillis != null, onClick = { onPick(day(state.selectedStartDateMillis), day(state.selectedEndDateMillis ?: state.selectedStartDateMillis)) }) { Text("Done") } },
+        dismissButton = { TextButton(onClick = onClose) { Text("Cancel") } }) {
+        androidx.compose.material3.DateRangePicker(state = state, modifier = Modifier.height(480.dp), title = { Text("Trip dates", Modifier.padding(start = 24.dp, top = 16.dp)) })
+    }
+}
+
+/** A trip's own link: share it, send it on WhatsApp, copy it — everyone who opens it can join this trip. */
+@Composable
+internal fun ShareTripDialog(g: JSONObject, justMade: Boolean, onClose: () -> Unit) {
+    val ctx = LocalContext.current
+    var copied by remember { mutableStateOf(false) }
+    val link = g.text("link"); val text = g.text("share_text").ifBlank { "Join my trip \"${g.text("title")}\" on TripArro:" }
+    AlertDialog(onDismissRequest = onClose, icon = { Icon(Icons.Outlined.Groups, null, tint = Brand.Blue) },
+        title = { Text(if (justMade) "“${g.text("title")}” is ready" else "Share “${g.text("title")}”") },
+        text = {
+            Column {
+                Text("Send this link to family and friends. Whoever joins sees this trip's plan, expenses, favourites and chat — your other trips stay private.", style = MaterialTheme.typography.bodyMedium)
+                Row(Modifier.padding(top = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).border(1.dp, Brand.Line, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(link.removePrefix("https://"), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("Code " + g.text("code"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    }
+                    TextButton(onClick = { (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Trip link", link)); copied = true }) { Text(if (copied) "Copied" else "Copy") }
+                }
+                Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    PrimaryButton("Share", { shareLink(ctx, text, link) }, Modifier.weight(1f), icon = Icons.Outlined.Share)
+                    OutlinedButton(onClick = { openGroupUrl(ctx, "https://wa.me/?text=" + Uri.encode("$text $link")) }, modifier = Modifier.weight(1f).height(52.dp)) { Text("WhatsApp") }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onClose) { Text(if (justMade) "Open the trip" else "Done") } })
 }
 
 @Composable

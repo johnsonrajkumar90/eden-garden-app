@@ -109,7 +109,7 @@ private data class Trip(val ref: String, val pet: Boolean, val title: String, va
 fun TripsScreen(nav: NavHostController) {
     val session by Api.session.collectAsState()
     val tick by AppState.refreshTick
-    var tab by rememberSaveable { mutableIntStateOf(0) }
+    var tab by rememberSaveable { mutableIntStateOf(5) }   // opens on the trips you plan and share
     val l = rememberLoader(session?.user?.id, tick) {
         if (session?.user == null) null else {
             val stays = Api.get("bookings")
@@ -121,7 +121,7 @@ fun TripsScreen(nav: NavHostController) {
         Column(Modifier.matte().fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 18.dp)) {
             Image(painterResource(R.drawable.logo_white), "TripArro", Modifier.height(28.dp))
             Text("My trips", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(top = 12.dp))
-            Text("Stays, resorts and pet services in one place", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
+            Text("Trips with family & friends, bookings and tickets", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFFE0DC))
         }
         if (session?.user == null) {
             EmptyBox("Sign in to see your trips", "Your stays, resorts and pet services bookings appear here.", "Sign in", icon = Icons.Outlined.Luggage) { nav.navigate("login") }
@@ -132,9 +132,10 @@ fun TripsScreen(nav: NavHostController) {
 @Composable
 private fun TripsList(nav: NavHostController, tab: Int, setTab: (Int) -> Unit, l: Loader<Pair<JSONObject, JSONObject>?>) {
     Column(Modifier.fillMaxSize()) {
-        val tabs = listOf("Upcoming", "Staying now", "Completed", "Cancelled", "Trip plans", "Group trips", "Tickets")
+        // chips in the order people use them: their named trips first, then bookings, tickets, route plans
+        val tabs = listOf(5 to "My trips", 0 to "Upcoming", 1 to "Staying now", 2 to "Completed", 3 to "Cancelled", 6 to "Tickets", 4 to "Route plans")
         Row(Modifier.fillMaxWidth().background(Color.White).horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            tabs.forEachIndexed { i, t ->
+            tabs.forEach { (i, t) ->
                 val on = tab == i
                 Text(t, style = MaterialTheme.typography.labelLarge, color = if (on) Color.White else Brand.InkSoft,
                     modifier = Modifier.clip(RoundedCornerShape(50)).background(if (on) Brand.Blue else Brand.Sky).clickable { setTab(i) }.padding(horizontal = 16.dp, vertical = 9.dp))
