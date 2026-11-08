@@ -46,9 +46,10 @@ jobs:
           } > key.properties
 
       - name: Build APK and app bundle
-        env:
-          BUILD_NUMBER: ${{ github.run_number }}
         run: |
+          # The repository was re-created on 8 Nov 2026 (its run numbers started again at 1); Google Play already has 2.0.46,
+          # so builds continue from 2.0.47 upwards: run 2 → 2.0.48 (code 348), and so on
+          export BUILD_NUMBER=$(( ${{ github.run_number }} + 46 ))
           mkdir -p logs
           set -o pipefail
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
