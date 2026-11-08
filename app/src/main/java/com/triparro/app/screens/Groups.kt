@@ -334,14 +334,14 @@ internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { openUrl(ctx, map.text("open")) }, modifier = Modifier.weight(1f)) { Icon(Icons.Outlined.Map, null, Modifier.size(18.dp)); Text(" Google Maps") }
-                map.str("route")?.let { r -> OutlinedButton(onClick = { openUrl(ctx, r) }, modifier = Modifier.weight(1f)) { Icon(Icons.Outlined.Directions, null, Modifier.size(18.dp)); Text(" Directions") } }
+                OutlinedButton(onClick = { openGroupUrl(ctx, map.text("open")) }, modifier = Modifier.weight(1f)) { Icon(Icons.Outlined.Map, null, Modifier.size(18.dp)); Text(" Google Maps") }
+                map.str("route")?.let { r -> OutlinedButton(onClick = { openGroupUrl(ctx, r) }, modifier = Modifier.weight(1f)) { Icon(Icons.Outlined.Directions, null, Modifier.size(18.dp)); Text(" Directions") } }
             }
         }
     }
 }
 
-internal fun openUrl(ctx: Context, url: String) {
+internal fun openGroupUrl(ctx: Context, url: String) {
     try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Exception) { }
 }
 
@@ -364,7 +364,7 @@ internal fun GroupItem(nav: NavHostController, groupId: Int, item: JSONObject, c
             when (kind) {
                 "booking" -> item.obj("booking")?.let { b -> nav.navigate("property/${b.text("kind")}/${b.int("listing_id")}") }
                 "plan" -> item.obj("plan")?.let { p -> if (p.bool("owner")) nav.navigate("tripplan/${p.int("id")}") }
-                "place" -> item.optJSONArray("coords")?.let { c -> openUrl(ctx, "https://www.google.com/maps/search/?api=1&query=${c.optDouble(0)},${c.optDouble(1)}") }
+                "place" -> item.optJSONArray("coords")?.let { c -> openGroupUrl(ctx, "https://www.google.com/maps/search/?api=1&query=${c.optDouble(0)},${c.optDouble(1)}") }
                 "todo" -> toggle()
                 else -> {}
             }

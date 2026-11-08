@@ -434,7 +434,7 @@ private fun FavCard(item: JSONObject, ctx: Context, modifier: Modifier, toggle: 
     val f = item.obj("fav") ?: JSONObject()
     var confirm by remember { mutableStateOf(false) }
     Column(modifier.appear().clip(RoundedCornerShape(22.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(22.dp))
-        .pressable({ f.str("maps_url")?.let { openUrl(ctx, it) } ?: item.optJSONArray("coords")?.let { c -> openUrl(ctx, "https://www.google.com/maps/search/?api=1&query=${c.optDouble(0)},${c.optDouble(1)}") } })) {
+        .pressable({ f.str("maps_url")?.let { openGroupUrl(ctx, it) } ?: item.optJSONArray("coords")?.let { c -> openGroupUrl(ctx, "https://www.google.com/maps/search/?api=1&query=${c.optDouble(0)},${c.optDouble(1)}") } })) {
         Box(Modifier.fillMaxWidth().aspectRatio(1.1f).background(Brand.Sky)) {
             f.str("photo")?.let { AsyncImage(model = it, contentDescription = item.text("title"), contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
                 ?: Icon(Icons.Outlined.Place, null, tint = Brand.Coral, modifier = Modifier.align(Alignment.Center).size(36.dp))
