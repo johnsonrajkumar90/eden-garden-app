@@ -111,9 +111,12 @@ adb shell input keyevent 4; sleep 1
 app tickets; shot 45-tickets 5
 # bottom tabs: Pets → Account → Explore must come back to Explore; the floating Group trips button; red bars
 adb shell am force-stop $PKG; sleep 1; adb shell am start -W -n $PKG/com.triparro.app.MainActivity; sleep 8
-tap "Pets"; sleep 3; tap "Account"; sleep 3; tap "Explore"; shot 46-back-to-explore 4
-tap "Group trips"; shot 47-group-trips-hub 5
-tap "Trip plans"; shot 48-hub-trip-plans 3
-tap "Tickets"; shot 49-hub-tickets 3
+# (taps by position: the moving glass backdrop keeps the screen busy for uiautomator)
+adb shell input tap 324 2250; sleep 3; shot 46a-pets-tab 1
+adb shell input tap 972 2250; sleep 3; shot 46b-account-tab 1
+adb shell input tap 108 2250; shot 46-back-to-explore 3
+adb shell input tap 835 1996; shot 47-group-trips-hub 5
+adb shell input tap 422 320; shot 48-hub-trip-plans 3
+adb shell input tap 726 320; shot 49-hub-tickets 3
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true
 ls -la screens
