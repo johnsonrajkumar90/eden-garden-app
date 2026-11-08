@@ -119,6 +119,16 @@ fun NotifyPrefsScreen(nav: NavHostController) {
                 if (!Notifier.canPost(ctx)) item { Notice("Notifications are switched off for TripArro on this phone — allow them in the phone's settings to get these.", "warn") }
                 item { Text("Choose what reaches your phone. Everything still shows in Notifications in the app.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted) }
                 item {
+                    var snd by remember { mutableStateOf(Notifier.soundOn(ctx)) }
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Sound", fontWeight = FontWeight.SemiBold)
+                            Text("Play a sound for new messages and updates", style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+                        }
+                        Switch(checked = snd, onCheckedChange = { snd = it; Notifier.setSound(ctx, it); if (it) Notifier.chime(ctx) }, colors = SwitchDefaults.colors(checkedTrackColor = Brand.Teal))
+                    }
+                }
+                item {
                     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White)) {
                         list.forEachIndexed { i, t ->
                             if (i > 0) HorizontalDivider(color = Brand.Line)

@@ -223,7 +223,7 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
             else -> Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
                 when (notice) {
                     "paid" -> Notice("Payment received — your booking is confirmed. We have emailed the details.", "ok")
-                    "failed" -> Notice("The payment did not go through. Nothing was charged — you can try again below.", "bad")
+                    "failed" -> Notice("The payment did not go through. Nothing was charged and any wallet money you used is back in your wallet — you can try again below.", "bad")
                     "refund" -> Notice("The dates were taken before your payment arrived. Your money will be refunded in full.", "warn")
                 }
                 if (notice != null) Gap()
@@ -318,7 +318,14 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
                         }, enabled = rating > 0, loading = busy)
                     }
                 }
-                if (b.bool("can_cancel")) {
+                b.str("share_url")?.takeIf { b.text("status") == "confirmed" }?.let { link ->
+                    Gap()
+                    val ctx2 = androidx.compose.ui.platform.LocalContext.current
+                    OutlinedButton(onClick = { com.triparro.app.ui.shareLink(ctx2, "My TripArro booking ${b.text("ref")} at ${li.text("title")}", link) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+                        Text("Share booking (WhatsApp, email…)")
+                    }
+                }
+                if (b.bool("can_cancel") || b.bool("can_cancel_unpaid")) {
                     Gap()
                     TextButton(onClick = {
                         scope.launch { try { cancelQuote = Api.post("refunds", mapOf("ref" to ref, "confirm" to false)).obj("quote") ?: JSONObject() } catch (e: Exception) { msg = errorText(e) } }
@@ -331,7 +338,7 @@ fun BookingScreen(nav: NavHostController, ref: String, notice: String?) {
     cancelQuote?.let { q ->
         AlertDialog(onDismissRequest = { cancelQuote = null },
             title = { Text("Cancel this booking?") },
-            text = { Text(if ((q.num("paid") ?: 0.0) > 0) "You paid ${money(q.num("paid"))}. Under the policy you get back ${money(q.num("refund"))} (${q.int("percent")}%)." else "Nothing has been paid, so nothing is charged.") },
+            text = { Text(if ((q.num("paid") ?: 0.0) > 0) "You paid ${money(q.num("paid"))}. Under the policy you get back ${money(q.num("refund"))} (${q.int("percent")}%)." else "Nothing has been paid, so nothing is charged." + ((q.num("wallet_back") ?: 0.0).takeIf { it > 0 }?.let { " ${money(it)} goes back to your wallet at once." } ?: "")) },
             confirmButton = { TextButton(onClick = {
                 cancelQuote = null
                 scope.launch { try { Api.post("refunds", mapOf("ref" to ref, "confirm" to true)); AppState.refreshTick.value++ } catch (e: Exception) { msg = errorText(e) } }

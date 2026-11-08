@@ -163,6 +163,7 @@ private fun ChatWindow(
     footer: @Composable (JSONObject?, (JSONObject) -> Unit) -> Unit = { _, _ -> },
 ) {
     val scope = rememberCoroutineScope()
+    val chatCtx = androidx.compose.ui.platform.LocalContext.current
     val msgs = remember { mutableStateListOf<JSONObject>() }
     var info by remember { mutableStateOf<JSONObject?>(null) }
     var seen by remember { mutableIntStateOf(0) }
@@ -175,7 +176,10 @@ private fun ChatWindow(
         info = j
         seen = maxOf(seen, j.int("seen_by_other"))
         val have = msgs.map { it.int("id") }.toSet()
-        j.objs("messages").filter { it.int("id") !in have }.forEach { msgs.add(it) }
+        val fresh = j.objs("messages").filter { it.int("id") !in have }
+        fresh.forEach { msgs.add(it) }
+        // a reply from the other side while the chat is open: the phone's notification sound (the person can turn it off)
+        if (loaded && fresh.any { it.text("from") != me && it.text("from") != "system" }) com.triparro.app.core.Notifier.chime(chatCtx)
         loaded = true
     }
     LaunchedEffect(Unit) {

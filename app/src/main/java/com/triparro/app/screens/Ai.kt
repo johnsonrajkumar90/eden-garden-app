@@ -1,5 +1,9 @@
 package com.triparro.app.screens
 
+import androidx.compose.material3.ButtonDefaults
+
+import androidx.compose.material3.Button
+
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -111,6 +115,21 @@ fun AiScreen(nav: NavHostController) {
         }
     }
 
+    // Yes / No on something TripArro AI prepared (a booking, a pet host, an enquiry, a charger) — done only after Yes
+    val answered = remember { mutableStateListOf<String>() }
+    fun decide(code: String, yes: Boolean) {
+        if (busy || code in answered) return
+        answered.add(code); busy = true
+        val target = msgs
+        scope.launch {
+            try {
+                val r = Api.post("ai/chat", mapOf(if (yes) "confirm" to code else "cancel" to code))
+                target.add(Msg(false, r.text("reply"), actions = r.objs("actions")))
+            } catch (e: Exception) { target.add(Msg(false, errorText(e))) }
+            busy = false
+        }
+    }
+
     Column(Modifier.fillMaxSize().imePadding()) {
         Column(Modifier.fillMaxWidth().matte().padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -157,7 +176,16 @@ fun AiScreen(nav: NavHostController) {
                     m.pets.take(5).forEach { c -> Column(Modifier.padding(top = 8.dp)) { PetHostCard(c, compact = true) { nav.navigate("petlisting/${c.int("id")}") } } }
                     m.actions.forEach { a ->
                         val url = a.str("url")
-                        if (url != null) OutlinedButton(onClick = { nav.openLink(url) }, modifier = Modifier.padding(top = 6.dp)) { Text(a.text("label", "Open")) }
+                        if (a.text("type") == "confirm") {
+                            val code = a.text("code")
+                            Column(Modifier.padding(top = 8.dp).widthIn(max = 320.dp).clip(RoundedCornerShape(18.dp)).background(Brand.SunSoft).padding(12.dp)) {
+                                Text(a.text("summary"), style = MaterialTheme.typography.bodyMedium, color = Brand.SunInk)
+                                if (code !in answered) Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(onClick = { decide(code, true) }, enabled = !busy, colors = ButtonDefaults.buttonColors(containerColor = Brand.Blue)) { Text(a.text("yes", "Yes")) }
+                                    OutlinedButton(onClick = { decide(code, false) }, enabled = !busy) { Text("No") }
+                                }
+                            }
+                        } else if (url != null) OutlinedButton(onClick = { nav.openLink(url) }, modifier = Modifier.padding(top = 6.dp)) { Text(a.text("label", "Open")) }
                     }
                 }
             }

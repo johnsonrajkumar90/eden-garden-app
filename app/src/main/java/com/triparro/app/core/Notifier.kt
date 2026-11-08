@@ -46,14 +46,37 @@ object Notifier {
     val unread: StateFlow<Int> = _unread
     fun setUnread(n: Int) { _unread.value = n }
 
+    const val CHANNEL_MSG = "messages"
+
     fun createChannel(context: Context) {
         if (Build.VERSION.SDK_INT < 26) return
         val nm = context.getSystemService(NotificationManager::class.java)
+        val sound = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+        val attrs = android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION).setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
         if (nm.getNotificationChannel(CHANNEL) == null) {
             nm.createNotificationChannel(NotificationChannel(CHANNEL, "Booking updates", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "Booking confirmations, payment links, check-in, Pet Stay Diary updates and reminders"
+                description = "Booking confirmations, payment links, check-in, Pet Stay Diary updates, trip tips and reminders"
+                setSound(sound, attrs); enableVibration(true)
             })
         }
+        if (nm.getNotificationChannel(CHANNEL_MSG) == null) {   // chat messages pop up with sound
+            nm.createNotificationChannel(NotificationChannel(CHANNEL_MSG, "Messages", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "New messages from hosts, guests and TripArro AI"
+                setSound(sound, attrs); enableVibration(true)
+            })
+        }
+    }
+
+    /** Sound on / off for new messages and updates inside the app (Account → Notifications). */
+    fun soundOn(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("sound", true)
+    fun setSound(context: Context, on: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("sound", on).apply() }
+
+    /** A short sound for something new on screen (a chat reply), using the phone's own notification sound. */
+    private var lastChime = 0L
+    fun chime(context: Context) {
+        if (!soundOn(context) || System.currentTimeMillis() - lastChime < 1500) return
+        lastChime = System.currentTimeMillis()
+        try { android.media.RingtoneManager.getRingtone(context, android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION))?.play() } catch (_: Exception) { }
     }
 
     fun canPost(context: Context): Boolean =
@@ -108,7 +131,11 @@ object Notifier {
         }
         val pi = PendingIntent.getActivity(context, id, open, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val body = n.text("body")
-        val notif = NotificationCompat.Builder(context, CHANNEL)
+        val isMsg = n.text("kind") in listOf("message", "chat")
+        val notif = NotificationCompat.Builder(context, if (isMsg) CHANNEL_MSG else CHANNEL)
+            .setPriority(if (isMsg) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setSilent(!soundOn(context))
             .setSmallIcon(R.drawable.ic_stat_notify)
             .setColor(0xFF0E3A7A.toInt())
             .setContentTitle(n.text("title"))

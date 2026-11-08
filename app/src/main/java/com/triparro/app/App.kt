@@ -328,7 +328,12 @@ fun TripArroApp(activity: MainActivity) {
                 composable("petreceipt/{ref}") { e -> PetReceiptScreen(nav, e.arguments?.getString("ref") ?: "") }
                 composable("pay") {
                     val form = AppState.payment.value
-                    WebScreen(null, form?.title ?: "Payment", payment = form, onBack = { nav.popBackStack() },
+                    WebScreen(null, form?.title ?: "Payment", payment = form, onBack = {
+                            // left the payment page without paying: close the attempt so the wallet money comes back at once
+                            form?.fields?.optString("txnid")?.takeIf { it.isNotBlank() }?.let { t -> scope.launch { try { Api.post("payments/abandon", mapOf("txnid" to t)) } catch (_: Exception) { }; AppState.refreshTick.value++ } }
+                            AppState.payment.value = null
+                            nav.popBackStack()
+                        },
                         onAppRoute = { r ->
                             AppState.payment.value = null
                             AppState.refreshTick.value++
