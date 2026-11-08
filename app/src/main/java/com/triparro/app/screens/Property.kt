@@ -151,6 +151,7 @@ fun PropertyScreen(nav: NavHostController, kind: String, id: Int) {
             else -> {
                 val price = p.obj("price") ?: JSONObject()
                 val photos = p.objs("photos").map { it.text("url") }.ifEmpty { listOfNotNull(p.str("image")) }
+                price.obj("offer")?.let { o -> ListingOfferDialog("$kind-$id", p.text("title"), price, o) { sheet = true } }
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                     HeroGallery(photos, onOpen = { u -> nav.navigate("photo?url=" + android.net.Uri.encode(u) + "&title=" + android.net.Uri.encode(p.text("title"))) }) {
                         RoundAction(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
@@ -415,4 +416,40 @@ fun openMaps(ctx: android.content.Context, lat: Double, lng: Double, label: Stri
     val geo = Uri.parse("geo:$lat,$lng?q=$lat,$lng(" + Uri.encode(label) + ")")
     try { ctx.startActivity(Intent(Intent.ACTION_VIEW, geo)) }
     catch (_: Exception) { try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=$lat,$lng"))) } catch (_: Exception) { } }
+}
+
+
+private val offerShown = mutableSetOf<String>()   // the host's offer pops up once per listing while the app is open
+
+/** The host's special offer on this stay or resort (code applied automatically when booking from here). */
+@Composable
+private fun ListingOfferDialog(key: String, title: String, price: JSONObject, o: JSONObject, book: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    LaunchedEffect(key) { if (key !in offerShown) { kotlinx.coroutines.delay(1400); offerShown += key; open = true } }
+    if (!open) return
+    val code = o.text("code")
+    val nightly = price.optDouble("offer_nightly", 0.0)
+    val ctx = LocalContext.current
+    androidx.compose.ui.window.Dialog(onDismissRequest = { open = false }, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Column(Modifier.padding(20.dp).fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Color.White)) {
+            Column(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFF8E0F1D), Color(0xFFD7192A), Color(0xFFFF6A3D)))).padding(22.dp)) {
+                Text("✨ We have a special offer for you", color = Color.White.copy(alpha = .9f), style = MaterialTheme.typography.labelLarge)
+                Text(o.text("badge"), color = Color.White, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 6.dp))
+                Text("at $title", color = Color.White.copy(alpha = .9f), style = MaterialTheme.typography.bodyMedium)
+            }
+            Column(Modifier.padding(20.dp)) {
+                if (nightly > 0) Text("Offer price ${money(nightly)} per night", style = MaterialTheme.typography.titleMedium)
+                Row(Modifier.padding(top = 10.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Brand.Page).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) { Text("Your coupon code", style = MaterialTheme.typography.labelMedium, color = Brand.Muted); Text(code, style = MaterialTheme.typography.titleLarge) }
+                    androidx.compose.material3.TextButton(onClick = {
+                        (ctx.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager).setPrimaryClip(android.content.ClipData.newPlainText("Coupon", code))
+                    }) { Text("Copy") }
+                }
+                Text("You don't need to remember it — the code is added automatically when you book from this page.", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft, modifier = Modifier.padding(top = 10.dp))
+                o.str("terms")?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 4.dp)) }
+                PrimaryButton("Book with this offer", { open = false; book() }, Modifier.fillMaxWidth().padding(top = 14.dp), coral = true)
+                androidx.compose.material3.TextButton(onClick = { open = false }, modifier = Modifier.fillMaxWidth()) { Text("Maybe later") }
+            }
+        }
+    }
 }

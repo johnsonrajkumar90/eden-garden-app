@@ -50,6 +50,7 @@
                 <data android:pathPrefix="/booking/" />
                 <data android:pathPrefix="/pay/" />
                 <data android:pathPrefix="/resort-booking/" />
+                <data android:pathPrefix="/trip-group/" />
             </intent-filter>
             <!-- Back from Google sign-in in the browser: triparro-app://auth?code=… -->
             <intent-filter>

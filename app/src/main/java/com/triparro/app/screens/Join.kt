@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -118,6 +120,9 @@ fun BecomeHostScreen(nav: NavHostController) {
     var errs by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var sent by remember { mutableStateOf<String?>(null) }
     val m = meta.data.value
+    var offerSeen by rememberSaveable { mutableStateOf(false) }
+    val zeroDays = m?.optInt("zero_days", 0) ?: 0
+    if (m != null && zeroDays > 0 && !offerSeen && sent == null) ZeroCommissionOffer(zeroDays, m.text("commission")) { offerSeen = true }
     Column(Modifier.fillMaxSize().background(Brand.Page).verticalScroll(rememberScrollState())) {
         ColorHeader("List your property", "List your homestay, villa or resort on TripArro — free to join.", onBack = { nav.popBackStack() })
         Column(Modifier.padding(16.dp)) {
@@ -241,6 +246,17 @@ fun BecomePetHostScreen(nav: NavHostController) {
                 Done("Registration sent", sent!!, if (signedIn) "Open My hosting" else "Sign in") { if (signedIn) nav.navigate("hosting") { popUpTo("account") } else nav.navigate("login") { popUpTo("account") } }
                 return@Column
             }
+            meta.data.value?.optJSONArray("pictures")?.let { pics ->
+                androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 14.dp)) {
+                    items(pics.length()) { i ->
+                        val p = pics.optJSONObject(i) ?: return@items
+                        Column(Modifier.width(200.dp)) {
+                            com.triparro.app.ui.Photo(p.optString("image"), Modifier.fillMaxWidth().height(150.dp), corner = 18.dp, description = p.optString("caption"))
+                            Text(p.optString("caption"), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 6.dp))
+                        }
+                    }
+                }
+            }
             Card {
                 SectionHead(1, "About you")
                 fld("name", "Full name")(); fld("business_name", "Business name (optional)")(); fld("email", "Email", KeyboardType.Email)(); fld("phone", "Mobile number", KeyboardType.Phone)()
@@ -329,3 +345,28 @@ fun BecomePetHostScreen(nav: NavHostController) {
 }
 
 private fun mutableStateMapOfStrings(vararg pairs: Pair<String, String>) = androidx.compose.runtime.mutableStateMapOf<String, String>().apply { pairs.forEach { put(it.first, it.second) } }
+
+
+/** The welcome offer for new hosts: 0% commission for the first days (shown once when the page opens). */
+@Composable
+private fun ZeroCommissionOffer(days: Int, commission: String, onClose: () -> Unit) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onClose, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Column(Modifier.padding(20.dp).fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp)).background(androidx.compose.ui.graphics.Color.White)) {
+            Box(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(androidx.compose.ui.graphics.Color(0xFFA3101C), androidx.compose.ui.graphics.Color(0xFFE5353F)))).padding(22.dp)) {
+                Column {
+                    Text("WELCOME OFFER", color = androidx.compose.ui.graphics.Color.White.copy(alpha = .85f), style = MaterialTheme.typography.labelLarge)
+                    Text("0%", color = androidx.compose.ui.graphics.Color.White, fontSize = 64.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold, lineHeight = 66.sp)
+                    Text("commission for your first $days days", color = androidx.compose.ui.graphics.Color.White, style = MaterialTheme.typography.titleMedium)
+                }
+                Text("🏡", fontSize = 54.sp, modifier = Modifier.align(Alignment.BottomEnd))
+            }
+            Column(Modifier.padding(20.dp)) {
+                Text("Keep the full stay amount", style = MaterialTheme.typography.titleLarge)
+                Text("Join as a new host and pay no commission on bookings in your first $days days. After that it's $commission%, only on completed stays. No joining fee, no monthly fee.",
+                    style = MaterialTheme.typography.bodyMedium, color = Brand.InkSoft, modifier = Modifier.padding(top = 6.dp, bottom = 16.dp))
+                PrimaryButton("Apply to host", onClose, Modifier.fillMaxWidth(), coral = true)
+                androidx.compose.material3.TextButton(onClick = onClose, modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) { Text("Maybe later") }
+            }
+        }
+    }
+}

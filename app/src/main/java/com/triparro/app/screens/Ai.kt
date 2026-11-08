@@ -75,7 +75,7 @@ import com.triparro.app.ui.Segmented
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-private class Msg(val user: Boolean, val text: String, val stays: List<JSONObject> = emptyList(), val pets: List<JSONObject> = emptyList(), val actions: List<JSONObject> = emptyList())
+private class Msg(val user: Boolean, val text: String, val stays: List<JSONObject> = emptyList(), val pets: List<JSONObject> = emptyList(), val exps: List<JSONObject> = emptyList(), val actions: List<JSONObject> = emptyList())
 
 /** TripArro AI: the travel companion (real stays at live prices, guest limits and extra-guest charges) and the pet services assistant. */
 @Composable
@@ -108,7 +108,7 @@ fun AiScreen(nav: NavHostController) {
                     target.add(Msg(false, r.text("reply").replace(Regex("\\s*\\[pet:\\d+]"), ""), pets = r.objs("items")))
                 } else {
                     val r = Api.post("ai/chat", mapOf("messages" to history + mapOf("role" to "user", "content" to question)))
-                    target.add(Msg(false, r.text("reply"), stays = r.objs("listings"), actions = r.objs("actions")))
+                    target.add(Msg(false, r.text("reply"), stays = r.objs("listings"), pets = r.objs("pets"), exps = r.objs("experiences"), actions = r.objs("actions")))
                 }
             } catch (e: Exception) { target.add(Msg(false, errorText(e))) }
             busy = false
@@ -174,6 +174,7 @@ fun AiScreen(nav: NavHostController) {
                         modifier = Modifier.widthIn(max = 320.dp).shadow(if (m.user) 0.dp else 1.dp, shape).background(if (m.user) Brand.Blue else Color.White, shape).padding(horizontal = 14.dp, vertical = 11.dp))
                     m.stays.take(5).forEach { s -> Column(Modifier.padding(top = 8.dp)) { PropertyCard(s) { nav.navigate("property/${s.text("kind", "stay")}/${s.int("id")}") } } }
                     m.pets.take(5).forEach { c -> Column(Modifier.padding(top = 8.dp)) { PetHostCard(c, compact = true) { nav.navigate("petlisting/${c.int("id")}") } } }
+                    m.exps.take(3).forEach { x -> AiServiceCard(x) { nav.openSite("/services/${x.int("id")}/${x.text("slug")}", x.text("title")) } }
                     m.actions.forEach { a ->
                         val url = a.str("url")
                         if (a.text("type") == "confirm") {
@@ -202,6 +203,23 @@ fun AiScreen(nav: NavHostController) {
                 colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Brand.Line, focusedBorderColor = Brand.Blue, unfocusedContainerColor = Brand.Page, focusedContainerColor = Color.White),
                 placeholder = { Text(if (mode == "pets") "e.g. Boarding for 2 cats in Ooty" else "Ask TripArro AI…") })
             FilledIconButton(onClick = { send(text) }, enabled = text.isNotBlank() && !busy, modifier = Modifier.padding(start = 8.dp).size(48.dp), colors = IconButtonDefaults.filledIconButtonColors(containerColor = Brand.CoralDark)) { Icon(Icons.AutoMirrored.Filled.Send, "Send") }
+        }
+    }
+}
+
+
+/** A service the AI suggested: photo, category, place and starting price — opens the service page. */
+@androidx.compose.runtime.Composable
+private fun AiServiceCard(x: JSONObject, onClick: () -> Unit) {
+    Row(Modifier.padding(top = 8.dp).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(androidx.compose.ui.graphics.Color.White)
+        .border(1.dp, Brand.Line, RoundedCornerShape(18.dp)).clickable(onClick = onClick).padding(10.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        com.triparro.app.ui.Photo(x.str("image"), Modifier.size(84.dp), corner = 14.dp, description = x.text("title"))
+        Column(Modifier.padding(start = 12.dp).weight(1f)) {
+            Text(x.text("category"), style = MaterialTheme.typography.labelMedium, color = Brand.Muted)
+            Text(x.text("title"), style = MaterialTheme.typography.titleSmall, maxLines = 2)
+            val place = x.text("location").ifBlank { x.text("place") }
+            if (place.isNotBlank()) Text(place, style = MaterialTheme.typography.bodySmall, color = Brand.Muted, maxLines = 1)
         }
     }
 }

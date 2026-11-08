@@ -145,6 +145,7 @@ fun NavHostController.openLink(link: String) {
         first == "signup" -> navigate("signup")
         first in listOf("host", "owner", "pet-host", "referral", "lister", "admin") -> navigate("hosting")
         first == "ai" -> navigate("ai")
+        seg.size == 2 && first == "trip-group" -> navigate("groupjoin/${seg[1].uppercase()}")
         else -> navigate("explore") { launchSingleTop = true }
     }
 }
@@ -263,6 +264,9 @@ fun TripArroApp(activity: MainActivity) {
                 composable("chargers") { com.triparro.app.screens.ChargersScreen(nav) }
                 composable("planner") { com.triparro.app.screens.PlannerScreen(nav) }
                 composable("tripplans") { com.triparro.app.screens.SavedPlansScreen(nav) }
+                composable("groups") { Column(Modifier.fillMaxSize()) { com.triparro.app.ui.BackBar("Group trips", { nav.popBackStack() }); com.triparro.app.screens.GroupTripsList(nav) } }
+                composable("group/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.GroupTripScreen(nav, e.arguments?.getInt("id") ?: 0) }
+                composable("groupjoin/{code}") { e -> com.triparro.app.screens.GroupJoinScreen(nav, e.arguments?.getString("code") ?: "") }
                 composable("tripplan/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.SavedPlanScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("wallet") { com.triparro.app.screens.WalletScreen(nav) }
                 composable("notifyprefs") { com.triparro.app.screens.NotifyPrefsScreen(nav) }
@@ -368,7 +372,14 @@ private fun OfferPopup(activity: MainActivity, offer: org.json.JSONObject?, open
         val key = "offer_seen_$id"
         val last = prefs.getLong(key, 0L)
         val days = offer.optInt("days", 1)
-        if (last > 0 && System.currentTimeMillis() - last < days * 86_400_000L) return@LaunchedEffect
+        if (last > 0 && days > 0 && System.currentTimeMillis() - last < days * 86_400_000L) return@LaunchedEffect
+        // load the picture first: the popup opens complete, and a picture that can't load never leaves an empty dialog
+        // (nor is it counted as seen, so it is tried again next time)
+        val ok = try {
+            coil.Coil.imageLoader(activity).execute(coil.request.ImageRequest.Builder(activity).data(offer.optString("image")).build()) is coil.request.SuccessResult
+        } catch (e: Exception) { false }
+        if (!ok) return@LaunchedEffect
+        kotlinx.coroutines.delay(600)
         shownThisRun = true
         visible = true
         prefs.edit().putLong(key, System.currentTimeMillis()).apply()
