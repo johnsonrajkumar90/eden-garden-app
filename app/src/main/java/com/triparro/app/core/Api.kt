@@ -49,6 +49,8 @@ data class Session(
     val links: JSONObject,
     /** The offer popup (admin's offer picture), or null. */
     val offerPopup: JSONObject? = null,
+    /** The welcome screen for people who are not signed in: background picture and three listing photos. */
+    val welcome: JSONObject? = null,
 )
 
 /**
@@ -108,6 +110,7 @@ object Api {
             ai = f.bool("ai"), payments = f.bool("payments"), loginToBook = f.bool("login_to_book"),
             links = j.obj("links") ?: JSONObject(),
             offerPopup = j.obj("offer_popup"),
+            welcome = j.obj("welcome"),
         )
         _session.value = session
         return session

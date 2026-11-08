@@ -255,7 +255,16 @@ fun TripArroApp(activity: MainActivity) {
             WindowCompat.getInsetsController(activity.window, view).isAppearanceLightStatusBars = topColor == Color.White
         }
         Box(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(topColor))
-        OfferPopup(activity, session?.offerPopup) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
+        // Not signed in: the welcome screen when the app opens (Google / email, or look around first)
+        var welcomeDone by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+        val s = session
+        if (!welcomeDone && s != null && s.user == null && link == null && current == "explore") {
+            com.triparro.app.screens.WelcomeScreen(s.welcome,
+                onEmail = { welcomeDone = true; nav.navigate("login") { launchSingleTop = true } },
+                onExplore = { welcomeDone = true },
+                onPage = { slug -> welcomeDone = true; nav.navigate("page/$slug") })
+        }
+        OfferPopup(activity, if (session?.user != null || welcomeDone) session?.offerPopup else null) { link -> nav.openLink(if (link.startsWith("/")) Api.url(link) else link) }
         com.triparro.app.screens.RewardPopup(activity, session?.user?.reward) { nav.navigate("wallet") }
         Box(Modifier.fillMaxSize().padding(pad)) {
             NavHost(nav, startDestination = "explore") {

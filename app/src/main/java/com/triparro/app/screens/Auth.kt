@@ -116,15 +116,7 @@ fun AuthScreen(nav: NavHostController, startSignUp: Boolean = false) {
     fun go(s: Step) { step = s; err = null; info = null; fieldErr = emptyMap() }
     androidx.compose.runtime.LaunchedEffect(Unit) { com.triparro.app.AppState.authMessage.value?.let { err = it; com.triparro.app.AppState.authMessage.value = null } }
     /** Google sign-in: Google's own page opens in a browser tab, then TripArro sends the person back to the app signed in. */
-    fun google() {
-        try {
-            androidx.browser.customtabs.CustomTabsIntent.Builder().setShowTitle(true)
-                .setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams.Builder().setToolbarColor(0xFFB81D2B.toInt()).build())
-                .build().launchUrl(ctx, android.net.Uri.parse(Api.url("auth/google?app=1")))
-        } catch (_: Exception) {
-            try { ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(Api.url("auth/google?app=1")))) } catch (_: Exception) { err = "Could not open Google sign-in on this phone." }
-        }
-    }
+    fun google() { startGoogleSignIn(ctx)?.let { err = it } }
     fun done() { nav.popBackStack() }
     /** An older website without the app sign-in answers: say so (the app never opens web pages). */
     fun webFallback(e: ApiException, path: String, title: String): Boolean {
@@ -337,7 +329,7 @@ private fun AuthField(label: String, value: String, onChange: (String) -> Unit, 
 
 /** "Continue with Google": white, with Google's four-colour G. */
 @Composable
-private fun GoogleButton(label: String, onClick: () -> Unit) {
+fun GoogleButton(label: String, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().height(52.dp).shadow(2.dp, RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp)).background(Color.White)
         .border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).then(Modifier.pressable(onClick)), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
         androidx.compose.foundation.Canvas(Modifier.size(20.dp)) {
@@ -382,4 +374,17 @@ private fun CodeBoxes(code: String, onChange: (String) -> Unit) {
                 }
             }
         })
+}
+
+
+/** Google sign-in: Google's own page in a browser tab; TripArro sends the person back to the app signed in. Returns an error, or null. */
+fun startGoogleSignIn(ctx: android.content.Context): String? {
+    try {
+        androidx.browser.customtabs.CustomTabsIntent.Builder().setShowTitle(true)
+            .setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams.Builder().setToolbarColor(0xFFB81D2B.toInt()).build())
+            .build().launchUrl(ctx, android.net.Uri.parse(Api.url("auth/google?app=1")))
+        return null
+    } catch (_: Exception) {
+        return try { ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(Api.url("auth/google?app=1"))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); null } catch (_: Exception) { "Could not open Google sign-in on this phone." }
+    }
 }
