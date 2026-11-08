@@ -72,6 +72,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.outlined.Groups
 import dev.chrisbanes.haze.hazeSource
 import com.triparro.app.ui.glass
 import androidx.compose.ui.graphics.Color
@@ -227,6 +228,15 @@ fun TripArroApp(activity: MainActivity) {
     androidx.compose.runtime.CompositionLocalProvider(com.triparro.app.ui.LocalHaze provides appHaze) {
     Scaffold(
         containerColor = Color.Transparent,
+        // Group trips, one tap away from the main screens
+        floatingActionButton = {
+            if (current in listOf("explore", "pets", "account")) androidx.compose.material3.ExtendedFloatingActionButton(
+                onClick = { nav.navigate("groups") { launchSingleTop = true } },
+                icon = { Icon(Icons.Outlined.Groups, null) }, text = { Text("Group trips", fontWeight = FontWeight.SemiBold) },
+                containerColor = Brand.Matte, contentColor = Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+        },
         bottomBar = {
             if (tabs.any { it.route == current }) {
                 Column {
@@ -236,7 +246,11 @@ fun TripArroApp(activity: MainActivity) {
                         NavigationBarItem(
                             selected = current == t.route,
                             onClick = {
-                                nav.navigate(t.route) {
+                                // Explore is the home tab: go back to it (it's always at the bottom of the stack);
+                                // other tabs keep their place when you come back to them
+                                if (t.route == "explore") {
+                                    if (!nav.popBackStack("explore", inclusive = false)) nav.navigate("explore") { launchSingleTop = true }
+                                } else nav.navigate(t.route) {
                                     popUpTo("explore") { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
@@ -264,7 +278,7 @@ fun TripArroApp(activity: MainActivity) {
             current.startsWith("group/") -> Color(0xFF15161C)
             current == "pets" -> Brand.Matte
             current.startsWith("property/") || current.startsWith("petlisting/") || current.startsWith("place/") -> Color.Black
-            else -> Color.White
+            else -> Brand.Matte   // every other screen: red at the top, like the headers
         }
         val view = LocalView.current
         SideEffect {
@@ -295,7 +309,7 @@ fun TripArroApp(activity: MainActivity) {
                 composable("chargers") { com.triparro.app.screens.ChargersScreen(nav) }
                 composable("planner") { com.triparro.app.screens.PlannerScreen(nav) }
                 composable("tripplans") { com.triparro.app.screens.SavedPlansScreen(nav) }
-                composable("groups") { Column(Modifier.fillMaxSize()) { com.triparro.app.ui.BackBar("Group trips", { nav.popBackStack() }); com.triparro.app.screens.GroupTripsList(nav) } }
+                composable("groups") { com.triparro.app.screens.GroupsHub(nav) }
                 composable("group/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.GroupTripScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("tickets?msg={msg}", arguments = listOf(navArgument("msg") { defaultValue = "" })) { e -> com.triparro.app.screens.TicketsScreen(nav, e.arguments?.getString("msg")?.takeIf { it.isNotBlank() }) }
                 composable("groupjoin/{code}") { e -> com.triparro.app.screens.GroupJoinScreen(nav, e.arguments?.getString("code") ?: "") }

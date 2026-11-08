@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -110,12 +111,24 @@ fun Stepper(label: String, value: Int, onChange: (Int) -> Unit, min: Int = 0, ma
     }
 }
 
+/** The look of every text box and drop-down: soft white, rounded, a thin line that turns red when you type. */
+val FieldShape = RoundedCornerShape(18.dp)
+
+@Composable
+fun fieldColors() = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+    unfocusedContainerColor = Color(0xF2FFFFFF), focusedContainerColor = Color.White, disabledContainerColor = Color(0xFFF4F1EE),
+    unfocusedBorderColor = Color(0xFFE6DDD8), focusedBorderColor = Brand.Blue, errorBorderColor = Color(0xFFB42318),
+    focusedLabelColor = Brand.Blue, unfocusedLabelColor = Brand.Muted, cursorColor = Brand.Blue,
+    focusedLeadingIconColor = Brand.Blue, unfocusedLeadingIconColor = Brand.Muted, focusedTrailingIconColor = Brand.Blue, unfocusedTrailingIconColor = Brand.Muted,
+    unfocusedPlaceholderColor = Color(0xFFA59C97), focusedPlaceholderColor = Color(0xFFA59C97),
+)
+
 @Composable
 fun Field(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, error: String? = null, lines: Int = 1,
           keyboard: KeyboardType = KeyboardType.Text, password: Boolean = false, placeholder: String? = null) {
     OutlinedTextField(
         value = value, onValueChange = onChange, label = { Text(label) }, modifier = modifier.fillMaxWidth(),
-        singleLine = lines == 1, minLines = lines, isError = error != null, shape = RoundedCornerShape(12.dp),
+        singleLine = lines == 1, minLines = lines, isError = error != null, shape = FieldShape, colors = fieldColors(),
         supportingText = error?.let { { Text(it) } }, placeholder = placeholder?.let { { Text(it) } },
         keyboardOptions = KeyboardOptions(keyboardType = keyboard),
         visualTransformation = if (password) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
@@ -140,11 +153,16 @@ fun Choice(label: String, value: String, options: List<Pair<String, String>>, on
     ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it }, modifier = modifier) {
         OutlinedTextField(
             value = options.firstOrNull { it.first == value }?.second ?: value, onValueChange = {}, readOnly = true, label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = open) }, shape = RoundedCornerShape(12.dp),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = open) }, shape = FieldShape, colors = fieldColors(),
             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
         )
-        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            options.forEach { (v, l) -> DropdownMenuItem(text = { Text(l) }, onClick = { onChange(v); open = false }) }
+        // the list: a rounded white card, the chosen option ticked
+        ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }, shape = RoundedCornerShape(18.dp), containerColor = Color.White, shadowElevation = 10.dp) {
+            options.forEach { (v, l) ->
+                DropdownMenuItem(text = { Text(l, fontWeight = if (v == value) androidx.compose.ui.text.font.FontWeight.SemiBold else null, color = if (v == value) Brand.Blue else Brand.Ink) },
+                    trailingIcon = if (v == value) ({ androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Filled.Check, null, tint = Brand.Blue) }) else null,
+                    onClick = { onChange(v); open = false })
+            }
         }
     }
 }

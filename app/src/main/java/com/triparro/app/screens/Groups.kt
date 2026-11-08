@@ -495,7 +495,7 @@ internal fun GroupChat(g: JSONObject, send: (String) -> Unit) {
             }
         }
         Row(Modifier.fillMaxWidth().background(Color.White).padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(text, { text = it.take(2000) }, Modifier.weight(1f), placeholder = { Text("Message the group") }, maxLines = 4, shape = RoundedCornerShape(20.dp))
+            OutlinedTextField(text, { text = it.take(2000) }, Modifier.weight(1f), colors = com.triparro.app.ui.fieldColors(), placeholder = { Text("Message the group") }, maxLines = 4, shape = RoundedCornerShape(20.dp))
             IconButton(onClick = { if (text.isNotBlank()) { send(text.trim()); text = "" } }) { Icon(Icons.AutoMirrored.Filled.Send, "Send", tint = Brand.Blue) }
         }
     }
@@ -621,6 +621,28 @@ private fun InvitationCard(inv: JSONObject, onJoin: () -> Unit, onDecline: () ->
         Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             PrimaryButton("Join the trip", onJoin, Modifier.weight(1f), coral = true)
             OutlinedButton(onClick = onDecline, modifier = Modifier.height(52.dp)) { Text("No thanks") }
+        }
+    }
+}
+
+
+/** Group trips (from the floating button): your trips, your route plans and your tickets, in one place. */
+@Composable
+fun GroupsHub(nav: NavHostController) {
+    var tab by rememberSaveable { mutableStateOf("trips") }
+    Column(Modifier.fillMaxSize()) {
+        com.triparro.app.ui.BackBar("Group trips", { nav.popBackStack() })
+        Row(Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf("trips" to "Trips", "plans" to "Trip plans", "tickets" to "Tickets").forEach { (v, t) ->
+                val on = tab == v
+                Text(t, style = MaterialTheme.typography.labelLarge, color = if (on) Color.White else Brand.InkSoft,
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(if (on) Brand.Blue else Brand.Sky).clickable { tab = v }.padding(horizontal = 16.dp, vertical = 9.dp))
+            }
+        }
+        when (tab) {
+            "plans" -> SavedPlansList(nav)
+            "tickets" -> TicketsList(nav)
+            else -> GroupTripsList(nav)
         }
     }
 }

@@ -168,7 +168,7 @@ fun ChargersScreen(nav: NavHostController) {
             item {
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Color.White).padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(q, { q = it }, Modifier.weight(1f), placeholder = { Text("Town or area, e.g. Ooty") }, singleLine = true,
+                        OutlinedTextField(q, { q = it }, Modifier.weight(1f), colors = com.triparro.app.ui.fieldColors(), placeholder = { Text("Town or area, e.g. Ooty") }, singleLine = true,
                             leadingIcon = { Icon(Icons.Outlined.Search, null) }, shape = RoundedCornerShape(16.dp),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { findPlace() }))
                         Spacer(Modifier.width(8.dp))

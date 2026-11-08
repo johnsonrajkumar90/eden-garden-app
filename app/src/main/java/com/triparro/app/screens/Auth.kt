@@ -322,8 +322,7 @@ private fun AuthField(label: String, value: String, onChange: (String) -> Unit, 
         keyboardOptions = KeyboardOptions(keyboardType = keyboard, imeAction = if (done != null) ImeAction.Done else ImeAction.Next),
         keyboardActions = KeyboardActions(onDone = { done?.invoke() }),
         isError = error != null, supportingText = (error ?: hint)?.let { { Text(it) } },
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Brand.Line, focusedBorderColor = Brand.Blue, unfocusedContainerColor = Brand.Page, focusedContainerColor = Color.White),
+        shape = com.triparro.app.ui.FieldShape, colors = com.triparro.app.ui.fieldColors(),
     )
 }
 

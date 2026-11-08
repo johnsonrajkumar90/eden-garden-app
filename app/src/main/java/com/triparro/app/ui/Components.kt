@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -92,8 +93,10 @@ fun BackBar(title: String, onBack: () -> Unit, actions: @Composable () -> Unit =
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium) },
         navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
         actions = { actions() },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-        modifier = Modifier.glass(androidx.compose.ui.graphics.RectangleShape, strength = 0.75f),
+        // red bar on every screen (same red as the status bar above it), white title and icons
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent, titleContentColor = Color.White,
+            navigationIconContentColor = Color.White, actionIconContentColor = Color.White),
+        modifier = Modifier.background(Brush.horizontalGradient(listOf(Brand.Matte, Color(0xFFD7192A), Color(0xFFE8452F)))),
         // the app's Scaffold already keeps content below the status bar — don't add that gap twice
         windowInsets = WindowInsets(0.dp),
     )

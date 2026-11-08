@@ -178,7 +178,7 @@ fun PetSearchScreen(nav: NavHostController) {
                     Text("Verified pet hosts · daily photo diary · secure payment", color = Color(0xFFFFE0DC), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.appear(1))
                     Gap(16)
                     Column(Modifier.fillMaxWidth().appear(2).shadow(10.dp, RoundedCornerShape(26.dp), spotColor = Color(0x44B81D2B)).clip(RoundedCornerShape(26.dp)).background(Color.White).padding(14.dp)) {
-                        OutlinedTextField(value = city, onValueChange = { city = it; near = null }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
+                        OutlinedTextField(colors = com.triparro.app.ui.fieldColors(), value = city, onValueChange = { city = it; near = null }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
                             leadingIcon = { Icon(Icons.Outlined.Search, null, tint = Brand.Blue) },
                             placeholder = { Text(if (near != null) "Near my location" else "City or area, e.g. Coimbatore") },
                             trailingIcon = { if (locating) CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp, color = Brand.Teal) else IconButton(onClick = { locate() }) { Icon(Icons.Outlined.MyLocation, "Use my location", tint = Brand.Teal) } })

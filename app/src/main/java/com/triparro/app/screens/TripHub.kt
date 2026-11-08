@@ -266,7 +266,18 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                 // the content panel (light frosted, like a card sheet)
                 Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).clip(RoundedCornerShape(30.dp)).background(Color(0xF2F7F3F1)).padding(16.dp)) {
                     when (tab) {
-                        "fav" -> FavouritesPanel(g, ctx, onAdd = { sheet = "fav" }, toggle = { iid -> act("trip-groups/$id/items/$iid/toggle") }, delete = { iid -> act("trip-groups/$id/items/$iid/delete") })
+                        "fav" -> {
+                            FavouritesPanel(g, ctx, onAdd = { sheet = "fav" }, toggle = { iid -> act("trip-groups/$id/items/$iid/toggle") }, delete = { iid -> act("trip-groups/$id/items/$iid/delete") })
+                            // good places to eat at the destination (Google): one tap saves it for the whole group
+                            g.optJSONArray("dest")?.let { d ->
+                                Gap(16)
+                                RestaurantsRow(d.optDouble(0), d.optDouble(1), "Where to eat in " + g.text("destination").ifBlank { "the area" }) { r ->
+                                    act("trip-groups/$id/items", mapOf("kind" to "fav", "title" to r.text("name"), "category" to (if (r.text("type").contains("caf", true) || r.text("type").contains("bakery", true)) "cafe" else "restaurant"),
+                                        "place_id" to r.text("place_id"), "address" to r.text("address"), "maps_url" to r.text("maps_url"), "photo_credit" to r.text("photo_credit"),
+                                        "google_rating" to (if (r.isNull("rating")) null else r.optDouble("rating")), "lat" to r.opt("lat"), "lng" to r.opt("lng"), "google_photo" to r.str("photo")))
+                                }
+                            }
+                        }
                         "map" -> GroupMap(g, ctx, tall = true)
                         else -> PlanPanel(nav, id, g, ctx, { sheet = "add" }) { path -> act(path) }
                     }

@@ -179,7 +179,7 @@ private fun SpotSearch(label: String, chosen: Spot?, onChoose: (Spot?) -> Unit, 
         }
         return
     }
-    OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth(), label = { Text(label) }, singleLine = true, shape = RoundedCornerShape(16.dp),
+    OutlinedTextField(q, { q = it }, Modifier.fillMaxWidth(), label = { Text(label) }, singleLine = true, shape = com.triparro.app.ui.FieldShape, colors = com.triparro.app.ui.fieldColors(),
         placeholder = { Text("Stay, EV station, pet services, town…") }, leadingIcon = { Icon(Icons.Outlined.Search, null) },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }))
     if (busy && items.isEmpty()) Text("Searching…", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
@@ -406,6 +406,8 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
                     Text(g?.text("text") ?: "", style = MaterialTheme.typography.bodyMedium)
                 }
             }
+            // restaurants and cafés at the destination, from Google (photos, rating, open now)
+            plan.obj("to")?.let { to -> if (to.has("lat") && !to.isNull("lat")) item { RestaurantsRow(to.optDouble("lat"), to.optDouble("lng"), "Where to eat in ${to.text("name")}") } }
             plan.strings("notes").forEach { n -> item { Notice(n, "warn") } }
             item {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -433,7 +435,7 @@ private fun PlanView(nav: NavHostController, plan: JSONObject, savedId: Int?, on
                     }
                     if (asking) Text("TripArro AI is thinking…", style = MaterialTheme.typography.bodySmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
                     Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(q, { q = it }, Modifier.weight(1f), placeholder = { Text("Ask a question") }, singleLine = true, shape = RoundedCornerShape(50),
+                        OutlinedTextField(q, { q = it }, Modifier.weight(1f), colors = com.triparro.app.ui.fieldColors(), placeholder = { Text("Ask a question") }, singleLine = true, shape = RoundedCornerShape(50),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send), keyboardActions = KeyboardActions(onSend = { ask() }))
                         IconButton(onClick = { ask() }, enabled = !asking) { Icon(Icons.AutoMirrored.Filled.Send, "Ask", tint = Brand.Blue) }
                     }

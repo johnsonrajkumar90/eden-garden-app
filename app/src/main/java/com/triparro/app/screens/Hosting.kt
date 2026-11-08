@@ -348,7 +348,7 @@ fun BookingCard(b: JSONObject, modifier: Modifier = Modifier, nav: NavHostContro
                 Column {
                     Text(if (a == "approve") "${b.text("guest")} gets a message to pay. The booking is confirmed when the payment succeeds." else "${b.text("guest")} is told and the dates are free again.", style = MaterialTheme.typography.bodyMedium)
                     Gap(8)
-                    OutlinedTextField(note, { note = it }, placeholder = { Text(if (a == "approve") "A note for the guest (optional)" else "Reason (optional)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(note, { note = it }, colors = com.triparro.app.ui.fieldColors(), shape = com.triparro.app.ui.FieldShape, placeholder = { Text(if (a == "approve") "A note for the guest (optional)" else "Reason (optional)") }, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = { TextButton(onClick = { ask = null; run(a, mapOf("note" to note.ifBlank { null })) }) { Text(if (a == "approve") "Approve" else "Decline", color = if (a == "approve") Brand.TealDark else Brand.Danger) } },
@@ -490,7 +490,7 @@ private fun CalendarTab() {
     if (priceAsk) {
         var price by remember { mutableStateOf(d?.obj("listing")?.num("price")?.toInt()?.toString() ?: "") }
         AlertDialog(onDismissRequest = { priceAsk = false }, title = { Text("Price per night") },
-            text = { OutlinedTextField(price, { price = it.filter { ch -> ch.isDigit() }.take(7) }, prefix = { Text("₹ ") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true) },
+            text = { OutlinedTextField(price, { price = it.filter { ch -> ch.isDigit() }.take(7) }, colors = com.triparro.app.ui.fieldColors(), shape = com.triparro.app.ui.FieldShape, prefix = { Text("₹ ") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true) },
             confirmButton = { TextButton(onClick = { priceAsk = false; act("hostapp/calendar/price", mapOf("listing" to d?.obj("listing")?.text("tag"), "first" to first, "last" to (last ?: first), "price" to price.toIntOrNull())) }) { Text("Save") } },
             dismissButton = { TextButton(onClick = { priceAsk = false }) { Text("Cancel") } })
     }
@@ -556,7 +556,7 @@ private fun ListingsTab(pets: Boolean, changed: () -> Unit) {
             text = { Column {
                 Text(x.text("title"), style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
                 Gap(8)
-                OutlinedTextField(price, { price = it.filter { ch -> ch.isDigit() }.take(7) }, prefix = { Text("₹ ") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
+                OutlinedTextField(price, { price = it.filter { ch -> ch.isDigit() }.take(7) }, colors = com.triparro.app.ui.fieldColors(), shape = com.triparro.app.ui.FieldShape, prefix = { Text("₹ ") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
                 if (!pets) Text("Special prices for single nights: Calendar tab.", style = MaterialTheme.typography.labelSmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
             } },
             confirmButton = { TextButton(onClick = { edit = null; save(x, mapOf("price" to price.toIntOrNull())) }) { Text("Save") } },
