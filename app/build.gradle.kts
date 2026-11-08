@@ -14,7 +14,8 @@ val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) FileInputStream(keystorePropertiesFile).use { keystoreProperties.load(it) }
 
 // The build number goes up on every GitHub build (BUILD_NUMBER), so each APK installs over the last one.
-val buildNumber = (System.getenv("BUILD_NUMBER") ?: "1").toInt()
+// the build number: BUILD_NUMBER (GitHub) or triparro.buildNumber in gradle.properties (Android Studio on a computer)
+val buildNumber = (System.getenv("BUILD_NUMBER") ?: (project.findProperty("triparro.buildNumber") as String?) ?: "1").toInt()
 
 android {
     namespace = "com.triparro.app"
