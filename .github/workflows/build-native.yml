@@ -71,7 +71,7 @@ jobs:
           cp logs/*.log /tmp/out/logs/ 2>/dev/null || true
           # keep only the compiler errors at the top of a short log, so a failed build is easy to read
           grep -E "^e: |error:|FAILURE|What went wrong|Could not|> " logs/build.log | head -200 > /tmp/out/logs/errors.txt 2>/dev/null || true
-          N=${{ github.run_number }}
+          N=$(( ${{ github.run_number }} + 46 ))
           for f in app/build/outputs/apk/release/*.apk; do [ -f "$f" ] && cp "$f" "/tmp/out/triparro-2.0.$N.apk"; done
           for f in app/build/outputs/bundle/release/*.aab; do [ -f "$f" ] && cp "$f" "/tmp/out/triparro-2.0.$N.aab"; done
           printf 'Version 2.0.%s (code %s)\nCommit %s\nResult: %s\n' "$N" "$((300 + N))" "${{ github.sha }}" "${{ job.status }}" > /tmp/out/BUILD-INFO.txt
