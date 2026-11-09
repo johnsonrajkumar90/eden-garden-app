@@ -25,6 +25,7 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.TripArro">
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="${mapsApiKey}" />
 
         <activity
             android:name=".MainActivity"

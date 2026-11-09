@@ -370,7 +370,7 @@ internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
             val pins = remember(g.objs("pins").size, g.optJSONArray("dest")?.toString()) { mapPins(g) }
             if (pins.isEmpty()) Box(Modifier.fillMaxSize().background(Color(0xFFF4F1EF)), contentAlignment = Alignment.Center) {
                 Text("Add places to the plan (or a destination) to see them on the map.", color = Brand.Muted, modifier = Modifier.padding(24.dp))
-            } else TripMapView(pins, Modifier.fillMaxSize())
+            } else if (hasGoogleMapsKey(ctx)) TripGoogleMap(pins, Modifier.fillMaxSize()) else TripMapView(pins, Modifier.fillMaxSize())
         }
         Column(Modifier.padding(12.dp)) {
             val pins = g.objs("pins")
@@ -680,4 +680,42 @@ private fun TripMapView(pins: List<JSONObject>, modifier: Modifier) {
         }
         map.invalidate()
     }, modifier = modifier)
+}
+
+
+/** Is a Google Maps key built into this app (MAPS_API_KEY at build time)? */
+private fun hasGoogleMapsKey(ctx: Context): Boolean = try {
+    @Suppress("DEPRECATION")
+    val ai = ctx.packageManager.getApplicationInfo(ctx.packageName, android.content.pm.PackageManager.GET_META_DATA)
+    !ai.metaData?.getString("com.google.android.geo.API_KEY").isNullOrBlank()
+} catch (_: Exception) { false }
+
+/** Google Maps with a coloured pin per place, zoomed to fit them all; tap a pin for its name and directions. */
+@Composable
+private fun TripGoogleMap(pins: List<JSONObject>, modifier: Modifier) {
+    val ctx = LocalContext.current
+    val pts = pins.map { com.google.android.gms.maps.model.LatLng(it.optDouble("lat"), it.optDouble("lng")) }
+    val camera = com.google.maps.android.compose.rememberCameraPositionState {
+        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(pts.first(), 12f)
+    }
+    com.google.maps.android.compose.GoogleMap(
+        modifier = modifier, cameraPositionState = camera,
+        uiSettings = com.google.maps.android.compose.MapUiSettings(zoomControlsEnabled = true, mapToolbarEnabled = true),
+        onMapLoaded = {
+            if (pts.size > 1) {
+                val b = com.google.android.gms.maps.model.LatLngBounds.builder(); pts.forEach { b.include(it) }
+                camera.move(com.google.android.gms.maps.CameraUpdateFactory.newLatLngBounds(b.build(), 120))
+            }
+        },
+    ) {
+        pins.forEachIndexed { i, p ->
+            val hue = when (p.text("kind")) { "destination" -> com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_RED; "booking" -> com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_AZURE
+                "fav" -> com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_ORANGE; else -> com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_GREEN }
+            com.google.maps.android.compose.Marker(
+                state = com.google.maps.android.compose.rememberMarkerState(position = pts[i]), title = p.text("label"), snippet = "Tap here for directions",
+                icon = com.google.android.gms.maps.model.BitmapDescriptorFactory.defaultMarker(hue),
+                onInfoWindowClick = { openGroupUrl(ctx, "https://www.google.com/maps/dir/?api=1&destination=${pts[i].latitude},${pts[i].longitude}") },
+            )
+        }
+    }
 }

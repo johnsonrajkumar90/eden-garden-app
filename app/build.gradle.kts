@@ -30,6 +30,9 @@ android {
         versionName = "2.0.$buildNumber"
         // The live website whose API the app uses (can be changed in the app: Account → About → Server)
         buildConfigField("String", "SITE_URL", "\"https://triparro.com\"")
+        // Google Maps (trip map): an Android key restricted to this app, from the MAPS_API_KEY build secret — never kept in the code.
+        // Without it the trip map uses OpenStreetMap.
+        manifestPlaceholders["mapsApiKey"] = System.getenv("MAPS_API_KEY") ?: ""
     }
 
     signingConfigs {
@@ -100,5 +103,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
     // the trip map: a native OpenStreetMap view with a pin for every place (no key needed)
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.maps.android:maps-compose:6.4.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
