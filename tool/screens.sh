@@ -120,7 +120,7 @@ adb shell input swipe 540 1800 540 900 300; sleep 1; shot 47b-group-trip-cards 2
 adb shell input tap 540 320; shot 48-hub-trip-plans 3
 adb shell input tap 872 320; shot 49-hub-tickets 3
 adb shell input tap 208 320; sleep 3; adb shell input swipe 540 900 540 1800 300; sleep 1
-tap "Goa with friends"; shot 49b-new-trip-cover 5
+adb shell input tap 774 978; shot 49b-new-trip-cover 5
 # payment page: the self-posting form must reach the gateway page and show it (not a blank page)
 app "site?path=%2Fpay-test&title=Payment"; shot 50-payment-page 8
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true
