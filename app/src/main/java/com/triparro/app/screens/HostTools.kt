@@ -265,6 +265,7 @@ fun AllListingsCalendar(d: JSONObject, month: String, onMonth: (String) -> Unit,
 private class HcGuest(name: String = "", val online: Int? = null, type: String = "aadhaar") {
     var name by mutableStateOf(name); var type by mutableStateOf(type); var number by mutableStateOf("")
     var front by mutableStateOf<Uri?>(null); var back by mutableStateOf<Uri?>(null)
+    var scanning by mutableStateOf(false); var scanNote by mutableStateOf<Pair<String, String>?>(null)   // what the phone read (text, tone)
 }
 
 private fun newPhotoUri(ctx: Context, prefix: String): Uri {
@@ -343,7 +344,9 @@ fun HostCheckinScreen(nav: NavHostController, id: Int) {
                 Gap()
                 Card {
                     Text("Guest IDs", style = MaterialTheme.typography.titleLarge)
-                    Text("Photograph each adult's ID card with the camera, or attach a photo. IDs are stored privately; Aadhaar numbers are kept masked.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                    Text("Scan each adult's ID card with the camera — the name, ID type and number fill in by themselves. On Aadhaar cards the first 8 digits and the QR code are blacked out on the photo before it is saved.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
+                    Text(if (d.text("id_storage") == "drive") "Saved privately in TripArro's Google Drive (Guest IDs folder, never shared)." else "Saved privately on TripArro.",
+                        style = MaterialTheme.typography.labelSmall, color = Brand.InkSoft, modifier = Modifier.padding(top = 4.dp))
                     guests.forEachIndexed { i, g ->
                         Gap(12)
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -354,8 +357,32 @@ fun HostCheckinScreen(nav: NavHostController, id: Int) {
                         Field("Name as on the ID", g.name, { g.name = it }); Gap(6)
                         Choice("ID type", g.type, types, { g.type = it }); Gap(6)
                         Field("ID number (optional)", g.number, { g.number = it.take(30) })
-                        IdShot("ID — front", g.front, g.online != null) { g.front = it }
-                        IdShot("ID — back (optional)", g.back, false) { g.back = it }
+                        IdShot(if (g.scanning) "ID — front (reading…)" else "ID — front", g.front, g.online != null) { picked ->
+                            g.front = picked; g.scanning = true; g.scanNote = null
+                            scope.launch {
+                                val r = com.triparro.app.core.IdScan.read(ctx, picked)
+                                if (r != null) {
+                                    g.front = r.photo
+                                    r.type?.let { t -> if (types.any { it.first == t }) g.type = t }
+                                    r.number?.let { if (g.number.isBlank()) g.number = it }
+                                    r.name?.let { if (g.name.isBlank() || g.name == d.text("guest")) g.name = it }
+                                    g.scanNote = when {
+                                        !r.read -> "This phone can't read text on photos — fill in the details yourself." to "info"
+                                        r.type == "aadhaar" && r.masked -> "Aadhaar read — the first 8 digits and the QR code are blacked out on the photo. Check the name and number." to "ok"
+                                        r.type == "aadhaar" -> "Aadhaar number not found to mask — retake the photo flat, in good light, so the number can be blacked out." to "bad"
+                                        r.type != null -> "ID read — check the name, type and number." to "ok"
+                                        else -> "Couldn't read this ID — fill in the details yourself, or retake it in good light." to "info"
+                                    }
+                                }
+                                g.scanning = false
+                            }
+                        }
+                        g.scanNote?.let { (t, tone) -> Notice(t, tone) }
+                        IdShot("ID — back (optional)", g.back, false) { picked ->
+                            g.back = picked
+                            // the back of an Aadhaar card has the number and a QR code too
+                            if (g.type == "aadhaar") scope.launch { com.triparro.app.core.IdScan.read(ctx, picked)?.let { if (it.masked) g.back = it.photo } }
+                        }
                     }
                     if (guests.size < d.int("max_guests").coerceAtMost(12)) {
                         Gap(8)
@@ -371,7 +398,7 @@ fun HostCheckinScreen(nav: NavHostController, id: Int) {
                 Field("Notes (optional)", notes, { notes = it.take(500) }, lines = 2)
                 err?.let { Gap(8); Notice(it, "bad") }
                 Gap(12)
-                PrimaryButton("Check in", {
+                PrimaryButton(if (guests.any { it.scanning }) "Reading the ID…" else "Check in", {
                     busy = true; err = null
                     scope.launch {
                         try {
@@ -381,14 +408,14 @@ fun HostCheckinScreen(nav: NavHostController, id: Int) {
                             guests.forEachIndexed { i, g ->
                                 fields += listOf("name_$i" to g.name, "type_$i" to g.type, "number_$i" to g.number)
                                 if (g.online != null && g.front == null) fields.add("online_$i" to g.online.toString())
-                                g.front?.let { u -> copyToCache(ctx, u, "hidf$i")?.let { files.add(Upload("front_$i", it.first, it.second)) } }
-                                g.back?.let { u -> copyToCache(ctx, u, "hidb$i")?.let { files.add(Upload("back_$i", it.first, it.second)) } }
+                                g.front?.let { u -> com.triparro.app.core.shrinkPhoto(ctx, u, "hidf$i", 2400)?.let { files.add(Upload("front_$i", it.first, it.second)) } }
+                                g.back?.let { u -> com.triparro.app.core.shrinkPhoto(ctx, u, "hidb$i", 2400)?.let { files.add(Upload("back_$i", it.first, it.second)) } }
                             }
                             done = Api.postMultipart("hostapp/checkin/$id", fields, files).text("message", "Checked in.")
                         } catch (e: ApiException) { err = e.message } catch (e: Exception) { err = errorText(e) }
                         busy = false
                     }
-                }, coral = true, loading = busy, icon = Icons.Outlined.HowToReg)
+                }, coral = true, loading = busy, icon = Icons.Outlined.HowToReg, enabled = guests.none { it.scanning })
                 Gap(24)
             }
         }

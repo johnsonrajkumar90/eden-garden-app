@@ -96,5 +96,7 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.10.1")
     // reads the text on a photo (receipts, ID cards) on the phone itself — the model comes with Google Play services, nothing is sent to Google
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+    // finds QR codes on ID cards so they can be blacked out (Aadhaar QR codes carry the full number)
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
