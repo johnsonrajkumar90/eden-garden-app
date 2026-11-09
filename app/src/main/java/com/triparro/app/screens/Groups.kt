@@ -366,11 +366,12 @@ internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
     Card(padding = 0.dp) {
         Box(Modifier.fillMaxWidth().height(if (tall) 380.dp else 200.dp).clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))) {
             // a real map with a pin for every place in the trip (OpenStreetMap — no key needed); "Google Maps" below opens the full app
-            val html = remember(g.objs("pins").size, g.optJSONArray("dest")?.toString()) { tripMapHtml(g) }
+            val html = remember(g.objs("pins").size, g.optJSONArray("dest")?.toString()) { tripMapHtml(ctx, g) }
             AndroidView(factory = { c ->
                 WebView(c).apply {
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
+                    settings.userAgentString = settings.userAgentString + " TripArro-Android"   // map tiles: say which app is asking
                     webViewClient = object : WebViewClient() {
                         override fun shouldOverrideUrlLoading(view: WebView?, request: android.webkit.WebResourceRequest?): Boolean {
                             request?.url?.toString()?.let { u -> if (u.startsWith("http")) openGroupUrl(c, u) }; return true   // a tapped pin's "Directions" opens Google Maps
@@ -641,7 +642,14 @@ fun GroupsHub(nav: NavHostController) {
 
 
 /** The trip map page: Leaflet with OpenStreetMap tiles, every pin labelled, zoomed to fit them all. */
-private fun tripMapHtml(g: JSONObject): String {
+private var leafletCache: Pair<String, String>? = null
+
+/** Leaflet (BSD licence, assets/leaflet) comes with the app, so the map never waits on another website to start. */
+private fun leaflet(ctx: Context): Pair<String, String> = leafletCache ?: try {
+    (ctx.assets.open("leaflet/leaflet.js").bufferedReader().readText() to ctx.assets.open("leaflet/leaflet.css").bufferedReader().readText()).also { leafletCache = it }
+} catch (_: Exception) { "" to "" }
+
+private fun tripMapHtml(ctx: Context, g: JSONObject): String {
     val pins = org.json.JSONArray()
     g.objs("pins").forEach { p ->
         pins.put(JSONObject().put("lat", p.optDouble("lat")).put("lng", p.optDouble("lng")).put("label", p.text("label")).put("kind", p.text("kind")))
@@ -649,16 +657,17 @@ private fun tripMapHtml(g: JSONObject): String {
     if (pins.length() == 0) g.optJSONArray("dest")?.let { d -> pins.put(JSONObject().put("lat", d.optDouble(0)).put("lng", d.optDouble(1)).put("label", g.text("destination").ifBlank { g.text("title") }).put("kind", "destination")) }
     val data = pins.toString().replace("</", "<\\/")
     return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<style>html,body,#m{margin:0;height:100%;font-family:sans-serif}.pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+<style>${leaflet(ctx).second}</style><script>${leaflet(ctx).first.replace("</script", "<\\/script")}</script>
+<style>#note{position:absolute;left:8px;right:8px;bottom:8px;z-index:999;background:rgba(255,255,255,.92);border-radius:10px;padding:8px 10px;font-size:12px;color:#445;display:none}
+html,body,#m{margin:0;height:100%;font-family:sans-serif}.pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .leaflet-popup-content{margin:10px 12px;font-size:14px}.leaflet-popup-content a{display:inline-block;margin-top:6px;color:#d7192a;font-weight:700;text-decoration:none}
 #empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#667;text-align:center;padding:24px;z-index:999;background:#f4f1ef}</style></head>
-<body><div id="m"></div><script>
+<body><div id="m"></div><div id="note"></div><script>
 var pins=$data, colors={destination:'#d7192a',booking:'#1f6feb',fav:'#e8452f',place:'#0e9f6e'};
-if(!pins.length||typeof L==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="empty">'+(pins.length?'The map needs the internet — try again.':'Add places to the plan (or a destination) to see them on the map.')+'</div>');}
+if(!pins.length||typeof L==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="empty">'+(pins.length?'The map could not start — use the Google Maps button below.':'Add places to the plan (or a destination) to see them on the map.')+'</div>');}
 else{var m=L.map('m',{zoomControl:true,attributionControl:true});
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m);
+var bad=0,tl=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m);
+tl.on('tileerror',function(){if(++bad==3){var n=document.getElementById('note');n.textContent='The map background needs the internet — your places are pinned; tap one for directions.';n.style.display='block';}});
 var b=[];pins.forEach(function(p){var c=colors[p.kind]||'#0e9f6e';
 var ic=L.divIcon({className:'',html:'<div class="pin" style="background:'+c+'"></div>',iconSize:[30,30],iconAnchor:[15,30],popupAnchor:[0,-28]});
 var t=document.createElement('div');t.textContent=p.label;
