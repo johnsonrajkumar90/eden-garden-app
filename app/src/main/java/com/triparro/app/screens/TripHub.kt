@@ -44,6 +44,8 @@ import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.Receipt
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Share
@@ -329,7 +331,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                         }
                     }
                 }
-                "expenses" -> ExpensesSheet(g2, { b -> act("trip-groups/$id/expenses", b) }) { eid -> act("trip-groups/$id/expenses/$eid/delete") }
+                "expenses" -> ExpensesSheet(id, g2, { b -> act("trip-groups/$id/expenses", b) }) { eid -> act("trip-groups/$id/expenses/$eid/delete") }
                 "fav" -> AddFavourite(g2, busy) { fields, photo -> upload("trip-groups/$id/items", fields, photo) { sheet = ""; tab = "fav" } }
             }
         }
@@ -607,11 +609,44 @@ private fun AddFavourite(g: JSONObject, busy: Boolean, save: (List<Pair<String, 
 
 /** Travel expenses: total and per person, by category, who paid, settle-up, and the list — add what you spend. */
 @Composable
-private fun ExpensesSheet(g: JSONObject, add: (Map<String, Any?>) -> Unit, delete: (Int) -> Unit) {
+private fun ExpensesSheet(id: Int, g: JSONObject, add: (Map<String, Any?>) -> Unit, delete: (Int) -> Unit) {
     val ex = g.obj("expenses") ?: JSONObject()
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     var amount by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
     var cat by remember { mutableStateOf("food") }
+    // a scanned receipt: its photo (kept with the expense), the shop, the day and the items read from it
+    var scan by remember { mutableStateOf<JSONObject?>(null) }
+    var lines by remember { mutableStateOf<List<Pair<String, Double>>>(emptyList()) }
+    var scanning by remember { mutableStateOf(false) }
+    var scanMsg by remember { mutableStateOf<String?>(null) }
+    var viewing by remember { mutableStateOf<String?>(null) }
+    var pendingShot by remember { mutableStateOf<Uri?>(null) }
+    fun readReceipt(u: Uri) {
+        scanning = true; scanMsg = null
+        scope.launch {
+            try {
+                val small = com.triparro.app.core.shrinkPhoto(ctx, u, "receipt", 2000) ?: throw IllegalStateException("The photo could not be opened.")
+                val text = com.triparro.app.core.TextReader.lines(ctx, Uri.fromFile(small.first))?.let { com.triparro.app.core.TextReader.rows(it) } ?: ""
+                val r = Api.postMultipart("trip-groups/$id/expenses/receipt", listOf("text" to text), listOf(Upload("photo", small.first, small.second)))
+                scan = r
+                lines = r.objs("items").map { it.text("name") to it.optDouble("amount") }
+                if (!r.isNull("amount") && r.optDouble("amount") > 0) amount = r.optDouble("amount").let { if (it % 1.0 == 0.0) it.toLong().toString() else "%.2f".format(it) }
+                r.str("merchant")?.let { if (note.isBlank()) note = it }
+                r.str("category")?.let { if (it != "other") cat = it }
+                scanMsg = when {
+                    r.bool("not_receipt") -> "This doesn't look like a bill — type the amount yourself."
+                    r.isNull("amount") -> "Couldn't find the total on this receipt — type the amount. The photo is kept with the expense."
+                    r.text("how") == "ai" -> "Read by TripArro AI — check the amount before adding."
+                    else -> "Read from the receipt — check the amount before adding."
+                }
+            } catch (e: Exception) { scanMsg = errorText(e) }
+            scanning = false
+        }
+    }
+    val shoot = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) pendingShot?.let { readReceipt(it) } }
+    val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> u?.let { readReceipt(it) } }
     var payer by remember { mutableStateOf(g.objs("members").firstOrNull { it.bool("you") }?.int("id") ?: 0) }
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 28.dp)) {
         Text("Trip expenses", style = MaterialTheme.typography.titleLarge)
@@ -656,6 +691,34 @@ private fun ExpensesSheet(g: JSONObject, add: (Map<String, Any?>) -> Unit, delet
         // add
         Gap(16)
         Text("Add an expense", style = MaterialTheme.typography.titleMedium)
+        // scan a receipt: the amount, shop and items fill in by themselves
+        Row(Modifier.padding(top = 8.dp).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Brush.linearGradient(listOf(Color(0xFFFFF1EE), Color(0xFFFFF8E8))))
+            .border(1.dp, Color(0x22D7192A), RoundedCornerShape(20.dp)).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(52.dp).clip(RoundedCornerShape(14.dp)).background(Brush.linearGradient(listOf(Color(0xFFB3122A), Color(0xFFFF8A3D)))).clickable(enabled = !scanning) { viewing = scan?.str("receipt_url") },
+                contentAlignment = Alignment.Center) {
+                scan?.str("receipt_url")?.let { AsyncImage(model = it, contentDescription = "Receipt", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
+                    ?: Icon(Icons.Outlined.Receipt, null, tint = Color.White)
+                if (scanning) androidx.compose.material3.CircularProgressIndicator(Modifier.size(26.dp), color = Color.White, strokeWidth = 3.dp)
+            }
+            Column(Modifier.padding(start = 12.dp).weight(1f)) {
+                Text(if (scanning) "Reading the receipt…" else if (scan != null) "Receipt added" else "Scan a receipt", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text(if (scan != null) "Change anything below before adding." else "Amount, shop and items fill in by themselves.", style = MaterialTheme.typography.labelSmall, color = Brand.InkSoft)
+            }
+            IconButton(enabled = !scanning, onClick = { try { val u = newPhoto(ctx, "receipt"); pendingShot = u; shoot.launch(u) } catch (_: Exception) { } }) { Icon(Icons.Outlined.PhotoCamera, "Scan with the camera", tint = Brand.Matte) }
+            IconButton(enabled = !scanning, onClick = { pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) { Icon(Icons.Outlined.AddPhotoAlternate, "Choose a receipt photo", tint = Brand.Matte) }
+        }
+        scanMsg?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = if (scan == null) Brand.Matte else Brand.InkSoft, modifier = Modifier.padding(top = 6.dp)) }
+        if (lines.isNotEmpty()) Column(Modifier.padding(top = 8.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).padding(horizontal = 12.dp, vertical = 6.dp)) {
+            Text("Items on the receipt", style = MaterialTheme.typography.labelMedium, color = Brand.InkSoft, modifier = Modifier.padding(vertical = 4.dp))
+            lines.forEachIndexed { i, (n, a) ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(n, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(money(a), style = MaterialTheme.typography.bodyMedium)
+                    IconButton(onClick = { lines = lines.filterIndexed { j, _ -> j != i } }, modifier = Modifier.size(30.dp)) { Icon(Icons.Outlined.Close, "Remove ${n}", tint = Brand.Muted, modifier = Modifier.size(16.dp)) }
+                }
+            }
+        }
+        Gap(8)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Field("Amount (₹)", amount, { amount = it.filter { c -> c.isDigit() || c == '.' }.take(10) }, Modifier.weight(1f), keyboard = androidx.compose.ui.text.input.KeyboardType.Decimal)
             Field("For what", note, { note = it.take(160) }, Modifier.weight(1.4f))
@@ -679,7 +742,14 @@ private fun ExpensesSheet(g: JSONObject, add: (Map<String, Any?>) -> Unit, delet
         }
         Gap(10)
         PrimaryButton("Add expense", {
-            amount.toDoubleOrNull()?.let { a -> add(mapOf("amount" to a, "category" to cat, "note" to note, "paid_by" to payer)); amount = ""; note = "" }
+            amount.toDoubleOrNull()?.let { a ->
+                val b = mutableMapOf<String, Any?>("amount" to a, "category" to cat, "note" to note, "paid_by" to payer)
+                scan?.let { r ->
+                    b["receipt"] = r.text("receipt"); r.str("merchant")?.let { b["merchant"] = it }; r.str("date")?.let { b["day"] = it }
+                    b["items"] = org.json.JSONArray(lines.map { (n, x) -> JSONObject().put("name", n).put("amount", x) }).toString()
+                }
+                add(b); amount = ""; note = ""; scan = null; lines = emptyList(); scanMsg = null
+            }
         }, Modifier.fillMaxWidth(), coral = true, enabled = (amount.toDoubleOrNull() ?: 0.0) > 0)
         // list
         val items = ex.objs("items")
@@ -687,15 +757,42 @@ private fun ExpensesSheet(g: JSONObject, add: (Map<String, Any?>) -> Unit, delet
             Gap(16)
             Text("All expenses", style = MaterialTheme.typography.titleMedium)
             items.forEach { e ->
-                Row(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(e.text("note").ifBlank { e.text("category_label") }, style = MaterialTheme.typography.titleSmall)
-                        Text("${e.text("category_label")} · ${niceDay(e.str("day"))} · paid by ${e.text("paid_by")}", style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+                var open by remember { mutableStateOf(false) }
+                val el = e.objs("lines")
+                Column(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(Color.White).border(1.dp, Brand.Line, RoundedCornerShape(16.dp))
+                    .clickable(enabled = el.isNotEmpty()) { open = !open }.padding(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        e.str("receipt")?.let { r ->
+                            AsyncImage(model = r, contentDescription = "Receipt", contentScale = ContentScale.Crop,
+                                modifier = Modifier.padding(end = 10.dp).size(44.dp).clip(RoundedCornerShape(10.dp)).background(Brand.Sky).clickable { viewing = r })
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text(e.text("note").ifBlank { e.str("merchant") ?: e.text("category_label") }, style = MaterialTheme.typography.titleSmall)
+                            Text("${e.text("category_label")} · ${niceDay(e.str("day"))} · paid by ${e.text("paid_by")}" + if (el.isNotEmpty()) " · ${el.size} items" else "",
+                                style = MaterialTheme.typography.labelSmall, color = Brand.Muted)
+                        }
+                        Text(money(e.optDouble("amount")), style = MaterialTheme.typography.titleSmall)
+                        if (e.bool("can_delete")) IconButton(onClick = { delete(e.int("id")) }, modifier = Modifier.size(32.dp)) { Icon(Icons.Outlined.Delete, "Delete", tint = Brand.Muted, modifier = Modifier.size(18.dp)) }
                     }
-                    Text(money(e.optDouble("amount")), style = MaterialTheme.typography.titleSmall)
-                    if (e.bool("can_delete")) IconButton(onClick = { delete(e.int("id")) }, modifier = Modifier.size(32.dp)) { Icon(Icons.Outlined.Delete, "Delete", tint = Brand.Muted, modifier = Modifier.size(18.dp)) }
+                    if (open) el.forEach { l ->
+                        Row(Modifier.padding(top = 4.dp)) {
+                            Text(l.text("name"), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+                            Text(money(l.optDouble("amount")), style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
+                        }
+                    }
                 }
             }
+        }
+    }
+    viewing?.let { ReceiptViewer(it) { viewing = null } }
+}
+
+@Composable
+private fun ReceiptViewer(url: String, onClose: () -> Unit) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onClose, properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(Modifier.fillMaxSize().background(Color(0xF0000000)).clickable(onClick = onClose), contentAlignment = Alignment.Center) {
+            AsyncImage(model = url, contentDescription = "Receipt", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(12.dp))
+            Icon(Icons.Outlined.Close, "Close", tint = Color.White, modifier = Modifier.align(Alignment.TopEnd).padding(20.dp).size(28.dp))
         }
     }
 }
