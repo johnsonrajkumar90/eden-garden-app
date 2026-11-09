@@ -103,6 +103,7 @@ open /pet-boarding/12/happy-paws-home; sleep 5; up; shot 39-pet-sections 2; up; 
 # group trip dashboard, favourites, expenses; tickets
 open /trip-group/TESTTRIP; shot 41-group-trip 7
 up; shot 42-group-trip-2 2
+tap "Map"; shot 43m-group-map 12
 tap "Favourites"; shot 43-group-favourites 3
 up; up; shot 43b-group-restaurants 3
 adb shell input swipe 540 600 540 2000 300; sleep 1; tap "Add"; shot 43c-add-favourite 8
