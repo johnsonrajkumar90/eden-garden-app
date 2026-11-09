@@ -6,6 +6,11 @@ name: Build native Android app
 
 on:
   workflow_dispatch:
+    inputs:
+      maps_api_key:
+        description: 'Google Maps Android key for this build (used only when the MAPS_API_KEY secret is not set)'
+        required: false
+        default: ''
   push:
     branches: [native-app]
     paths-ignore: ['**.md']
@@ -35,7 +40,6 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then echo "::warning::No signing secrets — debug key."; exit 0; fi
           echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
@@ -47,7 +51,11 @@ jobs:
           } > key.properties
 
       - name: Build APK and app bundle
+        env:
+          # Google Maps (trip map): the secret, or the key given when the build was started by hand — hidden in the logs
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY || github.event.inputs.maps_api_key }}
         run: |
+          if [ -n "$MAPS_API_KEY" ]; then echo "::add-mask::$MAPS_API_KEY"; echo "Google Maps key: set"; else echo "Google Maps key: not set (OpenStreetMap)"; fi
           # The repository was re-created on 8 Nov 2026 (its run numbers started again at 1); Google Play already has 2.0.46,
           # so builds continue from 2.0.47 upwards: run 2 → 2.0.48 (code 348), and so on
           export BUILD_NUMBER=$(( ${{ github.run_number }} + 46 ))
