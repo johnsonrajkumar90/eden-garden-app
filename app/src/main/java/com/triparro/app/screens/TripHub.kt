@@ -265,8 +265,9 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                     }
                     Gap(14)
                 }
+                if (tab == "map") GroupMap(g, ctx, tall = true)   // straight on the page: web views go blank inside clipped, faded panels
                 // the content panel (light frosted, like a card sheet)
-                Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).clip(RoundedCornerShape(30.dp)).background(Color(0xF2F7F3F1)).padding(16.dp)) {
+                if (tab != "map") Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp).clip(RoundedCornerShape(30.dp)).background(Color(0xF2F7F3F1)).padding(16.dp)) {
                     when (tab) {
                         "fav" -> {
                             FavouritesPanel(g, ctx, onAdd = { sheet = "fav" }, toggle = { iid -> act("trip-groups/$id/items/$iid/toggle") }, delete = { iid -> act("trip-groups/$id/items/$iid/delete") })
@@ -280,7 +281,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                                 }
                             }
                         }
-                        "map" -> GroupMap(g, ctx, tall = true)
+                        "map" -> {}
                         "posts" -> PostsPanel(id, g) { nd -> data = nd }
                         else -> PlanPanel(nav, id, g, ctx, { sheet = "add" }) { path -> act(path) }
                     }

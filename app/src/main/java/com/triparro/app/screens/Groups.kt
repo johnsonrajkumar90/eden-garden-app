@@ -363,8 +363,9 @@ internal fun InviteCard(g: JSONObject, ctx: Context, newCode: () -> Unit) {
 @Composable
 internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
     val map = g.obj("map") ?: return
-    Card(padding = 0.dp) {
-        Box(Modifier.fillMaxWidth().height(if (tall) 380.dp else 200.dp).clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))) {
+    // no glass, clip or fade around the map: a web view inside those effects can stay blank on many phones
+    Column(Modifier.fillMaxWidth().background(Color.White)) {
+        Box(Modifier.fillMaxWidth().height(if (tall) 420.dp else 220.dp)) {
             // a real map with a pin for every place in the trip (OpenStreetMap — no key needed); "Google Maps" below opens the full app
             val html = remember(g.objs("pins").size, g.optJSONArray("dest")?.toString()) { tripMapHtml(ctx, g) }
             AndroidView(factory = { c ->
