@@ -1,0 +1,774 @@
++ PKG=triparro.com
++ mkdir -p screens
++ python3 tool/mock_server.py
++ sleep 2
++ adb install -r app.apk
+Performing Streamed Install
+Success
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity
+Starting: Intent { cmp=triparro.com/com.triparro.app.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 2634
+WaitTime: 2676
+Complete
++ sleep 6
++ adb exec-out screencap -p
++ adb shell am force-stop triparro.com
++ adb root
+restarting adbd as root
++ sleep 4
++ adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher
+Package com.google.android.apps.nexuslauncher new state: disabled-user
+++ adb shell stat -c %u /data/data/triparro.com
+++ tr -d '\r'
++ U=10192
++ adb shell 'mkdir -p /data/data/triparro.com/shared_prefs && echo '\''<?xml version="1.0" encoding="utf-8" standalone="yes" ?><map><string name="base_url">http://10.0.2.2:8000</string></map>'\'' > /data/data/triparro.com/shared_prefs/triparro.xml && chown -R 10192:10192 /data/data/triparro.com/shared_prefs && chmod 660 /data/data/triparro.com/shared_prefs/triparro.xml'
++ adb shell settings put secure location_mode 3
++ adb emu geo fix 76.9558 11.0168
+OK
++ adb shell pm grant triparro.com android.permission.POST_NOTIFICATIONS
++ adb shell pm grant triparro.com android.permission.ACCESS_FINE_LOCATION
++ adb shell pm grant triparro.com android.permission.ACCESS_COARSE_LOCATION
++ adb logcat -c
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity
+Starting: Intent { cmp=triparro.com/com.triparro.app.MainActivity }
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+WaitTime: 365
+Complete
++ shot 01-explore 8
++ sleep 8
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
+++ pos
+++ adb shell uiautomator dump /sdcard/ui.xml
+++ adb shell cat /sdcard/ui.xml
+++ grep -o 'text="Popular places"[^>]*bounds="[^"]*"'
+++ grep -o 'bounds="[^"]*"'
++ echo 'before: bounds="[42,1731][399,1798]"'
++ adb shell input swipe 540 1600 540 300 600
++ sleep 2
+++ pos
+++ adb shell uiautomator dump /sdcard/ui.xml
+++ adb shell cat /sdcard/ui.xml
+++ grep -o 'text="Popular places"[^>]*bounds="[^"]*"'
+++ grep -o 'bounds="[^"]*"'
++ echo 'swipe@1600: bounds="[42,823][399,890]"'
++ shot 02-explore-favourites 1
++ sleep 1
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input swipe 540 2000 540 600 1200
++ sleep 2
+++ pos
+++ adb shell uiautomator dump /sdcard/ui.xml
+++ grep -o 'bounds="[^"]*"'
+++ adb shell cat /sdcard/ui.xml
+++ grep -o 'text="Popular places"[^>]*bounds="[^"]*"'
++ echo 'swipe@2000 slow: '
++ shot 02b-explore-more 1
++ sleep 1
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input swipe 540 1000 540 200 400
++ sleep 2
+++ pos
+++ adb shell uiautomator dump /sdcard/ui.xml
+++ adb shell cat /sdcard/ui.xml
+++ grep -o 'text="Popular places"[^>]*bounds="[^"]*"'
+++ grep -o 'bounds="[^"]*"'
++ echo 'swipe@1000: '
++ shot 02c-explore-more 1
++ sleep 1
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input touchscreen swipe 900 1750 900 250 800
++ sleep 2
+++ pos
+++ adb shell uiautomator dump /sdcard/ui.xml
+++ adb shell cat /sdcard/ui.xml
+++ grep -o 'text="Popular places"[^>]*bounds="[^"]*"'
+++ grep -o 'bounds="[^"]*"'
++ echo 'touchscreen@1750 right: '
++ adb logcat -d
++ grep -iE 'triparro|AndroidRuntime'
++ tail -30
++ adb shell input swipe 540 600 540 2000 300
++ adb shell input swipe 540 600 540 2000 300
++ sleep 2
++ tap 'Search stays'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Search stays'
++ b=
++ '[' -n '' ']'
++ shot 03-search-results 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /stays/1
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/stays/1 triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 0
+WaitTime: 23
+Complete
++ shot 04-stay 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 05-stay-details 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 06-stay-rules 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap 'Check availability'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Check availability'
++ b=
++ '[' -n '' ']'
++ shot 07-booking-panel 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 2
++ adb shell input keyevent 4
++ sleep 2
++ tap Pets
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Pets
++ b=
++ '[' -n '' ']'
++ shot 08-pets 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb emu geo fix 76.9558 11.0168
+OK
++ tap 'Use my location'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Use my location'
++ b=
++ '[' -n '' ']'
++ shot 08b-pets-near-me 8
++ sleep 8
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 09-pets-results 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /pet-boarding/12/happy-paws-home
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/pet-boarding/12/happy-paws-home triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Status: ok
+LaunchState: WARM
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 1484
+WaitTime: 1528
+Complete
++ shot 10-pet-host 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 11-pet-host-details 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 12-pet-host-booking 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 13-pet-host-reviews 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /pet-booking/P1MX48HI
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/pet-booking/P1MX48HI triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 0
+WaitTime: 2
+Complete
++ shot 14-pet-booking 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 15-pet-diary 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 16-pet-booking-price 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /pet-boarding
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/pet-boarding triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 0
+WaitTime: 3
+Complete
++ sleep 5
++ tap Trips
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Trips
++ b='540 2274'
++ '[' -n '540 2274' ']'
++ adb shell input tap 540 2274
++ shot 17-trips 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap Completed
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Completed
++ b='1008 523'
++ '[' -n '1008 523' ']'
++ adb shell input tap 1008 523
++ shot 18-trips-completed 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap AI
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - AI
++ b='760 2274'
++ '[' -n '760 2274' ']'
++ adb shell input tap 760 2274
++ shot 19-ai 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap 'Pet boarding'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Pet boarding'
++ b=
++ '[' -n '' ']'
++ tap 'Find dog boarding in Coimbatore'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Find dog boarding in Coimbatore'
++ b=
++ '[' -n '' ']'
++ shot 20-ai-pets 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap Account
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Account
++ b='980 2274'
++ '[' -n '980 2274' ']'
++ adb shell input tap 980 2274
++ shot 21-account 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap 'My pets'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'My pets'
++ b='291 1576'
++ '[' -n '291 1576' ']'
++ adb shell input tap 291 1576
++ shot 22-my-pets 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 2
++ tap 'Notifications (2 new)'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Notifications (2 new)'
++ b='402 771'
++ '[' -n '402 771' ']'
++ adb shell input tap 402 771
++ shot 23-notifications 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 3
++ sleep 2
++ curl -s http://127.0.0.1:8000/__add
+ok+ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity
+Starting: Intent { cmp=triparro.com/com.triparro.app.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 303
+WaitTime: 312
+Complete
++ sleep 6
++ adb shell input keyevent 3
++ sleep 2
++ adb shell cmd statusbar expand-notifications
++ sleep 3
++ adb shell cmd statusbar expand-notifications
++ adb exec-out screencap -p
++ adb shell cmd statusbar collapse
++ adb shell dumpsys notification --noredact
++ grep -A3 pkg=triparro.com
++ head -20
++ app login
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://login
++ shot 25-sign-in 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap 'Create account'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Create account'
++ b='757 705'
++ '[' -n '757 705' ']'
++ adb shell input tap 757 705
++ shot 26-sign-up 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 1
++ app login
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://login
++ sleep 2
++ tap 'Sign in with a code instead'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Sign in with a code instead'
++ b='574 1791'
++ '[' -n '574 1791' ']'
++ adb shell input tap 574 1791
++ shot 27-code 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app page/privacy
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://page/privacy
++ shot 28-privacy 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app become-host
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://become-host
++ shot 29-become-host 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 29b-become-host-form 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app become-pet-host
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://become-pet-host
++ shot 31-become-pet-host 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app chat/stay/1
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://chat/stay/1
++ shot 32-chat 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app 'checkin?url=http%3A%2F%2F10.0.2.2%3A8000%2Fcheckin%2FD6F5CD3D%3Fk%3Dabc'
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d 'triparro-app://checkin?url=http%3A%2F%2F10.0.2.2%3A8000%2Fcheckin%2FD6F5CD3D%3Fk%3Dabc'
++ shot 33-online-checkin 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app delete-account
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://delete-account
++ shot 34-delete-account 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app hosting
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://hosting
++ shot 35-hosting 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /stays/1
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/stays/1 triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 0
+WaitTime: 7
+Complete
++ sleep 5
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 36-stay-sections 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 37-stay-sections-2 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 38-stay-sections-3 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /pet-boarding/12/happy-paws-home
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/pet-boarding/12/happy-paws-home triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 0
+WaitTime: 7
+Complete
++ sleep 5
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 39-pet-sections 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 40-pet-sections-2 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ open /trip-group/TESTTRIP
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/trip-group/TESTTRIP triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 0
+WaitTime: 2
+Complete
++ shot 41-group-trip 7
++ sleep 7
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 42-group-trip-2 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ tap Map
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Map
++ b='904 1021'
++ '[' -n '904 1021' ']'
++ adb shell input tap 904 1021
++ shot 43m-group-map 12
++ sleep 12
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb logcat -d -s TripMap:I chromium:I
++ tap Favourites
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Favourites
++ b='661 1021'
++ '[' -n '661 1021' ']'
++ adb shell input tap 661 1021
++ shot 43-group-favourites 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ up
++ adb shell input swipe 540 1900 540 500 500
++ up
++ adb shell input swipe 540 1900 540 500 500
++ shot 43b-group-restaurants 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input swipe 540 600 540 2000 300
++ sleep 1
++ tap Add
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - Add
++ b='894 1676'
++ '[' -n '894 1676' ']'
++ adb shell input tap 894 1676
++ shot 43c-add-favourite 8
++ sleep 8
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 1
++ adb shell input swipe 540 600 540 2000 300
++ adb shell input swipe 540 600 540 2000 300
++ sleep 1
++ tap 'Track spending ›'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Track spending ›'
++ b='880 940'
++ '[' -n '880 940' ']'
++ adb shell input tap 880 940
++ shot 44-group-expenses 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 1
++ app tickets
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://tickets
++ shot 45-tickets 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app groupchat/5
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d triparro-app://groupchat/5
++ shot 51-trip-chat 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell am force-stop triparro.com
++ adb shell pm grant triparro.com android.permission.ACCESS_FINE_LOCATION
++ adb shell pm grant triparro.com android.permission.ACCESS_COARSE_LOCATION
++ adb emu geo fix 76.68 10.94
+OK
++ open /trip-group/TESTTRIP
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/trip-group/TESTTRIP triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Status: ok
+LaunchState: COLD
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 1637
+WaitTime: 1668
+Complete
++ sleep 7
++ tap 'Change photo'
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 - 'Change photo'
++ b='889 212'
++ '[' -n '889 212' ']'
++ adb shell input tap 889 212
++ shot 52-cover-photo 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 2
++ adb shell uiautomator dump /sdcard/ui.xml
++ adb pull /sdcard/ui.xml /tmp/ui.xml
+++ python3 -c 'import re;x=open('\''/tmp/ui.xml'\'',encoding='\''utf-8'\'').read();m=re.search(r'\''text="Add to[^"]*"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'\'',x);print((int(m[1])+int(m[3]))//2,(int(m[2])+int(m[4]))//2) if m else None'
++ b='156 1876'
++ '[' -n '156 1876' ']'
++ '[' '156 1876' '!=' None ']'
++ adb shell input tap 156 1876
++ shot 53-add-place-here 10
++ sleep 10
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input keyevent 4
++ sleep 1
++ adb shell am force-stop triparro.com
++ sleep 1
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity
+Starting: Intent { cmp=triparro.com/com.triparro.app.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: triparro.com/com.triparro.app.MainActivity
+TotalTime: 1394
+WaitTime: 1399
+Complete
++ sleep 8
++ adb shell input tap 324 2250
++ sleep 3
++ shot 46a-pets-tab 1
++ sleep 1
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input tap 972 2250
++ sleep 3
++ shot 46b-account-tab 1
++ sleep 1
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input tap 108 2250
++ shot 46-back-to-explore 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input tap 954 1990
++ shot 47-group-trips-hub 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input swipe 540 1800 540 900 300
++ sleep 1
++ shot 47b-group-trip-cards 2
++ sleep 2
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input tap 540 320
++ shot 48-hub-trip-plans 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input tap 872 320
++ shot 49-hub-tickets 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb shell input tap 208 320
++ sleep 3
++ adb shell input swipe 540 900 540 1800 300
++ sleep 1
++ adb shell input tap 774 978
++ shot 49b-new-trip-cover 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ app 'site?path=%2Fpay-test&title=Payment'
++ adb shell am start -W -n triparro.com/com.triparro.app.MainActivity -d 'triparro-app://site?path=%2Fpay-test&title=Payment'
++ shot 50-payment-page 8
++ sleep 8
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ adb exec-out screencap -p
++ adb logcat -d -s AndroidRuntime:E
++ ls -la screens
+total 67448
+drwxr-xr-x 2 runner runner    4096 Nov  9 13:42 .
+drwxr-xr-x 9 runner runner    4096 Nov  9 13:34 ..
+-rw-r--r-- 1 runner runner  691411 Nov  9 13:35 00-live-site.png
+-rw-r--r-- 1 runner runner 1214122 Nov  9 13:35 01-explore.png
+-rw-r--r-- 1 runner runner 2284189 Nov  9 13:35 02-explore-favourites.png
+-rw-r--r-- 1 runner runner 2812651 Nov  9 13:35 02b-explore-more.png
+-rw-r--r-- 1 runner runner 2926962 Nov  9 13:36 02c-explore-more.png
+-rw-r--r-- 1 runner runner 2511185 Nov  9 13:36 03-search-results.png
+-rw-r--r-- 1 runner runner 1309894 Nov  9 13:36 04-stay.png
+-rw-r--r-- 1 runner runner 2131710 Nov  9 13:36 05-stay-details.png
+-rw-r--r-- 1 runner runner  399585 Nov  9 13:36 06-stay-rules.png
+-rw-r--r-- 1 runner runner  399585 Nov  9 13:36 07-booking-panel.png
+-rw-r--r-- 1 runner runner  838804 Nov  9 13:36 08-pets.png
+-rw-r--r-- 1 runner runner  838497 Nov  9 13:37 08b-pets-near-me.png
+-rw-r--r-- 1 runner runner  838497 Nov  9 13:37 09-pets-results.png
+-rw-r--r-- 1 runner runner  345127 Nov  9 13:37 10-pet-host.png
+-rw-r--r-- 1 runner runner  437541 Nov  9 13:37 11-pet-host-details.png
+-rw-r--r-- 1 runner runner  369523 Nov  9 13:37 12-pet-host-booking.png
+-rw-r--r-- 1 runner runner  340460 Nov  9 13:37 13-pet-host-reviews.png
+-rw-r--r-- 1 runner runner 1604592 Nov  9 13:37 14-pet-booking.png
+-rw-r--r-- 1 runner runner 1768665 Nov  9 13:37 15-pet-diary.png
+-rw-r--r-- 1 runner runner 1644158 Nov  9 13:37 16-pet-booking-price.png
+-rw-r--r-- 1 runner runner 1361875 Nov  9 13:37 17-trips.png
+-rw-r--r-- 1 runner runner 1308893 Nov  9 13:38 18-trips-completed.png
+-rw-r--r-- 1 runner runner 1036837 Nov  9 13:38 19-ai.png
+-rw-r--r-- 1 runner runner 1036782 Nov  9 13:38 20-ai-pets.png
+-rw-r--r-- 1 runner runner 2317861 Nov  9 13:38 21-account.png
+-rw-r--r-- 1 runner runner 1542465 Nov  9 13:38 22-my-pets.png
+-rw-r--r-- 1 runner runner 1181844 Nov  9 13:38 23-notifications.png
+-rw-r--r-- 1 runner runner  127166 Nov  9 13:38 24-phone-notification.png
+-rw-r--r-- 1 runner runner  524429 Nov  9 13:39 25-sign-in.png
+-rw-r--r-- 1 runner runner  387616 Nov  9 13:39 26-sign-up.png
+-rw-r--r-- 1 runner runner  792130 Nov  9 13:39 27-code.png
+-rw-r--r-- 1 runner runner 1941022 Nov  9 13:39 28-privacy.png
+-rw-r--r-- 1 runner runner 2038869 Nov  9 13:39 29-become-host.png
+-rw-r--r-- 1 runner runner 1486818 Nov  9 13:39 29b-become-host-form.png
+-rw-r--r-- 1 runner runner 1641278 Nov  9 13:39 31-become-pet-host.png
+-rw-r--r-- 1 runner runner  382099 Nov  9 13:39 32-chat.png
+-rw-r--r-- 1 runner runner 1616211 Nov  9 13:39 33-online-checkin.png
+-rw-r--r-- 1 runner runner 1706953 Nov  9 13:39 34-delete-account.png
+-rw-r--r-- 1 runner runner 1199511 Nov  9 13:39 35-hosting.png
+-rw-r--r-- 1 runner runner  426861 Nov  9 13:40 36-stay-sections.png
+-rw-r--r-- 1 runner runner  400871 Nov  9 13:40 37-stay-sections-2.png
+-rw-r--r-- 1 runner runner  415741 Nov  9 13:40 38-stay-sections-3.png
+-rw-r--r-- 1 runner runner  436869 Nov  9 13:40 39-pet-sections.png
+-rw-r--r-- 1 runner runner  389175 Nov  9 13:40 40-pet-sections-2.png
+-rw-r--r-- 1 runner runner  514994 Nov  9 13:40 41-group-trip.png
+-rw-r--r-- 1 runner runner  421544 Nov  9 13:40 42-group-trip-2.png
+-rw-r--r-- 1 runner runner  436585 Nov  9 13:40 43-group-favourites.png
+-rw-r--r-- 1 runner runner  383258 Nov  9 13:40 43b-group-restaurants.png
+-rw-r--r-- 1 runner runner  311384 Nov  9 13:41 43c-add-favourite.png
+-rw-r--r-- 1 runner runner  276087 Nov  9 13:40 43m-group-map.png
+-rw-r--r-- 1 runner runner  345227 Nov  9 13:41 44-group-expenses.png
+-rw-r--r-- 1 runner runner 2131263 Nov  9 13:41 45-tickets.png
+-rw-r--r-- 1 runner runner 1440209 Nov  9 13:42 46-back-to-explore.png
+-rw-r--r-- 1 runner runner 1236575 Nov  9 13:42 46a-pets-tab.png
+-rw-r--r-- 1 runner runner 2317525 Nov  9 13:42 46b-account-tab.png
+-rw-r--r-- 1 runner runner 1443675 Nov  9 13:42 47-group-trips-hub.png
+-rw-r--r-- 1 runner runner 1275173 Nov  9 13:42 47b-group-trip-cards.png
+-rw-r--r-- 1 runner runner 1180699 Nov  9 13:42 48-hub-trip-plans.png
+-rw-r--r-- 1 runner runner 2016119 Nov  9 13:42 49-hub-tickets.png
+-rw-r--r-- 1 runner runner  644174 Nov  9 13:42 49b-new-trip-cover.png
+-rw-r--r-- 1 runner runner  144104 Nov  9 13:42 50-payment-page.png
+-rw-r--r-- 1 runner runner  353966 Nov  9 13:41 51-trip-chat.png
+-rw-r--r-- 1 runner runner  282845 Nov  9 13:41 52-cover-photo.png
+-rw-r--r-- 1 runner runner  324751 Nov  9 13:41 53-add-place-here.png
+-rw-r--r-- 1 runner runner       0 Nov  9 13:42 crash-log.txt
+-rw-r--r-- 1 runner runner    3327 Nov  9 13:36 explore-log.txt
+-rw-r--r-- 1 runner runner       0 Nov  9 13:40 map-log.txt
+-rw-r--r-- 1 runner runner       0 Nov  9 13:34 mock.log
+-rw-r--r-- 1 runner runner     456 Nov  9 13:38 notifications-dump.txt
+-rw-r--r-- 1 runner runner   23736 Nov  9 13:42 run.log
+-rw-r--r-- 1 runner runner     132 Nov  9 13:36 scroll.txt

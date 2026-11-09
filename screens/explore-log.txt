@@ -1,0 +1,30 @@
+11-09 13:35:32.364  1538  1538 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=triparro.com fieldId=0 fieldName=null extras=null}, false)
+11-09 13:35:32.863  4673  4731 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=31fd7cad-d79b-4621-abe3-1aacafdc20ed, tags={ com.triparro.app.core.NotificationsWorker } ]
+11-09 13:35:33.320   520  2464 W JobScheduler: Job didn't exist in JobStore: f0c9f1f {androidx.work.systemjobscheduler} #u0a192/5 @androidx.work.systemjobscheduler@triparro.com/androidx.work.impl.background.systemjob.SystemJobService
+11-09 13:35:35.030  5069  5069 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-09 13:35:35.076  5069  5069 I AndroidRuntime: Using default boot image
+11-09 13:35:35.076  5069  5069 I AndroidRuntime: Leaving lock profiling enabled
+11-09 13:35:35.271  5069  5069 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-09 13:35:36.517  4673  4680 W triparro.com: Cleared Reference was only reachable from finalizer (only reported once)
+11-09 13:35:36.526  5069  5069 D AndroidRuntime: Shutting down VM
+11-09 13:35:36.529  4673  4680 I triparro.com: Background concurrent copying GC freed 136488(6006KB) AllocSpace objects, 21(472KB) LOS objects, 49% free, 7841KB/15MB, paused 110us,15us total 199.541ms
+11-09 13:35:40.364  5199  5199 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-09 13:35:40.368  5199  5199 I AndroidRuntime: Using default boot image
+11-09 13:35:40.368  5199  5199 I AndroidRuntime: Leaving lock profiling enabled
+11-09 13:35:40.471  5199  5199 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-09 13:35:41.516  5199  5199 D AndroidRuntime: Shutting down VM
+11-09 13:35:50.212  5419  5419 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-09 13:35:50.216  5419  5419 I AndroidRuntime: Using default boot image
+11-09 13:35:50.216  5419  5419 I AndroidRuntime: Leaving lock profiling enabled
+11-09 13:35:50.430  5419  5419 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-09 13:35:51.607  5419  5419 D AndroidRuntime: Shutting down VM
+11-09 13:35:58.726  5611  5611 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-09 13:35:58.730  5611  5611 I AndroidRuntime: Using default boot image
+11-09 13:35:58.730  5611  5611 I AndroidRuntime: Leaving lock profiling enabled
+11-09 13:35:58.811  5611  5611 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-09 13:35:59.856  5611  5611 D AndroidRuntime: Shutting down VM
+11-09 13:36:05.728  5727  5727 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-09 13:36:05.731  5727  5727 I AndroidRuntime: Using default boot image
+11-09 13:36:05.731  5727  5727 I AndroidRuntime: Leaving lock profiling enabled
+11-09 13:36:05.796  5727  5727 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-09 13:36:06.861  5727  5727 D AndroidRuntime: Shutting down VM
