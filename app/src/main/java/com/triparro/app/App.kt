@@ -459,4 +459,5 @@ private fun Modifier.hazeSourceCompat(state: dev.chrisbanes.haze.HazeState): Mod
 
 
 /** Screens that show a web page (payment, website pages, PDFs): no slide or fade for them. */
-private fun isWebRoute(route: String?): Boolean = route != null && (route == "pay" || route.startsWith("site?") || route.startsWith("pdf?"))
+// screens with a web view inside (pages, payment, PDFs, the trip map): no slide / fade — a web view stays blank inside the animation layer
+private fun isWebRoute(route: String?): Boolean = route != null && (route == "pay" || route.startsWith("site?") || route.startsWith("pdf?") || route.startsWith("group/"))
