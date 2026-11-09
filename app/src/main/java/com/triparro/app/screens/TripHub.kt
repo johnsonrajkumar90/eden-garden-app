@@ -135,7 +135,7 @@ private val Soft = Color(0xB3FFFFFF)
 private fun Modifier.darkGlass(shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(26.dp)): Modifier =
     this.clip(shape).background(Brush.verticalGradient(listOf(Color(0x29FFFFFF), Color(0x14FFFFFF)))).border(1.dp, Brush.verticalGradient(listOf(Color(0x40FFFFFF), Color(0x14FFFFFF))), shape)
 
-private fun newPhoto(ctx: Context, prefix: String): Uri {
+internal fun newPhoto(ctx: Context, prefix: String): Uri {
     val dir = File(ctx.cacheDir, "images").apply { mkdirs() }
     return FileProvider.getUriForFile(ctx, ctx.packageName + ".files", File.createTempFile(prefix, ".jpg", dir))
 }
