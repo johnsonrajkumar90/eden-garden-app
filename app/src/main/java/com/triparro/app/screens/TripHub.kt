@@ -152,7 +152,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
     var data by remember { mutableStateOf<JSONObject?>(null) }
     val l = rememberLoader(id) { Api.get("trip-groups/$id") }
     LaunchedEffect(l.data.value) { l.data.value?.let { data = it } }
-    var tab by rememberSaveable { mutableStateOf("plan") }
+    var tab by rememberSaveable { mutableStateOf("posts") }
     var sheet by rememberSaveable { mutableStateOf("") }   // add, docs, expenses, checklist, people, chat, readiness, fav
     var err by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -182,14 +182,15 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
         when {
             g == null && l.loading.value -> Loading()
             g == null -> Column { TopRow(nav, null, {}) ; ErrorBox(l.error.value ?: "This trip was not found.", { l.reload() }) }
-            else -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            else -> Column(Modifier.fillMaxSize()) {
+                TopRow(nav, g) { coverMenu = true }
+                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 val hero = rememberHazeState()
-                Box(Modifier.fillMaxWidth().height(400.dp)) {
+                Box(Modifier.fillMaxWidth().height(360.dp)) {
                     Box(Modifier.matchParentSize().hazeSource(hero)) {
                         TripCover(g.str("cover"), g.text("title") + " " + g.text("destination"), Modifier.fillMaxSize(), iconSize = 200)
                         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color(0x55000000), 0.35f to Color(0x00000000), 0.7f to Color(0x99000000), 1f to Night)))
                     }
-                    TopRow(nav, g) { coverMenu = true }
                     Column(Modifier.align(Alignment.BottomStart).padding(horizontal = 20.dp).padding(bottom = 96.dp)) {
                         val d1 = niceDay(g.str("start_date")); val d2 = niceDay(g.str("end_date"))
                         if (d1.isNotBlank()) Text(if (d2.isNotBlank() && d2 != d1) "$d1  →  $d2" else d1, color = Color.White, style = MaterialTheme.typography.titleMedium)
@@ -255,7 +256,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                     Gap(18)
                     // plan / favourites / map
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(30.dp)).background(Color(0x66000000)).padding(5.dp)) {
-                        listOf("plan" to "Plan", "fav" to "Favourites", "map" to "Map").forEach { (v, t) ->
+                        listOf("posts" to "Posts", "plan" to "Plan", "fav" to "Favourites", "map" to "Map").forEach { (v, t) ->
                             val on = tab == v
                             Box(Modifier.weight(1f).clip(RoundedCornerShape(26.dp)).background(if (on) Color.White else Color.Transparent).clickable { tab = v }.padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                                 Text(t, color = if (on) Brand.Ink else Color.White, style = MaterialTheme.typography.titleSmall)
@@ -280,10 +281,12 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                             }
                         }
                         "map" -> GroupMap(g, ctx, tall = true)
+                        "posts" -> PostsPanel(id, g) { nd -> data = nd }
                         else -> PlanPanel(nav, id, g, ctx, { sheet = "add" }) { path -> act(path) }
                     }
                 }
                 Spacer(Modifier.height(40.dp))
+                }
             }
         }
     }
@@ -341,15 +344,17 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
 @Composable
 private fun TopRow(nav: NavHostController, g: JSONObject?, onCamera: () -> Unit) {
     val ctx = LocalContext.current
-    Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-        RoundDark(Icons.AutoMirrored.Filled.ArrowBack, "Back") { nav.popBackStack() }
-        Spacer(Modifier.weight(1f))
+    // the red bar every screen has: back, the trip's name, invite, change photo
+    Row(Modifier.fillMaxWidth().background(Brush.horizontalGradient(listOf(Brand.Matte, Color(0xFFD7192A), Color(0xFFE8452F)))).padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White) }
+        Text(g?.text("title") ?: "Your trip", color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold,
+            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(start = 4.dp))
         if (g != null) {
-            RoundDark(Icons.Outlined.Share, "Invite") { shareLink(ctx, g.text("share_text"), g.text("link")) }
-            Spacer(Modifier.width(10.dp))
-            Row(Modifier.height(48.dp).clip(RoundedCornerShape(50)).background(Color(0x66000000)).border(1.dp, FrostLine, RoundedCornerShape(50)).pressable(onCamera).padding(horizontal = 16.dp),
+            IconButton(onClick = { shareLink(ctx, g.text("share_text"), g.text("link")) }) { Icon(Icons.Outlined.Share, "Invite", tint = Color.White) }
+            Row(Modifier.height(40.dp).clip(RoundedCornerShape(50)).background(Color(0x33FFFFFF)).border(1.dp, Color(0x55FFFFFF), RoundedCornerShape(50)).pressable(onCamera).padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.PhotoCamera, null, tint = Color.White, modifier = Modifier.padding(end = 8.dp).size(20.dp))
+                Icon(Icons.Outlined.PhotoCamera, null, tint = Color.White, modifier = Modifier.padding(end = 6.dp).size(18.dp))
                 Text("Change photo", color = Color.White, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
             }
         }

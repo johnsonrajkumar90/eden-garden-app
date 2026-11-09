@@ -81,6 +81,7 @@ internal fun LiveSpot(onSpot: (name: String, lat: Double, lng: Double) -> Unit) 
     var here by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var options by remember { mutableStateOf<List<JSONObject>>(emptyList()) }
     var chosen by remember { mutableIntStateOf(0) }
+    var fromPhone by remember { mutableStateOf(false) }
     var round by remember { mutableIntStateOf(0) }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { g -> if (g.values.any { it }) round++ else state = "denied" }
     LaunchedEffect(round) {
@@ -93,6 +94,8 @@ internal fun LiveSpot(onSpot: (name: String, lat: Double, lng: Double) -> Unit) 
             is LocResult.Found -> {
                 here = r.lat to r.lng; state = "naming"
                 options = try { Api.get("places/here", mapOf("lat" to r.lat, "lng" to r.lng)).objs("items") } catch (_: Exception) { emptyList() }
+                fromPhone = false
+                if (options.isEmpty()) { options = phonePlaces(ctx, r.lat, r.lng); fromPhone = options.isNotEmpty() }   // Google couldn't: the phone's own map names the street / area
                 chosen = 0
                 if (options.isNotEmpty()) { state = "named"; options[0].let { onSpot(it.text("name"), it.optDouble("lat"), it.optDouble("lng")) } }
                 else { state = "unnamed"; onSpot("", r.lat, r.lng) }
@@ -142,10 +145,10 @@ internal fun LiveSpot(onSpot: (name: String, lat: Double, lng: Double) -> Unit) 
                         val sub = listOf(p.text("type"), p.text("address")).filter { it.isNotBlank() }.joinToString(" · ")
                         if (sub.isNotBlank()) Text(sub, style = MaterialTheme.typography.labelSmall, color = Brand.Muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    Text(if (p.optInt("metres") < 1000) "${p.optInt("metres")} m" else "%.1f km".format(p.optInt("metres") / 1000.0), style = MaterialTheme.typography.labelSmall, color = Brand.InkSoft)
+                    if (p.has("metres")) Text(if (p.optInt("metres") < 1000) "${p.optInt("metres")} m" else "%.1f km".format(p.optInt("metres") / 1000.0), style = MaterialTheme.typography.labelSmall, color = Brand.InkSoft)
                 }
             }
-            Text("Place names from Google", style = MaterialTheme.typography.labelSmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
+            Text(if (fromPhone) "Names from your phone's map — change the name if it isn't right" else "Place names from Google", style = MaterialTheme.typography.labelSmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
         }
     }
 }
@@ -237,4 +240,22 @@ private fun SourceTile(modifier: Modifier, icon: ImageVector, label: String, col
         Box(Modifier.size(46.dp).clip(RoundedCornerShape(15.dp)).background(Brush.linearGradient(colors)), contentAlignment = Alignment.Center) { Icon(icon, null, tint = Color.White) }
         Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = Brand.Ink, modifier = Modifier.padding(top = 8.dp), maxLines = 1)
     }
+}
+
+
+/** Names for a spot from the phone's own map data (Android's geocoder) — the street, the area, the town. */
+private suspend fun phonePlaces(ctx: android.content.Context, lat: Double, lng: Double): List<JSONObject> = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+    try {
+        if (!android.location.Geocoder.isPresent()) return@withContext emptyList()
+        @Suppress("DEPRECATION")
+        val list = android.location.Geocoder(ctx, java.util.Locale.ENGLISH).getFromLocation(lat, lng, 3) ?: emptyList()
+        val out = mutableListOf<JSONObject>(); val seen = mutableSetOf<String>()
+        list.forEach { a ->
+            val area = listOfNotNull(a.subLocality, a.locality).distinct().joinToString(", ")
+            listOfNotNull(a.featureName?.takeIf { f -> f.any { it.isLetter() } && f != a.thoroughfare }, a.thoroughfare, a.subLocality, a.locality).forEach { n ->
+                if (n.isNotBlank() && seen.add(n)) out += JSONObject().put("name", n).put("address", if (area == n) (a.adminArea ?: "") else area).put("type", "").put("lat", lat).put("lng", lng)
+            }
+        }
+        out.take(4)
+    } catch (_: Exception) { emptyList() }
 }

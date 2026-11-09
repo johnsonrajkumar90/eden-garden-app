@@ -28,6 +28,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.triparro.app.core.Notifier
 import com.triparro.app.core.int
@@ -220,6 +221,14 @@ fun TripArroApp(activity: MainActivity) {
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (Api.session.value?.user != null) scope.launch { try { Notifier.check(activity) } catch (_: Exception) { } }
     }
+    // While the app is open: look for new notifications (trip posts, messages) every 30 seconds, so they pop up with sound
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(session?.user?.id) {
+        if (session?.user == null) return@LaunchedEffect
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (true) { kotlinx.coroutines.delay(30_000); try { Notifier.check(activity) } catch (_: Exception) { } }
+        }
+    }
 
     // Glass look: a soft colour backdrop under the whole app; cards and bars are frosted glass over it
     val appHaze = dev.chrisbanes.haze.rememberHazeState()
@@ -270,7 +279,6 @@ fun TripArroApp(activity: MainActivity) {
         val topColor = when {
             current in listOf("explore", "trips", "ai", "account", "login", "signup", "delete-account", "become-host", "become-pet-host", "hosting", "notifications", "messages", "hostchats") || current.startsWith("page/") || current.startsWith("checkin") || current.startsWith("chat") || current.startsWith("hostchat") || current.startsWith("pdf") || current.startsWith("petreceipt") -> Brand.Matte
             current.startsWith("photo") || current.startsWith("video") -> Color.Black
-            current.startsWith("group/") -> Color(0xFF15161C)
             current == "pets" -> Brand.Matte
             current.startsWith("property/") || current.startsWith("petlisting/") || current.startsWith("place/") -> Color.Black
             else -> Brand.Matte   // every other screen: red at the top, like the headers
