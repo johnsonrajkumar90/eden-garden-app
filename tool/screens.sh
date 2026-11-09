@@ -104,6 +104,7 @@ open /pet-boarding/12/happy-paws-home; sleep 5; up; shot 39-pet-sections 2; up; 
 open /trip-group/TESTTRIP; shot 41-group-trip 7
 up; shot 42-group-trip-2 2
 tap "Map"; shot 43m-group-map 12
+adb logcat -d -s TripMap:I chromium:I > screens/map-log.txt 2>&1 || true
 tap "Favourites"; shot 43-group-favourites 3
 up; up; shot 43b-group-restaurants 3
 adb shell input swipe 540 600 540 2000 300; sleep 1; tap "Add"; shot 43c-add-favourite 8

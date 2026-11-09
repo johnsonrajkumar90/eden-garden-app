@@ -373,7 +373,12 @@ internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
                     settings.userAgentString = settings.userAgentString + " TripArro-Android"   // map tiles: say which app is asking
+                    setBackgroundColor(android.graphics.Color.rgb(0xE9, 0xE5, 0xE2))
+                    webChromeClient = object : android.webkit.WebChromeClient() {
+                        override fun onConsoleMessage(m: android.webkit.ConsoleMessage?): Boolean { android.util.Log.i("TripMap", "${m?.messageLevel()} ${m?.message()} @${m?.lineNumber()}"); return true }
+                    }
                     webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) { android.util.Log.i("TripMap", "page finished ${view?.width}x${view?.height}"); view?.evaluateJavascript("console.log('map: L=' + (typeof L) + ' markers=' + document.querySelectorAll('.leaflet-marker-icon').length + ' size=' + innerWidth + 'x' + innerHeight)", null) }
                         override fun shouldOverrideUrlLoading(view: WebView?, request: android.webkit.WebResourceRequest?): Boolean {
                             request?.url?.toString()?.let { u -> if (u.startsWith("http")) openGroupUrl(c, u) }; return true   // a tapped pin's "Directions" opens Google Maps
                         }
