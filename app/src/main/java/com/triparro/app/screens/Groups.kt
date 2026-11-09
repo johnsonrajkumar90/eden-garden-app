@@ -374,6 +374,8 @@ internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
                     settings.domStorageEnabled = true
                     settings.userAgentString = settings.userAgentString + " TripArro-Android"   // map tiles: say which app is asking
                     setBackgroundColor(android.graphics.Color.rgb(0xE9, 0xE5, 0xE2))
+                    // drawn in software: inside a scrolling page the map's moving layers otherwise don't reach the screen on some phones
+                    setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null)
                     webChromeClient = object : android.webkit.WebChromeClient() {
                         override fun onConsoleMessage(m: android.webkit.ConsoleMessage?): Boolean { android.util.Log.i("TripMap", "${m?.messageLevel()} ${m?.message()} @${m?.lineNumber()}"); return true }
                     }
@@ -383,6 +385,7 @@ internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
                             request?.url?.toString()?.let { u -> if (u.startsWith("http")) openGroupUrl(c, u) }; return true   // a tapped pin's "Directions" opens Google Maps
                         }
                     }
+                    tag = html
                     loadDataWithBaseURL("https://triparro.com/", html, "text/html", "utf-8", null)
                 }
             }, update = { w -> if (w.tag != html) { w.tag = html; w.loadDataWithBaseURL("https://triparro.com/", html, "text/html", "utf-8", null) } }, modifier = Modifier.fillMaxSize())
