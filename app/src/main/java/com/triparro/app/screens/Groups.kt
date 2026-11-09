@@ -363,32 +363,14 @@ internal fun InviteCard(g: JSONObject, ctx: Context, newCode: () -> Unit) {
 @Composable
 internal fun GroupMap(g: JSONObject, ctx: Context, tall: Boolean) {
     val map = g.obj("map") ?: return
-    // no glass, clip or fade around the map: a web view inside those effects can stay blank on many phones
+    // the map sits straight on the page (no glass card or clip around it)
     Column(Modifier.fillMaxWidth().background(Color.White)) {
         Box(Modifier.fillMaxWidth().height(if (tall) 420.dp else 220.dp)) {
-            // a real map with a pin for every place in the trip (OpenStreetMap — no key needed); "Google Maps" below opens the full app
-            val html = remember(g.objs("pins").size, g.optJSONArray("dest")?.toString()) { tripMapHtml(ctx, g) }
-            AndroidView(factory = { c ->
-                WebView(c).apply {
-                    settings.javaScriptEnabled = true
-                    settings.domStorageEnabled = true
-                    settings.userAgentString = settings.userAgentString + " TripArro-Android"   // map tiles: say which app is asking
-                    setBackgroundColor(android.graphics.Color.rgb(0xE9, 0xE5, 0xE2))
-                    // drawn in software: inside a scrolling page the map's moving layers otherwise don't reach the screen on some phones
-                    setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null)
-                    webChromeClient = object : android.webkit.WebChromeClient() {
-                        override fun onConsoleMessage(m: android.webkit.ConsoleMessage?): Boolean { android.util.Log.i("TripMap", "${m?.messageLevel()} ${m?.message()} @${m?.lineNumber()}"); return true }
-                    }
-                    webViewClient = object : WebViewClient() {
-                        override fun onPageFinished(view: WebView?, url: String?) { android.util.Log.i("TripMap", "page finished ${view?.width}x${view?.height}"); view?.evaluateJavascript("console.log('map: L=' + (typeof L) + ' markers=' + document.querySelectorAll('.leaflet-marker-icon').length + ' size=' + innerWidth + 'x' + innerHeight)", null) }
-                        override fun shouldOverrideUrlLoading(view: WebView?, request: android.webkit.WebResourceRequest?): Boolean {
-                            request?.url?.toString()?.let { u -> if (u.startsWith("http")) openGroupUrl(c, u) }; return true   // a tapped pin's "Directions" opens Google Maps
-                        }
-                    }
-                    tag = html
-                    loadDataWithBaseURL("https://triparro.com/", html, "text/html", "utf-8", null)
-                }
-            }, update = { w -> if (w.tag != html) { w.tag = html; w.loadDataWithBaseURL("https://triparro.com/", html, "text/html", "utf-8", null) } }, modifier = Modifier.fillMaxSize())
+            // a real map with a pin for every place in the trip (OpenStreetMap, drawn natively — no key needed); tap a pin for its name
+            val pins = remember(g.objs("pins").size, g.optJSONArray("dest")?.toString()) { mapPins(g) }
+            if (pins.isEmpty()) Box(Modifier.fillMaxSize().background(Color(0xFFF4F1EF)), contentAlignment = Alignment.Center) {
+                Text("Add places to the plan (or a destination) to see them on the map.", color = Brand.Muted, modifier = Modifier.padding(24.dp))
+            } else TripMapView(pins, Modifier.fillMaxSize())
         }
         Column(Modifier.padding(12.dp)) {
             val pins = g.objs("pins")
@@ -651,36 +633,51 @@ fun GroupsHub(nav: NavHostController) {
 
 
 /** The trip map page: Leaflet with OpenStreetMap tiles, every pin labelled, zoomed to fit them all. */
-private var leafletCache: Pair<String, String>? = null
 
-/** Leaflet (BSD licence, assets/leaflet) comes with the app, so the map never waits on another website to start. */
-private fun leaflet(ctx: Context): Pair<String, String> = leafletCache ?: try {
-    (ctx.assets.open("leaflet/leaflet.js").bufferedReader().readText() to ctx.assets.open("leaflet/leaflet.css").bufferedReader().readText()).also { leafletCache = it }
-} catch (_: Exception) { "" to "" }
 
-private fun tripMapHtml(ctx: Context, g: JSONObject): String {
-    val pins = org.json.JSONArray()
-    g.objs("pins").forEach { p ->
-        pins.put(JSONObject().put("lat", p.optDouble("lat")).put("lng", p.optDouble("lng")).put("label", p.text("label")).put("kind", p.text("kind")))
+/** The trip's places for the map: every pin, or the destination when there are none. */
+private fun mapPins(g: JSONObject): List<JSONObject> {
+    val pins = g.objs("pins").filter { it.has("lat") && !it.isNull("lat") }
+    if (pins.isNotEmpty()) return pins
+    val d = g.optJSONArray("dest") ?: return emptyList()
+    return listOf(JSONObject().put("lat", d.optDouble(0)).put("lng", d.optDouble(1)).put("label", g.text("destination").ifBlank { g.text("title") }).put("kind", "destination"))
+}
+
+/** A native OpenStreetMap view (osmdroid) with a coloured pin per place, zoomed to fit them all. */
+@Composable
+private fun TripMapView(pins: List<JSONObject>, modifier: Modifier) {
+    val ctx = LocalContext.current
+    val mv = remember {
+        org.osmdroid.config.Configuration.getInstance().apply {
+            userAgentValue = ctx.packageName   // the tile servers ask apps to say who they are
+            osmdroidBasePath = java.io.File(ctx.cacheDir, "osmdroid")
+            osmdroidTileCache = java.io.File(ctx.cacheDir, "osmdroid/tiles")
+        }
+        org.osmdroid.views.MapView(ctx).apply {
+            setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+            setMultiTouchControls(true)
+            zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.ALWAYS)
+            isTilesScaledToDpi = true
+            minZoomLevel = 3.0; maxZoomLevel = 19.0
+        }
     }
-    if (pins.length() == 0) g.optJSONArray("dest")?.let { d -> pins.put(JSONObject().put("lat", d.optDouble(0)).put("lng", d.optDouble(1)).put("label", g.text("destination").ifBlank { g.text("title") }).put("kind", "destination")) }
-    val data = pins.toString().replace("</", "<\\/")
-    return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<style>${leaflet(ctx).second}</style><script>${leaflet(ctx).first.replace("</script", "<\\/script")}</script>
-<style>#note{position:absolute;left:8px;right:8px;bottom:8px;z-index:999;background:rgba(255,255,255,.92);border-radius:10px;padding:8px 10px;font-size:12px;color:#445;display:none}
-html,body,#m{margin:0;height:100%;font-family:sans-serif}.pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
-.leaflet-popup-content{margin:10px 12px;font-size:14px}.leaflet-popup-content a{display:inline-block;margin-top:6px;color:#d7192a;font-weight:700;text-decoration:none}
-#empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#667;text-align:center;padding:24px;z-index:999;background:#f4f1ef}</style></head>
-<body><div id="m"></div><div id="note"></div><script>
-var pins=$data, colors={destination:'#d7192a',booking:'#1f6feb',fav:'#e8452f',place:'#0e9f6e'};
-if(!pins.length||typeof L==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="empty">'+(pins.length?'The map could not start — use the Google Maps button below.':'Add places to the plan (or a destination) to see them on the map.')+'</div>');}
-else{var m=L.map('m',{zoomControl:true,attributionControl:true});
-var bad=0,tl=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(m);
-tl.on('tileerror',function(){if(++bad==3){var n=document.getElementById('note');n.textContent='The map background needs the internet — your places are pinned; tap one for directions.';n.style.display='block';}});
-var b=[];pins.forEach(function(p){var c=colors[p.kind]||'#0e9f6e';
-var ic=L.divIcon({className:'',html:'<div class="pin" style="background:'+c+'"></div>',iconSize:[30,30],iconAnchor:[15,30],popupAnchor:[0,-28]});
-var t=document.createElement('div');t.textContent=p.label;
-L.marker([p.lat,p.lng],{icon:ic}).addTo(m).bindPopup(t.innerHTML+'<br><a href="https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng+'">Directions in Google Maps ›</a>');b.push([p.lat,p.lng]);});
-if(b.length==1)m.setView(b[0],13);else m.fitBounds(b,{padding:[36,36],maxZoom:14});}
-</script></body></html>"""
+    androidx.compose.runtime.DisposableEffect(mv) { mv.onResume(); onDispose { mv.onPause(); mv.onDetach() } }
+    AndroidView(factory = { mv }, update = { map ->
+        map.overlays.clear()
+        val pts = pins.map { org.osmdroid.util.GeoPoint(it.optDouble("lat"), it.optDouble("lng")) }
+        pins.forEachIndexed { i, p ->
+            val colour = when (p.text("kind")) { "destination" -> 0xFFD7192A.toInt(); "booking" -> 0xFF1F6FEB.toInt(); "fav" -> 0xFFE8452F.toInt(); else -> 0xFF0E9F6E.toInt() }
+            map.overlays.add(org.osmdroid.views.overlay.Marker(map).apply {
+                position = pts[i]; title = p.text("label")
+                setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM)
+                icon = icon?.mutate()?.also { d -> androidx.core.graphics.drawable.DrawableCompat.setTint(androidx.core.graphics.drawable.DrawableCompat.wrap(d), colour) }
+            })
+        }
+        map.overlays.add(org.osmdroid.views.overlay.CopyrightOverlay(ctx))
+        map.post {
+            if (pts.size == 1) { map.controller.setZoom(13.0); map.controller.setCenter(pts[0]) }
+            else map.zoomToBoundingBox(org.osmdroid.util.BoundingBox.fromGeoPointsSafe(pts).increaseByScale(1.4f), false)
+        }
+        map.invalidate()
+    }, modifier = modifier)
 }

@@ -98,5 +98,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
     // finds QR codes on ID cards so they can be blacked out (Aadhaar QR codes carry the full number)
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
+    // the trip map: a native OpenStreetMap view with a pin for every place (no key needed)
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
