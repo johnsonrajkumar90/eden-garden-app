@@ -343,8 +343,8 @@ private fun TopRow(nav: NavHostController, g: JSONObject?, onCamera: () -> Unit)
             Spacer(Modifier.width(10.dp))
             Row(Modifier.height(48.dp).clip(RoundedCornerShape(50)).background(Color(0x66000000)).border(1.dp, FrostLine, RoundedCornerShape(50)).pressable(onCamera).padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.PhotoCamera, null, tint = Color.White, modifier = Modifier.size(20.dp))
-                Text("  Change photo", color = Color.White, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Icon(Icons.Outlined.PhotoCamera, null, tint = Color.White, modifier = Modifier.padding(end = 8.dp).size(20.dp))
+                Text("Change photo", color = Color.White, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
             }
         }
     }

@@ -199,7 +199,7 @@ fun TripArroApp(activity: MainActivity) {
             l.startsWith("triparro-app://") -> {   // the app's own links (notifications, sign in, sign up)
                 activity.pendingLink.value = null
                 val r = l.removePrefix("triparro-app://")
-                if (listOf("notifications", "login", "signup", "page/", "site?", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "chatt/", "hostchat/", "messages", "place/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
+                if (listOf("notifications", "login", "signup", "page/", "site?", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "chatt/", "hostchat/", "groupchat/", "group/", "groups", "messages", "place/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
             }
         }
     }
