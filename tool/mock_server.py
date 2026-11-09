@@ -16,6 +16,8 @@ class H(http.server.BaseHTTPRequestHandler):
         if p == '/__add':
             NOTES.append({'id': max(n['id'] for n in NOTES) + 1, 'kind': 'message', 'title': 'New diary update: Feeding', 'body': 'Happy Paws Home — Bruno ate all his dinner 🍽', 'link': B + '/pet-booking/P1MX48HI#diary', 'read': False, 'created_at': '2026-10-26T19:05:00+05:30'})
             return self.send(200, b'ok', 'text/plain')
+        if p == '/pay-test':   # like the app's payment page: a form that posts itself to the gateway at once
+            return self.send(200, b"<!doctype html><html><head><meta name=viewport content='width=device-width'></head><body style='font-family:sans-serif;padding:24px'><p>Opening the secure payment page...</p><form id=f method=post action='/pay-demo'><input type=hidden name=amount value='5280.00'><input type=hidden name=txnid value='EGTEST'></form><script>document.getElementById('f').submit()</script></body></html>", 'text/html')
         if p == '/api/notifications':
             q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             after = int(q.get('after', ['0'])[0] or 0)
@@ -43,6 +45,9 @@ class H(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         n = int(self.headers.get('content-length', 0)); raw = self.rfile.read(n)
         p = self.path.split('?')[0]
+        if p == '/pay-demo':   # the stand-in gateway page
+            amt = urllib.parse.parse_qs(raw.decode()).get('amount', ['?'])[0]
+            return self.send(200, ("<!doctype html><html><head><meta name=viewport content='width=device-width'></head><body style='font-family:sans-serif;margin:0'><div style='background:#d7192a;color:#fff;padding:24px'><small>Demo gateway</small><h1>Pay Rs " + amt + "</h1></div><div style='padding:24px'><p>UPI, card or net banking</p><a href='/booking/D6F5CD3D?paid=1' style='display:block;background:#d23a35;color:#fff;padding:16px;border-radius:12px;text-align:center;text-decoration:none'>Pay now</a></div></body></html>").encode(), 'text/html')
         if p == '/api/notifications/read':
             b = json.loads(raw or b'{}')
             for x in NOTES:

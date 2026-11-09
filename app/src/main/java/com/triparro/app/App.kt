@@ -199,7 +199,7 @@ fun TripArroApp(activity: MainActivity) {
             l.startsWith("triparro-app://") -> {   // the app's own links (notifications, sign in, sign up)
                 activity.pendingLink.value = null
                 val r = l.removePrefix("triparro-app://")
-                if (listOf("notifications", "login", "signup", "page/", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "chatt/", "hostchat/", "messages", "place/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
+                if (listOf("notifications", "login", "signup", "page/", "site?", "become-host", "become-pet-host", "hosting", "delete-account", "chat/", "chatt/", "hostchat/", "messages", "place/", "checkin", "petreceipt/").any { r.startsWith(it) }) nav.navigate(r)
             }
         }
     }
@@ -299,10 +299,11 @@ fun TripArroApp(activity: MainActivity) {
         Box(Modifier.fillMaxSize().padding(pad)) {
             NavHost(nav, startDestination = "explore",
                 // every screen slides in softly and fades; going back slides the other way
-                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260)) + androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320)) { it / 10 } },
-                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) },
-                popEnterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260)) + androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320)) { -it / 10 } },
-                popExitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) + androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(260)) { it / 10 } },
+                // Web pages (payment, website pages) appear at once: a WebView created during a fade or slide can stay blank
+                enterTransition = { if (isWebRoute(targetState.destination.route)) androidx.compose.animation.EnterTransition.None else androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260)) + androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320)) { it / 10 } },
+                exitTransition = { if (isWebRoute(targetState.destination.route) || isWebRoute(initialState.destination.route)) androidx.compose.animation.ExitTransition.None else androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) },
+                popEnterTransition = { if (isWebRoute(targetState.destination.route) || isWebRoute(initialState.destination.route)) androidx.compose.animation.EnterTransition.None else androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260)) + androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320)) { -it / 10 } },
+                popExitTransition = { if (isWebRoute(initialState.destination.route)) androidx.compose.animation.ExitTransition.None else androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) + androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(260)) { it / 10 } },
             ) {
                 composable("explore") { ExploreScreen(nav) }
                 composable("pets") { PetSearchScreen(nav) }
@@ -451,3 +452,7 @@ private fun OfferPopup(activity: MainActivity, offer: org.json.JSONObject?, open
 
 /** The app's colour backdrop is what every glass surface blurs. */
 private fun Modifier.hazeSourceCompat(state: dev.chrisbanes.haze.HazeState): Modifier = this.then(Modifier.hazeSource(state))
+
+
+/** Screens that show a web page (payment, website pages, PDFs): no slide or fade for them. */
+private fun isWebRoute(route: String?): Boolean = route != null && (route == "pay" || route.startsWith("site?") || route.startsWith("pdf?"))

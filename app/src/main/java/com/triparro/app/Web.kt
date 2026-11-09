@@ -115,6 +115,9 @@ fun WebScreen(
                     settings.loadWithOverviewMode = true
                     settings.useWideViewPort = true
                     settings.mediaPlaybackRequiresUserGesture = false
+                    // payment pages (Razorpay / banks) may open a pop-up window: load it in this same page
+                    settings.javaScriptCanOpenWindowsAutomatically = true
+                    settings.setSupportMultipleWindows(true)
                     settings.userAgentString = settings.userAgentString + " " + Api.userAgent
                     webViewClient = object : WebViewClient() {
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -148,6 +151,22 @@ fun WebScreen(
                     }
                     webChromeClient = object : WebChromeClient() {
                         override fun onProgressChanged(view: WebView?, newProgress: Int) { progress = newProgress }
+                        override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: android.os.Message?): Boolean {
+                            // a pop-up: catch its first address and open it here (or outside the app for UPI apps, WhatsApp…)
+                            val main = view
+                            val popup = WebView(view.context)
+                            popup.webViewClient = object : WebViewClient() {
+                                override fun shouldOverrideUrlLoading(v: WebView, request: WebResourceRequest): Boolean {
+                                    val link = request.url.toString(); val scheme = request.url.scheme ?: ""
+                                    if (scheme != "http" && scheme != "https") openExternal(context, link) else main.loadUrl(link)
+                                    v.destroy(); return true
+                                }
+                            }
+                            val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                            transport.webView = popup
+                            resultMsg.sendToTarget()
+                            return true
+                        }
                         override fun onShowFileChooser(view: WebView?, callback: ValueCallback<Array<Uri>>?, params: FileChooserParams?): Boolean {
                             fileCallback?.onReceiveValue(null)
                             fileCallback = callback

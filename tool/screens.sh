@@ -118,5 +118,7 @@ adb shell input tap 108 2250; shot 46-back-to-explore 3
 adb shell input tap 835 1996; shot 47-group-trips-hub 5
 adb shell input tap 422 320; shot 48-hub-trip-plans 3
 adb shell input tap 726 320; shot 49-hub-tickets 3
+# payment page: the self-posting form must reach the gateway page and show it (not a blank page)
+app "site?path=%2Fpay-test&title=Payment"; shot 50-payment-page 8
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true
 ls -la screens
