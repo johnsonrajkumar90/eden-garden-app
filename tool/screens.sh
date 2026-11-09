@@ -109,6 +109,16 @@ adb shell input swipe 540 600 540 2000 300; adb shell input swipe 540 600 540 20
 tap "Track spending ›"; shot 44-group-expenses 3
 adb shell input keyevent 4; sleep 1
 app tickets; shot 45-tickets 5
+# trip chat (WhatsApp style), trip photo choices, add a place from where you are
+app groupchat/5; shot 51-trip-chat 6
+adb shell am force-stop $PKG; adb shell pm grant $PKG android.permission.ACCESS_FINE_LOCATION || true; adb shell pm grant $PKG android.permission.ACCESS_COARSE_LOCATION || true
+adb emu geo fix 76.68 10.94 || true
+open /trip-group/TESTTRIP; sleep 7; tap "Change photo"; shot 52-cover-photo 6
+adb shell input keyevent 4; sleep 2
+adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1
+b=$(python3 -c "import re;x=open('/tmp/ui.xml',encoding='utf-8').read();m=re.search(r'text=\"Add to[^\"]*\"[^>]*bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"',x);print((int(m[1])+int(m[3]))//2,(int(m[2])+int(m[4]))//2) if m else None" 2>/dev/null)
+[ -n "$b" ] && [ "$b" != "None" ] && adb shell input tap $b; shot 53-add-place-here 10
+adb shell input keyevent 4; sleep 1
 # bottom tabs: Pets → Account → Explore must come back to Explore; the floating Group trips button; red bars
 adb shell am force-stop $PKG; sleep 1; adb shell am start -W -n $PKG/com.triparro.app.MainActivity; sleep 8
 # (taps by position: the moving glass backdrop keeps the screen busy for uiautomator)

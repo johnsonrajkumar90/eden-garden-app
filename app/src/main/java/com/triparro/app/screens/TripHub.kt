@@ -214,7 +214,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                     // chat + travellers
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         val msgs = g.objs("messages")
-                        DarkTile(Modifier.weight(1f), { sheet = "chat" }) {
+                        DarkTile(Modifier.weight(1f), { nav.navigate("groupchat/$id") }) {
                             Box(Modifier.size(44.dp).clip(CircleShape).background(Frost), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.ChatBubble, null, tint = Color.White) }
                             Column(Modifier.padding(start = 10.dp)) {
                                 Text("Trip chat", color = Color.White, style = MaterialTheme.typography.titleSmall)
@@ -287,9 +287,18 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
     }
 
     data?.let { gg -> if (inviting) ShareTripDialog(gg, justMade = false) { inviting = false } }
-    if (coverMenu) AlertDialog(onDismissRequest = { coverMenu = false }, title = { Text("Trip photo") }, text = { Text("Take a photo or choose one — everyone in the trip sees it at the top.") },
-        confirmButton = { TextButton(onClick = { coverMenu = false; try { val u = newPhoto(ctx, "cover"); pendingCover = u; coverCamera.launch(u) } catch (_: Exception) { } }) { Text("Camera") } },
-        dismissButton = { TextButton(onClick = { coverMenu = false; coverGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) { Text("Gallery") } })
+    if (coverMenu && data != null) ModalBottomSheet(onDismissRequest = { coverMenu = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = Color(0xFFFBF8F6)) {
+        CoverSheet(id, data!!, busy,
+            onAlbum = { coverGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onCamera = { try { val u = newPhoto(ctx, "cover"); pendingCover = u; coverCamera.launch(u) } catch (_: Exception) { } },
+            onWeb = { photo ->
+                busy = true
+                scope.launch {
+                    try { data = Api.post("trip-groups/$id/cover", if (photo == null) mapOf("auto" to 1) else mapOf("google_photo" to photo)); err = null } catch (e: Exception) { err = errorText(e) }
+                    busy = false
+                }
+            })
+    }
 
     val g2 = data
     if (sheet.isNotEmpty() && g2 != null) {
@@ -332,7 +341,11 @@ private fun TopRow(nav: NavHostController, g: JSONObject?, onCamera: () -> Unit)
         if (g != null) {
             RoundDark(Icons.Outlined.Share, "Invite") { shareLink(ctx, g.text("share_text"), g.text("link")) }
             Spacer(Modifier.width(10.dp))
-            RoundDark(Icons.Outlined.PhotoCamera, "Trip photo", onCamera)
+            Row(Modifier.height(48.dp).clip(RoundedCornerShape(50)).background(Color(0x66000000)).border(1.dp, FrostLine, RoundedCornerShape(50)).pressable(onCamera).padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.PhotoCamera, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                Text("  Change photo", color = Color.White, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

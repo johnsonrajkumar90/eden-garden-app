@@ -308,6 +308,7 @@ fun TripArroApp(activity: MainActivity) {
                 composable("groups") { com.triparro.app.screens.GroupsHub(nav) }
                 composable("group/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.GroupTripScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("tickets?msg={msg}", arguments = listOf(navArgument("msg") { defaultValue = "" })) { e -> com.triparro.app.screens.TicketsScreen(nav, e.arguments?.getString("msg")?.takeIf { it.isNotBlank() }) }
+                composable("groupchat/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.TripChatScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("groupjoin/{code}") { e -> com.triparro.app.screens.GroupJoinScreen(nav, e.arguments?.getString("code") ?: "") }
                 composable("tripplan/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { e -> com.triparro.app.screens.SavedPlanScreen(nav, e.arguments?.getInt("id") ?: 0) }
                 composable("wallet") { com.triparro.app.screens.WalletScreen(nav) }

@@ -490,6 +490,8 @@ internal fun AddToGroup(id: Int, done: (JSONObject) -> Unit) {
     var body by remember { mutableStateOf("") }
     var day by remember { mutableStateOf("") }
     var place by remember { mutableStateOf<JSONObject?>(null) }
+    var here by remember { mutableStateOf(true) }        // a place: where you are now (live location), or a search
+    var autoName by remember { mutableStateOf("") }      // the name Google gave, replaced when another place is picked
     var err by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     val share = rememberLoader(id) { Api.get("trip-groups/$id/shareable") }
@@ -529,8 +531,17 @@ internal fun AddToGroup(id: Int, done: (JSONObject) -> Unit) {
                 if (kind == "booking") Text("The group sees the stay, dates and number of guests — not the price or your contact details.", style = MaterialTheme.typography.labelSmall, color = Brand.Muted, modifier = Modifier.padding(top = 8.dp))
             }
             else -> {
-                if (kind == "place") { PlacePicker("Find the place on the map", place) { place = it; if (it != null && title.isBlank()) title = it.text("name") }; Gap(8) }
-                Field(if (kind == "todo") "What needs doing" else if (kind == "place") "Name" else "Title", title, { title = it.take(160) })
+                if (kind == "place") {
+                    PlaceSource(here) { v -> here = v; place = null; if (title == autoName) title = ""; autoName = "" }
+                    Gap(10)
+                    if (here) LiveSpot { n, la, ln ->
+                        place = JSONObject().put("name", n).put("lat", la).put("lng", ln)
+                        if (title.isBlank() || title == autoName) { title = n; autoName = n }
+                    } else PlacePicker("Find the place on the map", place) { place = it; if (it != null && (title.isBlank() || title == autoName)) { title = it.text("name"); autoName = title } }
+                    Gap(10)
+                }
+                Field(if (kind == "todo") "What needs doing" else if (kind == "place") "Place name" else "Title", title, { title = it.take(160) },
+                    placeholder = if (kind == "place") "e.g. Doddabetta Peak" else "")
                 Gap(8)
                 if (kind != "todo") { Field("Details (optional)", body, { body = it.take(2000) }, lines = 3); Gap(8) }
                 if (kind != "note") { Field("Day (YYYY-MM-DD, optional)", day, { day = it.take(10) }); Gap(8) }
