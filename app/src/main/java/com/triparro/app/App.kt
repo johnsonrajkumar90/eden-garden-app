@@ -230,12 +230,7 @@ fun TripArroApp(activity: MainActivity) {
         containerColor = Color.Transparent,
         // Group trips, one tap away from the main screens
         floatingActionButton = {
-            if (current in listOf("explore", "pets", "account")) androidx.compose.material3.ExtendedFloatingActionButton(
-                onClick = { nav.navigate("groups") { launchSingleTop = true } },
-                icon = { Icon(Icons.Outlined.Groups, null) }, text = { Text("Group trips", fontWeight = FontWeight.SemiBold) },
-                containerColor = Brand.Matte, contentColor = Color.White, shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
+            if (current in listOf("explore", "pets", "account")) com.triparro.app.screens.GroupTripsFab { nav.navigate("groups") { launchSingleTop = true } }
         },
         bottomBar = {
             if (tabs.any { it.route == current }) {

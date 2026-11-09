@@ -115,9 +115,12 @@ adb shell am force-stop $PKG; sleep 1; adb shell am start -W -n $PKG/com.triparr
 adb shell input tap 324 2250; sleep 3; shot 46a-pets-tab 1
 adb shell input tap 972 2250; sleep 3; shot 46b-account-tab 1
 adb shell input tap 108 2250; shot 46-back-to-explore 3
-adb shell input tap 835 1996; shot 47-group-trips-hub 5
-adb shell input tap 422 320; shot 48-hub-trip-plans 3
-adb shell input tap 726 320; shot 49-hub-tickets 3
+adb shell input tap 954 1990; shot 47-group-trips-hub 5
+adb shell input swipe 540 1800 540 900 300; sleep 1; shot 47b-group-trip-cards 2
+adb shell input tap 540 320; shot 48-hub-trip-plans 3
+adb shell input tap 872 320; shot 49-hub-tickets 3
+adb shell input tap 208 320; sleep 3; adb shell input swipe 540 900 540 1800 300; sleep 1
+tap "Goa with friends"; shot 49b-new-trip-cover 5
 # payment page: the self-posting form must reach the gateway page and show it (not a blank page)
 app "site?path=%2Fpay-test&title=Payment"; shot 50-payment-page 8
 adb logcat -d -s AndroidRuntime:E > screens/crash-log.txt 2>&1 || true

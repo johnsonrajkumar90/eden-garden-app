@@ -184,8 +184,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                 val hero = rememberHazeState()
                 Box(Modifier.fillMaxWidth().height(400.dp)) {
                     Box(Modifier.matchParentSize().hazeSource(hero)) {
-                        g.str("cover")?.let { AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
-                            ?: Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF6A1019), Color(0xFFB81D2B), Color(0xFFFF8A3D)))))
+                        TripCover(g.str("cover"), g.text("title") + " " + g.text("destination"), Modifier.fillMaxSize(), iconSize = 200)
                         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color(0x55000000), 0.35f to Color(0x00000000), 0.7f to Color(0x99000000), 1f to Night)))
                     }
                     TopRow(nav, g) { coverMenu = true }

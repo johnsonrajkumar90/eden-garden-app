@@ -109,24 +109,13 @@ fun GroupTripsList(nav: NavHostController) {
     val tick by AppState.refreshTick
     val l = rememberLoader(tick) { Api.get("trip-groups") }
     var creating by remember { mutableStateOf(false) }
+    var newIdea by remember { mutableStateOf("") }
     var joining by remember { mutableStateOf(false) }
     var sharing by remember { mutableStateOf<JSONObject?>(null) }
     var made by remember { mutableStateOf<JSONObject?>(null) }
     val scope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Card {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(44.dp).clip(CircleShape).background(Brand.Sky), contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Groups, null, tint = Brand.Blue) }
-                Column(Modifier.padding(start = 12.dp).weight(1f)) {
-                    Text("Make a trip, share its link", style = MaterialTheme.typography.titleMedium)
-                    Text("Give each trip a name and send its own link to family and friends. Everyone who joins sees the plan, expenses, favourites and chat.", style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft)
-                }
-            }
-            Row(Modifier.padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PrimaryButton("New trip", { creating = true }, Modifier.weight(1f), icon = Icons.Outlined.Add)
-                OutlinedButton(onClick = { joining = true }, modifier = Modifier.weight(1f).height(52.dp)) { Text("Join with a code") }
-            }
-        }
+        MakeTripCard(onNew = { idea -> newIdea = idea; creating = true }, onJoin = { joining = true })
         Gap()
         val data = l.data.value
         data?.objs("invites")?.forEach { inv ->
@@ -137,40 +126,15 @@ fun GroupTripsList(nav: NavHostController) {
         when {
             data == null && l.loading.value -> Loading()
             data == null -> ErrorBox(l.error.value ?: "Could not load your group trips.", { l.reload() })
-            data.objs("items").isEmpty() -> Text("No trips yet. Make one — for example “Ooty with family” or “Goa with college friends” — and share its link.", style = MaterialTheme.typography.bodyMedium, color = Brand.Muted, modifier = Modifier.padding(8.dp))
-            else -> data.objs("items").forEach { g ->
-                // a trip card: its photo, name, place and dates, and who has joined
-                Box(Modifier.padding(bottom = 12.dp).fillMaxWidth().height(170.dp).appear().clip(RoundedCornerShape(26.dp)).background(Brush.linearGradient(listOf(Color(0xFF6A1019), Color(0xFFB81D2B), Color(0xFFFF8A3D))))
-                    .clickable { nav.navigate("group/${g.int("id")}") }) {
-                    g.str("cover")?.let { coil.compose.AsyncImage(model = it, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize()) }
-                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x11000000), Color(0xCC15161C)))))
-                    // share this trip's own link
-                    Row(Modifier.align(Alignment.TopEnd).padding(10.dp).clip(RoundedCornerShape(50)).background(Color(0x66000000)).clickable { sharing = g }.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.Share, null, tint = Color.White, modifier = Modifier.size(16.dp))
-                        Text(" Share link", color = Color.White, style = MaterialTheme.typography.labelMedium)
-                    }
-                    if (g.text("role") == "owner") Text("Your trip", color = Brand.Ink, style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.align(Alignment.TopStart).padding(12.dp).clip(RoundedCornerShape(50)).background(Brand.Sun).padding(horizontal = 9.dp, vertical = 4.dp))
-                    Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
-                        val sub = listOf(g.text("destination"), g.text("dates")).filter { it.isNotBlank() }.joinToString(" · ")
-                        if (sub.isNotBlank()) Text(sub, style = MaterialTheme.typography.labelMedium, color = Color(0xCCFFFFFF))
-                        Text(g.text("title"), style = MaterialTheme.typography.titleLarge, color = Color.White, maxLines = 2)
-                        Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                            val people = (0 until (g.optJSONArray("people")?.length() ?: 0)).map { g.optJSONArray("people")!!.optString(it) }
-                            people.take(4).forEachIndexed { i, n ->
-                                Box(Modifier.padding(end = 4.dp).size(28.dp).clip(CircleShape).background(listOf(Color(0xFFFFC72C), Color(0xFFFF8A7A), Color(0xFF8C9BF2), Color(0xFF5CC29A))[i % 4]), contentAlignment = Alignment.Center) {
-                                    Text(n.take(1), fontWeight = FontWeight.Bold, color = Brand.Ink, style = MaterialTheme.typography.labelMedium)
-                                }
-                            }
-                            Text(" " + people.joinToString(", ").ifBlank { "Just you" } + if (g.int("members") > people.size) " +${g.int("members") - people.size}" else "",
-                                style = MaterialTheme.typography.labelMedium, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
-                    }
-                }
+            data.objs("items").isEmpty() -> Text("No trips yet. Name one above — or tap an idea — and share its link with family and friends.", style = MaterialTheme.typography.bodyMedium, color = Brand.Muted, modifier = Modifier.padding(8.dp))
+            else -> {
+                Text("Your trips  ·  ${data.objs("items").size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Brand.Ink, modifier = Modifier.padding(start = 4.dp, bottom = 10.dp))
+                data.objs("items").forEach { g -> TripCard(g, onOpen = { nav.navigate("group/${g.int("id")}") }, onShare = { sharing = g }) }
             }
         }
+        Spacer(Modifier.height(90.dp))
     }
-    if (creating) NewGroupDialog({ creating = false }) { g -> creating = false; AppState.refreshTick.value++; made = g }
+    if (creating) NewGroupDialog(newIdea, { creating = false }) { g -> creating = false; AppState.refreshTick.value++; made = g }
     // just made: share its link straight away, then open it
     made?.let { g -> ShareTripDialog(g, justMade = true, onClose = { made = null; nav.navigate("group/${g.int("id")}") }) }
     sharing?.let { g -> ShareTripDialog(g, justMade = false, onClose = { sharing = null }) }
@@ -178,17 +142,32 @@ fun GroupTripsList(nav: NavHostController) {
 }
 
 @Composable
-private fun NewGroupDialog(onClose: () -> Unit, onMade: (JSONObject) -> Unit) {
+private fun NewGroupDialog(idea: String, onClose: () -> Unit, onMade: (JSONObject) -> Unit) {
     val scope = rememberCoroutineScope()
-    var title by rememberSaveable { mutableStateOf("") }
+    var title by rememberSaveable { mutableStateOf(idea) }
+    // a photo that matches the name (or the place), looked up as you type
+    var cover by remember { mutableStateOf<JSONObject?>(null) }
     var dest by remember { mutableStateOf<JSONObject?>(null) }
     var start by rememberSaveable { mutableStateOf("") }
     var end by rememberSaveable { mutableStateOf("") }
     var err by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var pickDates by remember { mutableStateOf(false) }
+    val destName = dest?.text("name") ?: ""
+    LaunchedEffect(title, destName) {
+        if (title.trim().length < 3 && destName.isBlank()) { cover = null; return@LaunchedEffect }
+        kotlinx.coroutines.delay(650)
+        cover = try { Api.get("trip-groups/cover-suggest", mapOf("title" to title.trim(), "destination" to destName)) } catch (_: Exception) { null }
+    }
     AlertDialog(onDismissRequest = onClose, title = { Text("New trip") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState())) {
+            Box(Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(20.dp))) {
+                TripCover(cover?.str("photo_url"), "$title $destName", Modifier.fillMaxSize(), iconSize = 96)
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.4f to Color(0x00000000), 1f to Color(0xCC15161C))))
+                Text(title.ifBlank { "Your trip" }, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White, maxLines = 2,
+                    overflow = TextOverflow.Ellipsis, modifier = Modifier.align(Alignment.BottomStart).padding(14.dp))
+            }
+            Gap(12)
             Field("Name the trip", title, { title = it.take(80) }, placeholder = "Ooty with family")
             Gap(8)
             PlacePicker("Where to (optional)", dest) { dest = it }
@@ -205,6 +184,7 @@ private fun NewGroupDialog(onClose: () -> Unit, onMade: (JSONObject) -> Unit) {
                 try {
                     val body = mutableMapOf<String, Any?>("title" to title, "start_date" to start.ifBlank { null }, "end_date" to end.ifBlank { null })
                     dest?.let { body["destination"] = it.text("name"); body["lat"] = it.optDouble("lat"); body["lng"] = it.optDouble("lng") }
+                    cover?.str("photo")?.let { body["cover_photo"] = it }
                     onMade(Api.post("trip-groups", body).obj("group") ?: JSONObject())
                 } catch (e: Exception) { err = errorText(e) }
                 busy = false
@@ -632,17 +612,13 @@ fun GroupsHub(nav: NavHostController) {
     var tab by rememberSaveable { mutableStateOf("trips") }
     Column(Modifier.fillMaxSize()) {
         com.triparro.app.ui.BackBar("Group trips", { nav.popBackStack() })
-        Row(Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("trips" to "Trips", "plans" to "Trip plans", "tickets" to "Tickets").forEach { (v, t) ->
-                val on = tab == v
-                Text(t, style = MaterialTheme.typography.labelLarge, color = if (on) Color.White else Brand.InkSoft,
-                    modifier = Modifier.clip(RoundedCornerShape(50)).background(if (on) Brand.Blue else Brand.Sky).clickable { tab = v }.padding(horizontal = 16.dp, vertical = 9.dp))
+        HubTabs(tab) { tab = it }
+        androidx.compose.animation.Crossfade(tab, label = "hub") { t ->
+            when (t) {
+                "plans" -> SavedPlansList(nav)
+                "tickets" -> TicketsList(nav)
+                else -> GroupTripsList(nav)
             }
-        }
-        when (tab) {
-            "plans" -> SavedPlansList(nav)
-            "tickets" -> TicketsList(nav)
-            else -> GroupTripsList(nav)
         }
     }
 }
