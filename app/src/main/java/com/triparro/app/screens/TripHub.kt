@@ -161,7 +161,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
         busy = true
         scope.launch {
             try {
-                val files = photo?.let { u -> copyToCache(ctx, u, "tg")?.let { listOf(Upload("photo", it.first, it.second)) } } ?: emptyList()
+                val files = photo?.let { u -> com.triparro.app.core.shrinkPhoto(ctx, u, "tg")?.let { listOf(Upload("photo", it.first, it.second)) } } ?: emptyList()
                 data = Api.postMultipart(path, fields, files); err = null; after()
             } catch (e: Exception) { err = errorText(e) }
             busy = false
@@ -288,6 +288,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
 
     data?.let { gg -> if (inviting) ShareTripDialog(gg, justMade = false) { inviting = false } }
     if (coverMenu && data != null) ModalBottomSheet(onDismissRequest = { coverMenu = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = Color(0xFFFBF8F6)) {
+        err?.let { Notice(it, "bad", Modifier.padding(horizontal = 18.dp).padding(bottom = 8.dp)) }
         CoverSheet(id, data!!, busy,
             onAlbum = { coverGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onCamera = { try { val u = newPhoto(ctx, "cover"); pendingCover = u; coverCamera.launch(u) } catch (_: Exception) { } },
@@ -303,7 +304,10 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
     val g2 = data
     if (sheet.isNotEmpty() && g2 != null) {
         val state = rememberModalBottomSheetState(skipPartiallyExpanded = sheet in listOf("chat", "expenses", "fav", "add"))
+        LaunchedEffect(sheet) { err = null }
         ModalBottomSheet(onDismissRequest = { sheet = "" }, sheetState = state, containerColor = Color(0xFFFBF8F6)) {
+            // what went wrong shows here, on the sheet — not hidden behind it
+            err?.let { Notice(it, "bad", Modifier.padding(horizontal = 18.dp).padding(bottom = 8.dp)) }
             when (sheet) {
                 "add" -> AddToGroup(id) { nd -> data = nd; sheet = "" }
                 "chat" -> Box(Modifier.fillMaxWidth().height(560.dp)) { GroupChat(g2) { msg -> act("trip-groups/$id/items", mapOf("kind" to "message", "body" to msg)) } }
@@ -504,21 +508,37 @@ private fun AddFavourite(g: JSONObject, busy: Boolean, save: (List<Pair<String, 
     var pending by remember { mutableStateOf<Uri?>(null) }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) photo = pending }
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u -> if (u != null) photo = u }
+    var searchNote by remember { mutableStateOf<String?>(null) }
+    var here by remember { mutableStateOf(false) }       // "I'm here now": the phone's location, named by Google
+    var spot by remember { mutableStateOf<Triple<String, Double, Double>?>(null) }
     LaunchedEffect(q) {
+        searchNote = null
         if (q.length < 3 || !googleOn) { results = emptyList(); return@LaunchedEffect }
         kotlinx.coroutines.delay(450)
         try {
             val d = g.optJSONArray("dest")
             val r = Api.get("places/search", mapOf("q" to q) + (if (d != null) mapOf("lat" to d.optDouble(0), "lng" to d.optDouble(1)) else emptyMap()))
             googleOn = r.bool("google"); results = r.objs("items")
-        } catch (_: Exception) { results = emptyList() }
+            searchNote = r.str("error") ?: if (results.isEmpty()) "Nothing found on Google — check the spelling, or type the name below." else null
+        } catch (e: Exception) { results = emptyList(); searchNote = "Google search didn't answer (${errorText(e)}). Type the name below." }
     }
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 28.dp)) {
         Text("Save a favourite place", style = MaterialTheme.typography.titleLarge)
         Text("Restaurants, cafés, views — the whole group sees your list and can tick off what they've visited.", style = MaterialTheme.typography.bodySmall, color = Brand.Muted)
         Gap(10)
-        if (googleOn && picked == null) {
+        if (picked == null) {
+            PlaceSource(here) { v -> here = v; spot = null; if (v) q = "" }
+            Gap(10)
+        }
+        if (here && picked == null) {
+            LiveSpot { n, la, ln -> spot = Triple(n, la, ln); if (n.isNotBlank()) name = n }
+            Gap(10)
+        }
+        if (!googleOn && !here && picked == null) Text("Google search isn't switched on for TripArro yet — type the place's name and add your own photo.",
+            style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft, modifier = Modifier.padding(bottom = 8.dp))
+        if (googleOn && picked == null && !here) {
             Field("Find on Google", q, { q = it }, placeholder = "e.g. Annapoorna, RS Puram")
+            searchNote?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = Brand.InkSoft, modifier = Modifier.padding(top = 6.dp)) }
             results.take(6).forEach { p ->
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, Brand.Line, RoundedCornerShape(16.dp)).clickable {
                     picked = p; name = p.text("name"); cat = if (p.text("type").contains("caf", true)) "cafe" else if (p.text("type").contains("restaurant", true) || p.text("type").contains("food", true)) "restaurant" else "place"
@@ -578,8 +598,10 @@ private fun AddFavourite(g: JSONObject, busy: Boolean, save: (List<Pair<String, 
                 if (p.has("lat") && !p.isNull("lat")) { f.add("lat" to p.optDouble("lat").toString()); f.add("lng" to p.optDouble("lng").toString()) }
                 if (photo == null) p.str("photo")?.let { f.add("google_photo" to it) }
             }
+            if (picked == null) spot?.let { (_, la, ln) -> f.add("lat" to la.toString()); f.add("lng" to ln.toString()) }   // pinned where you are
             save(f, photo)
-        }, Modifier.fillMaxWidth(), loading = busy, coral = true, enabled = name.isNotBlank())
+        }, Modifier.fillMaxWidth(), loading = busy, coral = true, enabled = name.isNotBlank() && !busy)
+        if (name.isBlank()) Text("Add the place's name to save it.", style = MaterialTheme.typography.labelSmall, color = Brand.Muted, modifier = Modifier.padding(top = 6.dp))
     }
 }
 
