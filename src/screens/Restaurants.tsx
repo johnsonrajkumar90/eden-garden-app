@@ -45,7 +45,7 @@ function RestaurantCard({ r, index, onSave }: { r: J; index: number; onSave?: (r
   const open = r.open_now === undefined || r.open_now === null ? null : bool(r, 'open_now');
   return (
     <Appear index={index}>
-      <Press onPress={() => { const u = str(r, 'maps_url'); if (u) Linking.openURL(u).catch(() => {}); }} style={{ width: 220, borderRadius: 22, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, overflow: 'hidden' }}>
+      <Press card onPress={() => { const u = str(r, 'maps_url'); if (u) Linking.openURL(u).catch(() => {}); }} style={{ width: 220, borderRadius: 22, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, overflow: 'hidden' }}>
         <View style={{ height: 140, backgroundColor: Brand.Sky, alignItems: 'center', justifyContent: 'center' }}>
           {str(r, 'photo_url') ? <Image source={{ uri: str(r, 'photo_url')! }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} contentFit="cover" accessibilityLabel={text(r, 'name')} /> : <Icon name="restaurant" size={40} color={Brand.Coral} />}
           <LinearGradient colors={['transparent', 'transparent', '#00000088']} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />

@@ -138,7 +138,7 @@ export default function PetSearchScreen() {
 function PetTile({ emoji, label, bg, i, onPress }: { emoji: string; label: string; bg: string; i: number; onPress: () => void }) {
   return (
     <Appear index={i} style={{ flex: 1 }}>
-      <Press onPress={onPress} style={{ borderRadius: 20, backgroundColor: '#fff', paddingVertical: 12, alignItems: 'center', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.13, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } }}>
+      <Press card onPress={onPress} style={{ borderRadius: 20, backgroundColor: '#fff', paddingVertical: 12, alignItems: 'center', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.13, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } }}>
         <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 22 }}>{emoji}</Text></View>
         <Txt k="labelMedium" numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>
       </Press>

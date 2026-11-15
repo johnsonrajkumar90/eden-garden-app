@@ -3,7 +3,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { J, bool, int, num, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
-import { Photo, Pill, Press, Stars, Txt, money, plural, st } from './kit';
+import { LivePhoto, Photo, Pill, Press, Stars, Txt, money, plural, st } from './kit';
 
 export const petEmoji: Record<string, string> = { dog: '🐕', cat: '🐈', bird: '🦜', rabbit: '🐇', small: '🐹', other: '🐾' };
 export const petTypes: [string, string][] = [['', 'Any pet'], ['dog', 'Dog'], ['cat', 'Cat'], ['bird', 'Bird'], ['rabbit', 'Rabbit'], ['small', 'Small pet'], ['other', 'Other']];
@@ -13,8 +13,8 @@ export const petSizes: [string, string][] = [['small', 'Small (up to 10 kg)'], [
 export function PetHostCard({ c, compact, onPress }: { c: J; compact?: boolean; onPress: () => void }) {
   const free = c.free === undefined || c.free === null ? null : int(c, 'free');
   return (
-    <Press onPress={onPress} style={[st.glass, { borderRadius: 24, overflow: 'hidden' }]} scaleTo={0.98}>
-      {!compact ? <Photo url={str(c, 'image')} corner={0} style={{ width: '100%', aspectRatio: 1.7 }} label={text(c, 'title')} /> : null}
+    <Press card onPress={onPress} style={[st.glass, { borderRadius: 24, overflow: 'hidden' }]} scaleTo={0.98}>
+      {!compact ? <LivePhoto url={str(c, 'image')} corner={0} style={{ width: '100%', aspectRatio: 1.7 }} label={text(c, 'title')} /> : null}
       <View style={{ flexDirection: 'row', padding: 14 }}>
         {compact ? <Photo url={str(c, 'image')} style={{ width: 72, aspectRatio: 1 }} /> : null}
         <View style={{ flex: 1, paddingLeft: compact ? 12 : 0 }}>

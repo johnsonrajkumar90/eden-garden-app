@@ -40,7 +40,7 @@ export function AlbumsPanel({ id, g, onData }: { id: number; g: J; onData: (g: J
       ) : pairs.map((pair, i) => (
         <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
           {pair.map((a) => (
-            <Press key={int(a, 'id')} onPress={() => setOpenId(int(a, 'id'))} style={{ flex: 1 }} accessibilityLabel={`Album ${text(a, 'title')}`}>
+            <Press card key={int(a, 'id')} onPress={() => setOpenId(int(a, 'id'))} style={{ flex: 1 }} accessibilityLabel={`Album ${text(a, 'title')}`}>
               <View style={{ aspectRatio: 1, borderTopLeftRadius: 80, borderTopRightRadius: 80, borderBottomLeftRadius: 18, borderBottomRightRadius: 18, overflow: 'hidden', backgroundColor: Brand.Field, alignItems: 'center', justifyContent: 'center' }}>
                 {str(a, 'cover') ? <Image source={{ uri: str(a, 'cover')! }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} contentFit="cover" /> : <Icon name="photo-library" size={34} color={Brand.Muted} />}
                 <View style={{ position: 'absolute', right: 8, bottom: 8, borderRadius: 50, backgroundColor: '#000000AA', paddingHorizontal: 8, paddingVertical: 3 }}><Txt k="labelSmall" color="#fff">{int(a, 'count')}</Txt></View>

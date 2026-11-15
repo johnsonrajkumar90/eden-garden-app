@@ -50,13 +50,69 @@ export const Gap = ({ h = 12, w }: { h?: number; w?: number }) => <View style={w
 
 /* ---------- Motion ---------- */
 /** Pressable that shrinks a little when held (the native app's "pressable"). */
-export function Press({ style, children, scaleTo = 0.965, disabled, ...p }: PressableProps & { style?: StyleProp<ViewStyle>; scaleTo?: number; children?: ReactNode }) {
+export function Press({ style, children, scaleTo = 0.965, disabled, card, index = 0, ...p }: PressableProps & { style?: StyleProp<ViewStyle>; scaleTo?: number; children?: ReactNode; card?: boolean; index?: number }) {
   const s = useRef(new Animated.Value(1)).current;
   const to = (v: number) => Animated.spring(s, { toValue: v, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
+  if (card) return <CardMotion index={index} style={style} scale={s} to={to} scaleTo={scaleTo} disabled={disabled} p={p}>{children}</CardMotion>;
   return (
     <Pressable {...p} disabled={disabled} onPressIn={(e) => { to(scaleTo); p.onPressIn?.(e); }} onPressOut={(e) => { to(1); p.onPressOut?.(e); }}>
       <Animated.View style={[style, { transform: [{ scale: s }] }]}>{children}</Animated.View>
     </Pressable>
+  );
+}
+
+/**
+ * Card motion: the card pops in (fades, rises and grows a little), a soft glass shine sweeps across it once,
+ * and it sinks and tilts slightly while pressed. Used by every listing, place, pet and trip card.
+ */
+function CardMotion({ index, style, children, scale, to, scaleTo, disabled, p }: { index: number; style?: StyleProp<ViewStyle>; children?: ReactNode; scale: Animated.Value; to: (v: number) => void; scaleTo: number; disabled?: boolean | null; p: PressableProps }) {
+  const enter = useRef(new Animated.Value(0)).current;
+  const shine = useRef(new Animated.Value(0)).current;
+  const press = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.sequence([
+      Animated.delay(Math.min(index, 6) * 60),
+      Animated.spring(enter, { toValue: 1, useNativeDriver: true, speed: 9, bounciness: 7 }),
+      Animated.timing(shine, { toValue: 1, duration: 900, delay: 120, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
+    ]).start();
+  }, []);
+  const tilt = (v: number) => Animated.spring(press, { toValue: v, useNativeDriver: true, speed: 30, bounciness: 4 }).start();
+  return (
+    <Pressable {...p} disabled={disabled ?? undefined} onPressIn={(e) => { to(scaleTo); tilt(1); p.onPressIn?.(e); }} onPressOut={(e) => { to(1); tilt(0); p.onPressOut?.(e); }}>
+      <Animated.View style={[style, {
+        opacity: enter.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 1, 1] }),
+        transform: [
+          { perspective: 900 },
+          { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [22, 0] }) },
+          { scale: enter.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1] }) },
+          { scale },
+          { rotateX: press.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '4deg'] }) },
+        ],
+      }]}>
+        {children}
+        <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -40, bottom: -40, width: 90,
+          transform: [{ translateX: shine.interpolate({ inputRange: [0, 1], outputRange: [-160, 520] }) }, { rotate: '18deg' }] }}>
+          <LinearGradient colors={['#FFFFFF00', '#FFFFFF59', '#FFFFFF00']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={{ flex: 1 }} />
+        </Animated.View>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+/** A photo that drifts slowly closer and back (cards' living photos). Fill its parent with `style`. */
+export function LivePhoto({ style, ms = 7000, ...props }: React.ComponentProps<typeof Photo> & { ms?: number }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(v, { toValue: 1, duration: ms, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 0, duration: ms, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+    ]));
+    l.start(); return () => l.stop();
+  }, []);
+  return (
+    <Animated.View style={[style, { overflow: 'hidden', transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] }) }] }]}>
+      <Photo {...props} style={{ width: '100%', height: '100%' }} />
+    </Animated.View>
   );
 }
 
@@ -159,8 +215,8 @@ export function EmptyBox({ title, text, action, icon, onAction }: { title: strin
 
 /** A white card with a hairline edge on the light page. */
 export function Card({ children, style, padding = 16, onPress, index = 0 }: { children: ReactNode; style?: StyleProp<ViewStyle>; padding?: number; onPress?: () => void; index?: number }) {
-  const body = <View style={[st.card, { padding }, style]}>{children}</View>;
-  return <Appear index={index}>{onPress ? <Press onPress={onPress}>{body}</Press> : body}</Appear>;
+  if (onPress) return <Press card index={index} onPress={onPress} scaleTo={0.98} style={[st.card, { padding, overflow: 'hidden' }, style]}>{children}</Press>;
+  return <Appear index={index}><View style={[st.card, { padding }, style]}>{children}</View></Appear>;
 }
 
 export function SectionTitle({ text, sub, action, onAction, style }: { text: string; sub?: string; action?: string; onAction?: () => void; style?: StyleProp<ViewStyle> }) {

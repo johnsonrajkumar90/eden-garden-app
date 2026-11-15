@@ -6,7 +6,7 @@ import { Api } from '../core/api';
 import { J, bool, int, num, obj, str, text } from '../core/json';
 import { useAppState, useSession } from '../core/state';
 import { Brand, Fonts } from '../theme';
-import { Appear, Icon, Photo, Press, Txt, money, st } from './kit';
+import { Appear, Icon, LivePhoto, Photo, Press, Txt, money, st } from './kit';
 import { Nav } from '../nav';
 
 /** The logo's coral arch as a gradient (brand moments only). */
@@ -47,10 +47,10 @@ export function GlassListingCard({ image, title, place, price, unit, was, tags, 
   offer?: string | null; note?: string | null; noteTone?: 'ok' | 'warn'; onPress: () => void; wide?: boolean;
 }) {
   return (
-    <Press onPress={onPress} scaleTo={0.975} style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field, aspectRatio: wide ? 1.2 : 0.7,
+    <Press card onPress={onPress} scaleTo={0.975} style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field, aspectRatio: wide ? 1.2 : 0.7,
       shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }} accessibilityLabel={`${title}, ${place}${price ? ', ' + price + ' ' + unit : ''}`}>
       {/* the photo fills the whole card; the words sit on a dark fade at the bottom */}
-      <Photo url={image} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} label={title} />
+      <LivePhoto url={image} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} label={title} />
       <LinearGradient pointerEvents="none" colors={['#00000055', '#00000000', '#00000000', '#000000D9']} locations={[0, 0.25, 0.45, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
       <View style={{ position: 'absolute', top: 10, left: 10, right: 56, gap: 4 }}>{tags.map((t, i) => <TagChip key={i} t={t} />)}</View>
       {rating && rating > 0 ? (
@@ -186,9 +186,9 @@ export const weatherEmoji = (icon?: string | null) => ({ sun: '☀️', cloud_su
 /** A tourist place in a row: photo (or a coloured tile), name, category and how far / when to go. */
 export function PlaceCard({ p, onPress, style }: { p: J; onPress: () => void; style?: StyleProp<ViewStyle> }) {
   return (
-    <Press onPress={onPress} style={[{ height: 230, borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field,
+    <Press card onPress={onPress} style={[{ height: 230, borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field,
       shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }, style]} accessibilityLabel={text(p, 'title')}>
-      {str(p, 'image') ? <Photo url={str(p, 'image')} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+      {str(p, 'image') ? <LivePhoto url={str(p, 'image')} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
         : <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}><Floaty><Text style={{ fontSize: 50 }}>{catEmoji[text(p, 'cat')] || '📍'}</Text></Floaty></LinearGradient>}
       <LinearGradient pointerEvents="none" colors={['#00000000', '#00000000', '#000000D9']} locations={[0, 0.4, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
       <View style={{ position: 'absolute', top: 10, left: 10, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold>{text(p, 'category')}</Txt></View>

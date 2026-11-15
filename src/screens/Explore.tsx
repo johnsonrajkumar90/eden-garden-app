@@ -7,7 +7,7 @@ import { Api, errorText } from '../core/api';
 import { useAppState, useLoader, useSession } from '../core/state';
 import { J, int, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
-import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar } from '../ui/kit';
+import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, LivePhoto, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar } from '../ui/kit';
 import { DateRangeField, Stepper } from '../ui/inputs';
 import { GridRow, PlaceCard, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
 import { Nav } from '../nav';
@@ -123,8 +123,8 @@ export default function ExploreScreen() {
           <SectionTitle text="Popular places" sub="Tap a place to see its stays" style={{ paddingHorizontal: 16 }} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
             {places.map((d, i) => (
-              <Press key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 160, height: 220, borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field, shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }} accessibilityLabel={text(d, 'name')}>
-                <Photo url={str(d, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
+              <Press card key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 160, height: 220, borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field, shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }} accessibilityLabel={text(d, 'name')}>
+                <LivePhoto url={str(d, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
                 <LinearGradient colors={['transparent', '#000000D9']} locations={[0.4, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
                 <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
                   <Txt k="titleLarge" color="#fff" numberOfLines={1}>{text(d, 'name')}</Txt>

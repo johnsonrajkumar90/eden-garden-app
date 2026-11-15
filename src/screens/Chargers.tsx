@@ -144,7 +144,7 @@ function ChargerCard({ c, onPress }: { c: J; onPress: () => void }) {
   const s = opState(c);
   const types = [...new Set(objs(c, 'connections').map((x) => text(x, 'type')))].slice(0, 4);
   return (
-    <Press onPress={onPress} scaleTo={0.98} style={{ borderRadius: 20, backgroundColor: '#fff', borderWidth: 1.5, borderColor: s === 'down' ? '#C6282866' : Brand.Line, padding: 14 }}>
+    <Press card onPress={onPress} scaleTo={0.98} style={{ borderRadius: 20, backgroundColor: '#fff', borderWidth: 1.5, borderColor: s === 'down' ? '#C6282866' : Brand.Line, padding: 14 }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <View style={{ flex: 1 }}>
           <Txt bold numberOfLines={2}>{text(c, 'name', 'EV charging point')}</Txt>
@@ -228,7 +228,7 @@ export function TripArroStations({ lat, lng, km }: { lat: number; lng: number; k
               const free = int(s, 'chargers_free'), total = int(s, 'chargers_total');
               return (
                 <Appear key={int(s, 'id')} index={Math.min(i, 6)}>
-                  <Press onPress={() => setOpenId(int(s, 'id'))} style={{ width: 250, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, overflow: 'hidden' }}>
+                  <Press card onPress={() => setOpenId(int(s, 'id'))} style={{ width: 250, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, overflow: 'hidden' }}>
                     <View>
                       <Photo url={str(s, 'photo')} corner={0} style={{ width: 250, height: 120 }} />
                       <View style={{ position: 'absolute', top: 8, left: 8, borderRadius: 50, backgroundColor: free > 0 ? Brand.Teal : Brand.Danger, paddingHorizontal: 10, paddingVertical: 4 }}><Txt k="labelMedium" color="#fff">{free > 0 ? `${free} of ${total} free` : 'All in use'}</Txt></View>

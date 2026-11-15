@@ -107,7 +107,7 @@ export default function AiScreen() {
             {(m.stays || []).slice(0, 5).map((s, i) => <View key={'s' + i} style={{ alignSelf: 'stretch', marginHorizontal: -16 }}><PropertyCard p={s} onPress={() => Nav.navigate(`property/${text(s, 'kind', 'stay')}/${int(s, 'id')}`)} /></View>)}
             {(m.pets || []).slice(0, 5).map((c, i) => <View key={'p' + i} style={{ alignSelf: 'stretch', marginTop: 8 }}><PetHostCard c={c} compact onPress={() => Nav.navigate(`petlisting/${int(c, 'id')}`)} /></View>)}
             {(m.exps || []).slice(0, 3).map((x, i) => (
-              <Press key={'x' + i} onPress={() => Nav.openSite(`/services/${int(x, 'id')}/${text(x, 'slug')}`, text(x, 'title'))} style={[st.row, { alignSelf: 'stretch', marginTop: 8, borderRadius: 18, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, padding: 10 }]}>
+              <Press card key={'x' + i} onPress={() => Nav.openSite(`/services/${int(x, 'id')}/${text(x, 'slug')}`, text(x, 'title'))} style={[st.row, { alignSelf: 'stretch', marginTop: 8, borderRadius: 18, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, padding: 10 }]}>
                 <Photo url={str(x, 'image')} corner={14} style={{ width: 84, height: 84 }} label={text(x, 'title')} />
                 <View style={{ flex: 1, paddingLeft: 12 }}>
                   <Txt k="labelMedium" color={Brand.Muted}>{text(x, 'category')}</Txt>
