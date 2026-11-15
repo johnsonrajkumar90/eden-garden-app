@@ -158,7 +158,7 @@ export default function ExploreScreen() {
   }
 
   return (
-    <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.render()} contentContainerStyle={{ paddingBottom: 96 }}
+    <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.render()} contentContainerStyle={{ paddingBottom: 130 }}
       keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />
   );
 }

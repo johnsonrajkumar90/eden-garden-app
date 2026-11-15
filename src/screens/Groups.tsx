@@ -37,7 +37,7 @@ export function GroupTripsList() {
   const [made, setMade] = useState<J | null>(null);
   const data = l.data;
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 130 }}>
       <MakeTripCard onNew={(idea) => { setNewIdea(idea); setCreating(true); }} onJoin={() => setJoining(true)} />
       <Gap />
       {objs(data, 'invites').map((inv) => (

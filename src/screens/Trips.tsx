@@ -64,7 +64,7 @@ function TripsList({ tab, setTab, l }: { tab: number; setTab: (n: number) => voi
     });
     shown = shown.sort((a, b) => (tab <= 1 ? a.checkIn.localeCompare(b.checkIn) : b.checkIn.localeCompare(a.checkIn)));
     body = (
-      <FlatList data={shown} keyExtractor={(t) => (t.pet ? 'p' : 's') + t.ref} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 40 }}
+      <FlatList data={shown} keyExtractor={(t) => (t.pet ? 'p' : 's') + t.ref} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 130 }}
         ListEmptyComponent={<EmptyBox title={['No upcoming trips', 'Nobody staying now', 'No completed trips', 'No cancelled trips'][tab]} text="Find a stay or pet services and it will show here." action="Explore stays"
           icon={['flight-takeoff', 'hotel', 'task-alt', 'event-busy'][tab]} onAction={() => Nav.home()} />}
         renderItem={({ item: t, index }) => (
@@ -145,7 +145,7 @@ export function BookingScreen() {
   return (
     <View style={{ flex: 1 }}>
       <BackBar title={`Booking ${ref}`} onBack={Nav.back} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 130 }} keyboardShouldPersistTaps="handled">
         {notice === 'paid' ? <Notice text="Payment received — your booking is confirmed. We have emailed the details." tone="ok" />
           : notice === 'failed' ? <Notice text="The payment did not go through. Nothing was charged and any wallet money you used is back in your wallet — you can try again below." tone="bad" />
           : notice === 'refund' ? <Notice text="The dates were taken before your payment arrived. Your money will be refunded in full." tone="warn" /> : null}

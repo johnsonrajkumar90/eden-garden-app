@@ -96,6 +96,7 @@ function Shell() {
   }, [uid]);
 
   const isTab = (TABS as readonly string[]).includes(current);
+  const dockH = 68 + Math.max(insets.bottom, 10);   // the floating tab dock's height (pages leave room for it)
   const showWelcome = !welcomeDone && !!session && !session.user && startLink === null && current === 'explore';
 
   return (
@@ -103,7 +104,7 @@ function Shell() {
       <StatusBar style="light" />
       <GlassBackdrop />
       <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : '#C8242B' }} />
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, paddingBottom: current === 'ai' ? dockH : 0 }}>
         <NavigationContainer
           ref={navRef}
           theme={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: 'transparent', card: 'transparent' } }}
@@ -117,7 +118,7 @@ function Shell() {
             {ROUTES.map((r) => <Stack.Screen key={r} name={r} component={SCREENS[r]} />)}
           </Stack.Navigator>
         </NavigationContainer>
-        {['explore', 'pets', 'account'].includes(current) ? <GroupTripsFab onPress={() => Nav.navigate('groups')} /> : null}
+        {['explore', 'pets', 'account'].includes(current) ? <GroupTripsFab bottom={dockH + 12} onPress={() => Nav.navigate('groups')} /> : null}
       </View>
       {isTab ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
       {showWelcome ? (
@@ -132,12 +133,12 @@ function Shell() {
   );
 }
 
-/** The tab bar: a frosted-glass dock floating over the page; the open tab is a red pill with a sun-yellow icon and its name. */
+/** The tab bar: a frosted-glass dock floating at the bottom over the page (pages scroll under it); the open tab is a red pill with a sun-yellow icon and its name. */
 function TabBar({ current, unread, bottom }: { current: string; unread: number; bottom: number }) {
   return (
-    <View style={{ paddingBottom: Math.max(bottom, 10), paddingTop: 6, paddingHorizontal: 12 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.82)', borderRadius: 32, padding: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)',
-        shadowColor: '#D93338', shadowOpacity: 0.16, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
+    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(bottom, 10), paddingTop: 6, paddingHorizontal: 14 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 32, padding: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)',
+        shadowColor: '#D93338', shadowOpacity: 0.22, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 14 }}>
         {TABS.map((t) => {
           const [label, icon] = TAB_INFO[t];
           const on = current === t;
@@ -165,13 +166,13 @@ function TabBar({ current, unread, bottom }: { current: string; unread: number; 
 }
 
 /** Group trips, one tap away from the main screens: a round red button with the TripArro mark. */
-export function GroupTripsFab({ onPress }: { onPress: () => void }) {
+export function GroupTripsFab({ onPress, bottom = 16 }: { onPress: () => void; bottom?: number }) {
   const ring = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.sequence([0, 1].map(() => Animated.sequence([Animated.timing(ring, { toValue: 0, duration: 0, useNativeDriver: true }), Animated.timing(ring, { toValue: 1, duration: 1400, easing: Easing.out(Easing.cubic), useNativeDriver: true })]))).start();
   }, []);
   return (
-    <View style={{ position: 'absolute', right: 16, bottom: 16, width: 68, height: 68, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ position: 'absolute', right: 16, bottom, width: 68, height: 68, alignItems: 'center', justifyContent: 'center' }}>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 62, height: 62, borderRadius: 31, backgroundColor: '#FF5757',
         opacity: ring.interpolate({ inputRange: [0, 0.01, 1], outputRange: [0, 0.45, 0] }), transform: [{ scale: ring.interpolate({ inputRange: [0, 1], outputRange: [1, 1.4] }) }] }} />
       <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="Group trips"

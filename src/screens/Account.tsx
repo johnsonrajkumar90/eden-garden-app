@@ -39,7 +39,7 @@ export default function AccountScreen() {
   const u = session?.user;
   const s = session;
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 130 }}>
       <TopBar style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 14 }}><Txt k="displaySmall" color="#fff">Account</Txt></TopBar>
       <View style={{ margin: 16, marginBottom: 0, borderRadius: 28, backgroundColor: Brand.Blue, overflow: 'hidden', padding: 18 }}>
         <View pointerEvents="none" style={{ position: 'absolute', right: -50, bottom: -70, width: 150, height: 130, borderTopLeftRadius: 75, borderTopRightRadius: 75, backgroundColor: '#FF7A6E' }} />

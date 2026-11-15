@@ -132,7 +132,7 @@ export default function PetSearchScreen() {
       </View>
     ) }));
   }
-  return <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.el} contentContainerStyle={{ paddingBottom: 96 }} keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />;
+  return <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.el} contentContainerStyle={{ paddingBottom: 130 }} keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />;
 }
 
 function PetTile({ emoji, label, bg, i, onPress }: { emoji: string; label: string; bg: string; i: number; onPress: () => void }) {
