@@ -12,7 +12,7 @@ on:
         default: ''
   push:
     branches: [react-native]
-    paths-ignore: ['**.md']
+    paths-ignore: ['**.md', '.github/workflows/screens-rn.yml', '.github/workflows/publish-rn.yml', 'tool/design-shots.sh']
 
 permissions:
   contents: write
