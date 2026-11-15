@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Api } from './src/core/api';
 import { AppState, useAppState, useSession } from './src/core/state';
 import * as Notifier from './src/core/notifier';
+import * as Push from './src/core/push';
 import { int } from './src/core/json';
 import { Brand } from './src/theme';
 import { Icon, Txt } from './src/ui/kit';
@@ -86,13 +87,14 @@ function Shell() {
     (async () => {
       if (await AsyncStorage.getItem('asked_notify')) return;
       await AsyncStorage.setItem('asked_notify', '1');
-      Notifier.askPermission().catch(() => {});
-    })();
+      await Notifier.askPermission().catch(() => {});
+    })().finally(() => { Push.registerPush().catch(() => {}); });   // Firebase push for this phone (when the website has it set up)
+    const tok = Push.watchToken();
     // while the app is open: look for new notifications (trip posts, messages) every 30 seconds, so they pop up with sound
     let active = RNAppState.currentState === 'active';
     const t = setInterval(() => { if (active) Notifier.check().catch(() => {}); }, 30_000);
     const s = RNAppState.addEventListener('change', (st) => { const was = active; active = st === 'active'; if (active && !was) Notifier.check().catch(() => {}); });
-    return () => { clearInterval(t); s.remove(); };
+    return () => { clearInterval(t); s.remove(); tok.remove(); };
   }, [uid]);
 
   const isTab = (TABS as readonly string[]).includes(current);

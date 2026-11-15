@@ -1,0 +1,20 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.triparro'
+version = '1.0.0'
+
+android {
+  namespace "expo.modules.firebaseinit"
+  defaultConfig {
+    versionCode 1
+    versionName '1.0.0'
+  }
+}
+
+dependencies {
+  // the same Firebase Messaging that expo-notifications uses (one copy in the app)
+  implementation 'com.google.firebase:firebase-messaging:25.0.1'
+}

@@ -163,6 +163,7 @@ class ApiClient {
   }
 
   async logout() {
+    try { const { unregisterPush } = require('./push'); await unregisterPush(); } catch {}
     try { await fetch(this.url('logout'), { credentials: 'include', headers: { 'User-Agent': userAgent } }); } catch {}
     try { await this.refreshSession(); } catch { this.setSession(null); }
   }

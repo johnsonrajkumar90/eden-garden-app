@@ -49,6 +49,8 @@ export async function check(post = true): Promise<number> {
   const top = Math.max(last, ...items.map((x) => int(x, 'id')));
   if (last < 0) { await AsyncStorage.setItem(key, String(Math.max(top, 0))); return 0; }
   const fresh = items.filter((x) => !bool(x, 'read') && int(x, 'id') > last && !bool(x, 'muted')).sort((a, b) => int(a, 'id') - int(b, 'id'));
+  // with Firebase push on, the notification already came as a push: only the unread count is kept here
+  if (post && (await AsyncStorage.getItem('fcm_on')) === '1') post = false;
   if (post && (await canPost())) {
     const sound = await soundOn();
     for (const n of fresh.slice(-5)) {

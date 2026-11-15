@@ -1,0 +1,6 @@
+{
+  "name": "firebase-init",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Starts Firebase on Android with the settings from the TripArro website (Admin → Push notifications), so push works without a google-services.json in the build."
+}
