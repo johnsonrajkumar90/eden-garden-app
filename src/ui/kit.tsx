@@ -3,11 +3,10 @@ import React, { ReactNode, useEffect, useRef } from 'react';
 import {
   ActivityIndicator, Animated, Easing, Pressable, PressableProps, Share, StyleProp, StyleSheet, Text, TextProps, TextStyle, View, ViewStyle,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Brand, RedBar, T, Fonts } from '../theme';
+import { Brand, T, Fonts } from '../theme';
 
 /* ---------- Formatting ---------- */
 const inr = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
@@ -68,32 +67,42 @@ export function Appear({ children, index = 0, style }: { children: ReactNode; in
 }
 
 /* ---------- Layout pieces ---------- */
-/** The red bar on every screen: back arrow, title, actions. */
-export function BackBar({ title, onBack, actions }: { title: string; onBack?: () => void; actions?: ReactNode }) {
+/** A round button in the header: back, share, star (white on the light page, hairline ring). */
+export function HeadButton({ icon, label, onPress, tint = Brand.Ink }: { icon: string; label: string; onPress: () => void; tint?: string }) {
   return (
-    <LinearGradient colors={RedBar as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={st.bar}>
-      {onBack ? <Pressable onPress={onBack} hitSlop={10} style={st.barBtn} accessibilityRole="button" accessibilityLabel="Back"><Icon name="arrow-back" color="#fff" /></Pressable> : <View style={{ width: 12 }} />}
-      <Txt k="titleMedium" color="#fff" numberOfLines={1} style={{ flex: 1 }}>{title}</Txt>
-      <View style={st.row}>{actions}</View>
-    </LinearGradient>
+    <Pressable onPress={onPress} hitSlop={6} accessibilityRole="button" accessibilityLabel={label}
+      style={({ pressed }) => [st.headBtn, pressed ? { backgroundColor: Brand.Field } : null]}>
+      <Icon name={icon} size={21} color={tint} />
+    </Pressable>
   );
 }
 
-/** A full-colour header with a big title (tabs and main screens). */
+/** The top of every inner screen: a round back button, the title, actions — on the page itself, no coloured band. */
+export function BackBar({ title, onBack, actions }: { title: string; onBack?: () => void; actions?: ReactNode }) {
+  return (
+    <View style={st.bar}>
+      {onBack ? <HeadButton icon="arrow-back" label="Back" onPress={onBack} /> : <View style={{ width: 4 }} />}
+      <Txt k="titleMedium" numberOfLines={1} style={{ flex: 1, marginLeft: 12, fontFamily: Fonts.s, fontSize: 17 }}>{title}</Txt>
+      <View style={[st.row, { gap: 4 }]}>{actions}</View>
+    </View>
+  );
+}
+
+/** Main screens: the round back button on top, then a big title on the page (no coloured band). */
 export function ColorHeader({ title, sub, onBack, actions, children }: { title: string; sub?: string | null; onBack?: () => void; actions?: ReactNode; children?: ReactNode }) {
   return (
-    <LinearGradient colors={RedBar as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingHorizontal: onBack ? 4 : 16, paddingTop: 4, paddingBottom: 18 }}>
-      <View style={[st.row, { minHeight: 44 }]}>
-        {onBack ? <Pressable onPress={onBack} style={st.barBtn} accessibilityLabel="Back"><Icon name="arrow-back" color="#fff" /></Pressable> : null}
-        <View style={{ flex: 1 }} />
-        {actions}
-      </View>
-      <View style={{ paddingLeft: onBack ? 12 : 0 }}>
-        <Txt k="headlineSmall" color="#fff">{title}</Txt>
-        {sub ? <Txt k="bodyMedium" color="#FFE0DC" style={{ marginTop: 4 }}>{sub}</Txt> : null}
-        {children}
-      </View>
-    </LinearGradient>
+    <View style={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 14 }}>
+      {onBack || actions ? (
+        <View style={[st.row, { minHeight: 44, marginBottom: 6 }]}>
+          {onBack ? <HeadButton icon="arrow-back" label="Back" onPress={onBack} /> : null}
+          <View style={{ flex: 1 }} />
+          <View style={[st.row, { gap: 4 }]}>{actions}</View>
+        </View>
+      ) : null}
+      <Txt k="headlineMedium">{title}</Txt>
+      {sub ? <Txt k="bodyMedium" color={Brand.Muted} style={{ marginTop: 2 }}>{sub}</Txt> : null}
+      {children}
+    </View>
   );
 }
 
@@ -107,7 +116,7 @@ export function Loading({ style }: { style?: StyleProp<ViewStyle> }) {
   return (
     <View style={[{ padding: 40, alignItems: 'center' }, style]} accessibilityLabel="Loading">
       <View style={[st.row, { gap: 8 }]}>
-        {[Brand.Blue, Brand.Coral, Brand.Sun].map((c, i) => <Animated.View key={i} style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: c, transform: [{ translateY: vals[i].interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }] }} />)}
+        {[Brand.Blue, Brand.Sun, Brand.Ink].map((c, i) => <Animated.View key={i} style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c, transform: [{ translateY: vals[i].interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) }] }} />)}
       </View>
     </View>
   );
@@ -116,7 +125,7 @@ export function Loading({ style }: { style?: StyleProp<ViewStyle> }) {
 export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <View style={{ padding: 28, alignItems: 'center' }}>
-      <Icon name="cloud-off" size={40} color={Brand.Muted} />
+      <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: Brand.Field, alignItems: 'center', justifyContent: 'center' }}><Icon name="cloud-off" size={30} color={Brand.Muted} /></View>
       <Gap h={10} />
       <Txt center color={Brand.InkSoft}>{message}</Txt>
       {onRetry ? <><Gap h={14} /><OutlineButton text="Try again" onPress={onRetry} /></> : null}
@@ -127,16 +136,16 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () =
 export function EmptyBox({ title, text, action, icon, onAction }: { title: string; text: string; action?: string; icon?: string; onAction?: () => void }) {
   return (
     <View style={{ padding: 28, alignItems: 'center' }}>
-      {icon ? <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: Brand.Sky, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Icon name={icon} size={34} color={Brand.Blue} /></View> : null}
+      {icon ? <View style={{ width: 76, height: 64, borderTopLeftRadius: 38, borderTopRightRadius: 38, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, backgroundColor: Brand.Sky, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}><Icon name={icon} size={34} color={Brand.Blue} /></View> : null}
       <Txt k="titleMedium" center>{title}</Txt>
       <Gap h={6} />
       <Txt center color={Brand.InkSoft}>{text}</Txt>
-      {action && onAction ? <><Gap h={14} /><Press onPress={onAction} style={{ backgroundColor: Brand.Sun, borderRadius: 14, paddingHorizontal: 24, paddingVertical: 12 }}><Txt k="labelLarge" color={Brand.SunInk}>{action}</Txt></Press></> : null}
+      {action && onAction ? <><Gap h={14} /><Press onPress={onAction} style={{ backgroundColor: Brand.Blue, borderRadius: 50, paddingHorizontal: 24, paddingVertical: 13 }}><Txt k="labelLarge" color="#fff">{action}</Txt></Press></> : null}
     </View>
   );
 }
 
-/** Frosted glass card over the app's colour backdrop. */
+/** A white card with a hairline edge on the light page. */
 export function Card({ children, style, padding = 16, onPress, index = 0 }: { children: ReactNode; style?: StyleProp<ViewStyle>; padding?: number; onPress?: () => void; index?: number }) {
   const body = <View style={[st.card, { padding }, style]}>{children}</View>;
   return <Appear index={index}>{onPress ? <Press onPress={onPress}>{body}</Press> : body}</Appear>;
@@ -149,21 +158,21 @@ export function SectionTitle({ text, sub, action, onAction, style }: { text: str
         <Txt k="titleLarge">{text}</Txt>
         {sub ? <Txt k="bodySmall" color={Brand.Muted}>{sub}</Txt> : null}
       </View>
-      {action && onAction ? <Pressable onPress={onAction} style={{ padding: 6 }}><Txt k="titleSmall" color={Brand.Blue}>{action}</Txt></Pressable> : null}
+      {action && onAction ? <Pressable onPress={onAction} style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 50, backgroundColor: Brand.Field }}><Txt k="labelMedium" semi color={Brand.Ink}>{action}</Txt></Pressable> : null}
     </View>
   );
 }
 
 const TONES: Record<string, [string, string]> = {
   ok: [Brand.TealSoft, Brand.TealDark], success: [Brand.TealSoft, Brand.TealDark], warn: [Brand.WarnSoft, Brand.Warn], warning: [Brand.WarnSoft, Brand.Warn],
-  bad: [Brand.DangerSoft, Brand.Danger], danger: [Brand.DangerSoft, Brand.Danger], info: [Brand.Sky, Brand.Blue], muted: ['#F1ECE8', Brand.InkSoft],
+  bad: [Brand.DangerSoft, Brand.Danger], danger: [Brand.DangerSoft, Brand.Danger], info: [Brand.Sky, Brand.Blue], muted: [Brand.Field, Brand.InkSoft],
 };
 export function Pill({ text, tone = 'muted' }: { text: string; tone?: string }) {
   const [bg, fg] = TONES[tone] || TONES.muted;
   return <View style={{ alignSelf: 'flex-start', backgroundColor: bg, borderRadius: 50, paddingHorizontal: 10, paddingVertical: 4 }}><Txt k="bodySmall" semi color={fg}>{text}</Txt></View>;
 }
 export function Chips({ items }: { items: string[] }) {
-  return <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>{items.map((x, i) => <View key={i} style={{ backgroundColor: Brand.Sky, borderRadius: 50, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="bodySmall" color={Brand.InkSoft}>{x}</Txt></View>)}</View>;
+  return <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>{items.map((x, i) => <View key={i} style={{ backgroundColor: Brand.Field, borderRadius: 50, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="bodySmall" color={Brand.InkSoft}>{x}</Txt></View>)}</View>;
 }
 export function Stars({ rating, count }: { rating?: number | null; count?: number | null }) {
   if (!rating || rating <= 0) return null;
@@ -202,21 +211,19 @@ export function Photo({ url, style, corner = 14, label }: { url?: string | null;
   return <Image source={{ uri: url }} accessibilityLabel={label} contentFit="cover" transition={200} style={[{ borderRadius: corner, backgroundColor: Brand.Sky }, style]} />;
 }
 
-/** The main action: a sunflower-yellow button with dark text (red is the brand, yellow means "do this"). */
+/** The main action: a solid red pill with white text (yellow is kept for highlights). */
 export function PrimaryButton({ text, onPress, disabled, loading, icon, style }: { text: string; onPress: () => void; disabled?: boolean; loading?: boolean; icon?: string; style?: StyleProp<ViewStyle>; coral?: boolean }) {
   const on = !disabled && !loading;
-  const tint = on ? Brand.SunInk : Brand.Muted;
+  const tint = on || loading ? '#fff' : Brand.Muted;
   return (
-    <Press onPress={onPress} disabled={!on} style={[{ borderRadius: 16, overflow: 'hidden' }, on ? st.sunShadow : null, style]} accessibilityRole="button" accessibilityLabel={text}>
-      <LinearGradient colors={on ? ['#FFD54A', '#FFC72C', '#FFB01F'] : ['#EFE7DF', '#EFE7DF']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ minHeight: 52, paddingHorizontal: 18, paddingVertical: 13, alignItems: 'center', justifyContent: 'center' }}>
-        {loading ? <ActivityIndicator color={Brand.SunInk} /> : <View style={st.row}>{icon ? <Icon name={icon} size={19} color={tint} style={{ marginRight: 8 }} /> : null}<Txt k="labelLarge" bold color={tint}>{text}</Txt></View>}
-      </LinearGradient>
+    <Press onPress={onPress} disabled={!on} style={[{ minHeight: 54, borderRadius: 27, paddingHorizontal: 20, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on || loading ? Brand.Blue : '#E7E5E2' }, on ? st.redShadow : null, style]} accessibilityRole="button" accessibilityLabel={text} accessibilityState={{ disabled: !on, busy: !!loading }}>
+      {loading ? <ActivityIndicator color="#fff" /> : <View style={st.row}>{icon ? <Icon name={icon} size={19} color={tint} style={{ marginRight: 8 }} /> : null}<Txt k="labelLarge" bold color={tint}>{text}</Txt></View>}
     </Press>
   );
 }
 export function OutlineButton({ text, onPress, icon, style, disabled, color = Brand.Blue }: { text: string; onPress: () => void; icon?: string; style?: StyleProp<ViewStyle>; disabled?: boolean; color?: string }) {
   return (
-    <Press onPress={onPress} disabled={disabled} style={[{ borderWidth: 1, borderColor: Brand.Line, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', opacity: disabled ? 0.5 : 1 }, style]} accessibilityRole="button">
+    <Press onPress={onPress} disabled={disabled} style={[{ borderWidth: 1.2, borderColor: '#DAD7D2', borderRadius: 50, minHeight: 46, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', opacity: disabled ? 0.5 : 1 }, style]} accessibilityRole="button">
       {icon ? <Icon name={icon} size={18} color={color} style={{ marginRight: 6 }} /> : null}<Txt k="labelLarge" color={color}>{text}</Txt>
     </Press>
   );
@@ -227,9 +234,9 @@ export function LinkButton({ text, onPress, color = Brand.Blue, disabled }: { te
 
 export function Notice({ text, tone = 'info', style }: { text: string; tone?: string; style?: StyleProp<ViewStyle> }) {
   const [bg, fg] = TONES[tone === 'info' ? 'infoN' : tone] || [Brand.Sky, Brand.BlueDark];
-  return <View style={[{ backgroundColor: bg, borderRadius: 12, padding: 12 }, style]}><Txt color={fg}>{text}</Txt></View>;
+  return <View style={[{ backgroundColor: bg, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14, borderLeftWidth: 3, borderLeftColor: fg }, style]}><Txt color={fg}>{text}</Txt></View>;
 }
-TONES.infoN = [Brand.Sky, Brand.BlueDark];
+TONES.infoN = ['#F1F0EE', Brand.InkSoft];
 
 export function KeyValue({ k, v }: { k: string; v: string }) {
   return <View style={[st.row, { paddingVertical: 4, alignItems: 'flex-start' }]}><Txt color={Brand.InkSoft} style={{ width: 120 }}>{k}</Txt><Txt style={{ flex: 1 }}>{v}</Txt></View>;
@@ -238,7 +245,7 @@ export function Avatar({ initials, size = 44, color = Brand.Blue }: { initials: 
   return <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}><Txt k="titleSmall" color="#fff">{initials.slice(0, 2).toUpperCase()}</Txt></View>;
 }
 export function Bordered({ children, style, onPress }: { children: ReactNode; style?: StyleProp<ViewStyle>; onPress?: () => void }) {
-  const v = <View style={[{ borderWidth: 1, borderColor: Brand.Line, borderRadius: 14, backgroundColor: '#fff', padding: 12 }, style]}>{children}</View>;
+  const v = <View style={[{ borderWidth: 1, borderColor: Brand.Line, borderRadius: 18, backgroundColor: '#fff', padding: 12 }, style]}>{children}</View>;
   return onPress ? <Pressable onPress={onPress}>{v}</Pressable> : v;
 }
 /** A round white button on top of a photo (back, share, save). */
@@ -254,24 +261,26 @@ export function ChipChoice<V extends string | number>({ options, value, onChange
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
       {options.map(([v, l]) => {
         const on = v === value;
-        return <Pressable key={String(v)} onPress={() => onChange(v)} style={{ borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: on ? (tone === 'ink' ? Brand.Ink : Brand.Blue) : Brand.Sky }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{l}</Txt></Pressable>;
+        return <Pressable key={String(v)} onPress={() => onChange(v)} style={{ borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: on ? (tone === 'ink' ? Brand.Ink : Brand.Blue) : '#fff', borderWidth: 1, borderColor: on ? 'transparent' : Brand.Line }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{l}</Txt></Pressable>;
       })}
     </View>
   );
 }
 
-/** The safe-area spacer at the top (status bar), red by default. */
-export function StatusSpace({ color = Brand.Matte }: { color?: string }) {
+/** The safe-area spacer at the top (status bar), the page colour by default. */
+export function StatusSpace({ color = Brand.Page }: { color?: string }) {
   const i = useSafeAreaInsets();
   return <View style={{ height: i.top, backgroundColor: color }} />;
 }
 
 export const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
-  bar: { flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingHorizontal: 4, paddingVertical: 4 },
-  barBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  card: { backgroundColor: 'rgba(255,255,255,0.82)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', shadowColor: '#B81D2B', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
-  shadow: { shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
-  sunShadow: { shadowColor: '#E08A00', shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 5 },
+  bar: { flexDirection: 'row', alignItems: 'center', minHeight: 60, paddingHorizontal: 12, paddingVertical: 8 },
+  barBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22 },
+  headBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line },
+  card: { backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#EFEDE9', shadowColor: '#1A1410', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  shadow: { shadowColor: '#000', shadowOpacity: 0.14, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
+  sunShadow: { shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  redShadow: { shadowColor: '#D93338', shadowOpacity: 0.28, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   page: { flex: 1, backgroundColor: 'transparent' },
 });

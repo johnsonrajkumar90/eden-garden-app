@@ -154,13 +154,13 @@ export default function PropertyScreen() {
             <Gap />
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {bool(p, 'chat') ? (
-                <Pressable onPress={() => Nav.navigate(`chat/${kind}/${id}`)} style={[st.row, { flex: 1, justifyContent: 'center', borderRadius: 14, backgroundColor: Brand.Sun, paddingVertical: 12 }]}>
-                  <Icon name="chat-bubble-outline" size={18} color={Brand.SunInk} /><Txt k="labelLarge" color={Brand.SunInk}>  Chat</Txt>
+                <Pressable onPress={() => Nav.navigate(`chat/${kind}/${id}`)} style={[st.row, { flex: 1, justifyContent: 'center', borderRadius: 50, backgroundColor: Brand.Ink, paddingVertical: 13 }]}>
+                  <Icon name="chat-bubble-outline" size={18} color={Brand.Sun} /><Txt k="labelLarge" color="#fff">  Chat</Txt>
                 </Pressable>
               ) : null}
               {coords.length === 2 ? (
-                <Pressable onPress={() => openMaps(coords[0], coords[1], text(p, 'title'))} style={[st.row, { flex: 1, justifyContent: 'center', borderRadius: 14, borderWidth: 1, borderColor: Brand.Line, paddingVertical: 12 }]}>
-                  <Icon name="directions" size={18} color={Brand.Blue} /><Txt k="labelLarge" color={Brand.Blue}>  Directions</Txt>
+                <Pressable onPress={() => openMaps(coords[0], coords[1], text(p, 'title'))} style={[st.row, { flex: 1, justifyContent: 'center', borderRadius: 50, borderWidth: 1.2, borderColor: '#DAD7D2', backgroundColor: '#fff', paddingVertical: 13 }]}>
+                  <Icon name="directions" size={18} color={Brand.Ink} /><Txt k="labelLarge">  Directions</Txt>
                 </Pressable>
               ) : null}
             </View>
@@ -171,8 +171,8 @@ export default function PropertyScreen() {
       <PriceBar price={money(offer ?? nightly)} unit={kind === 'resort' ? '/ room night' : '/ night'} was={offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
         note={str(p, 'cancellation') || str(canc, 'label')}
         button={bool(p, 'bookable') || p.bookable === undefined ? (
-          <Pressable onPress={() => setSheet(true)} style={{ borderRadius: 16, backgroundColor: Brand.Sun, paddingHorizontal: 22, paddingVertical: 14 }}>
-            <Txt k="labelLarge" color={Brand.SunInk}>{text(p, 'booking_mode') === 'request' ? 'Request to book' : 'Reserve'}</Txt>
+          <Pressable onPress={() => setSheet(true)} style={[st.redShadow, { borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 26, paddingVertical: 15 }]}>
+            <Txt k="labelLarge" bold color="#fff">{text(p, 'booking_mode') === 'request' ? 'Request to book' : 'Reserve'}</Txt>
           </Pressable>
         ) : <Txt color={Brand.Warn}>Not taking bookings</Txt>} />
       {sheet ? <BookingSheet kind={kind} id={id} p={p} onClose={() => setSheet(false)} /> : null}
@@ -278,7 +278,7 @@ function ListingOfferDialog({ k, title, price, o, book }: { k: string; title: st
   const code = text(o, 'code'); const nightly = num(price, 'offer_nightly') || 0;
   return (
     <Dialog open={open} onClose={() => setOpen(false)}>
-      <LinearGradient colors={['#8E0F1D', '#D7192A', '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ margin: -20, marginBottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 22 }}>
+      <LinearGradient colors={['#D93338', '#E8474B', '#FF5757']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ margin: -20, marginBottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 22 }}>
         <Txt k="labelLarge" color="#FFFFFFE6">✨ We have a special offer for you</Txt>
         <Txt k="headlineMedium" color="#fff" style={{ marginTop: 6 }}>{text(o, 'badge')}</Txt>
         <Txt color="#FFFFFFE6">at {title}</Txt>

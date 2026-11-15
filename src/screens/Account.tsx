@@ -40,29 +40,30 @@ export default function AccountScreen() {
   const s = session;
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-      <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ borderBottomLeftRadius: 28, borderBottomRightRadius: 28, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 22 }}>
-        <Image source={require('../../assets/logo_white.png')} style={{ height: 30, width: 120 }} contentFit="contain" contentPosition="left" />
-        <Txt k="headlineMedium" color="#fff" style={{ marginTop: 14, marginBottom: 10 }}>Account</Txt>
-        {!u ? <Txt color="#FFE0DC">Sign in to book, see your trips and pets, and open your dashboard if you host.</Txt> : (
+      <View style={{ paddingHorizontal: 16, paddingTop: 14 }}><Txt k="displaySmall">Account</Txt></View>
+      <View style={{ margin: 16, marginBottom: 0, borderRadius: 28, backgroundColor: Brand.Ink, overflow: 'hidden', padding: 18 }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -40, bottom: -30, width: 170, height: 140, borderTopLeftRadius: 85, borderTopRightRadius: 85, backgroundColor: '#FF5757' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', right: 96, bottom: 72, width: 18, height: 18, borderRadius: 9, backgroundColor: Brand.Sun }} />
+        {!u ? <Txt color="#ffffffcc">Sign in to book, see your trips and pets, and open your dashboard if you host.</Txt> : (
           <>
             <View style={st.row}>
-              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}><Txt k="titleLarge" color={Brand.Blue}>{u.initials.slice(0, 2).toUpperCase()}</Txt></View>
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: Brand.Sun, alignItems: 'center', justifyContent: 'center' }}><Txt k="titleLarge" color={Brand.Ink}>{u.initials.slice(0, 2).toUpperCase()}</Txt></View>
               <View style={{ flex: 1, paddingLeft: 14 }}>
                 <Txt k="titleLarge" color="#fff">{u.name}</Txt>
-                <Txt k="bodySmall" color="#FFE0DC">{u.email}</Txt>
-                <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" color={Brand.SunInk}>{roleNames[u.role] || u.role}</Txt></View>
+                <Txt k="bodySmall" color="#ffffffb3">{u.email}</Txt>
+                <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.14)', paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" color={Brand.Sun}>{roleNames[u.role] || u.role}</Txt></View>
               </View>
             </View>
             {['host', 'resort', 'pethost', 'referral', 'admin'].includes(u.role) ? (
               <>
                 <Gap />
                 <PrimaryButton icon="dashboard" text={u.role === 'referral' ? 'Open my TripArro Agent portal' : u.role === 'admin' ? 'Open the admin dashboard' : 'Open my hosting'} onPress={() => Nav.navigate('hosting')} />
-                <Txt k="bodySmall" color="#FFE0DC" style={{ marginTop: 6 }}>{u.role === 'referral' ? 'Your bookings and commission.' : u.role === 'admin' ? "Today's and tomorrow's arrivals, requests, what is waiting for you, and guest chats." : 'Requests, check-ins, calendar, prices, money and guest chats — all in the app.'}</Txt>
+                <Txt k="bodySmall" color="#ffffffb3" style={{ marginTop: 8 }}>{u.role === 'referral' ? 'Your bookings and commission.' : u.role === 'admin' ? "Today's and tomorrow's arrivals, requests, what is waiting for you, and guest chats." : 'Requests, check-ins, calendar, prices, money and guest chats — all in the app.'}</Txt>
               </>
             ) : null}
           </>
         )}
-      </LinearGradient>
+      </View>
       <View style={{ padding: 16 }}>
         {!u ? (
           <Card>

@@ -62,23 +62,23 @@ export default function AiScreen() {
     : ['A cottage in Ooty for 6 people this weekend', 'How many guests can stay, and what do extra guests cost?', 'Resorts in Munnar under ₹6,000', 'Plan 3 days in Kodaikanal'];
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <LinearGradient colors={RedBar as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 14 }}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 12 }}>
         <View style={st.row}>
-          <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}><Icon name="auto-awesome" color="#fff" /></View>
+          <View style={{ width: 44, height: 40, borderTopLeftRadius: 22, borderTopRightRadius: 22, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, backgroundColor: Brand.Ink, alignItems: 'center', justifyContent: 'center' }}><Icon name="auto-awesome" color={Brand.Sun} /></View>
           <View style={{ paddingLeft: 10 }}>
-            <Txt k="headlineSmall" color="#fff">TripArro AI</Txt>
-            <Txt k="bodySmall" color="#FFE0DC">{mode === 'pets' ? 'Verified pet hosts only · not veterinary advice' : 'Real listings at live prices'}</Txt>
+            <Txt k="headlineSmall">TripArro AI</Txt>
+            <Txt k="bodySmall" color={Brand.Muted}>{mode === 'pets' ? 'Verified pet hosts only · not veterinary advice' : 'Real listings at live prices'}</Txt>
           </View>
         </View>
         <Gap />
-        <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.14)', padding: 4 }}>
+        <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: Brand.Field, padding: 4 }}>
           {([['travel', 'Stays & trips'], ['pets', 'Pet services']] as const).map(([k, l]) => (
-            <Pressable key={k} onPress={() => AppState.set({ aiMode: k })} style={{ flex: 1, borderRadius: 50, backgroundColor: mode === k ? '#fff' : 'transparent', paddingVertical: 9 }}>
-              <Txt k="labelLarge" center color={mode === k ? Brand.Blue : '#fff'}>{l}</Txt>
+            <Pressable key={k} onPress={() => AppState.set({ aiMode: k })} style={{ flex: 1, borderRadius: 50, backgroundColor: mode === k ? Brand.Ink : 'transparent', paddingVertical: 10 }}>
+              <Txt k="labelLarge" center color={mode === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
             </Pressable>
           ))}
         </View>
-      </LinearGradient>
+      </View>
       <FlatList ref={list} data={msgs} keyExtractor={(_, i) => mode + i} contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
           <View style={{ gap: 10 }}>

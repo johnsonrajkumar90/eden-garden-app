@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { J, arr, int, str, text } from '../core/json';
 import { Brand } from '../theme';
-import { Appear, Icon, Press, Txt, parseIso, st } from '../ui/kit';
+import { Appear, Icon, Press, Txt, parseIso, st , HeadButton } from '../ui/kit';
 
 const Red1 = '#B3122A', Red2 = '#FF5A5A';
 
@@ -17,19 +17,19 @@ export function HubTabs({ tab, onTab }: { tab: string; onTab: (t: string) => voi
   const x = useRef(new Animated.Value(0)).current;
   useEffect(() => { Animated.spring(x, { toValue: (w / tabs.length) * i, useNativeDriver: true, friction: 8, tension: 90 }).start(); }, [i, w]);
   return (
-    <LinearGradient colors={[Brand.Matte, '#D7192A', '#E8452F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ borderBottomLeftRadius: 28, borderBottomRightRadius: 28, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 16 }}>
-      <View onLayout={(e) => setW(e.nativeEvent.layout.width - 8)} style={{ height: 50, borderRadius: 25, backgroundColor: '#FFFFFF33', padding: 4, flexDirection: 'row' }}>
-        {w > 0 ? <Animated.View style={[st.shadow, { position: 'absolute', top: 4, bottom: 4, left: 4, width: w / tabs.length, borderRadius: 21, backgroundColor: '#fff', transform: [{ translateX: x }] }]} /> : null}
+    <View style={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 12 }}>
+      <View onLayout={(e) => setW(e.nativeEvent.layout.width - 8)} style={{ height: 52, borderRadius: 26, backgroundColor: Brand.Field, padding: 4, flexDirection: 'row' }}>
+        {w > 0 ? <Animated.View style={{ position: 'absolute', top: 4, bottom: 4, left: 4, width: w / tabs.length, borderRadius: 22, backgroundColor: Brand.Ink, transform: [{ translateX: x }] }} /> : null}
         {tabs.map(([v, t, ic]) => {
           const on = v === tab;
           return (
             <Pressable key={v} onPress={() => onTab(v)} style={[st.row, { flex: 1, justifyContent: 'center' }]} accessibilityRole="tab" accessibilityState={{ selected: on }}>
-              <Icon name={ic} size={18} color={on ? Brand.Matte : '#fff'} /><Txt k="labelLarge" semi numberOfLines={1} color={on ? Brand.Matte : '#fff'}> {t}</Txt>
+              <Icon name={ic} size={18} color={on ? Brand.Sun : Brand.InkSoft} /><Txt k="labelLarge" semi numberOfLines={1} color={on ? '#fff' : Brand.InkSoft}> {t}</Txt>
             </Pressable>
           );
         })}
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -43,7 +43,7 @@ export function tripTheme(name: string): { colors: string[]; icon: string } {
   if (has('temple', 'tirupati', 'madurai', 'rameswaram', 'varanasi', 'kashi', 'sabarimala', 'pilgrim', 'palani', 'shirdi', 'velankanni', 'darshan', 'kanchipuram', 'thanjavur', 'puri')) return { colors: ['#7A2E0E', '#D9741A', '#FFC94A'], icon: 'temple-hindu' };
   if (has('forest', 'jungle', 'safari', 'wildlife', 'bandipur', 'mudumalai', 'thekkady', 'jim corbett', 'kabini', 'camp')) return { colors: ['#1F3A1A', '#4F7A28', '#C9B458'], icon: 'forest' };
   if (has('chennai', 'bangalore', 'bengaluru', 'mumbai', 'delhi', 'hyderabad', 'kolkata', 'city', 'dubai', 'singapore', 'london', 'paris')) return { colors: ['#2A1B4A', '#6A3FA0', '#F08AB4'], icon: 'location-city' };
-  return { colors: ['#6A1019', '#B81D2B', '#FF8A3D'], icon: 'luggage' };
+  return { colors: ['#D93338', '#E8474B', '#FF5757'], icon: 'luggage' };
 }
 
 /** The trip's picture: its photo, else a matching coloured picture. */
@@ -129,7 +129,7 @@ export function MakeTripCard({ onNew, onJoin }: { onNew: (idea: string) => void;
           );
         })}
       </ScrollView>
-      <Pressable onPress={onJoin} style={{ marginTop: 12, paddingVertical: 6 }}><Txt k="labelLarge" semi color={Brand.Matte}>Got a code from a friend? Join their trip</Txt></Pressable>
+      <Pressable onPress={onJoin} style={{ marginTop: 12, paddingVertical: 6 }}><Txt k="labelLarge" semi color={Brand.Blue}>Got a code from a friend? Join their trip</Txt></Pressable>
     </Appear>
   );
 }

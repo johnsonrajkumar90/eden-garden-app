@@ -20,7 +20,7 @@ export function WalletScreen() {
       {!w && l.loading ? <Loading /> : !w ? <ErrorBox message={l.error || 'Could not load your wallet.'} onRetry={l.reload} /> : (
         <FlatList data={objs(w, 'items')} keyExtractor={(_, i) => String(i)} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40 }}
           ListHeaderComponent={<View style={{ gap: 12, marginBottom: 12 }}>
-            <LinearGradient colors={['#8E0F1D', '#D7192A', '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 20 }}>
+            <LinearGradient colors={['#161616', '#2A2A2E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 20 }}>
               <View style={st.row}><Icon name="account-balance-wallet" color="#fff" /><Txt bold color="#FFE3DE">  TripArro wallet</Txt></View>
               <Txt k="displaySmall" bold color="#fff">{money(num(w, 'balance'))}</Txt>
               <Txt color="#FFE3DE">Rewards earned so far: {money(num(w, 'rewards_earned'))}</Txt>

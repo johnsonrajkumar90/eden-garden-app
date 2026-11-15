@@ -10,7 +10,7 @@ import { Api, ApiError, errorText } from '../core/api';
 import { useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
-import { Appear, Card, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today } from '../ui/kit';
+import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today } from '../ui/kit';
 import { Field } from '../ui/inputs';
 import { Dialog, dial } from '../ui/sheets';
 import { RED_GRAD, SUN_GRAD } from '../ui/cards';
@@ -38,9 +38,9 @@ export default function HostingScreen() {
 
 function HStat({ label, value, flex }: { label: string; value: string; flex: number }) {
   return (
-    <View style={{ flex, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 12 }}>
+    <View style={{ flex, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.08)', padding: 12 }}>
       <Txt k="titleLarge" color="#fff" numberOfLines={1}>{value}</Txt>
-      <Txt k="labelSmall" color="#FFE0DC" numberOfLines={1}>{label}</Txt>
+      <Txt k="labelSmall" color="#ffffffa6" numberOfLines={1}>{label}</Txt>
     </View>
   );
 }
@@ -60,36 +60,38 @@ function HostDashboard({ role }: { role: string }) {
   const m = obj(h, 'month') || {};
   return (
     <View style={{ flex: 1 }}>
-      <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 14 }}>
-        <View style={[st.row, { paddingLeft: 4, paddingRight: 12, paddingTop: 4 }]}>
-          <Pressable onPress={Nav.back} style={{ padding: 12 }} accessibilityLabel="Back"><Icon name="arrow-back" color="#fff" /></Pressable>
-          <View style={{ flex: 1 }}>
-            <Txt k="headlineSmall" color="#fff">{pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting'}</Txt>
-            <Txt k="labelMedium" color="#FFE0DC" numberOfLines={1}>Hi {text(h, 'name').split(' ')[0]} — everything for your guests, here in the app</Txt>
+      <View style={{ paddingHorizontal: 16, paddingTop: 6 }}>
+        <HeadButton icon="arrow-back" label="Back" onPress={Nav.back} />
+        <View style={{ paddingTop: 10 }}>
+          <View>
+            <Txt k="headlineMedium">{pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting'}</Txt>
+            <Txt k="bodyMedium" color={Brand.Muted} numberOfLines={1}>Hi {text(h, 'name').split(' ')[0]} — everything for your guests, here in the app</Txt>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 10 }}>
+      </View>
+      <View style={{ margin: 16, marginBottom: 8, borderRadius: 26, backgroundColor: Brand.Ink, padding: 8, overflow: 'hidden' }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: -50, width: 140, height: 120, borderTopLeftRadius: 70, borderTopRightRadius: 70, backgroundColor: '#FF5757', opacity: 0.9 }} />
+        <View style={{ flexDirection: 'row', gap: 6 }}>
           <HStat label={`Earnings · ${text(m, 'label', 'this month')}`} value={money(num(m, 'earnings') || 0)} flex={1.4} />
           <HStat label="Bookings" value={String(int(m, 'bookings'))} flex={1} />
           <HStat label={pets ? 'Pets now' : 'Staying now'} value={String(int(h, 'staying'))} flex={1} />
         </View>
-      </LinearGradient>
-      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: Brand.Line }}>
+      </View>
+      <View style={{ borderBottomWidth: 1, borderBottomColor: Brand.Line }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10, gap: 8 }}>
           {tabs.map(([k, label, icon]) => {
             const on = tab === k;
             const badge = k === 'bookings' ? objs(h, 'requests').length : k === 'chats' ? int(h, 'unread_chats') : 0;
             const inner = (
               <>
-                <Icon name={icon} size={18} color={on ? Brand.SunInk : Brand.InkSoft} />
-                <Txt k="labelLarge" color={on ? Brand.SunInk : Brand.InkSoft}> {label}</Txt>
+                <Icon name={icon} size={18} color={on ? Brand.Sun : Brand.InkSoft} />
+                <Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}> {label}</Txt>
                 {badge > 0 ? <View style={{ marginLeft: 6, minWidth: 20, height: 20, borderRadius: 10, backgroundColor: Brand.Blue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}><Txt k="labelSmall" color="#fff">{badge}</Txt></View> : null}
               </>
             );
             return (
               <Press key={k} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: on }}>
-                {on ? <LinearGradient colors={SUN_GRAD as any} style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9 }]}>{inner}</LinearGradient>
-                  : <View style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: Brand.Page }]}>{inner}</View>}
+                <View style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: on ? Brand.Ink : '#fff', borderWidth: 1, borderColor: on ? Brand.Ink : Brand.Line }]}>{inner}</View>
               </Press>
             );
           })}
@@ -193,7 +195,7 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
   const acts = strings(b, 'actions');
   const phone = str(b, 'phone');
   return (
-    <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#B81D2B', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+    <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
       <View style={{ height: 5, backgroundColor: accent }} />
       <View style={{ flexDirection: 'row', padding: 14 }}>
         <Photo url={str(b, 'image')} style={{ width: 64, height: 64 }} corner={16} />
@@ -285,8 +287,7 @@ function CalendarTab() {
   const pick = (t: string) => { setListing(t); setFirst(null); setLast(null); };
   const chip = (key: string, label: string, on: boolean, onPress: () => void) => (
     <Press key={key} onPress={onPress}>
-      {on ? <LinearGradient colors={SUN_GRAD as any} style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8 }}><Txt k="labelLarge" color={Brand.SunInk} numberOfLines={1}>{label}</Txt></LinearGradient>
-        : <View style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#fff' }}><Txt k="labelLarge" color={Brand.InkSoft} numberOfLines={1}>{label}</Txt></View>}
+      <View style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: on ? Brand.Ink : '#fff', borderWidth: 1, borderColor: on ? Brand.Ink : Brand.Line }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft} numberOfLines={1}>{label}</Txt></View>
     </Press>
   );
   const days = objs(d, 'days');
@@ -387,7 +388,7 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
           const p = num(x, 'price');
           return (
             <Appear key={text(x, 'kind') + int(x, 'id')} index={i} style={{ marginBottom: 12 }}>
-              <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#B81D2B', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
                 <View>
                   <Photo url={str(x, 'image')} style={{ width: '100%', aspectRatio: 2.2 }} corner={0} />
                   <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
@@ -499,15 +500,15 @@ function AgentPortal() {
   const t = obj(d, 'totals') || {};
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
-      <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 16 }}>
-        <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
+      <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
+      <View>
         {d ? (
-          <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 16 }}>
+          <View style={{ flexDirection: 'row', gap: 6, marginHorizontal: 16, padding: 8, borderRadius: 26, backgroundColor: Brand.Ink }}>
             <HStat label="Commission earned" value={money(num(t, 'earned') || 0)} flex={1} />
             <HStat label="Bookings" value={String(int(t, 'bookings'))} flex={1} />
           </View>
         ) : null}
-      </LinearGradient>
+      </View>
       <View style={{ padding: 16 }}>
         {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your summary.'} onRetry={l.reload} /> : (
           <>

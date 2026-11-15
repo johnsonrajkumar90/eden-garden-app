@@ -7,9 +7,9 @@ import { Api, errorText } from '../core/api';
 import { useAppState, useLoader, useSession } from '../core/state';
 import { J, int, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
-import { Appear, EmptyBox, ErrorBox, Gap, Icon, Loading, OutlineButton, Photo, Press, PrimaryButton, SectionTitle, Txt, st } from '../ui/kit';
+import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, Photo, Press, PrimaryButton, SectionTitle, Txt, st } from '../ui/kit';
 import { DateRangeField, Stepper } from '../ui/inputs';
-import { Floaty, GridRow, PlaceCard, RED_GRAD, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
+import { GridRow, PlaceCard, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
 import { Nav } from '../nav';
 
 type Row = { key: string; render: () => React.ReactElement };
@@ -48,26 +48,26 @@ export default function ExploreScreen() {
 
   const rows: Row[] = [{ key: 'head', render: () => (
     <View>
-      <View style={[st.row, { backgroundColor: Brand.Matte, paddingLeft: 16, paddingRight: 6, paddingTop: 6, paddingBottom: 2 }]}>
-        <Image source={require('../../assets/logo_white.png')} style={{ height: 32, width: 130 }} contentFit="contain" contentPosition="left" accessibilityLabel="TripArro" />
+      <View style={[st.row, { paddingLeft: 16, paddingRight: 12, paddingTop: 8, paddingBottom: 4 }]}>
+        <Image source={require('../../assets/logo_full.png')} style={{ height: 34, width: 120 }} contentFit="contain" contentPosition="left" accessibilityLabel="TripArro" />
         <View style={{ flex: 1 }} />
         <WalletChip />
-        <Pressable onPress={() => Nav.navigate(session?.user ? 'notifications' : 'login')} style={st.barBtn} accessibilityLabel="Notifications">
-          <Icon name="notifications-none" color="#fff" />
-          {unread > 0 ? <View style={{ position: 'absolute', top: 6, right: 6, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: Brand.Coral, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Txt k="labelSmall" color="#fff">{unread > 9 ? '9+' : unread}</Txt></View> : null}
-        </Pressable>
+        <View>
+          <HeadButton icon="notifications-none" label="Notifications" onPress={() => Nav.navigate(session?.user ? 'notifications' : 'login')} />
+          {unread > 0 ? <View pointerEvents="none" style={{ position: 'absolute', top: 2, right: 2, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: Brand.Blue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Txt k="labelSmall" color="#fff" style={{ fontSize: 9 }}>{unread > 9 ? '9+' : unread}</Txt></View> : null}
+        </View>
       </View>
       <View>
-        <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 230, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }} />
-        <Floaty distance={8} ms={2600} style={{ position: 'absolute', left: 250, top: 10 }}><View style={{ width: 150, height: 150, borderRadius: 75, backgroundColor: '#FFC42E33' }} /></Floaty>
-        <Floaty distance={6} ms={2100} style={{ position: 'absolute', left: 20, top: 150 }}><View style={{ width: 70, height: 70, borderRadius: 35, backgroundColor: '#FFFFFF22' }} /></Floaty>
-        <View style={{ paddingHorizontal: 16, paddingTop: 14 }}>
-          <Appear><Txt k="headlineMedium" color="#fff">{first ? `Hi ${first}, where to next?` : 'Where to next?'}</Txt></Appear>
-          <Txt color="#FFE0DC" style={{ marginTop: 4 }}>Verified homestays, villas and resorts — the full price before you pay.</Txt>
-          <Gap h={18} />
-          <Appear index={1} style={{ borderRadius: 26, backgroundColor: '#fff', padding: 14, elevation: 10, shadowColor: '#B81D2B', shadowOpacity: 0.27, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
-            <View style={[st.row, { borderWidth: 1, borderColor: Brand.Line, borderRadius: 14, backgroundColor: Brand.Page, paddingHorizontal: 12 }]}>
-              <Icon name="search" color={Brand.Blue} />
+        {/* the logo's arch, faint, behind the greeting */}
+        <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: 8, width: 190, height: 150, borderTopLeftRadius: 95, borderTopRightRadius: 95, backgroundColor: '#FFE4E1' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', right: 112, top: 96, width: 22, height: 22, borderRadius: 11, backgroundColor: Brand.Sun }} />
+        <View style={{ paddingHorizontal: 16, paddingTop: 18 }}>
+          <Appear><Txt k="displaySmall" style={{ maxWidth: 280 }}>{first ? `Hi ${first}, where to next?` : 'Where to next?'}</Txt></Appear>
+          <Txt color={Brand.Muted} style={{ marginTop: 6, maxWidth: 300 }}>Verified homestays, villas and resorts — the full price before you pay.</Txt>
+          <Gap h={20} />
+          <Appear index={1} style={[st.card, { borderRadius: 28, padding: 14, shadowOpacity: 0.08, shadowRadius: 18, elevation: 6 }]}>
+            <View style={[st.row, { borderRadius: 18, backgroundColor: Brand.Field, paddingHorizontal: 14 }]}>
+              <Icon name="search" color={Brand.Ink} />
               <TextInput value={q} onChangeText={setQ} placeholder="Where to? Ooty, Munnar, Goa…" placeholderTextColor="#A59C97" returnKeyType="search" onSubmitEditing={() => search()}
                 style={{ flex: 1, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, paddingVertical: 14, paddingLeft: 8 }} accessibilityLabel="Where to" />
             </View>
@@ -77,7 +77,7 @@ export default function ExploreScreen() {
             <Stepper label="Guests" value={adults} onChange={setAdults} min={1} max={30} />
             <View style={{ flexDirection: 'row', gap: 8, paddingVertical: 6 }}>
               {[['all', 'All'], ['stay', 'Homestays'], ['resort', 'Resorts']].map(([k, l]) => (
-                <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Matte : Brand.Line, backgroundColor: kind === k ? Brand.Matte : '#fff', paddingHorizontal: 14, paddingVertical: 7 }}>
+                <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Ink : Brand.Line, backgroundColor: kind === k ? Brand.Ink : '#fff', paddingHorizontal: 14, paddingVertical: 7 }}>
                   <Txt k="labelLarge" color={kind === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
                 </Pressable>
               ))}
@@ -123,12 +123,12 @@ export default function ExploreScreen() {
           <SectionTitle text="Popular places" sub="Tap a place to see its stays" style={{ paddingHorizontal: 16 }} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
             {places.map((d, i) => (
-              <Press key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 150, height: 196, borderRadius: 20, overflow: 'hidden' }} accessibilityLabel={text(d, 'name')}>
+              <Press key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 150, height: 200, borderTopLeftRadius: 75, borderTopRightRadius: 75, borderBottomLeftRadius: 22, borderBottomRightRadius: 22, overflow: 'hidden' }} accessibilityLabel={text(d, 'name')}>
                 <Photo url={str(d, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
-                <LinearGradient colors={['transparent', '#3A0A10CC']} locations={[0.45, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+                <LinearGradient colors={['transparent', '#000000B3']} locations={[0.45, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
                 <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
                   <Txt k="titleLarge" color="#fff" numberOfLines={1}>{text(d, 'name')}</Txt>
-                  <Txt k="bodySmall" color="#FFE0DC">{int(d, 'count')} {int(d, 'count') === 1 ? 'stay' : 'stays'}</Txt>
+                  <Txt k="bodySmall" color="#ffffffcc">{int(d, 'count')} {int(d, 'count') === 1 ? 'stay' : 'stays'}</Txt>
                 </View>
               </Press>
             ))}
@@ -167,7 +167,7 @@ function Shortcut({ icon, label, tint, bg, i, onPress }: { icon: string; label: 
   return (
     <Appear index={i}>
       <Press onPress={onPress} style={{ width: 82, alignItems: 'center', paddingVertical: 4 }} accessibilityLabel={label}>
-        <View style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: tint, shadowOpacity: 0.3, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ width: 60, height: 56, borderTopLeftRadius: 30, borderTopRightRadius: 30, borderBottomLeftRadius: 14, borderBottomRightRadius: 14, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name={icon} size={26} color={tint} />
         </View>
         <Txt k="labelMedium" numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>

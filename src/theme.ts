@@ -1,28 +1,29 @@
-// TripArro colours and type — the same as the website and the native app.
+// TripArro colours and type. The look: light pages, white cards, the logo's coral arch, sun-yellow highlights.
 import { TextStyle } from 'react-native';
 
 export const Brand = {
-  Blue: '#D7192A', BlueDark: '#A70F1E', Navy: '#6A1019', Matte: '#B81D2B',
+  Blue: '#D93338', BlueDark: '#A8242A', Navy: '#5C1418', Matte: '#161616',
   Sun: '#FFC72C', SunDark: '#E0A800', SunSoft: '#FFF6D6', SunInk: '#4A3400',
   Teal: '#00875A', TealDark: '#00704A', TealSoft: '#E5F6EE',
-  Coral: '#FF5757', CoralDark: '#B81D2B',
-  Page: '#F7F5F2', Sky: '#FFF0EF', Ink: '#1D1B1A', InkSoft: '#3D3936', Muted: '#6B6560', Line: '#EBE5DF',
+  Coral: '#FF5757', CoralDark: '#D93338',
+  Page: '#F7F6F4', Sky: '#FFEDEB', Ink: '#161616', InkSoft: '#3F3F46', Muted: '#6E6E76', Line: '#ECEAE6',
+  Card: '#FFFFFF', Field: '#F1F0EE',
   Warn: '#A35C00', WarnSoft: '#FFF3DF', Danger: '#C62828', DangerSoft: '#FDECEC', Star: '#E0A800',
   Night: '#15161C', NightPlum: '#241A2A',
 };
 
-/** The red of every top bar (matte red → bright red → orange-red). */
-export const RedBar = [Brand.Matte, '#D7192A', '#E8452F'] as const;
+/** The logo's coral arch, for the few brand moments (sign-in, AI, group trip covers). */
+export const RedBar = ['#D93338', '#E8474B', '#FF5757'] as const;
 
 // Poppins for headings, Inter for text (font files in assets/fonts, names = file names)
 const P = { m: 'poppins_medium', s: 'poppins_semibold', b: 'poppins_bold' };
 const I = { r: 'inter_regular', m: 'inter_medium', s: 'inter_semibold', b: 'inter_bold' };
 
 export const T: Record<string, TextStyle> = {
-  displaySmall: { fontFamily: P.b, fontSize: 30, lineHeight: 36, letterSpacing: -0.3, color: Brand.Ink },
-  headlineMedium: { fontFamily: P.b, fontSize: 26, lineHeight: 32, letterSpacing: -0.2, color: Brand.Ink },
-  headlineSmall: { fontFamily: P.s, fontSize: 22, lineHeight: 28, color: Brand.Ink },
-  titleLarge: { fontFamily: P.s, fontSize: 18, lineHeight: 24, color: Brand.Ink },
+  displaySmall: { fontFamily: P.b, fontSize: 32, lineHeight: 38, letterSpacing: -0.6, color: Brand.Ink },
+  headlineMedium: { fontFamily: P.b, fontSize: 28, lineHeight: 34, letterSpacing: -0.5, color: Brand.Ink },
+  headlineSmall: { fontFamily: P.b, fontSize: 23, lineHeight: 29, letterSpacing: -0.3, color: Brand.Ink },
+  titleLarge: { fontFamily: P.s, fontSize: 18, lineHeight: 24, letterSpacing: -0.2, color: Brand.Ink },
   titleMedium: { fontFamily: I.s, fontSize: 16, lineHeight: 22, color: Brand.Ink },
   titleSmall: { fontFamily: I.s, fontSize: 14, lineHeight: 20, color: Brand.Ink },
   bodyLarge: { fontFamily: I.r, fontSize: 16, lineHeight: 24, color: Brand.Ink },

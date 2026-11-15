@@ -29,11 +29,10 @@ export default function TripsScreen() {
   }, [session?.user?.id, tick]);
   return (
     <View style={{ flex: 1 }}>
-      <LinearGradient colors={RedBar as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 18 }}>
-        <Image source={require('../../assets/logo_white.png')} style={{ height: 28, width: 112 }} contentFit="contain" contentPosition="left" />
-        <Txt k="headlineMedium" color="#fff" style={{ marginTop: 12 }}>My trips</Txt>
-        <Txt k="bodySmall" color="#FFE0DC">Trips with family & friends, bookings and tickets</Txt>
-      </LinearGradient>
+      <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10 }}>
+        <Txt k="displaySmall">My trips</Txt>
+        <Txt color={Brand.Muted} style={{ marginTop: 2 }}>Trips with family & friends, bookings and tickets</Txt>
+      </View>
       {!session?.user ? <EmptyBox title="Sign in to see your trips" text="Your stays, resorts and pet services bookings appear here." action="Sign in" icon="luggage" onAction={() => Nav.navigate('login')} />
         : <TripsList tab={tab} setTab={setTab} l={l} />}
     </View>

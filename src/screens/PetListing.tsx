@@ -251,7 +251,7 @@ export default function PetListingScreen() {
         </View>
       </ScrollView>
       <PriceBar price={money(num(p, 'price'))} unit="/ pet / night" note={bool(p, 'instant') ? 'Instant booking' : 'You pay after the host accepts'}
-        button={<Pressable onPress={() => scroll.current?.scrollTo({ y: bodyY.current + bookY.current, animated: true })} style={{ borderRadius: 16, backgroundColor: Brand.Sun, paddingHorizontal: 22, paddingVertical: 14 }}><Txt k="labelLarge" color={Brand.SunInk}>Book a stay</Txt></Pressable>} />
+        button={<Pressable onPress={() => scroll.current?.scrollTo({ y: bodyY.current + bookY.current, animated: true })} style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 26, paddingVertical: 15 }}><Txt k="labelLarge" bold color="#fff">Book a stay</Txt></Pressable>} />
     </View>
   );
 }

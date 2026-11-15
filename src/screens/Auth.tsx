@@ -12,7 +12,7 @@ import { Api, ApiError, errorText } from '../core/api';
 import { AppState } from '../core/state';
 import { str, text } from '../core/json';
 import { Brand, Fonts, RedBar } from '../theme';
-import { Gap, Icon, LinkButton, Notice, OutlineButton, PrimaryButton, Press, Txt, st } from '../ui/kit';
+import { Gap, Icon, LinkButton, Notice, OutlineButton, PrimaryButton, Press, Txt, st , HeadButton } from '../ui/kit';
 import { Field } from '../ui/inputs';
 import { Nav, useParams } from '../nav';
 import { handleIncomingLink } from '../links';
@@ -103,23 +103,25 @@ export default function AuthScreen({ startSignUp }: { startSignUp?: boolean }) {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled">
-        <LinearGradient colors={RedBar as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderBottomLeftRadius: 32, borderBottomRightRadius: 32, paddingLeft: 8, paddingRight: 20, paddingTop: 4, paddingBottom: 64 }}>
+        <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 22 }}>
+          <View pointerEvents="none" style={{ position: 'absolute', right: -36, top: 56, width: 200, height: 160, borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: '#FFE4E1' }} />
+          <View pointerEvents="none" style={{ position: 'absolute', right: 120, top: 150, width: 20, height: 20, borderRadius: 10, backgroundColor: Brand.Sun }} />
           <View style={st.row}>
-            <Pressable onPress={() => (step === 'SignIn' || step === 'SignUp' ? Nav.back() : go('SignIn'))} style={st.barBtn} accessibilityLabel="Back"><Icon name="arrow-back" color="#fff" /></Pressable>
+            <HeadButton icon="arrow-back" label="Back" onPress={() => (step === 'SignIn' || step === 'SignUp' ? Nav.back() : go('SignIn'))} />
             <View style={{ flex: 1 }} />
-            <Image source={require('../../assets/logo_white.png')} style={{ height: 30, width: 120 }} contentFit="contain" />
+            <Image source={require('../../assets/logo_full.png')} style={{ height: 32, width: 112 }} contentFit="contain" />
           </View>
-          <View style={{ paddingLeft: 12, paddingTop: 18 }}>
-            <Txt k="headlineMedium" color="#fff">{title}</Txt>
-            <Txt color="#FFE0DC" style={{ marginTop: 6 }}>{sub}</Txt>
+          <View style={{ paddingTop: 34 }}>
+            <Txt k="displaySmall" style={{ maxWidth: 290 }}>{title}</Txt>
+            <Txt color={Brand.Muted} style={{ marginTop: 6, maxWidth: 300 }}>{sub}</Txt>
           </View>
-        </LinearGradient>
-        <View style={[{ marginTop: -40, marginHorizontal: 16, borderRadius: 24, backgroundColor: '#fff', padding: 20 }, st.shadow]}>
+        </View>
+        <View style={[st.card, { marginHorizontal: 16, borderRadius: 28, padding: 20 }]}>
           {step === 'SignIn' || step === 'SignUp' ? (
             <>
-              <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: Brand.Sky, padding: 4 }}>
+              <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: Brand.Field, padding: 4 }}>
                 {([['SignIn', 'Sign in'], ['SignUp', 'Create account']] as [Step, string][]).map(([s, l]) => (
-                  <Pressable key={s} onPress={() => go(s)} style={{ flex: 1, borderRadius: 50, backgroundColor: step === s ? Brand.Blue : 'transparent', paddingVertical: 11 }}>
+                  <Pressable key={s} onPress={() => go(s)} style={{ flex: 1, borderRadius: 50, backgroundColor: step === s ? Brand.Ink : 'transparent', paddingVertical: 11 }}>
                     <Txt k="labelLarge" center color={step === s ? '#fff' : Brand.InkSoft}>{l}</Txt>
                   </Pressable>
                 ))}

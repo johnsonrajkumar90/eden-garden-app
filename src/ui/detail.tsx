@@ -47,7 +47,7 @@ export function RatingBadge({ rating, count }: { rating?: number | null; count?:
 
 /** The white card with the title that overlaps the photos. */
 export function TitleCard({ children }: { children: ReactNode }) {
-  return <View style={[{ marginHorizontal: 12, borderRadius: 26, backgroundColor: '#fff', padding: 18 }, st.shadow]}>{children}</View>;
+  return <View style={[st.card, { marginHorizontal: 12, borderRadius: 28, padding: 18 }]}>{children}</View>;
 }
 
 /** Quick facts as tiles (icon + text), wrapped over lines. */
@@ -66,9 +66,9 @@ export function FactTiles({ items }: { items: [string, string][] }) {
 /** A section of a details page: white rounded card with an icon and a title. */
 export function DetailSection({ title, icon, sub, children }: { title: string; icon?: string; sub?: string | null; children: ReactNode }) {
   return (
-    <View style={{ marginHorizontal: 12, marginVertical: 6, borderRadius: 22, backgroundColor: '#fff', padding: 18 }}>
+    <View style={{ marginHorizontal: 12, marginVertical: 6, borderRadius: 22, backgroundColor: '#fff', padding: 18, borderWidth: 1, borderColor: '#EFEDE9' }}>
       <View style={[st.row, { marginBottom: 12 }]}>
-        {icon ? <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: Brand.Sky, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}><Icon name={icon} size={19} color={Brand.Blue} /></View> : null}
+        {icon ? <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: Brand.Field, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}><Icon name={icon} size={19} color={Brand.Blue} /></View> : null}
         <View style={{ flex: 1 }}>
           <Txt k="titleLarge">{title}</Txt>
           {sub ? <Txt k="bodySmall" color={Brand.Muted}>{sub}</Txt> : null}
@@ -128,8 +128,8 @@ export function AmenityGrid({ items, first = 8 }: { items: string[]; first?: num
         </View>
       ))}
       {items.length > first ? (
-        <Pressable onPress={() => setAll(!all)} style={{ alignSelf: 'flex-start', marginTop: 8, borderRadius: 10, backgroundColor: Brand.Sky, paddingHorizontal: 14, paddingVertical: 9 }}>
-          <Txt k="titleSmall" color={Brand.Blue}>{all ? 'Show less' : `Show all ${items.length}`}</Txt>
+        <Pressable onPress={() => setAll(!all)} style={{ alignSelf: 'flex-start', marginTop: 8, borderRadius: 50, backgroundColor: Brand.Field, paddingHorizontal: 14, paddingVertical: 9 }}>
+          <Txt k="titleSmall" color={Brand.Ink}>{all ? 'Show less' : `Show all ${items.length}`}</Txt>
         </Pressable>
       ) : null}
     </View>
@@ -190,11 +190,11 @@ export function RefundTimeline({ rows }: { rows: [string, number][] }) {
 /** The sticky bar at the bottom of a details page: price, a note, and the main button. */
 export function PriceBar({ price, unit, was, note, button }: { price: string; unit: string; was?: string | null; note?: string | null; button: ReactNode }) {
   return (
-    <View style={[st.row, { backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingHorizontal: 18, paddingVertical: 14, elevation: 14, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 12, shadowOffset: { width: 0, height: -3 } }]}>
+    <View style={[st.row, { backgroundColor: '#fff', margin: 10, marginBottom: 6, borderRadius: 30, paddingLeft: 20, paddingRight: 8, paddingVertical: 8, borderWidth: 1, borderColor: '#EFEDE9', elevation: 12, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 16, shadowOffset: { width: 0, height: 4 } }]}>
       <View style={{ flex: 1 }}>
         <View style={[st.row, { alignItems: 'flex-end' }]}>
           {was ? <Txt color={Brand.Muted} style={{ textDecorationLine: 'line-through' }}>{was} </Txt> : null}
-          <Txt k="headlineSmall" color={Brand.BlueDark}>{price}</Txt>
+          <Txt k="headlineSmall">{price}</Txt>
           <Txt k="bodySmall" color={Brand.Muted}> {unit}</Txt>
         </View>
         {note ? <Txt k="labelMedium" color={Brand.TealDark} numberOfLines={1}>{note}</Txt> : null}

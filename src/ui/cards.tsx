@@ -9,14 +9,15 @@ import { Brand, Fonts } from '../theme';
 import { Appear, Icon, Photo, Press, Txt, money, st } from './kit';
 import { Nav } from '../nav';
 
-export const RED_GRAD = ['#6A1019', '#B81D2B', '#E0182D', '#FF6A3D'] as const;
+/** The logo's coral arch as a gradient (brand moments only). */
+export const RED_GRAD = ['#D93338', '#E8474B', '#FF5757'] as const;
 export const SUN_GRAD = ['#FFD54A', '#FFC22E', '#FFA81F'] as const;
 
 /** True unless the listing says it is non-refundable (older servers don't say: refundable). */
 export const isRefundable = (p: J) => !(p && p.refundable !== undefined && p.refundable !== null && p.refundable === false);
 
 export function RefundTag({ refundable }: { refundable: boolean }) {
-  return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: refundable ? '#0B6B3A' : '#0B3D91', paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" bold color="#fff">{refundable ? 'Refundable' : 'Non-refundable'}</Txt></View>;
+  return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: refundable ? '#0B6B3AE6' : '#1E2A44E6', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold color="#fff">{refundable ? 'Refundable' : 'Non-refundable'}</Txt></View>;
 }
 export function OverlayTag({ text: t }: { text: string }) {
   return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" semi>{t}</Txt></View>;
@@ -44,9 +45,9 @@ export function Shimmer({ style }: { style: StyleProp<ViewStyle> }) {
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => { const l = Animated.loop(Animated.timing(v, { toValue: 1, duration: 1300, easing: Easing.linear, useNativeDriver: true })); l.start(); return () => l.stop(); }, []);
   return (
-    <View style={[{ backgroundColor: '#F2ECE7', overflow: 'hidden' }, style]}>
+    <View style={[{ backgroundColor: '#EFEEEB', overflow: 'hidden' }, style]}>
       <Animated.View style={{ position: 'absolute', top: 0, bottom: 0, width: 160, transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-200, 500] }) }] }}>
-        <LinearGradient colors={['#F2ECE7', '#FFFAF6', '#F2ECE7']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.4 }} style={{ flex: 1 }} />
+        <LinearGradient colors={['#EFEEEB', '#F9F8F6', '#EFEEEB']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.4 }} style={{ flex: 1 }} />
       </Animated.View>
     </View>
   );
@@ -91,17 +92,17 @@ export function GridPropertyCard({ p, onPress }: { p: J; onPress: () => void }) 
   const rating = num(p, 'rating');
   const bookable = bool(p, 'bookable') || p.bookable === undefined;
   return (
-    <Press onPress={onPress} style={{ borderRadius: 22, backgroundColor: '#fff', elevation: 5, shadowColor: '#B81D2B', shadowOpacity: 0.16, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }} accessibilityLabel={text(p, 'title')}>
-      <View style={{ borderTopLeftRadius: 22, borderTopRightRadius: 22, overflow: 'hidden' }}>
+    <Press onPress={onPress} style={[st.card, { borderRadius: 26, padding: 6 }]} accessibilityLabel={text(p, 'title')}>
+      <View style={{ borderTopLeftRadius: 72, borderTopRightRadius: 72, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, overflow: 'hidden' }}>
         <Photo url={str(p, 'image')} corner={0} style={{ width: '100%', aspectRatio: 0.92 }} label={text(p, 'title')} />
-        <LinearGradient colors={['transparent', '#300A1099']} locations={[0.55, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-        <View style={{ position: 'absolute', top: 8, left: 8, gap: 4 }}>
+        <LinearGradient colors={['transparent', '#00000080']} locations={[0.6, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+        <View style={{ position: 'absolute', top: 30, left: 8, gap: 4 }}>
           {bool(badges, 'sponsored') ? <OverlayTag text="Sponsored" /> : null}
           {bool(badges, 'favourite') ? <OverlayTag text="★ Favourite" /> : null}
           <RefundTag refundable={isRefundable(p)} />
         </View>
         {offer !== null && nightly !== null && offer < nightly ? (
-          <LinearGradient colors={SUN_GRAD as any} style={{ position: 'absolute', top: 8, right: 8, borderRadius: 50, paddingHorizontal: 8, paddingVertical: 4 }}>
+          <LinearGradient colors={SUN_GRAD as any} style={{ position: 'absolute', bottom: 10, right: 8, borderRadius: 50, paddingHorizontal: 8, paddingVertical: 4 }}>
             <Txt k="labelSmall" bold color={Brand.SunInk}>{Math.round((1 - offer / nightly) * 100)}% OFF</Txt>
           </LinearGradient>
         ) : null}
@@ -110,17 +111,17 @@ export function GridPropertyCard({ p, onPress }: { p: J; onPress: () => void }) 
           {bool(badges, 'verified') ? <Icon name="verified" size={15} color="#fff" style={{ marginLeft: 6 }} /> : null}
         </View>
       </View>
-      <View style={{ paddingHorizontal: 11, paddingTop: 9, paddingBottom: 12 }}>
+      <View style={{ paddingHorizontal: 8, paddingTop: 10, paddingBottom: 8 }}>
         <Txt k="titleSmall" numberOfLines={1}>{text(p, 'title')}</Txt>
         <View style={[st.row, { marginTop: 2 }]}>
-          <Icon name="place" size={13} color={Brand.Blue} />
+          <Icon name="place" size={13} color={Brand.Muted} />
           <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1} style={{ flex: 1 }}> {str(p, 'area') || str(p, 'location') || ''}</Txt>
         </View>
         {bookable ? (
           <>
             <View style={[st.row, { alignItems: 'flex-end', marginTop: 6 }]}>
-              {total ? <><Txt k="titleSmall" bold color={Brand.BlueDark}>{money(num(total, 'amount'))}</Txt><Txt k="labelMedium" color={Brand.Muted}> · {int(total, 'nights')}n</Txt></>
-                : <><Txt k="titleSmall" bold color={Brand.BlueDark}>{money(offer ?? nightly)}</Txt><Txt k="labelMedium" color={Brand.Muted}> /night</Txt></>}
+              {total ? <><Txt k="titleSmall" bold color={Brand.Ink}>{money(num(total, 'amount'))}</Txt><Txt k="labelMedium" color={Brand.Muted}> · {int(total, 'nights')}n</Txt></>
+                : <><Txt k="titleSmall" bold color={Brand.Ink}>{money(offer ?? nightly)}</Txt><Txt k="labelMedium" color={Brand.Muted}> /night</Txt></>}
             </View>
             {!total && offer !== null && nightly !== null && offer < nightly ? <Txt k="labelMedium" color={Brand.Muted} style={{ textDecorationLine: 'line-through' }}>{money(nightly)}</Txt> : null}
           </>
@@ -138,9 +139,9 @@ export function PropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
   const bookable = bool(p, 'bookable') || p.bookable === undefined;
   return (
     <Appear style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-      <Press onPress={onPress} style={[st.card, { borderRadius: 22, overflow: 'hidden' }]}>
+      <Press onPress={onPress} style={[st.card, { borderRadius: 28, padding: 6 }]}>
         <View>
-          <Photo url={str(p, 'image')} corner={0} style={{ width: '100%', aspectRatio: 1.55 }} label={text(p, 'title')} />
+          <Photo url={str(p, 'image')} corner={22} style={{ width: '100%', aspectRatio: 1.55 }} label={text(p, 'title')} />
           <View style={{ position: 'absolute', top: 12, left: 12, flexDirection: 'row', gap: 6 }}>
             {bool(badges, 'sponsored') ? <OverlayTag text="Sponsored" /> : null}
             {bool(badges, 'favourite') ? <OverlayTag text="★ Guest favourite" /> : null}
@@ -153,8 +154,8 @@ export function PropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
             </View>
           ) : null}
         </View>
-        <View style={{ paddingHorizontal: 16, paddingVertical: 14 }}>
-          <View style={st.row}><Icon name="place" size={15} color={Brand.Teal} /><Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1} style={{ flex: 1, marginLeft: 4 }}>{[str(p, 'area'), str(p, 'location')].filter(Boolean).join(', ')}</Txt></View>
+        <View style={{ paddingHorizontal: 10, paddingVertical: 12 }}>
+          <View style={st.row}><Icon name="place" size={15} color={Brand.Muted} /><Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1} style={{ flex: 1, marginLeft: 4 }}>{[str(p, 'area'), str(p, 'location')].filter(Boolean).join(', ')}</Txt></View>
           <Txt k="titleLarge" numberOfLines={2} style={{ marginTop: 4 }}>{text(p, 'title')}</Txt>
           <View style={[st.row, { marginTop: 2 }]}>
             <Txt k="bodySmall" color={Brand.Muted}>{[str(p, 'type'), p.max_guests ? `up to ${p.max_guests} guests` : null].filter(Boolean).join(' · ')}</Txt>
@@ -163,9 +164,9 @@ export function PropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
           {bookable ? (
             <>
               <View style={[st.row, { alignItems: 'flex-end', marginTop: 8 }]}>
-                {total ? <><Txt k="titleMedium" bold color={Brand.BlueDark}>{money(num(total, 'amount'))}</Txt><Txt k="bodySmall" color={Brand.Muted}>  for {int(total, 'nights')} nights</Txt></> : <>
+                {total ? <><Txt k="titleMedium" bold color={Brand.Ink}>{money(num(total, 'amount'))}</Txt><Txt k="bodySmall" color={Brand.Muted}>  for {int(total, 'nights')} nights</Txt></> : <>
                   {offer !== null && nightly !== null && offer < nightly ? <Txt k="bodySmall" color={Brand.Muted} style={{ textDecorationLine: 'line-through', marginRight: 6 }}>{money(nightly)}</Txt> : null}
-                  <Txt k="titleMedium" bold color={Brand.BlueDark}>{(bool(price, 'from') ? 'from ' : '') + money(offer ?? nightly)}</Txt><Txt k="bodySmall" color={Brand.Muted}> / night</Txt></>}
+                  <Txt k="titleMedium" bold color={Brand.Ink}>{(bool(price, 'from') ? 'from ' : '') + money(offer ?? nightly)}</Txt><Txt k="bodySmall" color={Brand.Muted}> / night</Txt></>}
               </View>
               {str(p, 'cancellation') ? <Txt k="bodySmall" color={isRefundable(p) ? Brand.TealDark : '#0B3D91'} style={{ marginTop: 2 }}>{str(p, 'cancellation')}</Txt> : null}
             </>
@@ -183,13 +184,13 @@ export const weatherEmoji = (icon?: string | null) => ({ sun: '☀️', cloud_su
 /** A tourist place in a row: photo (or a coloured tile), name, category and how far / when to go. */
 export function PlaceCard({ p, onPress, style }: { p: J; onPress: () => void; style?: StyleProp<ViewStyle> }) {
   return (
-    <Press onPress={onPress} style={[{ borderRadius: 22, backgroundColor: '#fff', elevation: 5, shadowColor: '#B81D2B', shadowOpacity: 0.16, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }, style]}>
-      <View style={{ height: 130, borderTopLeftRadius: 22, borderTopRightRadius: 22, overflow: 'hidden' }}>
+    <Press onPress={onPress} style={[st.card, { borderRadius: 26, padding: 6 }, style]}>
+      <View style={{ height: 124, borderTopLeftRadius: 60, borderTopRightRadius: 60, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, overflow: 'hidden' }}>
         {str(p, 'image') ? <Photo url={str(p, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
           : <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Floaty><Text style={{ fontSize: 44 }}>{catEmoji[text(p, 'cat')] || '📍'}</Text></Floaty></LinearGradient>}
-        <View style={{ position: 'absolute', top: 8, left: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall">{text(p, 'category')}</Txt></View>
+        <View style={{ position: 'absolute', bottom: 8, left: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall">{text(p, 'category')}</Txt></View>
       </View>
-      <View style={{ padding: 12 }}>
+      <View style={{ paddingHorizontal: 8, paddingTop: 10, paddingBottom: 8 }}>
         <Txt k="titleSmall" numberOfLines={1}>{text(p, 'title')}</Txt>
         <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1}>{str(p, 'distance_note') || text(p, 'location')}</Txt>
         {str(p, 'best_time') ? <Txt k="labelMedium" color={Brand.TealDark} numberOfLines={1} style={{ marginTop: 4 }}>🗓 {str(p, 'best_time')}</Txt> : null}
@@ -213,9 +214,9 @@ export function WalletChip() {
   const label = u && bal !== null ? money(bal) : !u ? 'Rewards' : null;
   if (!label) return null;
   return (
-    <Pressable onPress={() => Nav.navigate(u ? 'wallet' : 'signup')} style={[st.row, { marginRight: 4, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 6 }]} accessibilityLabel="Rewards wallet">
-      <Icon name="account-balance-wallet" size={18} color={Brand.SunInk} />
-      <Text style={{ fontFamily: Fonts.bold, fontSize: 15, color: Brand.SunInk }}> {label}</Text>
+    <Pressable onPress={() => Nav.navigate(u ? 'wallet' : 'signup')} style={[st.row, { marginRight: 6, borderRadius: 50, backgroundColor: Brand.Ink, paddingHorizontal: 12, height: 44 }]} accessibilityLabel="Rewards wallet">
+      <Icon name="account-balance-wallet" size={18} color={Brand.Sun} />
+      <Text style={{ fontFamily: Fonts.bold, fontSize: 14, color: '#fff' }}> {label}</Text>
     </Pressable>
   );
 }

@@ -48,7 +48,7 @@ export function PetGridCard({ c, onPress }: { c: J; onPress: () => void }) {
   const r = num(c, 'rating');
   const free = c.free === undefined || c.free === null ? null : int(c, 'free');
   return (
-    <Press onPress={onPress} style={{ borderRadius: 22, backgroundColor: '#fff', elevation: 5, shadowColor: '#B81D2B', shadowOpacity: 0.16, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }} accessibilityLabel={text(c, 'title')}>
+    <Press onPress={onPress} style={{ borderRadius: 22, backgroundColor: '#fff', elevation: 5, shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }} accessibilityLabel={text(c, 'title')}>
       <View style={{ borderTopLeftRadius: 22, borderTopRightRadius: 22, overflow: 'hidden' }}>
         <Photo url={str(c, 'image')} corner={0} style={{ width: '100%', aspectRatio: 0.95 }} />
         <LinearGradient colors={['transparent', '#300A1099']} locations={[0.55, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />

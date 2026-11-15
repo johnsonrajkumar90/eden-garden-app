@@ -15,7 +15,7 @@ import { J, arr, bool, int, num, obj, objs, str, text } from '../core/json';
 import { Picked, pickPhoto, shrinkPhoto, uploadOf } from '../core/files';
 import { readLines, rows as textRows } from '../core/reader';
 import { Brand, Fonts } from '../theme';
-import { Appear, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, OutlineButton, Press, PrimaryButton, Txt, money, parseIso, shareLink, st, DAYS, MONTHS } from '../ui/kit';
+import { Appear, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, OutlineButton, Press, PrimaryButton, Txt, money, parseIso, shareLink, st, DAYS, MONTHS , HeadButton } from '../ui/kit';
 import { Field } from '../ui/inputs';
 import { Dialog, Sheet } from '../ui/sheets';
 import { AddToGroup, GroupItem, GroupMap, InviteCard, ShareTripDialog, openGroupUrl } from './Groups';
@@ -192,18 +192,18 @@ export default function GroupTripScreen() {
 function TopRow({ g, onCamera }: { g: J | null; onCamera: () => void }) {
   // the red bar every screen has: back, the trip's name, invite, change photo
   return (
-    <LinearGradient colors={[Brand.Matte, '#D7192A', '#E8452F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[st.row, { paddingHorizontal: 8, paddingVertical: 8 }]}>
-      <Pressable onPress={Nav.back} style={st.barBtn} accessibilityLabel="Back"><Icon name="arrow-back" color="#fff" /></Pressable>
-      <Txt k="titleMedium" semi color="#fff" numberOfLines={1} style={{ flex: 1, marginLeft: 4 }}>{text(g, 'title') || 'Your trip'}</Txt>
+    <View style={[st.row, { paddingHorizontal: 12, paddingVertical: 8, gap: 6 }]}>
+      <HeadButton icon="arrow-back" label="Back" onPress={Nav.back} />
+      <Txt k="titleMedium" semi numberOfLines={1} style={{ flex: 1, marginLeft: 6 }}>{text(g, 'title') || 'Your trip'}</Txt>
       {g ? (
         <>
-          <Pressable onPress={() => shareLink(text(g, 'share_text'), text(g, 'link'))} style={st.barBtn} accessibilityLabel="Invite"><Icon name="share" color="#fff" /></Pressable>
-          <Press onPress={onCamera} style={[st.row, { height: 40, borderRadius: 20, backgroundColor: '#FFFFFF33', borderWidth: 1, borderColor: '#FFFFFF55', paddingHorizontal: 14 }]}>
-            <Icon name="photo-camera" size={18} color="#fff" style={{ marginRight: 6 }} /><Txt k="labelLarge" semi color="#fff">Change photo</Txt>
+          <HeadButton icon="share" label="Invite" onPress={() => shareLink(text(g, 'share_text'), text(g, 'link'))} />
+          <Press onPress={onCamera} style={[st.row, { height: 44, borderRadius: 22, backgroundColor: Brand.Ink, paddingHorizontal: 14 }]}>
+            <Icon name="photo-camera" size={18} color={Brand.Sun} style={{ marginRight: 6 }} /><Txt k="labelLarge" semi color="#fff">Change photo</Txt>
           </Press>
         </>
       ) : null}
-    </LinearGradient>
+    </View>
   );
 }
 

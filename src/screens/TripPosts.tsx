@@ -11,7 +11,7 @@ import { Api, Upload, errorText } from '../core/api';
 import { J, arr, bool, int, obj, objs, str, text } from '../core/json';
 import { Picked, pickPhoto, pickPhotos, uploadOf } from '../core/files';
 import { Brand, Fonts } from '../theme';
-import { Icon, LinkButton, Notice, Txt, parseIso, st, MONTHS } from '../ui/kit';
+import { Icon, LinkButton, Notice, Txt, parseIso, st, MONTHS , HeadButton } from '../ui/kit';
 import { Dialog } from '../ui/sheets';
 import { openGroupUrl } from './Groups';
 
@@ -90,7 +90,7 @@ export function PostsPanel({ id, g, onData }: { id: number; g: J; onData: (g: J)
           </Pressable>
           <View style={{ flex: 1 }} />
           <Pressable disabled={!can} onPress={send} style={{ borderRadius: 50, overflow: 'hidden' }}>
-            <LinearGradient colors={can ? [Brand.Matte, '#E8452F'] : ['#E6DCD8', '#E6DCD8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingHorizontal: 20, paddingVertical: 9, minWidth: 70, alignItems: 'center' }}>
+            <LinearGradient colors={can ? [Brand.Blue, Brand.Blue] : ['#E7E5E2', '#E7E5E2']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingHorizontal: 20, paddingVertical: 9, minWidth: 70, alignItems: 'center' }}>
               {busy ? <ActivityIndicator size="small" color="#fff" /> : <Txt bold color={can ? '#fff' : Brand.Muted}>Post</Txt>}
             </LinearGradient>
           </Pressable>

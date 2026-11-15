@@ -17,7 +17,7 @@ import { BackBar, ErrorBox, Gap, Icon, LinkButton, OutlineButton, Photo, Press, 
 import { Sheet, dial } from '../ui/sheets';
 import { Nav, intParam, useParams } from '../nav';
 
-export const RUN_GRAD = ['#8E0F1D', '#D7192A', '#FF6A3D'] as const;
+export const RUN_GRAD = ['#D93338', '#E8474B', '#FF5757'] as const;
 export const stopKey = (s: J) => `${text(s, 'category')}:${(num(s, 'lat') || 0).toFixed(4)}:${(num(s, 'lng') || 0).toFixed(4)}`;
 export const stopEmoji = (cat?: string | null) => ({ coffee: '☕', petrol: '⛽', ev: '🔌', community: '⭐', restaurant: '🍽️' } as Record<string, string>)[cat || ''] || '📍';
 export const hmText = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} h ${min % 60} min` : `${min} min`);

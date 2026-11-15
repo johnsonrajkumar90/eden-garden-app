@@ -13,8 +13,8 @@ export function Sheet({ open, onClose, title, children, scroll = true, style }: 
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.38)' }} onPress={onClose} accessibilityLabel="Close" />
-        <View style={[{ backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%', paddingBottom: insets.bottom + 12 }, style]}>
-          <View style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: Brand.Line, marginTop: 10, marginBottom: 6 }} />
+        <View style={[{ backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30, maxHeight: '92%', paddingBottom: insets.bottom + 12 }, style]}>
+          <View style={{ alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: '#DAD7D2', marginTop: 10, marginBottom: 6 }} />
           {title ? <Txt k="titleLarge" style={{ paddingHorizontal: 18, paddingBottom: 8 }}>{title}</Txt> : null}
           {scroll ? <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}>{children}</ScrollView> : <View style={{ paddingHorizontal: 16, flexShrink: 1 }}>{children}</View>}
         </View>
@@ -29,13 +29,15 @@ export function Dialog({ open, onClose, title, text, children, actions }: { open
     <Modal visible={open} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 }} onPress={onClose}>
-          <Pressable style={{ backgroundColor: '#fff', borderRadius: 24, padding: 20 }} onPress={() => {}}>
+          <Pressable style={{ backgroundColor: '#fff', borderRadius: 28, padding: 22 }} onPress={() => {}}>
             {title ? <Txt k="titleLarge" style={{ marginBottom: 8 }}>{title}</Txt> : null}
             {text ? <Txt color={Brand.InkSoft}>{text}</Txt> : null}
             {children}
             {actions ? (
               <View style={[st.row, { justifyContent: 'flex-end', marginTop: 12, flexWrap: 'wrap' }]}>
-                {actions.map(([l, f, c], i) => <LinkButton key={i} text={l} onPress={f} color={c || Brand.Blue} />)}
+                {actions.map(([l, f, c], i) => i === actions.length - 1
+                  ? <Pressable key={i} onPress={f} accessibilityRole="button" style={{ marginLeft: 6, borderRadius: 50, backgroundColor: c || Brand.Ink, paddingHorizontal: 18, paddingVertical: 11 }}><Txt k="labelLarge" color="#fff">{l}</Txt></Pressable>
+                  : <LinkButton key={i} text={l} onPress={f} color={c || Brand.InkSoft} />)}
               </View>
             ) : null}
           </Pressable>

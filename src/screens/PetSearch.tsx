@@ -10,7 +10,7 @@ import * as Loc from '../core/location';
 import { Brand, Fonts } from '../theme';
 import { Appear, EmptyBox, ErrorBox, Gap, Icon, LinkButton, Press, PrimaryButton, Txt, st } from '../ui/kit';
 import { Choice, DateRangeField, Stepper } from '../ui/inputs';
-import { Floaty, RED_GRAD, SUN_GRAD, SkeletonGrid, chunk } from '../ui/cards';
+import { Floaty, SUN_GRAD, SkeletonGrid, chunk } from '../ui/cards';
 import { PetGridCard, petEmoji, petTypes } from '../ui/petcards';
 import { Nav } from '../nav';
 
@@ -64,19 +64,18 @@ export default function PetSearchScreen() {
   const rows: { key: string; el: React.ReactElement }[] = [];
   rows.push({ key: 'head', el: (
     <View>
-      <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 250, borderBottomLeftRadius: 34, borderBottomRightRadius: 34 }} />
-      <Floaty distance={8} ms={2400} style={{ position: 'absolute', right: 30, top: 30, opacity: 0.35, transform: [{ rotate: '18deg' }] }}><Text style={{ fontSize: 46 }}>🐾</Text></Floaty>
-      <Floaty distance={6} ms={1900} style={{ position: 'absolute', right: 90, top: 110, opacity: 0.3 }}><Text style={{ fontSize: 28 }}>🐾</Text></Floaty>
-      <Floaty distance={5} ms={2100} style={{ position: 'absolute', right: 20, top: 150, opacity: 0.35 }}><Text style={{ fontSize: 30 }}>🦴</Text></Floaty>
+      <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: 40, width: 190, height: 150, borderTopLeftRadius: 95, borderTopRightRadius: 95, backgroundColor: '#FFF1C7' }} />
+      <Floaty distance={6} ms={2400} style={{ position: 'absolute', right: 40, top: 70, opacity: 0.8, transform: [{ rotate: '18deg' }] }}><Text style={{ fontSize: 40 }}>🐾</Text></Floaty>
+      <Floaty distance={5} ms={2100} style={{ position: 'absolute', right: 110, top: 140, opacity: 0.6 }}><Text style={{ fontSize: 24 }}>🦴</Text></Floaty>
       <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-        <Image source={require('../../assets/logo_white.png')} style={{ height: 28, width: 112 }} contentFit="contain" contentPosition="left" />
-        <Gap h={14} />
-        <Appear><Txt k="headlineMedium" color="#fff">A loving home for your pet</Txt></Appear>
-        <Appear index={1}><Txt color="#FFE0DC">Verified pet hosts · daily photo diary · secure payment</Txt></Appear>
+        <Image source={require('../../assets/logo_full.png')} style={{ height: 32, width: 112 }} contentFit="contain" contentPosition="left" />
+        <Gap h={18} />
+        <Appear><Txt k="displaySmall" style={{ maxWidth: 260 }}>A loving home for your pet</Txt></Appear>
+        <Appear index={1}><Txt color={Brand.Muted} style={{ marginTop: 6 }}>Verified pet hosts · daily photo diary · secure payment</Txt></Appear>
         <Gap h={16} />
-        <Appear index={2} style={{ borderRadius: 26, backgroundColor: '#fff', padding: 14, elevation: 10, shadowColor: '#B81D2B', shadowOpacity: 0.27, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
-          <View style={[st.row, { borderWidth: 1, borderColor: '#E6DDD8', borderRadius: 16, paddingLeft: 12 }]}>
-            <Icon name="search" color={Brand.Blue} />
+        <Appear index={2} style={[st.card, { borderRadius: 28, padding: 14, shadowOpacity: 0.08, shadowRadius: 18, elevation: 6 }]}>
+          <View style={[st.row, { borderRadius: 18, backgroundColor: Brand.Field, paddingLeft: 14 }]}>
+            <Icon name="search" color={Brand.Ink} />
             <TextInput value={city} onChangeText={(v) => { setCity(v); setNear(null); }} placeholder={near ? 'Near my location' : 'City or area, e.g. Coimbatore'} placeholderTextColor="#A59C97"
               returnKeyType="search" onSubmitEditing={() => search(true)} style={{ flex: 1, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, paddingVertical: 14, paddingHorizontal: 8 }} accessibilityLabel="City or area" />
             {locating ? <ActivityIndicator color={Brand.Teal} style={{ marginRight: 14 }} /> : <Pressable onPress={locate} style={{ padding: 12 }} accessibilityLabel="Use my location"><Icon name="my-location" color={Brand.Teal} /></Pressable>}
@@ -137,7 +136,7 @@ export default function PetSearchScreen() {
 function PetTile({ emoji, label, bg, i, onPress }: { emoji: string; label: string; bg: string; i: number; onPress: () => void }) {
   return (
     <Appear index={i} style={{ flex: 1 }}>
-      <Press onPress={onPress} style={{ borderRadius: 20, backgroundColor: '#fff', paddingVertical: 12, alignItems: 'center', elevation: 3, shadowColor: '#B81D2B', shadowOpacity: 0.13, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } }}>
+      <Press onPress={onPress} style={{ borderRadius: 20, backgroundColor: '#fff', paddingVertical: 12, alignItems: 'center', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.13, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } }}>
         <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 22 }}>{emoji}</Text></View>
         <Txt k="labelMedium" numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>
       </Press>

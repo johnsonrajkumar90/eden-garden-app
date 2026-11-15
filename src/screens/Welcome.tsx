@@ -73,7 +73,7 @@ export default function Welcome({ welcome, onEmail, onExplore, onPage }: { welco
           <View style={{ height: 22 }} />
           <GoogleButton label="Continue with Google" onPress={async () => setErr(await startGoogleSignIn())} />
           <View style={{ height: 12 }} />
-          <Pressable onPress={onEmail} style={{ alignSelf: 'stretch', height: 56, borderRadius: 28, backgroundColor: '#D7192A', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable onPress={onEmail} style={{ alignSelf: 'stretch', height: 56, borderRadius: 28, backgroundColor: '#D93338', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="mail-outline" color="#fff" />
             <Txt k="titleMedium" color="#fff">  Continue with email</Txt>
           </Pressable>

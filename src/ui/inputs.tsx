@@ -12,7 +12,7 @@ export function Field({ label, value, onChange, error, lines = 1, keyboard, pass
   const [focus, setFocus] = useState(false);
   return (
     <View style={style}>
-      <View style={{ borderWidth: focus ? 1.6 : 1, borderColor: error ? '#B42318' : focus ? Brand.Blue : '#E6DDD8', borderRadius: 18, backgroundColor: focus ? '#fff' : 'rgba(255,255,255,0.95)', paddingHorizontal: 14, paddingTop: 7, paddingBottom: lines > 1 ? 8 : 4 }}>
+      <View style={{ borderWidth: 1.5, borderColor: error ? '#B42318' : focus ? Brand.Ink : Brand.Field, borderRadius: 16, backgroundColor: focus ? '#fff' : Brand.Field, paddingHorizontal: 14, paddingTop: 7, paddingBottom: lines > 1 ? 8 : 4 }}>
         <Txt k="labelMedium" color={focus ? Brand.Blue : Brand.Muted}>{label}</Txt>
         <TextInput value={value} onChangeText={onChange} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} placeholder={placeholder} placeholderTextColor="#A59C97"
           multiline={lines > 1} numberOfLines={lines} keyboardType={keyboard} secureTextEntry={password} maxLength={maxLength} autoCapitalize={autoCapitalize}
@@ -39,13 +39,13 @@ export function Choice({ label, value, options, onChange, style }: { label: stri
   const shown = options.find(([v]) => v === value)?.[1] ?? value;
   return (
     <View style={style}>
-      <Pressable onPress={() => setOpen(true)} style={[st.row, { borderWidth: 1, borderColor: '#E6DDD8', borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.95)', paddingHorizontal: 14, paddingVertical: 8 }]} accessibilityRole="button" accessibilityLabel={label}>
+      <Pressable onPress={() => setOpen(true)} style={[st.row, { borderWidth: 1.5, borderColor: Brand.Field, borderRadius: 16, backgroundColor: Brand.Field, paddingHorizontal: 14, paddingVertical: 8 }]} accessibilityRole="button" accessibilityLabel={label}>
         <View style={{ flex: 1 }}><Txt k="labelMedium" color={Brand.Muted}>{label}</Txt><Txt k="bodyLarge">{shown || 'Choose'}</Txt></View>
         <Icon name="arrow-drop-down" color={Brand.Muted} />
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', padding: 24 }} onPress={() => setOpen(false)}>
-          <View style={{ backgroundColor: '#fff', borderRadius: 18, paddingVertical: 8, maxHeight: '75%' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 24, paddingVertical: 8, maxHeight: '75%' }}>
             <Txt k="titleMedium" style={{ paddingHorizontal: 18, paddingVertical: 10 }}>{label}</Txt>
             <ScrollView>
               {options.map(([v, l]) => (
@@ -66,8 +66,8 @@ export function Segmented({ options, value, onChange }: { options: [string, stri
   return (
     <View style={[st.row, { borderWidth: 1, borderColor: Brand.Line, borderRadius: 50, overflow: 'hidden', backgroundColor: '#fff' }]}>
       {options.map(([v, l], i) => (
-        <Pressable key={v} onPress={() => onChange(v)} style={{ flex: 1, paddingVertical: 9, alignItems: 'center', backgroundColor: v === value ? Brand.Sky : '#fff', borderLeftWidth: i ? 1 : 0, borderLeftColor: Brand.Line }}>
-          <Txt k="labelLarge" color={v === value ? Brand.Blue : Brand.InkSoft} numberOfLines={1}>{l}</Txt>
+        <Pressable key={v} onPress={() => onChange(v)} style={{ flex: 1, paddingVertical: 9, alignItems: 'center', backgroundColor: v === value ? Brand.Ink : '#fff', borderLeftWidth: i ? 1 : 0, borderLeftColor: Brand.Line }}>
+          <Txt k="labelLarge" color={v === value ? '#fff' : Brand.InkSoft} numberOfLines={1}>{l}</Txt>
         </Pressable>
       ))}
     </View>
@@ -76,7 +76,7 @@ export function Segmented({ options, value, onChange }: { options: [string, stri
 
 export function Stepper({ label, value, onChange, min = 0, max = 20, note }: { label: string; value: number; onChange: (n: number) => void; min?: number; max?: number; note?: string }) {
   const btn = (icon: string, on: boolean, f: () => void, a: string) => (
-    <Pressable onPress={f} disabled={!on} accessibilityLabel={a} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: on ? Brand.SunSoft : '#F1ECE8', alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} color={on ? Brand.SunInk : Brand.Muted} size={20} /></Pressable>
+    <Pressable onPress={f} disabled={!on} accessibilityLabel={a} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: on ? '#fff' : Brand.Field, borderWidth: 1, borderColor: on ? '#DAD7D2' : Brand.Field, alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} color={on ? Brand.Ink : Brand.Muted} size={20} /></Pressable>
   );
   return (
     <View style={[st.row, { paddingVertical: 4 }]}>
