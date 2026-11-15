@@ -25,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.BeachAccess
 import androidx.compose.material.icons.outlined.CameraAlt
@@ -132,6 +134,8 @@ fun TripChatScreen(nav: NavHostController, id: Int) {
     var text by remember { mutableStateOf("") }
     val pending = remember { mutableStateListOf<String>() }
     var deleting by remember { mutableStateOf<JSONObject?>(null) }
+    var menu by remember { mutableStateOf(false) }
+    var clearing by remember { mutableStateOf(false) }
     // load, then keep it fresh while the chat is open
     LaunchedEffect(id) {
         while (true) {
@@ -158,6 +162,14 @@ fun TripChatScreen(nav: NavHostController, id: Int) {
                 Text(gg?.text("title") ?: "Trip chat", color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 val names = gg?.objs("members")?.sortedBy { it.bool("you") }?.map { if (it.bool("you")) "You" else it.text("name").substringBefore(' ') } ?: emptyList()
                 Text(names.joinToString(", ").ifBlank { "Everyone in the trip" }, color = Color(0xD9FFFFFF), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            // ⋮ → Clear chat (like WhatsApp)
+            Box {
+                IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "More", tint = Color.White) }
+                androidx.compose.material3.DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    androidx.compose.material3.DropdownMenuItem(text = { Text("Clear chat") }, leadingIcon = { Icon(Icons.Outlined.DeleteSweep, null) },
+                        onClick = { menu = false; clearing = true })
+                }
             }
         }
         Box(Modifier.weight(1f).fillMaxWidth().doodles()) {
@@ -228,6 +240,17 @@ fun TripChatScreen(nav: NavHostController, id: Int) {
                 Icon(Icons.AutoMirrored.Filled.Send, "Send", tint = Color.White, modifier = Modifier.padding(start = 3.dp).size(22.dp))
             }
         }
+    }
+    if (clearing) {
+        val owner = g?.bool("owner") == true
+        fun clear(forAll: Boolean) { clearing = false; scope.launch { try { g = Api.post("trip-groups/$id/chat/clear", if (forAll) mapOf("for" to "all") else emptyMap()) } catch (e: Exception) { err = errorText(e) } } }
+        AlertDialog(onDismissRequest = { clearing = false }, title = { Text("Clear this chat?") },
+            text = { Text(if (owner) "Clear it just for you — or, as the person who made the trip, delete all messages for everyone." else "The messages are cleared just for you. Others in the trip still see them.") },
+            confirmButton = { Column(horizontalAlignment = Alignment.End) {
+                TextButton(onClick = { clear(false) }) { Text("Clear for me") }
+                if (owner) TextButton(onClick = { clear(true) }) { Text("Clear for everyone", color = Color(0xFFD7192A)) }
+            } },
+            dismissButton = { TextButton(onClick = { clearing = false }) { Text("Cancel") } })
     }
     deleting?.let { m ->
         AlertDialog(onDismissRequest = { deleting = null }, title = { Text("Delete message?") }, text = { Text("It is removed for everyone in the trip.") },

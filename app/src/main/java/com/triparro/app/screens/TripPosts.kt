@@ -202,6 +202,7 @@ private fun PostCard(id: Int, p: JSONObject, act: (String, Map<String, Any?>) ->
             }
         }
         if (p.text("body").isNotBlank()) Text(p.text("body"), style = MaterialTheme.typography.bodyLarge, color = Brand.Ink, modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp))
+        p.optJSONObject("auto")?.let { a -> AutoCard(a) { u -> view(listOf(u), 0) } }
         // photos: one big, or a grid of two columns ("+2" on the last one when there are more)
         if (photos.isNotEmpty()) Column(Modifier.padding(top = 4.dp)) {
             if (photos.size == 1) AsyncImage(model = photos[0], contentDescription = "Photo", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f).background(Brand.Sky).clickable { view(photos, 0) })
@@ -273,6 +274,37 @@ private fun PostCard(id: Int, p: JSONObject, act: (String, Map<String, Any?>) ->
         AlertDialog(onDismissRequest = { confirm = null }, title = { Text(q) },
             confirmButton = { TextButton(onClick = { confirm = null; act(path, emptyMap()) }) { Text("Delete") } },
             dismissButton = { TextButton(onClick = { confirm = null }) { Text("Keep") } })
+    }
+}
+
+/** What was added to the plan, as a card in the post: what kind, its name, details and photo. */
+@Composable
+private fun AutoCard(a: JSONObject, view: (String) -> Unit) {
+    val ctx = LocalContext.current
+    val (icon, colour) = when (a.text("kind")) {
+        "place" -> androidx.compose.material.icons.Icons.Outlined.Place to Color(0xFF0E9F6E)
+        "booking" -> androidx.compose.material.icons.Icons.Outlined.Hotel to Color(0xFF1F6FEB)
+        "ticket" -> androidx.compose.material.icons.Icons.Outlined.ConfirmationNumber to Color(0xFF7C3AED)
+        "plan" -> androidx.compose.material.icons.Icons.Outlined.Route to Color(0xFFB45309)
+        "todo" -> androidx.compose.material.icons.Icons.Outlined.TaskAlt to Color(0xFF0891B2)
+        "fav" -> androidx.compose.material.icons.Icons.Filled.Favorite to Color(0xFFE8452F)
+        else -> androidx.compose.material.icons.Icons.Outlined.Description to Color(0xFF54656F)
+    }
+    Text("added to the plan", style = MaterialTheme.typography.labelMedium, color = Brand.InkSoft, modifier = Modifier.padding(start = 14.dp, top = 6.dp))
+    Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(colour.copy(alpha = 0.07f))
+        .border(1.dp, colour.copy(alpha = 0.25f), RoundedCornerShape(18.dp))
+        .clickable(enabled = a.optJSONArray("coords") != null) { a.optJSONArray("coords")?.let { c -> openGroupUrl(ctx, "https://www.google.com/maps/search/?api=1&query=${c.optDouble(0)},${c.optDouble(1)}") } }) {
+        a.optString("photo").takeIf { it.isNotBlank() && it != "null" }?.let { u ->
+            AsyncImage(model = u, contentDescription = a.text("title"), contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Brand.Sky).clickable { view(u) })
+        }
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(colour), contentAlignment = Alignment.Center) { Icon(icon, null, tint = Color.White, modifier = Modifier.size(22.dp)) }
+            Column(Modifier.padding(start = 12.dp).weight(1f)) {
+                Text(a.text("label"), style = MaterialTheme.typography.labelSmall, color = colour, fontWeight = FontWeight.Bold)
+                Text(a.text("title"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, maxLines = 2)
+                if (a.text("sub").isNotBlank()) Text(a.text("sub"), style = MaterialTheme.typography.bodySmall, color = Brand.InkSoft, maxLines = 2)
+            }
+        }
     }
 }
 

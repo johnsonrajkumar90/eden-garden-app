@@ -188,7 +188,7 @@ fun GroupTripScreen(nav: NavHostController, id: Int) {
                 val hero = rememberHazeState()
                 Box(Modifier.fillMaxWidth().height(360.dp)) {
                     Box(Modifier.matchParentSize().hazeSource(hero)) {
-                        TripCover(g.str("cover"), g.text("title") + " " + g.text("destination"), Modifier.fillMaxSize(), iconSize = 200)
+                        TripSlider(g, Modifier.fillMaxSize())
                         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color(0x55000000), 0.35f to Color(0x00000000), 0.7f to Color(0x99000000), 1f to Night)))
                     }
                     Column(Modifier.align(Alignment.BottomStart).padding(horizontal = 20.dp).padding(bottom = 96.dp)) {
@@ -864,4 +864,32 @@ private fun PeopleSheet(g: JSONObject, ctx: Context, newCode: () -> Unit, remove
         text = { Text(if (delete) "The plan, favourites, expenses and chat are deleted for good." else "You can join again with the invite.") },
         confirmButton = { TextButton(onClick = { confirm = false; leave(if (delete) "delete" else "leave") }) { Text(if (delete) "Delete" else "Leave") } },
         dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancel") } })
+}
+
+
+/** The top of the trip: its photo, then recent photos from posts, favourites and stays — sliding by every few seconds (or swipe). */
+@Composable
+private fun TripSlider(g: JSONObject, modifier: Modifier) {
+    val arr = g.optJSONArray("slides")
+    val slides = (0 until (arr?.length() ?: 0)).map { arr!!.optString(it) }.filter { it.isNotBlank() }
+    if (slides.size <= 1) { TripCover(slides.firstOrNull() ?: g.str("cover"), g.text("title") + " " + g.text("destination"), modifier, iconSize = 200); return }
+    val pager = androidx.compose.foundation.pager.rememberPagerState { slides.size }
+    LaunchedEffect(slides.size) {
+        while (true) {
+            kotlinx.coroutines.delay(4500)
+            if (!pager.isScrollInProgress) pager.animateScrollToPage((pager.currentPage + 1) % slides.size, animationSpec = tween(700))
+        }
+    }
+    Box(modifier) {
+        androidx.compose.foundation.pager.HorizontalPager(pager, Modifier.fillMaxSize()) { i ->
+            AsyncImage(model = slides[i], contentDescription = "Trip photo ${i + 1} of ${slides.size}", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().background(Night))
+        }
+        // dots, above the trip name
+        Row(Modifier.align(Alignment.TopCenter).padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            slides.indices.forEach { i ->
+                val on = i == pager.currentPage
+                Box(Modifier.height(6.dp).width(if (on) 18.dp else 6.dp).clip(RoundedCornerShape(3.dp)).background(if (on) Color.White else Color(0x88FFFFFF)))
+            }
+        }
+    }
 }
