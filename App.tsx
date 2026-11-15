@@ -40,8 +40,8 @@ const TAB_INFO: Record<string, [string, string, string]> = {
 /** Screens with a web page inside (payment, website pages, PDFs): they appear at once, without a slide. */
 const isWebRoute = (r: string) => r === 'pay' || r.startsWith('site?') || r.startsWith('pdf?');
 
-/** Screens that open on a full-bleed photo or video: a black status bar with light icons. Everything else sits on the light page. */
-const darkTop = (r: string) => r.startsWith('photo') || r.startsWith('video') || r.startsWith('property/') || r.startsWith('petlisting/') || r.startsWith('place/');
+/** Full-screen photo and video viewers: a black status bar. Every other screen (stay and pet pages too) has the red one. */
+const darkTop = (r: string) => r.startsWith('photo') || r.startsWith('video');   // full-screen photo / video viewers only; every other screen has the red bar
 
 export default function App() {
   return (
