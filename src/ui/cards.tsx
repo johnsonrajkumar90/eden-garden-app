@@ -47,30 +47,29 @@ export function GlassListingCard({ image, title, place, price, unit, was, tags, 
   offer?: string | null; note?: string | null; noteTone?: 'ok' | 'warn'; onPress: () => void; wide?: boolean;
 }) {
   return (
-    <Press onPress={onPress} scaleTo={0.975} style={[st.glass, { borderRadius: 28, padding: 6 }]} accessibilityLabel={`${title}, ${place}${price ? ', ' + price + ' ' + unit : ''}`}>
-      <View style={{ borderRadius: 23, overflow: 'hidden', aspectRatio: wide ? 1.35 : 0.78, backgroundColor: Brand.Field }}>
-        <Photo url={image} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} label={title} />
-        <LinearGradient pointerEvents="none" colors={['#00000040', 'transparent', 'transparent']} locations={[0, 0.3, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
-        <View style={{ position: 'absolute', top: 8, left: 8, right: 52, gap: 4 }}>{tags.map((t, i) => <TagChip key={i} t={t} />)}</View>
-        {rating && rating > 0 ? (
-          <View style={[st.row, { position: 'absolute', top: 8, right: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 7, paddingVertical: 3.5 }]}>
-            <Icon name="star" size={13} color={Brand.SunDark} /><Txt k="labelSmall" bold> {rating.toFixed(1)}</Txt>
+    <Press onPress={onPress} scaleTo={0.975} style={{ borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field, aspectRatio: wide ? 1.2 : 0.7,
+      shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }} accessibilityLabel={`${title}, ${place}${price ? ', ' + price + ' ' + unit : ''}`}>
+      {/* the photo fills the whole card; the words sit on a dark fade at the bottom */}
+      <Photo url={image} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} label={title} />
+      <LinearGradient pointerEvents="none" colors={['#00000055', '#00000000', '#00000000', '#000000D9']} locations={[0, 0.25, 0.45, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+      <View style={{ position: 'absolute', top: 10, left: 10, right: 56, gap: 4 }}>{tags.map((t, i) => <TagChip key={i} t={t} />)}</View>
+      {rating && rating > 0 ? (
+        <View style={[st.row, { position: 'absolute', top: 10, right: 10, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 7, paddingVertical: 3.5 }]}>
+          <Icon name="star" size={13} color={Brand.SunDark} /><Txt k="labelSmall" bold> {rating.toFixed(1)}</Txt>
+        </View>
+      ) : null}
+      {offer ? <View style={{ position: 'absolute', right: 10, top: rating && rating > 0 ? 38 : 10, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 3.5 }}><Txt k="labelSmall" bold color={Brand.Ink}>{offer}</Txt></View> : null}
+      <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
+        <Txt k={wide ? 'titleLarge' : 'titleSmall'} color="#fff" numberOfLines={2} style={{ textShadowColor: '#00000080', textShadowRadius: 4 }}>{title}</Txt>
+        <View style={[st.row, { marginTop: 2 }]}><Icon name="place" size={12} color={Brand.Sun} /><Txt k="labelSmall" color="#FFFFFFE6" numberOfLines={1} style={{ flex: 1 }}> {place}</Txt></View>
+        {price ? (
+          <View style={[st.row, { marginTop: 8, flexWrap: 'wrap' }]}>
+            <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 10, paddingVertical: 4 }}><Txt k="labelMedium" bold color="#fff">{price}</Txt></View>
+            <Txt k="labelSmall" color="#FFFFFFD9"> {unit}</Txt>
+            {was ? <Txt k="labelSmall" color="#FFFFFFAA" style={{ textDecorationLine: 'line-through', marginLeft: 4 }}>{was}</Txt> : null}
           </View>
         ) : null}
-        {offer ? <View style={{ position: 'absolute', right: 8, top: rating && rating > 0 ? 36 : 8, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 3.5 }}><Txt k="labelSmall" bold color={Brand.Ink}>{offer}</Txt></View> : null}
-        {/* the frosted label */}
-        <View style={{ position: 'absolute', left: 6, right: 6, bottom: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.9)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', paddingHorizontal: 10, paddingVertical: 8 }}>
-          <Txt k={wide ? 'titleMedium' : 'titleSmall'} numberOfLines={1}>{title}</Txt>
-          <View style={[st.row, { marginTop: 1 }]}><Icon name="place" size={12} color={Brand.Blue} /><Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ flex: 1 }}> {place}</Txt></View>
-          {price ? (
-            <View style={[st.row, { marginTop: 6, flexWrap: 'wrap' }]}>
-              <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 9, paddingVertical: 3 }}><Txt k="labelMedium" bold color="#fff">{price}</Txt></View>
-              <Txt k="labelSmall" color={Brand.Muted}> {unit}</Txt>
-              {was ? <Txt k="labelSmall" color={Brand.Muted} style={{ textDecorationLine: 'line-through', marginLeft: 4 }}>{was}</Txt> : null}
-            </View>
-          ) : null}
-          {note ? <Txt k="labelSmall" color={noteTone === 'warn' ? Brand.Warn : '#0B6B3A'} numberOfLines={1} style={{ marginTop: 3 }}>{note}</Txt> : null}
-        </View>
+        {note ? <Txt k="labelSmall" color={noteTone === 'warn' ? '#FFD38A' : '#9DF0C4'} numberOfLines={1} style={{ marginTop: 4 }}>{note}</Txt> : null}
       </View>
     </Press>
   );
@@ -187,16 +186,16 @@ export const weatherEmoji = (icon?: string | null) => ({ sun: '☀️', cloud_su
 /** A tourist place in a row: photo (or a coloured tile), name, category and how far / when to go. */
 export function PlaceCard({ p, onPress, style }: { p: J; onPress: () => void; style?: StyleProp<ViewStyle> }) {
   return (
-    <Press onPress={onPress} style={[st.glass, { borderRadius: 26, padding: 6 }, style]}>
-      <View style={{ height: 124, borderTopLeftRadius: 60, borderTopRightRadius: 60, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, overflow: 'hidden' }}>
-        {str(p, 'image') ? <Photo url={str(p, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
-          : <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Floaty><Text style={{ fontSize: 44 }}>{catEmoji[text(p, 'cat')] || '📍'}</Text></Floaty></LinearGradient>}
-        <View style={{ position: 'absolute', bottom: 8, left: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall">{text(p, 'category')}</Txt></View>
-      </View>
-      <View style={{ paddingHorizontal: 8, paddingTop: 10, paddingBottom: 8 }}>
-        <Txt k="titleSmall" numberOfLines={1}>{text(p, 'title')}</Txt>
-        <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1}>{str(p, 'distance_note') || text(p, 'location')}</Txt>
-        {str(p, 'best_time') ? <Txt k="labelMedium" color={Brand.TealDark} numberOfLines={1} style={{ marginTop: 4 }}>🗓 {str(p, 'best_time')}</Txt> : null}
+    <Press onPress={onPress} style={[{ height: 230, borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field,
+      shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }, style]} accessibilityLabel={text(p, 'title')}>
+      {str(p, 'image') ? <Photo url={str(p, 'image')} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+        : <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}><Floaty><Text style={{ fontSize: 50 }}>{catEmoji[text(p, 'cat')] || '📍'}</Text></Floaty></LinearGradient>}
+      <LinearGradient pointerEvents="none" colors={['#00000000', '#00000000', '#000000D9']} locations={[0, 0.4, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+      <View style={{ position: 'absolute', top: 10, left: 10, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold>{text(p, 'category')}</Txt></View>
+      <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
+        <Txt k="titleMedium" color="#fff" numberOfLines={2} style={{ textShadowColor: '#00000080', textShadowRadius: 4 }}>{text(p, 'title')}</Txt>
+        <View style={[st.row, { marginTop: 2 }]}><Icon name="place" size={12} color={Brand.Sun} /><Txt k="labelSmall" color="#FFFFFFE6" numberOfLines={1} style={{ flex: 1 }}> {str(p, 'distance_note') || text(p, 'location')}</Txt></View>
+        {str(p, 'best_time') ? <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 3 }}><Txt k="labelSmall" bold color={Brand.Ink} numberOfLines={1}>🗓 {str(p, 'best_time')}</Txt></View> : null}
       </View>
     </Press>
   );

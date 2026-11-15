@@ -123,9 +123,9 @@ export default function ExploreScreen() {
           <SectionTitle text="Popular places" sub="Tap a place to see its stays" style={{ paddingHorizontal: 16 }} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
             {places.map((d, i) => (
-              <Press key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 150, height: 200, borderTopLeftRadius: 75, borderTopRightRadius: 75, borderBottomLeftRadius: 22, borderBottomRightRadius: 22, overflow: 'hidden' }} accessibilityLabel={text(d, 'name')}>
+              <Press key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 160, height: 220, borderRadius: 24, overflow: 'hidden', backgroundColor: Brand.Field, shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 }} accessibilityLabel={text(d, 'name')}>
                 <Photo url={str(d, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
-                <LinearGradient colors={['transparent', '#000000B3']} locations={[0.45, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+                <LinearGradient colors={['transparent', '#000000D9']} locations={[0.4, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
                 <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
                   <Txt k="titleLarge" color="#fff" numberOfLines={1}>{text(d, 'name')}</Txt>
                   <Txt k="bodySmall" color="#ffffffcc">{int(d, 'count')} {int(d, 'count') === 1 ? 'stay' : 'stays'}</Txt>
