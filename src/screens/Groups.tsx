@@ -47,7 +47,10 @@ export function GroupTripsList() {
         : !objs(data, 'items').length ? <Txt color={Brand.Muted} style={{ padding: 8 }}>No trips yet. Name one above — or tap an idea — and share its link with family and friends.</Txt>
         : (
           <>
-            <Txt k="titleMedium" bold style={{ paddingLeft: 4, paddingBottom: 10 }}>Your trips  ·  {objs(data, 'items').length}</Txt>
+            <View style={[st.row, { paddingLeft: 4, paddingBottom: 12 }]}>
+              <Txt k="titleLarge" bold style={{ flex: 1 }}>Your trips</Txt>
+              <View style={{ borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold>{objs(data, 'items').length}</Txt></View>
+            </View>
             {objs(data, 'items').map((g) => <TripCard key={int(g, 'id')} g={g} onOpen={() => Nav.navigate(`group/${int(g, 'id')}`)} onShare={() => setSharing(g)} />)}
           </>
         )}
@@ -441,7 +444,7 @@ export function AddToGroup({ id, done, item }: { id: number; done: (g: J) => voi
       {!editing ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 10 }}>
           {[['place', 'Place', 'place'], ['todo', 'To-do', 'checklist'], ['note', 'Note', 'description'], ['booking', 'My booking', 'hotel'], ['ticket', 'My ticket', 'confirmation-number']].map(([v, t, ic]) => (
-            <Pressable key={v} onPress={() => { setKind(v); setErr(null); }} style={[st.row, { borderRadius: 50, backgroundColor: kind === v ? Brand.Ink : '#fff', borderWidth: 1, borderColor: kind === v ? Brand.Ink : Brand.Line, paddingHorizontal: 14, paddingVertical: 9 }]}>
+            <Pressable key={v} onPress={() => { setKind(v); setErr(null); }} style={[st.row, { borderRadius: 50, backgroundColor: kind === v ? Brand.Blue : 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: kind === v ? Brand.Blue : 'rgba(255,255,255,0.95)', paddingHorizontal: 14, paddingVertical: 9 }]}>
               <Icon name={ic} size={17} color={kind === v ? Brand.Sun : Brand.InkSoft} /><Txt k="labelLarge" color={kind === v ? '#fff' : Brand.InkSoft}> {t}</Txt>
             </Pressable>
           ))}

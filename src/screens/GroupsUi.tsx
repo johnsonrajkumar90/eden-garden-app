@@ -18,8 +18,8 @@ export function HubTabs({ tab, onTab }: { tab: string; onTab: (t: string) => voi
   useEffect(() => { Animated.spring(x, { toValue: (w / tabs.length) * i, useNativeDriver: true, friction: 8, tension: 90 }).start(); }, [i, w]);
   return (
     <View style={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 12 }}>
-      <View onLayout={(e) => setW(e.nativeEvent.layout.width - 8)} style={{ height: 52, borderRadius: 26, backgroundColor: Brand.Field, padding: 4, flexDirection: 'row' }}>
-        {w > 0 ? <Animated.View style={{ position: 'absolute', top: 4, bottom: 4, left: 4, width: w / tabs.length, borderRadius: 22, backgroundColor: Brand.Ink, transform: [{ translateX: x }] }} /> : null}
+      <View onLayout={(e) => setW(e.nativeEvent.layout.width - 8)} style={{ height: 52, borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.75)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', padding: 4, flexDirection: 'row' }}>
+        {w > 0 ? <Animated.View style={{ position: 'absolute', top: 4, bottom: 4, left: 4, width: w / tabs.length, borderRadius: 22, backgroundColor: Brand.Blue, transform: [{ translateX: x }] }} /> : null}
         {tabs.map(([v, t, ic]) => {
           const on = v === tab;
           return (
@@ -72,36 +72,42 @@ export function tripWhen(start: string, end: string): string | null {
 
 const AvatarColors = ['#FFC72C', '#FF8A7A', '#8C9BF2', '#5CC29A'];
 
-/** One trip in the list: big photo, when it is, name and place, who joined (overlapping faces), share its link. */
+/** One trip in "Your trips": a frosted-glass card — the trip photo with when it is, then the name, place and dates, and who is going. */
 export function TripCard({ g, onOpen, onShare }: { g: J; onOpen: () => void; onShare: () => void }) {
   const w = tripWhen(text(g, 'start_date'), text(g, 'end_date'));
   const people = arr<string>(g, 'people').map(String);
-  const sub = [text(g, 'destination'), text(g, 'dates')].filter(Boolean).join('  ·  ');
+  const going = int(g, 'members');
   return (
-    <Appear style={{ marginBottom: 14 }}>
-      <Press onPress={onOpen} scaleTo={0.98} style={{ height: 214, borderRadius: 28, overflow: 'hidden', elevation: 10, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, backgroundColor: '#000' }}>
-        <TripCover cover={str(g, 'cover')} name={text(g, 'title') + ' ' + text(g, 'destination')} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
-        <LinearGradient colors={['#00000033', '#00000000', '#15161CE0']} locations={[0, 0.35, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
-        <View style={{ position: 'absolute', top: 12, left: 12, flexDirection: 'row', gap: 6 }}>
-          {w ? <View style={{ borderRadius: 50, backgroundColor: w === 'On now' ? '#7CE0A3' : Brand.Sun, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" bold>{w}</Txt></View> : null}
-          {text(g, 'role') === 'owner' ? <View style={{ borderRadius: 50, backgroundColor: '#00000055', borderWidth: 1, borderColor: '#FFFFFF44', paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" color="#fff">Your trip</Txt></View> : null}
+    <Appear style={{ marginBottom: 16 }}>
+      <Press onPress={onOpen} scaleTo={0.98} style={[st.glass, { borderRadius: 30, padding: 7 }]} accessibilityLabel={`Open ${text(g, 'title')}`}>
+        <View style={{ height: 176, borderRadius: 24, overflow: 'hidden' }}>
+          <TripCover cover={str(g, 'cover')} name={text(g, 'title') + ' ' + text(g, 'destination')} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+          <LinearGradient pointerEvents="none" colors={['#00000040', '#00000000']} locations={[0, 0.5]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+          <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
+            {w ? <View style={[st.row, { borderRadius: 50, backgroundColor: w === 'On now' ? '#7CE0A3' : Brand.Sun, paddingHorizontal: 10, paddingVertical: 5 }]}><Icon name={w === 'On now' ? 'flight-takeoff' : 'event'} size={14} color={Brand.Ink} /><Txt k="labelMedium" bold> {w}</Txt></View> : null}
+            {text(g, 'role') === 'owner' ? <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" bold color="#fff">Your trip</Txt></View> : null}
+          </View>
+          <Pressable onPress={onShare} hitSlop={6} style={{ position: 'absolute', top: 8, right: 8, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.88)', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Share this trip's link">
+            <Icon name="share" size={19} color={Brand.Blue} />
+          </Pressable>
+          {int(g, 'items') > 0 ? <View style={{ position: 'absolute', bottom: 10, right: 10, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.9)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold>{int(g, 'items')} in the plan</Txt></View> : null}
         </View>
-        <Pressable onPress={onShare} style={{ position: 'absolute', top: 10, right: 10, width: 40, height: 40, borderRadius: 20, backgroundColor: '#00000055', borderWidth: 1, borderColor: '#FFFFFF44', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Share this trip's link">
-          <Icon name="share" size={19} color="#fff" />
-        </Pressable>
-        <View style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
-          <Txt k="headlineSmall" bold color="#fff" numberOfLines={2}>{text(g, 'title')}</Txt>
-          {sub ? <Txt k="bodySmall" color="#FFFFFFDD" numberOfLines={1}>{sub}</Txt> : null}
-          <View style={[st.row, { marginTop: 10 }]}>
-            <View style={{ width: people.length ? 30 + (Math.min(4, people.length) - 1) * 20 : 30, height: 30 }}>
+        <View style={{ paddingHorizontal: 10, paddingTop: 12, paddingBottom: 8 }}>
+          <Txt k="titleLarge" numberOfLines={2}>{text(g, 'title')}</Txt>
+          <View style={[st.row, { marginTop: 4, flexWrap: 'wrap', gap: 10 }]}>
+            {text(g, 'destination') ? <View style={st.row}><Icon name="place" size={15} color={Brand.Blue} /><Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1}> {text(g, 'destination')}</Txt></View> : null}
+            {text(g, 'dates') ? <View style={st.row}><Icon name="event" size={15} color={Brand.SunDark} /><Txt k="bodySmall" color={Brand.InkSoft}> {text(g, 'dates')}</Txt></View> : null}
+          </View>
+          <View style={[st.row, { marginTop: 12 }]}>
+            <View style={{ width: people.length ? 32 + (Math.min(4, people.length) - 1) * 21 : 32, height: 32 }}>
               {people.slice(0, 4).map((n, i) => (
-                <View key={i} style={{ position: 'absolute', left: i * 20, width: 30, height: 30, borderRadius: 15, backgroundColor: '#15161C', padding: 2 }}>
-                  <View style={{ flex: 1, borderRadius: 13, backgroundColor: AvatarColors[i % 4], alignItems: 'center', justifyContent: 'center' }}><Txt k="labelMedium" bold>{n.slice(0, 1)}</Txt></View>
+                <View key={i} style={{ position: 'absolute', left: i * 21, width: 32, height: 32, borderRadius: 16, backgroundColor: '#fff', padding: 2 }}>
+                  <View style={{ flex: 1, borderRadius: 14, backgroundColor: AvatarColors[i % 4], alignItems: 'center', justifyContent: 'center' }}><Txt k="labelMedium" bold>{n.slice(0, 1)}</Txt></View>
                 </View>
               ))}
             </View>
-            <Txt k="labelLarge" color="#fff" style={{ flex: 1 }}>  {int(g, 'members') <= 1 ? 'Just you so far' : `${int(g, 'members')} going`}</Txt>
-            {int(g, 'items') > 0 ? <View style={{ borderRadius: 50, backgroundColor: '#FFFFFF33', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelMedium" color="#FFFFFFCC">{int(g, 'items')} saved</Txt></View> : null}
+            <Txt k="labelLarge" color={Brand.InkSoft} style={{ flex: 1 }}>  {going <= 1 ? 'Just you so far' : `${going} going`}</Txt>
+            <LinearGradient colors={['#F0555A', '#D93338']} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}><Icon name="arrow-forward" size={20} color={Brand.Sun} /></LinearGradient>
           </View>
         </View>
       </Press>
@@ -112,18 +118,19 @@ export function TripCard({ g, onOpen, onShare }: { g: J; onOpen: () => void; onS
 /** Top of the Trips list: start a trip (or from an idea), or join one with a code. */
 export function MakeTripCard({ onNew, onJoin }: { onNew: (idea: string) => void; onJoin: () => void }) {
   return (
-    <Appear style={{ borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: '#fff', padding: 18 }}>
+    <Appear style={[st.glass, { borderRadius: 30, padding: 18, overflow: 'hidden' }]}>
+      <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: -40, width: 140, height: 120, borderTopLeftRadius: 70, borderTopRightRadius: 70, backgroundColor: '#FFC72C55' }} />
       <Txt k="titleLarge" bold>Where to next?</Txt>
       <Txt k="bodySmall" color={Brand.InkSoft}>Name a trip, share its link — everyone who joins plans it with you.</Txt>
-      <Press onPress={() => onNew('')} style={[st.row, { marginTop: 14, height: 54, borderRadius: 18, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, paddingHorizontal: 6 }]}>
-        <LinearGradient colors={[Red1, Red2]} style={{ width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' }}><Icon name="add" color="#fff" /></LinearGradient>
+      <Press onPress={() => onNew('')} style={[st.row, { marginTop: 14, height: 56, borderRadius: 28, backgroundColor: '#fff', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', paddingHorizontal: 6 }]}>
+        <LinearGradient colors={['#F0555A', '#D93338']} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}><Icon name="add" color={Brand.Sun} /></LinearGradient>
         <Txt k="bodyLarge" color={Brand.Muted} style={{ flex: 1 }}>  Name your trip…</Txt>
       </Press>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingTop: 12 }}>
         {['Ooty with family', 'Goa with friends', 'Munnar weekend', 'Tirupati darshan'].map((idea) => {
           const th = tripTheme(idea);
           return (
-            <Pressable key={idea} onPress={() => onNew(idea)} style={[st.row, { borderRadius: 50, backgroundColor: th.colors[1] + '1F', paddingHorizontal: 12, paddingVertical: 8 }]}>
+            <Pressable key={idea} onPress={() => onNew(idea)} style={[st.row, { borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: th.colors[1] + '40', paddingHorizontal: 12, paddingVertical: 8 }]}>
               <Icon name={th.icon} size={16} color={th.colors[1]} /><Txt k="labelLarge"> {idea}</Txt>
             </Pressable>
           );

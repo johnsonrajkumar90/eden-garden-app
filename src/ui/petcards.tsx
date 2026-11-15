@@ -13,7 +13,7 @@ export const petSizes: [string, string][] = [['small', 'Small (up to 10 kg)'], [
 export function PetHostCard({ c, compact, onPress }: { c: J; compact?: boolean; onPress: () => void }) {
   const free = c.free === undefined || c.free === null ? null : int(c, 'free');
   return (
-    <Press onPress={onPress} style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden' }} scaleTo={0.98}>
+    <Press onPress={onPress} style={[st.glass, { borderRadius: 24, overflow: 'hidden' }]} scaleTo={0.98}>
       {!compact ? <Photo url={str(c, 'image')} corner={0} style={{ width: '100%', aspectRatio: 1.7 }} label={text(c, 'title')} /> : null}
       <View style={{ flexDirection: 'row', padding: 14 }}>
         {compact ? <Photo url={str(c, 'image')} style={{ width: 72, aspectRatio: 1 }} /> : null}

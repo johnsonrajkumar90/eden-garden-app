@@ -187,7 +187,7 @@ export const weatherEmoji = (icon?: string | null) => ({ sun: '☀️', cloud_su
 /** A tourist place in a row: photo (or a coloured tile), name, category and how far / when to go. */
 export function PlaceCard({ p, onPress, style }: { p: J; onPress: () => void; style?: StyleProp<ViewStyle> }) {
   return (
-    <Press onPress={onPress} style={[st.card, { borderRadius: 26, padding: 6 }, style]}>
+    <Press onPress={onPress} style={[st.glass, { borderRadius: 26, padding: 6 }, style]}>
       <View style={{ height: 124, borderTopLeftRadius: 60, borderTopRightRadius: 60, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, overflow: 'hidden' }}>
         {str(p, 'image') ? <Photo url={str(p, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
           : <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Floaty><Text style={{ fontSize: 44 }}>{catEmoji[text(p, 'cat')] || '📍'}</Text></Floaty></LinearGradient>}
@@ -217,7 +217,7 @@ export function WalletChip() {
   const label = u && bal !== null ? money(bal) : !u ? 'Rewards' : null;
   if (!label) return null;
   return (
-    <Pressable onPress={() => Nav.navigate(u ? 'wallet' : 'signup')} style={[st.row, { marginRight: 6, borderRadius: 50, backgroundColor: Brand.Ink, paddingHorizontal: 12, height: 44 }]} accessibilityLabel="Rewards wallet">
+    <Pressable onPress={() => Nav.navigate(u ? 'wallet' : 'signup')} style={[st.row, { marginRight: 6, borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 12, height: 44 }]} accessibilityLabel="Rewards wallet">
       <Icon name="account-balance-wallet" size={18} color={Brand.Sun} />
       <Text style={{ fontFamily: Fonts.bold, fontSize: 14, color: '#fff' }}> {label}</Text>
     </Pressable>

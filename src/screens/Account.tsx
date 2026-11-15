@@ -41,8 +41,8 @@ export default function AccountScreen() {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 14 }}><Txt k="displaySmall">Account</Txt></View>
-      <View style={{ margin: 16, marginBottom: 0, borderRadius: 28, backgroundColor: Brand.Ink, overflow: 'hidden', padding: 18 }}>
-        <View pointerEvents="none" style={{ position: 'absolute', right: -50, bottom: -70, width: 150, height: 130, borderTopLeftRadius: 75, borderTopRightRadius: 75, backgroundColor: '#FF5757' }} />
+      <View style={{ margin: 16, marginBottom: 0, borderRadius: 28, backgroundColor: Brand.Blue, overflow: 'hidden', padding: 18 }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -50, bottom: -70, width: 150, height: 130, borderTopLeftRadius: 75, borderTopRightRadius: 75, backgroundColor: '#FF7A6E' }} />
         <View pointerEvents="none" style={{ position: 'absolute', right: 18, top: 16, width: 14, height: 14, borderRadius: 7, backgroundColor: Brand.Sun }} />
         {!u ? <Txt color="#ffffffcc" style={{ paddingRight: 70 }}>Sign in to book, see your trips and pets, and open your dashboard if you host.</Txt> : (
           <>

@@ -77,7 +77,7 @@ export default function ExploreScreen() {
             <Stepper label="Guests" value={adults} onChange={setAdults} min={1} max={30} />
             <View style={{ flexDirection: 'row', gap: 8, paddingVertical: 6 }}>
               {[['all', 'All'], ['stay', 'Homestays'], ['resort', 'Resorts']].map(([k, l]) => (
-                <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Ink : Brand.Line, backgroundColor: kind === k ? Brand.Ink : '#fff', paddingHorizontal: 14, paddingVertical: 7 }}>
+                <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Blue : 'rgba(255,255,255,0.95)', backgroundColor: kind === k ? Brand.Blue : 'rgba(255,255,255,0.8)', paddingHorizontal: 14, paddingVertical: 7 }}>
                   <Txt k="labelLarge" color={kind === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
                 </Pressable>
               ))}

@@ -99,9 +99,10 @@ function Shell() {
   const showWelcome = !welcomeDone && !!session && !session.user && startLink === null && current === 'explore';
 
   return (
-    <View style={{ flex: 1, backgroundColor: Brand.Page }}>
+    <View style={{ flex: 1, backgroundColor: '#FFF8F2' }}>
       <StatusBar style={darkTop(current) ? 'light' : 'dark'} />
-      <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : Brand.Page }} />
+      <GlassBackdrop />
+      <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : 'rgba(255,255,255,0.55)' }} />
       <View style={{ flex: 1 }}>
         <NavigationContainer
           ref={navRef}
@@ -118,7 +119,7 @@ function Shell() {
         </NavigationContainer>
         {['explore', 'pets', 'account'].includes(current) ? <GroupTripsFab onPress={() => Nav.navigate('groups')} /> : null}
       </View>
-      {isTab ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom, backgroundColor: Brand.Page }} />}
+      {isTab ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
       {showWelcome ? (
         <Welcome welcome={session?.welcome || null}
           onEmail={() => { setWelcomeDone(true); Nav.navigate('login'); }}
@@ -131,29 +132,30 @@ function Shell() {
   );
 }
 
-/** The tab bar: a white dock floating over the page; the open tab is a black pill with its name. */
+/** The tab bar: a frosted-glass dock floating over the page; the open tab is a red pill with a sun-yellow icon and its name. */
 function TabBar({ current, unread, bottom }: { current: string; unread: number; bottom: number }) {
   return (
-    <View style={{ paddingBottom: Math.max(bottom, 10), paddingTop: 6, paddingHorizontal: 12, backgroundColor: Brand.Page }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 32, padding: 6, borderWidth: 1, borderColor: '#EFEDE9',
-        shadowColor: '#1A1410', shadowOpacity: 0.1, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
+    <View style={{ paddingBottom: Math.max(bottom, 10), paddingTop: 6, paddingHorizontal: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.82)', borderRadius: 32, padding: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)',
+        shadowColor: '#D93338', shadowOpacity: 0.16, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
         {TABS.map((t) => {
           const [label, icon] = TAB_INFO[t];
           const on = current === t;
           return (
             <Pressable key={t} onPress={() => (t === 'explore' ? Nav.home() : Nav.navigate(t))} style={{ flex: on ? 1.7 : 1, height: 50 }}
               accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t === 'account' && unread > 0 ? `${label}, ${unread} new` : label}>
-              <View style={{ flex: 1, flexDirection: 'row', borderRadius: 25, backgroundColor: on ? Brand.Ink : 'transparent', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>
+              <LinearGradient colors={on ? ['#F0555A', '#D93338'] : ['transparent', 'transparent']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                style={{ flex: 1, flexDirection: 'row', borderRadius: 25, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>
                 <View>
-                  <Icon name={icon} color={on ? Brand.Sun : Brand.Muted} size={23} />
+                  <Icon name={icon} color={on ? Brand.Sun : Brand.InkSoft} size={23} />
                   {t === 'account' && unread > 0 ? (
-                    <View style={{ position: 'absolute', top: -6, right: -10, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: Brand.Blue, borderWidth: 2, borderColor: on ? Brand.Ink : '#fff', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}>
-                      <Txt k="labelSmall" color="#fff" style={{ fontSize: 9, lineHeight: 11 }}>{unread > 99 ? '99+' : unread}</Txt>
+                    <View style={{ position: 'absolute', top: -6, right: -10, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: on ? Brand.Sun : Brand.Blue, borderWidth: 2, borderColor: on ? '#D93338' : '#fff', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}>
+                      <Txt k="labelSmall" color={on ? Brand.Ink : '#fff'} style={{ fontSize: 9, lineHeight: 11 }}>{unread > 99 ? '99+' : unread}</Txt>
                     </View>
                   ) : null}
                 </View>
                 {on ? <Txt k="labelMedium" semi color="#fff" numberOfLines={1} style={{ marginLeft: 7 }}>{label}</Txt> : null}
-              </View>
+              </LinearGradient>
             </Pressable>
           );
         })}
@@ -183,3 +185,48 @@ export function GroupTripsFab({ onPress }: { onPress: () => void }) {
   );
 }
 
+
+/** The light behind the glass: a warm white page with soft red and sun-yellow glows drifting slowly. */
+function GlassBackdrop() {
+  const { width: w, height: h } = useWindowDimensions();
+  const a = useRef(new Animated.Value(0)).current;
+  const b = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = (v: Animated.Value, ms: number) => Animated.loop(Animated.sequence([
+      Animated.timing(v, { toValue: 1, duration: ms, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 0, duration: ms, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+    ])).start();
+    loop(a, 16000); loop(b, 22000);
+  }, []);
+  const blob = (cx: [number, number], cy: [number, number], r: number, c: string, o: number, vx: Animated.Value, vy: Animated.Value, k: number) => (
+    <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', left: -r, top: -r, width: r * 2, height: r * 2,
+      transform: [{ translateX: vx.interpolate({ inputRange: [0, 1], outputRange: [w * cx[0], w * cx[1]] }) }, { translateY: vy.interpolate({ inputRange: [0, 1], outputRange: [h * cy[0], h * cy[1]] }) }] }}>
+      <RadialBlob color={c} size={r * 2} opacity={o} />
+    </Animated.View>
+  );
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      <LinearGradient colors={['#FFF6F1', '#FFFFFF', '#FFF9EC']} locations={[0, 0.5, 1]} style={StyleSheet.absoluteFill} />
+      {blob([0.05, 0.3], [0.06, 0.14], w * 0.8, '#FF5757', 0.42, a, b, 1)}
+      {blob([1.0, 0.75], [0.3, 0.4], w * 0.75, '#FFC72C', 0.5, b, a, 2)}
+      {blob([0.15, 0.4], [0.68, 0.58], w * 0.7, '#FFC72C', 0.34, b, a, 3)}
+      {blob([0.95, 0.7], [0.9, 0.84], w * 0.8, '#D93338', 0.32, a, b, 4)}
+    </View>
+  );
+}
+
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
+function RadialBlob({ color, size, opacity }: { color: string; size: number; opacity: number }) {
+  const id = 'g' + color.slice(1) + Math.round(opacity * 100);
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <RadialGradient id={id} cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={color} stopOpacity={opacity} />
+          <Stop offset="1" stopColor={color} stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+      <Circle cx={size / 2} cy={size / 2} r={size / 2} fill={`url(#${id})`} />
+    </Svg>
+  );
+}

@@ -121,7 +121,7 @@ export default function AuthScreen({ startSignUp }: { startSignUp?: boolean }) {
             <>
               <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: Brand.Field, padding: 4 }}>
                 {([['SignIn', 'Sign in'], ['SignUp', 'Create account']] as [Step, string][]).map(([s, l]) => (
-                  <Pressable key={s} onPress={() => go(s)} style={{ flex: 1, borderRadius: 50, backgroundColor: step === s ? Brand.Ink : 'transparent', paddingVertical: 11 }}>
+                  <Pressable key={s} onPress={() => go(s)} style={{ flex: 1, borderRadius: 50, backgroundColor: step === s ? Brand.Blue : 'transparent', paddingVertical: 11 }}>
                     <Txt k="labelLarge" center color={step === s ? '#fff' : Brand.InkSoft}>{l}</Txt>
                   </Pressable>
                 ))}

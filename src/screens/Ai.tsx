@@ -73,7 +73,7 @@ export default function AiScreen() {
         <Gap />
         <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: Brand.Field, padding: 4 }}>
           {([['travel', 'Stays & trips'], ['pets', 'Pet services']] as const).map(([k, l]) => (
-            <Pressable key={k} onPress={() => AppState.set({ aiMode: k })} style={{ flex: 1, borderRadius: 50, backgroundColor: mode === k ? Brand.Ink : 'transparent', paddingVertical: 10 }}>
+            <Pressable key={k} onPress={() => AppState.set({ aiMode: k })} style={{ flex: 1, borderRadius: 50, backgroundColor: mode === k ? Brand.Blue : 'transparent', paddingVertical: 10 }}>
               <Txt k="labelLarge" center color={mode === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
             </Pressable>
           ))}

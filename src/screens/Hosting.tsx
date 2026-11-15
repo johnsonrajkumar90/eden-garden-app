@@ -69,8 +69,8 @@ function HostDashboard({ role }: { role: string }) {
           </View>
         </View>
       </View>
-      <View style={{ margin: 16, marginBottom: 8, borderRadius: 26, backgroundColor: Brand.Ink, padding: 8, overflow: 'hidden' }}>
-        <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: -50, width: 140, height: 120, borderTopLeftRadius: 70, borderTopRightRadius: 70, backgroundColor: '#FF5757', opacity: 0.9 }} />
+      <View style={{ margin: 16, marginBottom: 8, borderRadius: 26, backgroundColor: Brand.Blue, padding: 8, overflow: 'hidden' }}>
+        <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: -50, width: 140, height: 120, borderTopLeftRadius: 70, borderTopRightRadius: 70, backgroundColor: Brand.Sun, opacity: 0.9 }} />
         <View style={{ flexDirection: 'row', gap: 6 }}>
           <HStat label={`Earnings · ${text(m, 'label', 'this month')}`} value={money(num(m, 'earnings') || 0)} flex={1.4} />
           <HStat label="Bookings" value={String(int(m, 'bookings'))} flex={1} />
@@ -91,7 +91,7 @@ function HostDashboard({ role }: { role: string }) {
             );
             return (
               <Press key={k} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: on }}>
-                <View style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: on ? Brand.Ink : '#fff', borderWidth: 1, borderColor: on ? Brand.Ink : Brand.Line }]}>{inner}</View>
+                <View style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: on ? Brand.Blue : 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: on ? Brand.Blue : 'rgba(255,255,255,0.95)' }]}>{inner}</View>
               </Press>
             );
           })}
@@ -287,7 +287,7 @@ function CalendarTab() {
   const pick = (t: string) => { setListing(t); setFirst(null); setLast(null); };
   const chip = (key: string, label: string, on: boolean, onPress: () => void) => (
     <Press key={key} onPress={onPress}>
-      <View style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: on ? Brand.Ink : '#fff', borderWidth: 1, borderColor: on ? Brand.Ink : Brand.Line }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft} numberOfLines={1}>{label}</Txt></View>
+      <View style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: on ? Brand.Blue : 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: on ? Brand.Blue : 'rgba(255,255,255,0.95)' }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft} numberOfLines={1}>{label}</Txt></View>
     </Press>
   );
   const days = objs(d, 'days');
@@ -503,7 +503,7 @@ function AgentPortal() {
       <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
       <View>
         {d ? (
-          <View style={{ flexDirection: 'row', gap: 6, marginHorizontal: 16, padding: 8, borderRadius: 26, backgroundColor: Brand.Ink }}>
+          <View style={{ flexDirection: 'row', gap: 6, marginHorizontal: 16, padding: 8, borderRadius: 26, backgroundColor: Brand.Blue }}>
             <HStat label="Commission earned" value={money(num(t, 'earned') || 0)} flex={1} />
             <HStat label="Bookings" value={String(int(t, 'bookings'))} flex={1} />
           </View>
