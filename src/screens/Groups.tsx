@@ -51,6 +51,7 @@ export function GroupTripsList() {
           <>
             <View style={[st.row, { paddingLeft: 4, paddingBottom: 12 }]}>
               <Txt k="titleLarge" bold style={{ flex: 1 }}>Your trips</Txt>
+              <Pressable onPress={() => setJoining(true)} style={[st.row, { marginRight: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: Brand.Line, paddingHorizontal: 10, paddingVertical: 5 }]} accessibilityLabel="Join a trip with a code"><Icon name="vpn-key" size={15} color={Brand.Blue} /><Txt k="labelMedium" semi color={Brand.Blue}> Join with code</Txt></Pressable>
               <View style={{ borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold>{objs(data, 'items').length}</Txt></View>
             </View>
             {objs(data, 'items').map((g) => <TripCard key={int(g, 'id')} g={g} onOpen={() => Nav.navigate(`group/${int(g, 'id')}`)} onShare={() => setSharing(g)} />)}

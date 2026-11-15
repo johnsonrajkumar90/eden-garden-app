@@ -4,7 +4,7 @@
  * favourites and the map. Sheets: add, people, docs, checklist, readiness, expenses (with receipt scan), favourites, photo.
  */
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, FlatList, Modal, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Animated, FlatList, Linking, Modal, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -95,6 +95,7 @@ export default function GroupTripScreen() {
         </View>
         <View style={{ paddingHorizontal: 16 }}>
           {err ? <Notice text={err} tone="bad" style={{ marginBottom: 10 }} /> : null}
+          {bool(g, 'ended') ? <Notice text={bool(g, 'owner') ? 'You ended this trip. The plan and expenses are closed; photos, posts and albums stay. Open it again in Who\'s going.' : 'This trip has ended. Photos, posts and albums stay here.'} tone="ok" style={{ marginBottom: 10 }} /> : null}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <DarkTile onPress={() => Nav.navigate(`groupchat/${id}`)}>
               <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Frost, alignItems: 'center', justifyContent: 'center' }}><Icon name="chat-bubble" color="#fff" /></View>
@@ -170,7 +171,8 @@ export default function GroupTripScreen() {
         {sheet === 'add' ? <AddToGroup id={id} done={(nd) => { setData(nd); setSheet(''); setTab('plan'); }} />
           : sheet === 'edit' && editing ? <AddToGroup id={id} item={editing} done={(nd) => { setData(nd); setSheet(''); setEditing(null); }} />
           : sheet === 'people' ? <PeopleSheet g={g} newCode={() => act(`trip-groups/${id}/code`)} remove={(uid) => act(`trip-groups/${id}/members/${uid}/remove`)}
-            leave={async (how) => { setSheet(''); try { await Api.post(how === 'delete' ? `trip-groups/${id}/delete` : `trip-groups/${id}/leave`); AppState.bump(); Nav.back(); } catch (e) { setErr(errorText(e)); } }} />
+            leave={async (how) => { setSheet(''); try { await Api.post(how === 'delete' ? `trip-groups/${id}/delete` : `trip-groups/${id}/leave`); AppState.bump(); Nav.back(); } catch (e) { setErr(errorText(e)); } }}
+            cancelInvite={(inv) => act(`trip-groups/${id}/invites/${inv}/cancel`)} end={(ended) => { act(`trip-groups/${id}/end`, { ended: ended ? 1 : 0 }); AppState.bump(); }} />
           : sheet === 'docs' ? (
             <SheetList title="Trip docs" sub="Stays and travel tickets the group has shared.">
               {!docs ? <Txt color={Brand.Muted}>Nothing yet — share your booking or ticket with “Add to the plan”.</Txt> : null}
@@ -186,7 +188,7 @@ export default function GroupTripScreen() {
                 </View>
               ))}
             </SheetList>
-          ) : sheet === 'expenses' ? <ExpensesSheet id={id} g={g} add={(b) => act(`trip-groups/${id}/expenses`, b)} del={(eid) => act(`trip-groups/${id}/expenses/${eid}/delete`)} />
+          ) : sheet === 'expenses' ? <ExpensesSheet id={id} g={g} add={(b) => act(`trip-groups/${id}/expenses`, b)} del={(eid) => act(`trip-groups/${id}/expenses/${eid}/delete`)} act={act} />
           : sheet === 'fav' ? <AddFavourite g={g} busy={busy} save={(fields, photo) => upload(`trip-groups/${id}/items`, fields, photo, () => { setSheet(''); setTab('fav'); })} />
           : null}
       </Sheet>
@@ -473,8 +475,14 @@ function AddFavourite({ g, busy, save }: { g: J; busy: boolean; save: (fields: [
 }
 
 /** Travel expenses: total and per person, by category, who paid, settle-up, and the list — add what you spend. */
-function ExpensesSheet({ id, g, add, del }: { id: number; g: J; add: (b: Record<string, any>) => void; del: (id: number) => void }) {
+function ExpensesSheet({ id, g, add, del, act }: { id: number; g: J; add: (b: Record<string, any>) => void; del: (id: number) => void; act: (path: string, body?: Record<string, any>) => void }) {
   const ex = obj(g, 'expenses') || {};
+  const owner = bool(g, 'owner');
+  const pay = obj(ex, 'pay');
+  const [upi, setUpi] = useState(str(ex, 'upi') || '');
+  const [editUpi, setEditUpi] = useState(false);
+  const [paidAsk, setPaidAsk] = useState<'upi' | 'cash' | null>(null);
+  const [delAsk, setDelAsk] = useState<number | null>(null);
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [cat, setCat] = useState('food');
@@ -537,14 +545,65 @@ function ExpensesSheet({ id, g, add, del }: { id: number; g: J; add: (b: Record<
           ))}
         </>
       ) : null}
+      {/* Pay now: a traveller pays their share to the person who made the trip, by UPI (Google Pay, PhonePe, Paytm…) */}
+      {pay ? (
+        <View style={{ marginTop: 14, borderRadius: 22, backgroundColor: '#FFF6D6', borderWidth: 1, borderColor: '#FFC72C', padding: 14 }}>
+          <Txt k="titleMedium">You owe {text(pay, 'to')} {money(num(pay, 'amount'))}</Txt>
+          <Txt k="bodySmall" color={Brand.InkSoft}>Pay to {text(pay, 'to')}'s UPI: <Txt k="bodySmall" bold>{text(pay, 'upi')}</Txt></Txt>
+          <Gap h={10} />
+          <PrimaryButton text={`Pay now ${money(num(pay, 'amount'))}`} icon="payments" onPress={async () => {
+            try { await Linking.openURL(text(pay, 'link')); setTimeout(() => setPaidAsk('upi'), 1200); } catch { setPaidAsk(null); }
+          }} />
+          <Pressable onPress={() => setPaidAsk('cash')} style={{ alignSelf: 'center', padding: 8, marginTop: 4 }}><Txt k="labelLarge" color={Brand.Blue}>I paid in cash</Txt></Pressable>
+          <Txt k="labelSmall" color={Brand.Muted}>The money goes straight from your UPI app to {text(pay, 'to')} — TripArro never holds it.</Txt>
+        </View>
+      ) : null}
+      {owner ? (
+        <View style={{ marginTop: 14, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: Brand.Line, padding: 12 }}>
+          {!editUpi && str(ex, 'upi') ? (
+            <View style={st.row}>
+              <Icon name="account-balance" color={Brand.Blue} />
+              <View style={{ flex: 1, marginLeft: 10 }}><Txt k="titleSmall">Your UPI for this trip</Txt><Txt k="bodySmall" color={Brand.InkSoft}>{str(ex, 'upi')} — travellers see a Pay now button</Txt></View>
+              <Pressable onPress={() => setEditUpi(true)} style={{ padding: 8 }}><Txt k="labelLarge" color={Brand.Blue}>Change</Txt></Pressable>
+            </View>
+          ) : (
+            <>
+              <Txt k="titleSmall">Collect by UPI</Txt>
+              <Txt k="bodySmall" color={Brand.InkSoft}>Add your UPI ID — everyone who owes gets a Pay now button that pays you directly.</Txt>
+              <Gap h={8} />
+              <Field label="Your UPI ID" value={upi} onChange={(v) => setUpi(v.trim().slice(0, 80))} placeholder="name@okicici" autoCapitalize="none" />
+              <Gap h={8} />
+              <PrimaryButton text="Save UPI ID" onPress={() => { act(`trip-groups/${id}`, { upi_id: upi }); setEditUpi(false); }} />
+            </>
+          )}
+        </View>
+      ) : null}
       {settle.length ? (
         <>
           <Gap h={14} />
           <Txt k="titleMedium">Settle up</Txt>
           {settle.map((s, i) => <Txt key={i} color={bool(s, 'you_pay') ? Brand.Blue : Brand.Ink} style={{ marginTop: 4 }}>{bool(s, 'you_pay') ? 'You' : text(s, 'from')} pay{bool(s, 'you_pay') ? '' : 's'} {bool(s, 'you_get') ? 'you' : text(s, 'to')} {money(num(s, 'amount'))}</Txt>)}
-          <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 4 }}>Everyone's share is the same; pay each other however you like (UPI, cash).</Txt>
+          <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 4 }}>{str(ex, 'upi') ? 'Everyone pays the person who made the trip, who pays back anyone owed.' : 'Everyone\'s share is the same; pay each other however you like (UPI, cash).'}</Txt>
         </>
       ) : null}
+      {objs(ex, 'payments').length ? (
+        <>
+          <Gap h={14} />
+          <Txt k="titleMedium">Payments</Txt>
+          {objs(ex, 'payments').map((p) => (
+            <View key={int(p, 'id')} style={[st.row, { marginTop: 6 }]}>
+              <Icon name="check-circle" size={18} color={Brand.Teal} />
+              <Txt style={{ flex: 1, marginLeft: 8 }}>{text(p, 'from')} paid {text(p, 'to')} {money(num(p, 'amount'))} · {text(p, 'method')}</Txt>
+              {bool(p, 'can_delete') ? <Pressable onPress={() => act(`trip-groups/${id}/settlements/${int(p, 'id')}/delete`)} style={{ padding: 6 }} accessibilityLabel="Remove this payment"><Icon name="close" size={18} color={Brand.Muted} /></Pressable> : null}
+            </View>
+          ))}
+        </>
+      ) : null}
+      <Dialog open={!!paidAsk} onClose={() => setPaidAsk(null)} title={paidAsk === 'cash' ? `Paid ${text(pay, 'to')} in cash?` : 'Did the payment go through?'}
+        text={`Mark ${money(num(pay, 'amount'))} as paid to ${text(pay, 'to')}. They are told and can remove it if the money did not reach them.`}
+        actions={[['Not yet', () => setPaidAsk(null)], ['Yes, mark paid', () => { const m = paidAsk; setPaidAsk(null); act(`trip-groups/${id}/settle`, { amount: num(pay, 'amount'), method: m }); }]]} />
+      <Dialog open={delAsk !== null} onClose={() => setDelAsk(null)} title="Delete this expense?" text="It is removed for everyone and the shares are worked out again."
+        actions={[['Cancel', () => setDelAsk(null)], ['Delete', () => { const e = delAsk!; setDelAsk(null); del(e); }, Brand.Danger]]} />
       <Gap h={16} />
       <Txt k="titleMedium">Add an expense</Txt>
       {/* scan a receipt: the amount, shop and items fill in by themselves */}
@@ -600,6 +659,7 @@ function ExpensesSheet({ id, g, add, del }: { id: number; g: J; add: (b: Record<
         <>
           <Gap h={16} />
           <Txt k="titleMedium">All expenses</Txt>
+          {!owner ? <Txt k="labelSmall" color={Brand.Muted}>Only the person who made the trip can delete expenses.</Txt> : null}
           {list.map((e) => {
             const el = objs(e, 'lines'); const eid = int(e, 'id');
             return (
@@ -611,7 +671,7 @@ function ExpensesSheet({ id, g, add, del }: { id: number; g: J; add: (b: Record<
                     <Txt k="labelSmall" color={Brand.Muted}>{text(e, 'category_label')} · {niceDay(str(e, 'day'))} · paid by {text(e, 'paid_by')}{el.length ? ` · ${el.length} items` : ''}</Txt>
                   </View>
                   <Txt k="titleSmall">{money(num(e, 'amount'))}</Txt>
-                  {bool(e, 'can_delete') ? <Pressable onPress={() => del(eid)} style={{ padding: 6 }} accessibilityLabel="Delete"><Icon name="delete-outline" size={18} color={Brand.Muted} /></Pressable> : null}
+                  {bool(e, 'can_delete') ? <Pressable onPress={() => setDelAsk(eid)} style={{ padding: 6 }} accessibilityLabel="Delete"><Icon name="delete-outline" size={18} color={Brand.Muted} /></Pressable> : null}
                 </View>
                 {open === eid ? el.map((l, i) => <View key={i} style={[st.row, { marginTop: 4 }]}><Txt k="bodySmall" color={Brand.InkSoft} style={{ flex: 1 }}>{text(l, 'name')}</Txt><Txt k="bodySmall" color={Brand.InkSoft}>{money(num(l, 'amount'))}</Txt></View>) : null}
               </Pressable>
@@ -652,8 +712,10 @@ function ChecklistSheet({ g, add, toggle, del }: { g: J; add: (t: string) => voi
   );
 }
 
-function PeopleSheet({ g, newCode, remove, leave }: { g: J; newCode: () => void; remove: (uid: number) => void; leave: (how: string) => void }) {
-  const [confirm, setConfirm] = useState<'leave' | 'delete' | null>(null);
+function PeopleSheet({ g, newCode, remove, leave, cancelInvite, end }: { g: J; newCode: () => void; remove: (uid: number) => void; leave: (how: string) => void; cancelInvite: (inv: number) => void; end: (ended: boolean) => void }) {
+  const [removing, setRemoving] = useState<J | null>(null);
+  const [code, setCode] = useState('');
+  const [confirm, setConfirm] = useState<'leave' | 'delete' | 'end' | null>(null);
   const members = objs(g, 'members');
   const del = bool(g, 'owner') && members.length === 1;   // alone in the trip: deleting is the way out
   const inv = objs(g, 'invited');
@@ -666,7 +728,7 @@ function PeopleSheet({ g, newCode, remove, leave }: { g: J; newCode: () => void;
             <Txt k="titleSmall">{text(m, 'name')}{bool(m, 'you') ? ' (you)' : ''}</Txt>
             <Txt k="labelSmall" color={Brand.Muted}>{[text(m, 'role') === 'owner' ? 'Made the trip' : 'Joined ' + text(m, 'joined'), text(m, 'relation').replace(/^./, (c) => c.toUpperCase())].filter(Boolean).join(' · ')}</Txt>
           </View>
-          {bool(g, 'owner') && !bool(m, 'you') ? <LinkButton text="Remove" onPress={() => remove(int(m, 'id'))} /> : null}
+          {bool(g, 'owner') && !bool(m, 'you') ? <Pressable onPress={() => setRemoving(m)} style={[st.row, { borderRadius: 50, borderWidth: 1, borderColor: '#F2C2C2', paddingHorizontal: 10, paddingVertical: 6 }]} accessibilityLabel={`Remove ${text(m, 'name')}`}><Icon name="person-remove" size={16} color={Brand.Danger} /><Txt k="labelMedium" color={Brand.Danger}> Remove</Txt></Pressable> : null}
         </View>
       ))}
       {inv.length ? (
@@ -675,7 +737,8 @@ function PeopleSheet({ g, newCode, remove, leave }: { g: J; newCode: () => void;
           {inv.map((i, k) => (
             <View key={k} style={[st.row, { paddingVertical: 6 }]}>
               <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: Brand.Sky, alignItems: 'center', justifyContent: 'center' }}><Icon name="person-add-alt" color={Brand.Blue} /></View>
-              <View style={{ paddingLeft: 12 }}><Txt k="titleSmall">{text(i, 'who')}</Txt><Txt k="labelSmall" color={Brand.Muted}>{bool(i, 'on_triparro') ? 'Invited in the app — not joined yet' : 'Link sent by email — not joined yet'}</Txt></View>
+              <View style={{ paddingLeft: 12, flex: 1 }}><Txt k="titleSmall">{text(i, 'who')}</Txt><Txt k="labelSmall" color={Brand.Muted}>{bool(i, 'on_triparro') ? 'Invited in the app — not joined yet' : 'Link sent by email — not joined yet'}</Txt></View>
+              {bool(g, 'owner') ? <Pressable onPress={() => cancelInvite(int(i, 'id'))} style={{ padding: 8 }} accessibilityLabel="Delete this invitation"><Icon name="delete-outline" color={Brand.Danger} /></Pressable> : null}
             </View>
           ))}
         </>
@@ -684,14 +747,33 @@ function PeopleSheet({ g, newCode, remove, leave }: { g: J; newCode: () => void;
       <InviteCard g={g} newCode={newCode} />
       <Gap />
       {/* anyone can leave (unfollow) the trip; only the person who made it can delete it */}
-      {!del ? <OutlineButton text="Leave this trip" icon="logout" color={Brand.Danger} onPress={() => setConfirm('leave')} /> : null}
+      {/* join another trip with a code from a friend */}
+      <View style={{ borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: Brand.Line, padding: 12 }}>
+        <Txt k="titleSmall">Got a code for another trip?</Txt>
+        <View style={[st.row, { marginTop: 8, gap: 8 }]}>
+          <Field label="Trip code" value={code} onChange={(v) => setCode(v.replace(/[^A-Za-z0-9]/g, '').slice(0, 8))} placeholder="8 letters and numbers" autoCapitalize="none" style={{ flex: 1 }} />
+          <PrimaryButton text="Join" disabled={code.length !== 8} onPress={() => Nav.navigate(`groupjoin/${code}`)} style={{ minHeight: 50 }} />
+        </View>
+      </View>
+      <Gap />
+      {bool(g, 'owner') ? (
+        <>
+          <OutlineButton text={bool(g, 'ended') ? 'Open the trip again' : 'End the trip'} icon={bool(g, 'ended') ? 'replay' : 'flag'} color={Brand.Blue} onPress={() => (bool(g, 'ended') ? end(false) : setConfirm('end'))} />
+          <Gap h={8} />
+        </>
+      ) : null}
+      {!del ? <OutlineButton text={bool(g, 'owner') ? 'Leave this trip' : 'Leave (unfollow) this trip'} icon="logout" color={Brand.Danger} onPress={() => setConfirm('leave')} /> : null}
       {bool(g, 'owner') ? <><Gap h={8} /><OutlineButton text="Delete this trip" icon="delete-outline" color={Brand.Danger} onPress={() => setConfirm('delete')} /></> : null}
       <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 8 }}>{bool(g, 'owner')
         ? (members.length > 1 ? 'If you leave, the trip passes to the person who joined first. Only you can delete the trip.' : 'Only you can delete this trip.')
         : 'Leaving stops the trip\'s notifications. Only the person who made the trip can delete it.'}</Txt>
-      <Dialog open={!!confirm} onClose={() => setConfirm(null)} title={confirm === 'delete' ? 'Delete this trip?' : 'Leave this trip?'}
-        text={confirm === 'delete' ? 'The plan, posts, albums, favourites, expenses and chat are deleted for everyone. Everyone in the trip is told.' : 'You stop getting its updates. You can join again with the invite code.'}
-        actions={[['Cancel', () => setConfirm(null), Brand.InkSoft], [confirm === 'delete' ? 'Delete' : 'Leave', () => { const c = confirm!; setConfirm(null); leave(c); }, Brand.Danger]]} />
+      <Dialog open={!!confirm} onClose={() => setConfirm(null)} title={confirm === 'delete' ? 'Delete this trip?' : confirm === 'end' ? 'End this trip?' : 'Leave this trip?'}
+        text={confirm === 'delete' ? 'The plan, posts, albums, favourites, expenses and chat are deleted for everyone. Everyone in the trip is told.'
+          : confirm === 'end' ? 'Everyone is told the trip is over. The plan and expenses close; photos, posts and albums stay. You can open it again.'
+          : 'You stop getting its updates. You can join again with the invite code.'}
+        actions={[['Cancel', () => setConfirm(null), Brand.InkSoft], [confirm === 'delete' ? 'Delete' : confirm === 'end' ? 'End trip' : 'Leave', () => { const c = confirm!; setConfirm(null); if (c === 'end') end(true); else leave(c); }, confirm === 'end' ? Brand.Blue : Brand.Danger]]} />
+      <Dialog open={!!removing} onClose={() => setRemoving(null)} title={`Remove ${text(removing, 'name')} from the trip?`} text="They stop seeing the trip. Bookings and tickets they shared leave with them."
+        actions={[['Cancel', () => setRemoving(null)], ['Remove', () => { const m = removing!; setRemoving(null); remove(int(m, 'id')); }, Brand.Danger]]} />
     </SheetList>
   );
 }

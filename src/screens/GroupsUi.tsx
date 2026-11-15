@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ScrollView, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { J, arr, int, str, text } from '../core/json';
+import { J, arr, bool, int, str, text } from '../core/json';
 import { Brand } from '../theme';
 import { Appear, Icon, Press, Txt, parseIso, st , HeadButton } from '../ui/kit';
 
@@ -84,7 +84,8 @@ export function TripCard({ g, onOpen, onShare }: { g: J; onOpen: () => void; onS
           <TripCover cover={str(g, 'cover')} name={text(g, 'title') + ' ' + text(g, 'destination')} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
           <LinearGradient pointerEvents="none" colors={['#00000040', '#00000000']} locations={[0, 0.5]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
           <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
-            {w ? <View style={[st.row, { borderRadius: 50, backgroundColor: w === 'On now' ? '#7CE0A3' : Brand.Sun, paddingHorizontal: 10, paddingVertical: 5 }]}><Icon name={w === 'On now' ? 'flight-takeoff' : 'event'} size={14} color={Brand.Ink} /><Txt k="labelMedium" bold> {w}</Txt></View> : null}
+            {bool(g, 'ended') ? <View style={{ borderRadius: 50, backgroundColor: '#FFFFFFEE', paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" bold>Trip ended</Txt></View> : null}
+            {w && !bool(g, 'ended') ? <View style={[st.row, { borderRadius: 50, backgroundColor: w === 'On now' ? '#7CE0A3' : Brand.Sun, paddingHorizontal: 10, paddingVertical: 5 }]}><Icon name={w === 'On now' ? 'flight-takeoff' : 'event'} size={14} color={Brand.Ink} /><Txt k="labelMedium" bold> {w}</Txt></View> : null}
             {text(g, 'role') === 'owner' ? <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" bold color="#fff">Your trip</Txt></View> : null}
           </View>
           <Pressable onPress={onShare} hitSlop={6} style={{ position: 'absolute', top: 8, right: 8, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.88)', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Share this trip's link">
