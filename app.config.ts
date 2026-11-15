@@ -43,7 +43,7 @@ const config: ExpoConfig = {
     ],
   },
   plugins: [
-    ['expo-build-properties', { android: { minSdkVersion: 24, targetSdkVersion: 36 } }],
+    ['expo-build-properties', { android: { minSdkVersion: 24, targetSdkVersion: 36, useLegacyPackaging: true } }],   // compressed native libraries: a much smaller APK
     ['expo-splash-screen', { image: './assets/splash-logo.png', imageWidth: 220, backgroundColor: '#C41E2E' }],
     ['expo-notifications', { color: '#D7192A' }],
     ['expo-location', { locationWhenInUsePermission: 'TripArro uses your location to name the place you are at and to find chargers near you.' }],
