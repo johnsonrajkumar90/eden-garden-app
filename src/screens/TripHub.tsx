@@ -21,6 +21,7 @@ import { Dialog, Sheet } from '../ui/sheets';
 import { AddToGroup, GroupItem, GroupMap, InviteCard, ShareTripDialog, openGroupUrl } from './Groups';
 import { TripCover } from './GroupsUi';
 import { PostsPanel } from './TripPosts';
+import { AlbumsPanel } from './TripAlbums';
 import { CoverSheet, LiveSpot, PlaceSource } from './TripExtras';
 import { RestaurantsRow } from './Restaurants';
 import { Nav, intParam, useParams } from '../nav';
@@ -40,6 +41,7 @@ export default function GroupTripScreen() {
   const [busy, setBusy] = useState(false);
   const [coverMenu, setCoverMenu] = useState(false);
   const [inviting, setInviting] = useState(false);
+  const [editing, setEditing] = useState<J | null>(null);   // a plan item being changed
   const load = () => { setLoading(true); Api.get(`trip-groups/${id}`).then((j) => { setData(j); setLoadErr(null); }).catch((e) => setLoadErr(errorText(e))).finally(() => setLoading(false)); };
   useEffect(load, [id]);
   const act = async (path: string, body: Record<string, any> = {}) => { try { setData(await Api.post(path, body)); setErr(null); } catch (e) { setErr(errorText(e)); } };
@@ -124,9 +126,9 @@ export default function GroupTripScreen() {
           </View>
           <Gap h={18} />
           <View style={{ flexDirection: 'row', borderRadius: 30, backgroundColor: '#00000066', padding: 5 }}>
-            {[['posts', 'Posts'], ['plan', 'Plan'], ['fav', 'Favourites'], ['map', 'Map']].map(([v, t]) => (
+            {[['posts', 'Posts'], ['plan', 'Plan'], ['albums', 'Albums'], ['fav', 'Places'], ['map', 'Map']].map(([v, t]) => (
               <Pressable key={v} onPress={() => setTab(v)} style={{ flex: 1, borderRadius: 26, backgroundColor: tab === v ? '#fff' : 'transparent', paddingVertical: 12, alignItems: 'center' }} accessibilityRole="tab" accessibilityState={{ selected: tab === v }}>
-                <Txt k="titleSmall" color={tab === v ? Brand.Ink : '#fff'}>{t}</Txt>
+                <Txt k="labelLarge" numberOfLines={1} color={tab === v ? Brand.Ink : '#fff'}>{t}</Txt>
               </Pressable>
             ))}
           </View>
@@ -147,7 +149,8 @@ export default function GroupTripScreen() {
                 ) : null}
               </>
             ) : tab === 'posts' ? <PostsPanel id={id} g={g} onData={setData} />
-              : <PlanPanel id={id} g={g} onAdd={() => setSheet('add')} act={act} />}
+              : tab === 'albums' ? <AlbumsPanel id={id} g={g} onData={setData} />
+              : <PlanPanel id={id} g={g} onAdd={() => setSheet('add')} act={act} onEdit={(it) => { setEditing(it); setSheet('edit'); }} />}
           </View>
         )}
       </ScrollView>
@@ -158,12 +161,14 @@ export default function GroupTripScreen() {
         {coverMenu ? <CoverSheet id={id} g={g} busy={busy}
           onAlbum={async () => { const p = await pickPhoto('album'); if (p) upload(`trip-groups/${id}/cover`, [], p); }}
           onCamera={async () => { const p = await pickPhoto('camera'); if (p) upload(`trip-groups/${id}/cover`, [], p); }}
+          onDesign={async (key) => { setBusy(true); try { setData(await Api.post(`trip-groups/${id}/cover`, { design: key })); setErr(null); } catch (e) { setErr(errorText(e)); } setBusy(false); }}
           onWeb={async (photo) => { setBusy(true); try { setData(await Api.post(`trip-groups/${id}/cover`, photo ? { google_photo: photo } : { auto: 1 })); setErr(null); } catch (e) { setErr(errorText(e)); } setBusy(false); }} /> : null}
       </Sheet>
       <Sheet open={!!sheet} onClose={() => { setSheet(''); setErr(null); }} style={{ backgroundColor: '#FBF8F6' }}>
         {/* what went wrong shows here, on the sheet — not hidden behind it */}
         {err ? <Notice text={err} tone="bad" style={{ marginBottom: 8 }} /> : null}
-        {sheet === 'add' ? <AddToGroup id={id} done={(nd) => { setData(nd); setSheet(''); }} />
+        {sheet === 'add' ? <AddToGroup id={id} done={(nd) => { setData(nd); setSheet(''); setTab('plan'); }} />
+          : sheet === 'edit' && editing ? <AddToGroup id={id} item={editing} done={(nd) => { setData(nd); setSheet(''); setEditing(null); }} />
           : sheet === 'people' ? <PeopleSheet g={g} newCode={() => act(`trip-groups/${id}/code`)} remove={(uid) => act(`trip-groups/${id}/members/${uid}/remove`)}
             leave={async (how) => { setSheet(''); try { await Api.post(how === 'delete' ? `trip-groups/${id}/delete` : `trip-groups/${id}/leave`); AppState.bump(); Nav.back(); } catch (e) { setErr(errorText(e)); } }} />
           : sheet === 'docs' ? (
@@ -278,24 +283,28 @@ function SheetList({ title, sub, children }: { title: string; sub?: string | nul
   return <View><Txt k="titleLarge">{title}</Txt>{sub ? <Txt k="bodySmall" color={Brand.Muted} style={{ marginBottom: 10 }}>{sub}</Txt> : null}{children}</View>;
 }
 
-function PlanPanel({ id, g, onAdd, act }: { id: number; g: J; onAdd: () => void; act: (p: string) => void }) {
+function PlanPanel({ id, g, onAdd, act, onEdit }: { id: number; g: J; onAdd: () => void; act: (p: string) => void; onEdit: (it: J) => void }) {
   const items = objs(g, 'items').filter((x) => text(x, 'kind') !== 'fav');
   if (!items.length) return (
     <View>
       <Txt k="titleMedium">Start planning</Txt>
-      <Txt k="bodySmall" color={Brand.InkSoft} style={{ marginVertical: 6 }}>Share your booking or ticket, add places to visit, notes and a packing list — everyone in the trip sees them.</Txt>
+      <Txt k="bodySmall" color={Brand.InkSoft} style={{ marginVertical: 6 }}>Share your booking or ticket, add places to visit with the day and a photo, notes and a packing list — everyone in the trip sees them, and each one is posted to the trip.</Txt>
       <PrimaryButton text="Add to the plan" icon="add" onPress={onAdd} />
     </View>
   );
   return (
     <View>
+      <View style={[st.row, { marginBottom: 8 }]}>
+        <Txt k="bodySmall" color={Brand.Muted} style={{ flex: 1 }}>Only the person who added something, or who made the trip, can change it.</Txt>
+        <PrimaryButton text="Add" icon="add" onPress={onAdd} style={{ minHeight: 44, paddingVertical: 9, marginLeft: 8 }} />
+      </View>
       {[['booking', 'Stays booked'], ['ticket', 'Travel tickets'], ['plan', 'Trip plans'], ['place', 'Places to visit'], ['todo', 'To-do & packing'], ['note', 'Notes']].map(([k, head]) => {
         const list = items.filter((x) => text(x, 'kind') === k);
         if (!list.length) return null;
         return (
           <View key={k}>
             <Txt k="titleMedium" style={{ marginTop: 6, marginBottom: 6 }}>{head}</Txt>
-            {list.map((it) => <GroupItem key={int(it, 'id')} item={it} toggle={() => act(`trip-groups/${id}/items/${int(it, 'id')}/toggle`)} del={() => act(`trip-groups/${id}/items/${int(it, 'id')}/delete`)} />)}
+            {list.map((it) => <GroupItem key={int(it, 'id')} item={it} toggle={() => act(`trip-groups/${id}/items/${int(it, 'id')}/toggle`)} del={() => act(`trip-groups/${id}/items/${int(it, 'id')}/delete`)} edit={() => onEdit(it)} />)}
           </View>
         );
       })}
@@ -644,9 +653,9 @@ function ChecklistSheet({ g, add, toggle, del }: { g: J; add: (t: string) => voi
 }
 
 function PeopleSheet({ g, newCode, remove, leave }: { g: J; newCode: () => void; remove: (uid: number) => void; leave: (how: string) => void }) {
-  const [confirm, setConfirm] = useState(false);
+  const [confirm, setConfirm] = useState<'leave' | 'delete' | null>(null);
   const members = objs(g, 'members');
-  const del = bool(g, 'owner') && members.length === 1;
+  const del = bool(g, 'owner') && members.length === 1;   // alone in the trip: deleting is the way out
   const inv = objs(g, 'invited');
   return (
     <SheetList title="Who's going" sub={`${members.length} joined`}>
@@ -674,9 +683,15 @@ function PeopleSheet({ g, newCode, remove, leave }: { g: J; newCode: () => void;
       <Gap />
       <InviteCard g={g} newCode={newCode} />
       <Gap />
-      <OutlineButton text={del ? 'Delete this trip' : 'Leave this trip'} color={Brand.Danger} onPress={() => setConfirm(true)} />
-      <Dialog open={confirm} onClose={() => setConfirm(false)} title={del ? 'Delete this trip?' : 'Leave this trip?'} text={del ? 'The plan, favourites, expenses and chat are deleted for good.' : 'You can join again with the invite.'}
-        actions={[['Cancel', () => setConfirm(false), Brand.InkSoft], [del ? 'Delete' : 'Leave', () => { setConfirm(false); leave(del ? 'delete' : 'leave'); }, Brand.Danger]]} />
+      {/* anyone can leave (unfollow) the trip; only the person who made it can delete it */}
+      {!del ? <OutlineButton text="Leave this trip" icon="logout" color={Brand.Danger} onPress={() => setConfirm('leave')} /> : null}
+      {bool(g, 'owner') ? <><Gap h={8} /><OutlineButton text="Delete this trip" icon="delete-outline" color={Brand.Danger} onPress={() => setConfirm('delete')} /></> : null}
+      <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 8 }}>{bool(g, 'owner')
+        ? (members.length > 1 ? 'If you leave, the trip passes to the person who joined first. Only you can delete the trip.' : 'Only you can delete this trip.')
+        : 'Leaving stops the trip\'s notifications. Only the person who made the trip can delete it.'}</Txt>
+      <Dialog open={!!confirm} onClose={() => setConfirm(null)} title={confirm === 'delete' ? 'Delete this trip?' : 'Leave this trip?'}
+        text={confirm === 'delete' ? 'The plan, posts, albums, favourites, expenses and chat are deleted for everyone. Everyone in the trip is told.' : 'You stop getting its updates. You can join again with the invite code.'}
+        actions={[['Cancel', () => setConfirm(null), Brand.InkSoft], [confirm === 'delete' ? 'Delete' : 'Leave', () => { const c = confirm!; setConfirm(null); leave(c); }, Brand.Danger]]} />
     </SheetList>
   );
 }

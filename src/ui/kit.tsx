@@ -6,6 +6,7 @@ import {
 import { Image } from 'expo-image';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Brand, T, Fonts } from '../theme';
 
 /* ---------- Formatting ---------- */
@@ -71,7 +72,7 @@ export function Appear({ children, index = 0, style }: { children: ReactNode; in
 export function HeadButton({ icon, label, onPress, tint = Brand.Ink }: { icon: string; label: string; onPress: () => void; tint?: string }) {
   return (
     <Pressable onPress={onPress} hitSlop={6} accessibilityRole="button" accessibilityLabel={label}
-      style={({ pressed }) => [st.headBtn, pressed ? { backgroundColor: Brand.Field } : null]}>
+      style={({ pressed }) => [st.headBtn, pressed ? { backgroundColor: '#fff' } : null]}>
       <Icon name={icon} size={21} color={tint} />
     </Pressable>
   );
@@ -216,14 +217,16 @@ export function PrimaryButton({ text, onPress, disabled, loading, icon, style }:
   const on = !disabled && !loading;
   const tint = on || loading ? '#fff' : Brand.Muted;
   return (
-    <Press onPress={onPress} disabled={!on} style={[{ minHeight: 54, borderRadius: 27, paddingHorizontal: 20, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on || loading ? Brand.Blue : '#E7E5E2' }, on ? st.redShadow : null, style]} accessibilityRole="button" accessibilityLabel={text} accessibilityState={{ disabled: !on, busy: !!loading }}>
-      {loading ? <ActivityIndicator color="#fff" /> : <View style={st.row}>{icon ? <Icon name={icon} size={19} color={tint} style={{ marginRight: 8 }} /> : null}<Txt k="labelLarge" bold color={tint}>{text}</Txt></View>}
+    <Press onPress={onPress} disabled={!on} style={[{ minHeight: 54, borderRadius: 27, overflow: 'hidden', backgroundColor: on || loading ? Brand.Blue : '#E7E5E2' }, on ? st.redShadow : null, style]} accessibilityRole="button" accessibilityLabel={text} accessibilityState={{ disabled: !on, busy: !!loading }}>
+      <LinearGradient colors={on || loading ? ['#F0555A', '#D93338'] : ['#E7E5E2', '#E7E5E2']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, minHeight: 54, paddingHorizontal: 20, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' }}>
+        {loading ? <ActivityIndicator color="#fff" /> : <View style={st.row}>{icon ? <Icon name={icon} size={19} color={on ? Brand.Sun : tint} style={{ marginRight: 8 }} /> : null}<Txt k="labelLarge" bold color={tint}>{text}</Txt></View>}
+      </LinearGradient>
     </Press>
   );
 }
 export function OutlineButton({ text, onPress, icon, style, disabled, color = Brand.Blue }: { text: string; onPress: () => void; icon?: string; style?: StyleProp<ViewStyle>; disabled?: boolean; color?: string }) {
   return (
-    <Press onPress={onPress} disabled={disabled} style={[{ borderWidth: 1.2, borderColor: '#DAD7D2', borderRadius: 50, minHeight: 46, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', opacity: disabled ? 0.5 : 1 }, style]} accessibilityRole="button">
+    <Press onPress={onPress} disabled={disabled} style={[{ borderWidth: 1.2, borderColor: 'rgba(255,255,255,0.95)', borderRadius: 50, minHeight: 46, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: 'rgba(255,255,255,0.8)', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', opacity: disabled ? 0.5 : 1 }, style]} accessibilityRole="button">
       {icon ? <Icon name={icon} size={18} color={color} style={{ marginRight: 6 }} /> : null}<Txt k="labelLarge" color={color}>{text}</Txt>
     </Press>
   );
@@ -236,7 +239,7 @@ export function Notice({ text, tone = 'info', style }: { text: string; tone?: st
   const [bg, fg] = TONES[tone === 'info' ? 'infoN' : tone] || [Brand.Sky, Brand.BlueDark];
   return <View style={[{ backgroundColor: bg, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14, borderLeftWidth: 3, borderLeftColor: fg }, style]}><Txt color={fg}>{text}</Txt></View>;
 }
-TONES.infoN = ['#F1F0EE', Brand.InkSoft];
+TONES.infoN = ['rgba(255,255,255,0.75)', Brand.InkSoft];
 
 export function KeyValue({ k, v }: { k: string; v: string }) {
   return <View style={[st.row, { paddingVertical: 4, alignItems: 'flex-start' }]}><Txt color={Brand.InkSoft} style={{ width: 120 }}>{k}</Txt><Txt style={{ flex: 1 }}>{v}</Txt></View>;
@@ -261,7 +264,7 @@ export function ChipChoice<V extends string | number>({ options, value, onChange
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
       {options.map(([v, l]) => {
         const on = v === value;
-        return <Pressable key={String(v)} onPress={() => onChange(v)} style={{ borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: on ? (tone === 'ink' ? Brand.Ink : Brand.Blue) : '#fff', borderWidth: 1, borderColor: on ? 'transparent' : Brand.Line }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{l}</Txt></Pressable>;
+        return <Pressable key={String(v)} onPress={() => onChange(v)} style={{ borderRadius: 50, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: on ? (tone === 'ink' ? Brand.Ink : Brand.Blue) : 'rgba(255,255,255,0.75)', borderWidth: 1, borderColor: on ? 'transparent' : 'rgba(255,255,255,0.95)' }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{l}</Txt></Pressable>;
       })}
     </View>
   );
@@ -277,8 +280,9 @@ export const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
   bar: { flexDirection: 'row', alignItems: 'center', minHeight: 60, paddingHorizontal: 12, paddingVertical: 8 },
   barBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22 },
-  headBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line },
-  card: { backgroundColor: '#fff', borderRadius: 24, borderWidth: 1, borderColor: '#EFEDE9', shadowColor: '#1A1410', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  headBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  card: { backgroundColor: 'rgba(255,255,255,0.74)', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.07, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  glass: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
   shadow: { shadowColor: '#000', shadowOpacity: 0.14, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
   sunShadow: { shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   redShadow: { shadowColor: '#D93338', shadowOpacity: 0.28, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },

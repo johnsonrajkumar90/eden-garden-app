@@ -135,7 +135,7 @@ function SourceTile({ icon, label, colors, enabled, onPress }: { icon: string; l
  * The trip photo: a big preview, then where the new one comes from — the photo album, the camera, or the web
  * (Google photos of the place, with the automatic match first). Everyone in the trip sees it.
  */
-export function CoverSheet({ id, g, busy, onAlbum, onCamera, onWeb }: { id: number; g: J; busy: boolean; onAlbum: () => void; onCamera: () => void; onWeb: (photo: string | null) => void }) {
+export function CoverSheet({ id, g, busy, onAlbum, onCamera, onWeb, onDesign }: { id: number; g: J; busy: boolean; onAlbum: () => void; onCamera: () => void; onWeb: (photo: string | null) => void; onDesign: (key: string) => void }) {
   const opts = useLoader(() => Api.get(`trip-groups/${id}/cover-options`), [id]);
   const o = opts.data; const items = objs(o, 'items');
   return (
@@ -147,15 +147,34 @@ export function CoverSheet({ id, g, busy, onAlbum, onCamera, onWeb }: { id: numb
         <LinearGradient colors={['#00000000', '#15161CCC']} locations={[0.45, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
         <Txt k="headlineSmall" bold color="#fff" numberOfLines={2} style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>{text(g, 'title')}</Txt>
         <View style={{ position: 'absolute', top: 12, left: 12, borderRadius: 50, backgroundColor: '#00000066', paddingHorizontal: 10, paddingVertical: 5 }}>
-          <Txt k="labelMedium" color="#fff">{({ photo: 'Your photo', web: 'From the web' } as Record<string, string>)[text(g, 'cover_kind')] || 'No photo yet'}</Txt>
+          <Txt k="labelMedium" color="#fff">{({ photo: 'Your photo', web: 'From the web', design: 'TripArro design' } as Record<string, string>)[text(g, 'cover_kind')] || 'No photo yet'}</Txt>
         </View>
         {busy ? <View style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: '#00000066', alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color="#fff" /></View> : null}
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
-        <SourceTile icon="photo-library" label="Photo album" colors={['#7C3AED', '#C084FC']} enabled={!busy} onPress={onAlbum} />
+        <SourceTile icon="photo-library" label="Upload from gallery" colors={['#7C3AED', '#C084FC']} enabled={!busy} onPress={onAlbum} />
         <SourceTile icon="photo-camera" label="Camera" colors={['#0E7490', '#22D3EE']} enabled={!busy} onPress={onCamera} />
         <SourceTile icon="auto-awesome" label="Auto from web" colors={['#B3122A', '#FF8A3D']} enabled={!busy} onPress={() => onWeb(null)} />
       </View>
+      {objs(g, 'cover_designs').length ? (
+        <>
+          <Txt k="titleMedium" bold style={{ marginTop: 20, marginBottom: 8 }}>Cover designs</Txt>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {objs(g, 'cover_designs').map((d) => {
+              const current = str(g, 'cover') === str(d, 'url');
+              return (
+                <Pressable key={text(d, 'key')} disabled={busy} onPress={() => onDesign(text(d, 'key'))} style={{ width: '31.8%' }} accessibilityLabel={`Cover design: ${text(d, 'label')}`}>
+                  <View style={{ aspectRatio: 1.45, borderRadius: 14, overflow: 'hidden', borderWidth: current ? 3 : 0, borderColor: Brand.Ink, backgroundColor: Brand.Field }}>
+                    <Image source={{ uri: str(d, 'url') || undefined }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                    {current ? <View style={{ position: 'absolute', top: 4, right: 4, borderRadius: 12, backgroundColor: Brand.Ink }}><Icon name="check-circle" size={20} color={Brand.Sun} /></View> : null}
+                  </View>
+                  <Txt k="labelSmall" numberOfLines={1} style={{ marginTop: 3 }}>{text(d, 'label')}</Txt>
+                </Pressable>
+              );
+            })}
+          </View>
+        </>
+      ) : null}
       <Txt k="titleMedium" bold style={{ marginTop: 20, marginBottom: 8 }}>Photos from the web</Txt>
       {!o && opts.loading ? <Txt k="bodySmall" color={Brand.Muted}>Looking for photos of {text(g, 'destination') || text(g, 'title')}…</Txt>
         : o && !bool(o, 'google') ? <Txt k="bodySmall" color={Brand.Muted}>Web photos show here once Google Places is set up for the site. You can still use a photo from your album or camera.</Txt>

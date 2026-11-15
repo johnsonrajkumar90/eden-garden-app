@@ -11,7 +11,7 @@ const Red1 = '#B3122A', Red2 = '#FF5A5A';
 
 /** The three parts of Group trips, as a sliding switch on the red band under the title. */
 export function HubTabs({ tab, onTab }: { tab: string; onTab: (t: string) => void }) {
-  const tabs: [string, string, string][] = [['trips', 'Trips', 'groups'], ['plans', 'Trip plans', 'route'], ['tickets', 'Tickets', 'confirmation-number']];
+  const tabs: [string, string, string][] = [['trips', 'Trips', 'groups'], ['tickets', 'Tickets', 'confirmation-number']];
   const i = Math.max(0, tabs.findIndex((t) => t[0] === tab));
   const [w, setW] = useState(0);
   const x = useRef(new Animated.Value(0)).current;

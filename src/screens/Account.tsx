@@ -42,9 +42,9 @@ export default function AccountScreen() {
     <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 14 }}><Txt k="displaySmall">Account</Txt></View>
       <View style={{ margin: 16, marginBottom: 0, borderRadius: 28, backgroundColor: Brand.Ink, overflow: 'hidden', padding: 18 }}>
-        <View pointerEvents="none" style={{ position: 'absolute', right: -40, bottom: -30, width: 170, height: 140, borderTopLeftRadius: 85, borderTopRightRadius: 85, backgroundColor: '#FF5757' }} />
-        <View pointerEvents="none" style={{ position: 'absolute', right: 96, bottom: 72, width: 18, height: 18, borderRadius: 9, backgroundColor: Brand.Sun }} />
-        {!u ? <Txt color="#ffffffcc">Sign in to book, see your trips and pets, and open your dashboard if you host.</Txt> : (
+        <View pointerEvents="none" style={{ position: 'absolute', right: -50, bottom: -70, width: 150, height: 130, borderTopLeftRadius: 75, borderTopRightRadius: 75, backgroundColor: '#FF5757' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', right: 18, top: 16, width: 14, height: 14, borderRadius: 7, backgroundColor: Brand.Sun }} />
+        {!u ? <Txt color="#ffffffcc" style={{ paddingRight: 70 }}>Sign in to book, see your trips and pets, and open your dashboard if you host.</Txt> : (
           <>
             <View style={st.row}>
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: Brand.Sun, alignItems: 'center', justifyContent: 'center' }}><Txt k="titleLarge" color={Brand.Ink}>{u.initials.slice(0, 2).toUpperCase()}</Txt></View>

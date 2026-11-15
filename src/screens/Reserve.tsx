@@ -8,6 +8,7 @@ import { bool, num, obj, priceLines, str, text } from '../core/json';
 import { Picked, pickPhoto, uploadOf } from '../core/files';
 import { Brand } from '../theme';
 import { BackBar, Card, EmptyBox, Gap, Notice, OutlineButton, Photo, PriceTable, PrimaryButton, Txt, money, plural, prettyDate } from '../ui/kit';
+import { GatewayPicker, chosenGateway } from '../ui/gateway';
 import { CheckRow, Choice, Field } from '../ui/inputs';
 import { Nav } from '../nav';
 
@@ -59,7 +60,7 @@ export default function ReserveScreen() {
       const ref = text(r, 'ref');
       AppState.bump();
       if (text(r, 'next') === 'payment') {
-        const pay = await Api.post('payments', { ref, kind: payAdvance && !walletOn ? 'advance' : 'full', use_wallet: walletOn });
+        const pay = await Api.post('payments', { ref, kind: payAdvance && !walletOn ? 'advance' : 'full', use_wallet: walletOn, gateway: chosenGateway() });
         Nav.replace(`booking/${ref}`);
         if (!bool(pay, 'paid')) {   // paid = the wallet covered all of it
           AppState.set({ payment: { action: text(pay, 'action'), fields: obj(pay, 'fields') || {}, title: 'Pay securely' } });
@@ -141,6 +142,7 @@ export default function ReserveScreen() {
         <CheckRow text="I accept the house rules and the cancellation policy" checked={agree} onChange={setAgree} />
         {err ? <><Gap h={6} /><Notice text={err} tone="bad" /></> : null}
         <Gap />
+        {!isRequest ? <GatewayPicker /> : null}
         <PrimaryButton text={isRequest ? 'Send request' : 'Book and pay'} onPress={submit} loading={busy} />
         {!isRequest ? <Txt k="bodySmall" color={Brand.Muted} style={{ marginTop: 8 }}>You pay on the secure PayU / Razorpay page. The booking is confirmed when the payment succeeds.</Txt> : null}
       </ScrollView>

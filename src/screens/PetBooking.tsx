@@ -7,6 +7,7 @@ import { J, arr, bool, int, num, obj, objs, priceLines, str, text } from '../cor
 import { Picked, pickPhotos, uploadOf } from '../core/files';
 import { Brand } from '../theme';
 import { BackBar, Card, ErrorBox, Gap, KeyValue, LinkButton, Loading, Notice, OutlineButton, Photo, Pill, PriceTable, PrimaryButton, SectionTitle, StarPicker, Stars, Txt, dateTime, money, plural, prettyDate } from '../ui/kit';
+import { GatewayPicker, chosenGateway } from '../ui/gateway';
 import { Field } from '../ui/inputs';
 import { Dialog, dial } from '../ui/sheets';
 import { petEmoji } from '../ui/petcards';
@@ -46,7 +47,7 @@ export default function PetBookingScreen() {
 
   const pay = async () => {
     setBusy(true); setMsg(null);
-    try { const p = await Api.post(`pets/bookings/${ref}/pay`); AppState.set({ payment: { action: text(p, 'action'), fields: obj(p, 'fields') || {}, title: 'Pay securely' } }); Nav.navigate('pay'); }
+    try { const p = await Api.post(`pets/bookings/${ref}/pay`, { gateway: chosenGateway() }); AppState.set({ payment: { action: text(p, 'action'), fields: obj(p, 'fields') || {}, title: 'Pay securely' } }); Nav.navigate('pay'); }
     catch (e) { setMsg(errorText(e)); }
     setBusy(false);
   };
@@ -96,6 +97,7 @@ export default function PetBookingScreen() {
             <Txt k="headlineSmall" color={Brand.BlueDark}>{money(num(b, 'pay_now'))}</Txt>
             {str(b, 'hold_until') && status === 'awaiting_payment' ? <Txt k="bodySmall" color={Brand.Warn}>Pay by {dateTime(str(b, 'hold_until'))} to keep the place.</Txt> : null}
             <Gap h={8} />
+            <GatewayPicker />
             <PrimaryButton text={`Pay ${money(num(b, 'pay_now'))}`} onPress={pay} loading={busy} />
           </Card></>
         ) : null}

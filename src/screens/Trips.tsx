@@ -8,12 +8,12 @@ import { AppState, useAppState, useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, text } from '../core/json';
 import { Brand, RedBar } from '../theme';
 import { BackBar, Card, EmptyBox, ErrorBox, Gap, Icon, KeyValue, LinkButton, Loading, Notice, OutlineButton, Photo, Pill, PriceTable, PrimaryButton, SectionTitle, StarPicker, Txt, dateTime, money, plural, prettyDate, shareLink, shortDate, st, today } from '../ui/kit';
+import { GatewayPicker, chosenGateway } from '../ui/gateway';
 import { CheckRow, Field } from '../ui/inputs';
 import { Dialog, dial } from '../ui/sheets';
 import { Nav, enc, useParams } from '../nav';
 import { GroupTripsList } from './Groups';
 import { TicketsList } from './Tickets';
-import { SavedPlansList } from './Planner';
 
 type Trip = { ref: string; pet: boolean; title: string; image: string | null; checkIn: string; checkOut: string; status: string; statusLabel: string; tone: string; sub: string };
 
@@ -40,11 +40,10 @@ export default function TripsScreen() {
 }
 
 function TripsList({ tab, setTab, l }: { tab: number; setTab: (n: number) => void; l: ReturnType<typeof useLoader<[J, J] | null>> }) {
-  // chips in the order people use them: their named trips first, then bookings, tickets, route plans
-  const tabs: [number, string][] = [[5, 'My trips'], [0, 'Upcoming'], [1, 'Staying now'], [2, 'Completed'], [3, 'Cancelled'], [6, 'Tickets'], [4, 'Route plans']];
+  // chips in the order people use them: their named trips first, then bookings and tickets
+  const tabs: [number, string][] = [[5, 'My trips'], [0, 'Upcoming'], [1, 'Staying now'], [2, 'Completed'], [3, 'Cancelled'], [6, 'Tickets']];
   let body: React.ReactNode;
-  if (tab === 4) body = <SavedPlansList />;
-  else if (tab === 5) body = <GroupTripsList />;
+  if (tab === 5) body = <GroupTripsList />;
   else if (tab === 6) body = <TicketsList />;
   else if (!l.data && l.loading) body = <Loading />;
   else if (!l.data) body = <ErrorBox message={l.error || 'Could not load your trips.'} onRetry={l.reload} />;
@@ -119,7 +118,7 @@ export function BookingScreen() {
     setBusy(true); setMsg(null);
     const withWallet = useWallet && (num(obj(b, 'wallet'), 'usable') || 0) > 0;
     try {
-      const p = await Api.post('payments', { ref, kind: withWallet ? 'full' : kind, use_wallet: withWallet });
+      const p = await Api.post('payments', { ref, kind: withWallet ? 'full' : kind, use_wallet: withWallet, gateway: chosenGateway() });
       if (bool(p, 'paid')) { setMsg(text(p, 'message')); AppState.bump(); }   // the wallet paid all of it
       else { AppState.set({ payment: { action: text(p, 'action'), fields: obj(p, 'fields') || {}, title: 'Pay securely' } }); Nav.navigate('pay'); }
     } catch (e) { setMsg(errorText(e)); }
@@ -176,6 +175,7 @@ export function BookingScreen() {
         <Gap />
         {bool(b, 'can_pay') && (num(b, 'balance') || 0) > 0 ? (
           <View style={{ marginBottom: 8 }}>
+            <GatewayPicker />
             {text(b, 'status') === 'confirmed' ? <PrimaryButton text={`Pay the balance · ${money(num(b, 'balance'))}`} onPress={() => pay('balance')} loading={busy} /> : (
               <>
                 {usable > 0 ? (

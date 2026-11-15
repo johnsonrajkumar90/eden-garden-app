@@ -39,32 +39,14 @@ export function PetHostCard({ c, compact, onPress }: { c: J; compact?: boolean; 
   );
 }
 
-import { Text } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { RefundTag, isRefundable } from './cards';
+import { GlassListingCard, T_REFUND, T_VERIFIED, isRefundable } from './cards';
 
-/** A pet host as a grid card: photo, rating, pets they take and the price. */
+/** A pet host as a grid card: the glass listing card. */
 export function PetGridCard({ c, onPress }: { c: J; onPress: () => void }) {
-  const r = num(c, 'rating');
   const free = c.free === undefined || c.free === null ? null : int(c, 'free');
+  const tags = [...(bool(c, 'verified') ? [T_VERIFIED] : []), ...(isRefundable(c) && c.refundable === true ? [T_REFUND] : [])];
   return (
-    <Press onPress={onPress} style={{ borderRadius: 22, backgroundColor: '#fff', elevation: 5, shadowColor: '#1A1410', shadowOpacity: 0.16, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }} accessibilityLabel={text(c, 'title')}>
-      <View style={{ borderTopLeftRadius: 22, borderTopRightRadius: 22, overflow: 'hidden' }}>
-        <Photo url={str(c, 'image')} corner={0} style={{ width: '100%', aspectRatio: 0.95 }} />
-        <LinearGradient colors={['transparent', '#300A1099']} locations={[0.55, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-        <View style={{ position: 'absolute', top: 8, left: 8, gap: 4 }}>
-          {bool(c, 'verified') ? <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: '#fff', paddingHorizontal: 8, paddingVertical: 3 }}><Txt k="labelSmall" color={Brand.TealDark}>✓ Verified</Txt></View> : null}
-          <RefundTag refundable={isRefundable(c)} />
-        </View>
-        <Text style={{ position: 'absolute', left: 10, bottom: 10, fontSize: 16 }}>{strings(c, 'pet_types').map((t) => petEmoji[t] || '🐾').join('')}</Text>
-        {r && r > 0 ? <Txt k="labelMedium" color="#fff" style={{ position: 'absolute', right: 10, bottom: 10 }}>★ {r.toFixed(1)}</Txt> : null}
-      </View>
-      <View style={{ paddingHorizontal: 11, paddingTop: 9, paddingBottom: 12 }}>
-        <Txt k="titleSmall" numberOfLines={1}>{text(c, 'title')}</Txt>
-        <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1}>{text(c, 'location')}</Txt>
-        <View style={[st.row, { alignItems: 'flex-end', marginTop: 6 }]}><Txt k="titleSmall" bold color={Brand.BlueDark}>{money(num(c, 'price'))}</Txt><Txt k="labelMedium" color={Brand.Muted}> /night</Txt></View>
-        {free !== null ? <Txt k="labelSmall" color={free > 0 ? Brand.TealDark : Brand.Warn}>{free > 0 ? `${free} free for your dates` : 'Full for your dates'}</Txt> : null}
-      </View>
-    </Press>
+    <GlassListingCard image={str(c, 'image')} title={text(c, 'title')} place={text(c, 'location')} price={money(num(c, 'price'))} unit={'/night · ' + strings(c, 'pet_types').map((t) => petEmoji[t] || '🐾').join('')}
+      tags={tags} rating={num(c, 'rating')} note={free !== null ? (free > 0 ? `${free} free for your dates` : 'Full for your dates') : null} noteTone={free === 0 ? 'warn' : 'ok'} onPress={onPress} />
   );
 }

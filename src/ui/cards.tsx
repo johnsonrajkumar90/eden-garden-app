@@ -17,11 +17,76 @@ export const SUN_GRAD = ['#FFD54A', '#FFC22E', '#FFA81F'] as const;
 export const isRefundable = (p: J) => !(p && p.refundable !== undefined && p.refundable !== null && p.refundable === false);
 
 export function RefundTag({ refundable }: { refundable: boolean }) {
-  return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: refundable ? '#0B6B3AE6' : '#1E2A44E6', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold color="#fff">{refundable ? 'Refundable' : 'Non-refundable'}</Txt></View>;
+  // only refundable listings carry a tag (the host or admin switches it on); non-refundable ones show nothing
+  if (!refundable) return null;
+  return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: '#0B6B3AE6', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold color="#fff">Refundable</Txt></View>;
 }
 export function OverlayTag({ text: t }: { text: string }) {
   return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" semi>{t}</Txt></View>;
 }
+type Tag = { text: string; bg: string; fg: string; icon?: string };
+const T_VERIFIED: Tag = { text: 'Verified', bg: '#FFFFFFF2', fg: '#0B6B3A', icon: 'verified' };
+const T_REFUND: Tag = { text: 'Refundable', bg: '#0B6B3AE6', fg: '#fff' };
+const T_PROPERTY: Tag = { text: 'Pay at property', bg: Brand.Sun, fg: Brand.Ink, icon: 'payments' };
+
+function TagChip({ t }: { t: Tag }) {
+  return (
+    <View style={[st.row, { alignSelf: 'flex-start', borderRadius: 50, backgroundColor: t.bg, paddingHorizontal: 8, paddingVertical: 3.5 }]}>
+      {t.icon ? <Icon name={t.icon} size={12} color={t.fg} style={{ marginRight: 3 }} /> : null}
+      <Txt k="labelSmall" bold color={t.fg}>{t.text}</Txt>
+    </View>
+  );
+}
+
+/**
+ * The listing card (stays, resorts, pet hosts): a tall photo with a frosted-glass label floating on it — name, place and
+ * the price on a red pill; tags on the photo (verified, refundable, pay at property, offer) and the rating in a glass chip.
+ */
+export function GlassListingCard({ image, title, place, price, unit, was, tags, rating, offer, note, noteTone, onPress, wide }: {
+  image?: string | null; title: string; place: string; price: string | null; unit: string; was?: string | null; tags: Tag[]; rating?: number | null;
+  offer?: string | null; note?: string | null; noteTone?: 'ok' | 'warn'; onPress: () => void; wide?: boolean;
+}) {
+  return (
+    <Press onPress={onPress} scaleTo={0.975} style={[st.glass, { borderRadius: 28, padding: 6 }]} accessibilityLabel={`${title}, ${place}${price ? ', ' + price + ' ' + unit : ''}`}>
+      <View style={{ borderRadius: 23, overflow: 'hidden', aspectRatio: wide ? 1.35 : 0.78, backgroundColor: Brand.Field }}>
+        <Photo url={image} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} label={title} />
+        <LinearGradient pointerEvents="none" colors={['#00000040', 'transparent', 'transparent']} locations={[0, 0.3, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+        <View style={{ position: 'absolute', top: 8, left: 8, right: 52, gap: 4 }}>{tags.map((t, i) => <TagChip key={i} t={t} />)}</View>
+        {rating && rating > 0 ? (
+          <View style={[st.row, { position: 'absolute', top: 8, right: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 7, paddingVertical: 3.5 }]}>
+            <Icon name="star" size={13} color={Brand.SunDark} /><Txt k="labelSmall" bold> {rating.toFixed(1)}</Txt>
+          </View>
+        ) : null}
+        {offer ? <View style={{ position: 'absolute', right: 8, top: rating && rating > 0 ? 36 : 8, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 3.5 }}><Txt k="labelSmall" bold color={Brand.Ink}>{offer}</Txt></View> : null}
+        {/* the frosted label */}
+        <View style={{ position: 'absolute', left: 6, right: 6, bottom: 6, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.9)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', paddingHorizontal: 10, paddingVertical: 8 }}>
+          <Txt k={wide ? 'titleMedium' : 'titleSmall'} numberOfLines={1}>{title}</Txt>
+          <View style={[st.row, { marginTop: 1 }]}><Icon name="place" size={12} color={Brand.Blue} /><Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ flex: 1 }}> {place}</Txt></View>
+          {price ? (
+            <View style={[st.row, { marginTop: 6, flexWrap: 'wrap' }]}>
+              <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 9, paddingVertical: 3 }}><Txt k="labelMedium" bold color="#fff">{price}</Txt></View>
+              <Txt k="labelSmall" color={Brand.Muted}> {unit}</Txt>
+              {was ? <Txt k="labelSmall" color={Brand.Muted} style={{ textDecorationLine: 'line-through', marginLeft: 4 }}>{was}</Txt> : null}
+            </View>
+          ) : null}
+          {note ? <Txt k="labelSmall" color={noteTone === 'warn' ? Brand.Warn : '#0B6B3A'} numberOfLines={1} style={{ marginTop: 3 }}>{note}</Txt> : null}
+        </View>
+      </View>
+    </Press>
+  );
+}
+
+/** The tags for a stay or resort card. */
+export function listingTags(p: J): Tag[] {
+  const badges = obj(p, 'badges') || {};
+  const out: Tag[] = [];
+  if (bool(badges, 'sponsored')) out.push({ text: 'Sponsored', bg: '#000000AA', fg: '#fff' });
+  if (bool(badges, 'verified')) out.push(T_VERIFIED);
+  if (p && p.refundable === true) out.push(T_REFUND);
+  if (bool(p, 'pay_at_property')) out.push(T_PROPERTY);
+  return out.slice(0, 3);
+}
+export { T_VERIFIED, T_REFUND, T_PROPERTY };
 
 /** A gentle, endless float (icons and badges that should catch the eye). */
 export function Floaty({ children, distance = 6, ms = 1800, style }: { children: ReactNode; distance?: number; ms?: number; style?: StyleProp<ViewStyle> }) {
@@ -85,94 +150,32 @@ export function GridRow({ row, index, open = openProperty }: { row: J[]; index: 
 }
 export const chunk = <T,>(a: T[], n = 2) => { const out: T[][] = []; for (let i = 0; i < a.length; i += n) out.push(a.slice(i, i + n)); return out; };
 
-/** A stay or resort as a tall grid card: photo with rating and tags, place, name and the honest price. */
+/** A stay or resort as a tall grid card (glass label on the photo). */
 export function GridPropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
-  const price = obj(p, 'price') || {}; const badges = obj(p, 'badges') || {};
+  const price = obj(p, 'price') || {};
   const offer = num(price, 'offer_nightly'); const nightly = num(price, 'nightly'); const total = obj(price, 'total');
-  const rating = num(p, 'rating');
   const bookable = bool(p, 'bookable') || p.bookable === undefined;
   return (
-    <Press onPress={onPress} style={[st.card, { borderRadius: 26, padding: 6 }]} accessibilityLabel={text(p, 'title')}>
-      <View style={{ borderTopLeftRadius: 72, borderTopRightRadius: 72, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, overflow: 'hidden' }}>
-        <Photo url={str(p, 'image')} corner={0} style={{ width: '100%', aspectRatio: 0.92 }} label={text(p, 'title')} />
-        <LinearGradient colors={['transparent', '#00000080']} locations={[0.6, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-        <View style={{ position: 'absolute', top: 30, left: 8, gap: 4 }}>
-          {bool(badges, 'sponsored') ? <OverlayTag text="Sponsored" /> : null}
-          {bool(badges, 'favourite') ? <OverlayTag text="★ Favourite" /> : null}
-          <RefundTag refundable={isRefundable(p)} />
-        </View>
-        {offer !== null && nightly !== null && offer < nightly ? (
-          <LinearGradient colors={SUN_GRAD as any} style={{ position: 'absolute', bottom: 10, right: 8, borderRadius: 50, paddingHorizontal: 8, paddingVertical: 4 }}>
-            <Txt k="labelSmall" bold color={Brand.SunInk}>{Math.round((1 - offer / nightly) * 100)}% OFF</Txt>
-          </LinearGradient>
-        ) : null}
-        <View style={[st.row, { position: 'absolute', left: 10, bottom: 10 }]}>
-          {rating && rating > 0 ? <><Icon name="star" size={15} color={Brand.Sun} /><Txt k="labelMedium" bold color="#fff"> {rating.toFixed(1)}</Txt></> : null}
-          {bool(badges, 'verified') ? <Icon name="verified" size={15} color="#fff" style={{ marginLeft: 6 }} /> : null}
-        </View>
-      </View>
-      <View style={{ paddingHorizontal: 8, paddingTop: 10, paddingBottom: 8 }}>
-        <Txt k="titleSmall" numberOfLines={1}>{text(p, 'title')}</Txt>
-        <View style={[st.row, { marginTop: 2 }]}>
-          <Icon name="place" size={13} color={Brand.Muted} />
-          <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1} style={{ flex: 1 }}> {str(p, 'area') || str(p, 'location') || ''}</Txt>
-        </View>
-        {bookable ? (
-          <>
-            <View style={[st.row, { alignItems: 'flex-end', marginTop: 6 }]}>
-              {total ? <><Txt k="titleSmall" bold color={Brand.Ink}>{money(num(total, 'amount'))}</Txt><Txt k="labelMedium" color={Brand.Muted}> · {int(total, 'nights')}n</Txt></>
-                : <><Txt k="titleSmall" bold color={Brand.Ink}>{money(offer ?? nightly)}</Txt><Txt k="labelMedium" color={Brand.Muted}> /night</Txt></>}
-            </View>
-            {!total && offer !== null && nightly !== null && offer < nightly ? <Txt k="labelMedium" color={Brand.Muted} style={{ textDecorationLine: 'line-through' }}>{money(nightly)}</Txt> : null}
-          </>
-        ) : <Txt k="labelMedium" color={Brand.Warn} style={{ marginTop: 6 }}>Not taking bookings</Txt>}
-      </View>
-    </Press>
+    <GlassListingCard image={str(p, 'image')} title={text(p, 'title')} place={str(p, 'area') || str(p, 'location') || ''}
+      price={!bookable ? null : total ? money(num(total, 'amount')) : money(offer ?? nightly)} unit={total ? `· ${int(total, 'nights')}n` : '/night'}
+      was={!total && offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
+      offer={offer !== null && nightly !== null && offer < nightly ? `${Math.round((1 - offer / nightly) * 100)}% OFF` : null}
+      tags={listingTags(p)} rating={num(p, 'rating')} note={!bookable ? 'Not taking bookings' : null} noteTone="warn" onPress={onPress} />
   );
 }
 
-/** A stay or resort in a list (full width): photo, badges, place, rating and the honest price. */
+/** A stay or resort in a list (full width): the same glass card, wider. */
 export function PropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
-  const price = obj(p, 'price') || {}; const badges = obj(p, 'badges') || {};
+  const price = obj(p, 'price') || {};
   const offer = num(price, 'offer_nightly'); const nightly = num(price, 'nightly'); const total = obj(price, 'total');
-  const rating = num(p, 'rating');
   const bookable = bool(p, 'bookable') || p.bookable === undefined;
   return (
     <Appear style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-      <Press onPress={onPress} style={[st.card, { borderRadius: 28, padding: 6 }]}>
-        <View>
-          <Photo url={str(p, 'image')} corner={22} style={{ width: '100%', aspectRatio: 1.55 }} label={text(p, 'title')} />
-          <View style={{ position: 'absolute', top: 12, left: 12, flexDirection: 'row', gap: 6 }}>
-            {bool(badges, 'sponsored') ? <OverlayTag text="Sponsored" /> : null}
-            {bool(badges, 'favourite') ? <OverlayTag text="★ Guest favourite" /> : null}
-            <RefundTag refundable={isRefundable(p)} />
-          </View>
-          {rating && rating > 0 ? (
-            <View style={[st.row, { position: 'absolute', right: 12, bottom: 12, borderRadius: 50, backgroundColor: '#fff', paddingHorizontal: 10, paddingVertical: 5 }]}>
-              <Icon name="star" size={15} color={Brand.Star} /><Txt k="labelMedium" bold> {rating.toFixed(1)}</Txt>
-              {int(p, 'reviews') > 0 ? <Txt k="labelMedium" color={Brand.Muted}> ({int(p, 'reviews')})</Txt> : null}
-            </View>
-          ) : null}
-        </View>
-        <View style={{ paddingHorizontal: 10, paddingVertical: 12 }}>
-          <View style={st.row}><Icon name="place" size={15} color={Brand.Muted} /><Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1} style={{ flex: 1, marginLeft: 4 }}>{[str(p, 'area'), str(p, 'location')].filter(Boolean).join(', ')}</Txt></View>
-          <Txt k="titleLarge" numberOfLines={2} style={{ marginTop: 4 }}>{text(p, 'title')}</Txt>
-          <View style={[st.row, { marginTop: 2 }]}>
-            <Txt k="bodySmall" color={Brand.Muted}>{[str(p, 'type'), p.max_guests ? `up to ${p.max_guests} guests` : null].filter(Boolean).join(' · ')}</Txt>
-            {bool(badges, 'verified') ? <><Icon name="verified" size={14} color={Brand.Teal} style={{ marginLeft: 8 }} /><Txt k="bodySmall" color={Brand.Teal}> Verified</Txt></> : null}
-          </View>
-          {bookable ? (
-            <>
-              <View style={[st.row, { alignItems: 'flex-end', marginTop: 8 }]}>
-                {total ? <><Txt k="titleMedium" bold color={Brand.Ink}>{money(num(total, 'amount'))}</Txt><Txt k="bodySmall" color={Brand.Muted}>  for {int(total, 'nights')} nights</Txt></> : <>
-                  {offer !== null && nightly !== null && offer < nightly ? <Txt k="bodySmall" color={Brand.Muted} style={{ textDecorationLine: 'line-through', marginRight: 6 }}>{money(nightly)}</Txt> : null}
-                  <Txt k="titleMedium" bold color={Brand.Ink}>{(bool(price, 'from') ? 'from ' : '') + money(offer ?? nightly)}</Txt><Txt k="bodySmall" color={Brand.Muted}> / night</Txt></>}
-              </View>
-              {str(p, 'cancellation') ? <Txt k="bodySmall" color={isRefundable(p) ? Brand.TealDark : '#0B3D91'} style={{ marginTop: 2 }}>{str(p, 'cancellation')}</Txt> : null}
-            </>
-          ) : <Txt k="bodySmall" color={Brand.Warn} style={{ marginTop: 6 }}>Not taking bookings right now</Txt>}
-        </View>
-      </Press>
+      <GlassListingCard wide image={str(p, 'image')} title={text(p, 'title')} place={[str(p, 'area'), str(p, 'location')].filter(Boolean).join(', ')}
+        price={!bookable ? null : total ? money(num(total, 'amount')) : (bool(price, 'from') ? 'from ' : '') + money(offer ?? nightly)}
+        unit={total ? `for ${int(total, 'nights')} nights` : '/ night'} was={!total && offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
+        offer={offer !== null && nightly !== null && offer < nightly ? `${Math.round((1 - offer / nightly) * 100)}% OFF` : null}
+        tags={listingTags(p)} rating={num(p, 'rating')} note={!bookable ? 'Not taking bookings right now' : str(p, 'cancellation')} noteTone={!bookable ? 'warn' : 'ok'} onPress={onPress} />
     </Appear>
   );
 }

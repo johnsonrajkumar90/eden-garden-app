@@ -1,4 +1,4 @@
-// TripArro colours and type. The look: light pages, white cards, the logo's coral arch, sun-yellow highlights.
+// TripArro colours and type. The look: frosted white glass over a warm white page lit with red and sun-yellow, red actions, yellow highlights.
 import { TextStyle } from 'react-native';
 
 export const Brand = {
@@ -7,7 +7,7 @@ export const Brand = {
   Teal: '#00875A', TealDark: '#00704A', TealSoft: '#E5F6EE',
   Coral: '#FF5757', CoralDark: '#D93338',
   Page: '#F7F6F4', Sky: '#FFEDEB', Ink: '#161616', InkSoft: '#3F3F46', Muted: '#6E6E76', Line: '#ECEAE6',
-  Card: '#FFFFFF', Field: '#F1F0EE',
+  Card: '#FFFFFF', Field: 'rgba(255,255,255,0.78)', Glass: 'rgba(255,255,255,0.72)', GlassLine: 'rgba(255,255,255,0.95)',
   Warn: '#A35C00', WarnSoft: '#FFF3DF', Danger: '#C62828', DangerSoft: '#FDECEC', Star: '#E0A800',
   Night: '#15161C', NightPlum: '#241A2A',
 };

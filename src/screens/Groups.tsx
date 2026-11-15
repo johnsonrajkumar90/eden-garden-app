@@ -7,7 +7,9 @@ import { Linking, Platform, Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT, Callout } from 'react-native-maps';
-import { Api, errorText } from '../core/api';
+import { Api, Upload, errorText } from '../core/api';
+import { Image } from 'expo-image';
+import { Picked, pickPhoto, uploadOf } from '../core/files';
 import { AppState, useAppState, useLoader, useSession } from '../core/state';
 import { J, arr, bool, int, num, obj, objs, str, text } from '../core/json';
 import { Brand } from '../theme';
@@ -16,7 +18,6 @@ import { DateRangeSheet, Field } from '../ui/inputs';
 import { Dialog, copyText } from '../ui/sheets';
 import { HubTabs, MakeTripCard, TripCard, TripCover } from './GroupsUi';
 import { BoardingPass, TicketsList, kindIcon } from './Tickets';
-import { SavedPlansList } from './Planner';
 import { LiveSpot, PlaceSource } from './TripExtras';
 import { Nav, useParams } from '../nav';
 
@@ -341,7 +342,7 @@ export function GroupMap({ g, tall }: { g: J; tall: boolean }) {
   );
 }
 
-export function GroupItem({ item, toggle, del }: { item: J; toggle: () => void; del: () => void }) {
+export function GroupItem({ item, toggle, del, edit }: { item: J; toggle: () => void; del: () => void; edit?: () => void }) {
   const kind = text(item, 'kind');
   if (kind === 'ticket') {   // a member's travel ticket, as a boarding pass
     const t = obj(item, 'ticket'); if (!t) return null;
@@ -359,11 +360,12 @@ export function GroupItem({ item, toggle, del }: { item: J; toggle: () => void; 
     if (kind === 'booking' && b) Nav.navigate(`property/${text(b, 'kind')}/${int(b, 'listing_id')}`);
     else if (kind === 'plan' && p && bool(p, 'owner')) Nav.navigate(`tripplan/${int(p, 'id')}`);
     else if (kind === 'place') { const c = arr<number>(item, 'coords'); if (c.length === 2) openGroupUrl(`https://www.google.com/maps/search/?api=1&query=${c[0]},${c[1]}`); }
-    else if (kind === 'todo') toggle();
+    else if (kind === 'todo' && bool(item, 'can_edit')) toggle();
   };
   return (
     <Pressable onPress={onPress} style={[st.row, { marginBottom: 8, borderRadius: 16, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, padding: 12 }]}>
       {kind === 'booking' ? <Photo url={str(b, 'image')} corner={12} style={{ width: 64, height: 64 }} />
+        : str(item, 'photo') ? <Photo url={str(item, 'photo')} corner={12} style={{ width: 64, height: 64 }} />
         : <Icon name={kind === 'todo' ? (bool(item, 'done') ? 'check-box' : 'check-box-outline-blank') : kind === 'place' ? 'place' : kind === 'plan' ? 'route' : 'description'} color={kind === 'place' ? Brand.Coral : kind === 'note' ? Brand.Muted : Brand.Blue} />}
       <View style={{ flex: 1, paddingLeft: 12 }}>
         {kind === 'booking' && b ? (
@@ -381,48 +383,79 @@ export function GroupItem({ item, toggle, del }: { item: J; toggle: () => void; 
           <>
             <Txt k="titleSmall" style={kind === 'todo' && bool(item, 'done') ? { textDecorationLine: 'line-through' } : undefined}>{text(item, 'title')}</Txt>
             {str(item, 'body') ? <Txt k="bodySmall" color={Brand.InkSoft}>{str(item, 'body')}</Txt> : null}
+            {str(item, 'address') && kind === 'place' ? <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1}>{str(item, 'address')}</Txt> : null}
             {str(item, 'day') ? <Txt k="labelSmall" color={Brand.Blue}>{prettyDay(str(item, 'day'))}</Txt> : null}
           </>
         )}
         <Txt k="labelSmall" color={Brand.Muted}>by {text(item, 'by')}</Txt>
       </View>
+      {edit && bool(item, 'can_edit') && ['place', 'note', 'todo'].includes(kind) ? <Pressable onPress={edit} style={{ padding: 8 }} accessibilityLabel="Change"><Icon name="edit" color={Brand.Muted} /></Pressable> : null}
       {bool(item, 'can_delete') ? <Pressable onPress={del} style={{ padding: 8 }} accessibilityLabel="Delete"><Icon name="delete-outline" color={Brand.Muted} /></Pressable> : null}
     </Pressable>
   );
 }
 
 /** Add to the plan: share a booking or a saved trip plan, or add a place, a note or a to-do. */
-export function AddToGroup({ id, done }: { id: number; done: (g: J) => void }) {
-  const [kind, setKind] = useState('place');
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [day, setDay] = useState('');
-  const [place, setPlace] = useState<J | null>(null);
+/**
+ * Add to the plan (or change something already in it, when `item` is given): a place (where you are now, or found on the
+ * map), a to-do or a note — each with a day from the calendar and a photo if you like; or share one of your bookings or tickets.
+ * Whatever is added is posted to the trip's feed by itself.
+ */
+export function AddToGroup({ id, done, item }: { id: number; done: (g: J) => void; item?: J | null }) {
+  const editing = !!item;
+  const [kind, setKind] = useState(item ? text(item, 'kind') : 'place');
+  const [title, setTitle] = useState(item ? text(item, 'title') : '');
+  const [body, setBody] = useState(item ? text(item, 'body') : '');
+  const [day, setDay] = useState(item ? text(item, 'day') : '');
+  const [dayOpen, setDayOpen] = useState(false);
+  const coords = item ? arr<number>(item, 'coords') : [];
+  const [place, setPlace] = useState<J | null>(coords.length === 2 ? { name: text(item, 'address') || text(item, 'title'), lat: coords[0], lng: coords[1], address: text(item, 'address') } : null);
+  const [changePlace, setChangePlace] = useState(!editing);
   const [here, setHere] = useState(true);        // a place: where you are now (live location), or a search
   const [autoName, setAutoName] = useState('');  // the name Google gave, replaced when another place is picked
+  const [photo, setPhoto] = useState<Picked | null>(null);
+  const [dropPhoto, setDropPhoto] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const share = useLoader(() => Api.get(`trip-groups/${id}/shareable`), [id]);
+  const share = useLoader(() => (editing ? Promise.resolve({}) : Api.get(`trip-groups/${id}/shareable`)), [id]);
   const post = async (b: Record<string, any>) => { setBusy(true); setErr(null); try { done(await Api.post(`trip-groups/${id}/items`, b)); } catch (e) { setErr(errorText(e)); } setBusy(false); };
   const s = share.data;
-  const list = objs(s, kind === 'booking' ? 'bookings' : kind === 'ticket' ? 'tickets' : 'plans');
+  const list = objs(s, kind === 'booking' ? 'bookings' : 'tickets');
+  const oldPhoto = item ? str(item, 'photo') : null;
+  const save = async () => {
+    setBusy(true); setErr(null);
+    try {
+      const f: [string, string][] = [['kind', kind], ['title', title], ['body', body], ['day', day]];
+      if (place && num(place, 'lat') !== null) f.push(['lat', String(num(place, 'lat'))], ['lng', String(num(place, 'lng'))], ['address', text(place, 'address') || text(place, 'name')]);
+      else if (editing && kind === 'place' && changePlace) f.push(['lat', ''], ['lng', '']);
+      if (dropPhoto && !photo) f.push(['remove_photo', '1']);
+      const files: Upload[] = photo ? [await uploadOf('photo', photo, 'plan')] : [];
+      done(await Api.postMultipart(editing ? `trip-groups/${id}/items/${int(item, 'id')}/edit` : `trip-groups/${id}/items`, f, files));
+    } catch (e) { setErr(errorText(e)); }
+    setBusy(false);
+  };
+  const shownPhoto = photo ? photo.uri : !dropPhoto ? oldPhoto : null;
   return (
     <View>
-      <Txt k="titleLarge">Add to the plan</Txt>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 10 }}>
-        {[['place', 'Place'], ['booking', 'My booking'], ['ticket', 'My ticket'], ['plan', 'My trip plan'], ['todo', 'To-do'], ['note', 'Note']].map(([v, t]) => (
-          <Pressable key={v} onPress={() => { setKind(v); setErr(null); }} style={{ borderRadius: 50, backgroundColor: kind === v ? Brand.Blue : Brand.Sky, paddingHorizontal: 14, paddingVertical: 8 }}><Txt k="labelLarge" color={kind === v ? '#fff' : Brand.InkSoft}>{t}</Txt></Pressable>
-        ))}
-      </ScrollView>
+      <Txt k="titleLarge">{editing ? 'Change ' + (kind === 'todo' ? 'to-do' : kind) : 'Add to the plan'}</Txt>
+      {!editing ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 10 }}>
+          {[['place', 'Place', 'place'], ['todo', 'To-do', 'checklist'], ['note', 'Note', 'description'], ['booking', 'My booking', 'hotel'], ['ticket', 'My ticket', 'confirmation-number']].map(([v, t, ic]) => (
+            <Pressable key={v} onPress={() => { setKind(v); setErr(null); }} style={[st.row, { borderRadius: 50, backgroundColor: kind === v ? Brand.Ink : '#fff', borderWidth: 1, borderColor: kind === v ? Brand.Ink : Brand.Line, paddingHorizontal: 14, paddingVertical: 9 }]}>
+              <Icon name={ic} size={17} color={kind === v ? Brand.Sun : Brand.InkSoft} /><Txt k="labelLarge" color={kind === v ? '#fff' : Brand.InkSoft}> {t}</Txt>
+            </Pressable>
+          ))}
+        </ScrollView>
+      ) : <Gap h={10} />}
       {err ? <><Notice text={err} tone="bad" /><Gap h={8} /></> : null}
-      {['booking', 'plan', 'ticket'].includes(kind) ? (
+      {['booking', 'ticket'].includes(kind) ? (
         <>
-          {!s && share.loading ? <Loading /> : !list.length ? <Txt color={Brand.Muted}>{kind === 'booking' ? 'You have no upcoming stay or resort bookings to share.' : kind === 'ticket' ? 'No tickets yet — add them in My trips → Tickets (from Gmail or by hand).' : 'You have no saved trip plans yet — make one in the Travel planner.'}</Txt>
+          {!s && share.loading ? <Loading /> : !list.length ? <Txt color={Brand.Muted}>{kind === 'booking' ? 'You have no upcoming stay or resort bookings to share.' : 'No tickets yet — add them in My trips → Tickets (from Gmail or by hand).'}</Txt>
             : list.map((x, i) => (
-              <Pressable key={i} disabled={busy} onPress={() => post({ kind, ref: text(x, 'ref') })} style={[st.row, { marginVertical: 4, borderRadius: 14, borderWidth: 1, borderColor: Brand.Line, padding: 12 }]}>
-                <Icon name={kind === 'booking' ? 'hotel' : kind === 'ticket' ? kindIcon(text(x, 'kind')) : 'route'} color={Brand.Blue} />
+              <Pressable key={i} disabled={busy} onPress={() => post({ kind, ref: text(x, 'ref') })} style={[st.row, { marginVertical: 4, borderRadius: 18, borderWidth: 1, borderColor: Brand.Line, backgroundColor: '#fff', padding: 12 }]}>
+                <Icon name={kind === 'booking' ? 'hotel' : kindIcon(text(x, 'kind'))} color={Brand.Blue} />
                 <View style={{ flex: 1, paddingLeft: 10 }}><Txt k="titleSmall">{text(x, 'title')}</Txt>{str(x, 'dates') ? <Txt k="bodySmall" color={Brand.InkSoft}>{str(x, 'dates')}</Txt> : null}</View>
-                <Txt bold color={Brand.Coral}>Share</Txt>
+                <Txt bold color={Brand.Blue}>Share</Txt>
               </Pressable>
             ))}
           {kind === 'booking' ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 8 }}>The group sees the stay, dates and number of guests — not the price or your contact details.</Txt> : null}
@@ -430,37 +463,64 @@ export function AddToGroup({ id, done }: { id: number; done: (g: J) => void }) {
       ) : (
         <>
           {kind === 'place' ? (
-            <>
-              <PlaceSource here={here} onHere={(v) => { setHere(v); setPlace(null); if (title === autoName) setTitle(''); setAutoName(''); }} />
-              <Gap h={10} />
-              {here ? <LiveSpot onSpot={(n, la, ln) => { setPlace({ name: n, lat: la, lng: ln }); setTitle((t) => { if (!t || t === autoName) { setAutoName(n); return n; } return t; }); }} />
-                : <PlacePicker label="Find the place on the map" chosen={place} onChoose={(p) => { setPlace(p); if (p && (!title || title === autoName)) { setTitle(text(p, 'name')); setAutoName(text(p, 'name')); } }} />}
-              <Gap h={10} />
-            </>
+            editing && !changePlace ? (
+              <View style={[st.row, { borderRadius: 16, backgroundColor: Brand.Field, padding: 12, marginBottom: 10 }]}>
+                <Icon name="place" color={Brand.Blue} />
+                <Txt style={{ flex: 1, marginLeft: 8 }} numberOfLines={2}>{place ? text(place, 'name') : 'No place on the map'}</Txt>
+                <LinkButton text="Change" onPress={() => setChangePlace(true)} />
+              </View>
+            ) : (
+              <>
+                <PlaceSource here={here} onHere={(v) => { setHere(v); setPlace(null); if (title === autoName) setTitle(''); setAutoName(''); }} />
+                <Gap h={10} />
+                {here ? <LiveSpot onSpot={(n, la, ln) => { setPlace({ name: n, lat: la, lng: ln }); setTitle((t) => { if (!t || t === autoName) { setAutoName(n); return n; } return t; }); }} />
+                  : <PlacePicker label="Find the place on the map" chosen={place} onChoose={(p) => { setPlace(p); if (p && (!title || title === autoName)) { setTitle(text(p, 'name')); setAutoName(text(p, 'name')); } }} />}
+                <Gap h={10} />
+              </>
+            )
           ) : null}
           <Field label={kind === 'todo' ? 'What needs doing' : kind === 'place' ? 'Place name' : 'Title'} value={title} onChange={(v) => setTitle(v.slice(0, 160))} placeholder={kind === 'place' ? 'e.g. Doddabetta Peak' : ''} />
           <Gap h={8} />
           {kind !== 'todo' ? <><Field label="Details (optional)" value={body} onChange={(v) => setBody(v.slice(0, 2000))} lines={3} /><Gap h={8} /></> : null}
-          {kind !== 'note' ? <><Field label="Day (YYYY-MM-DD, optional)" value={day} onChange={(v) => setDay(v.slice(0, 10))} /><Gap h={8} /></> : null}
-          <PrimaryButton text="Add" loading={busy} onPress={() => {
-            const b: Record<string, any> = { kind, title, body, day: day || null };
-            if (place && num(place, 'lat') !== null) { b.lat = num(place, 'lat'); b.lng = num(place, 'lng'); }
-            post(b);
-          }} />
+          {/* the day, from a calendar */}
+          <Pressable onPress={() => setDayOpen(true)} style={[st.row, { borderRadius: 16, backgroundColor: Brand.Field, paddingHorizontal: 14, paddingVertical: 12 }]} accessibilityRole="button" accessibilityLabel="Choose the day">
+            <Icon name="event" color={Brand.Ink} />
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <Txt k="labelMedium" color={Brand.Muted}>Day (optional)</Txt>
+              <Txt k="bodyLarge">{day ? prettyDay(day) : 'Choose a day'}</Txt>
+            </View>
+            {day ? <Pressable onPress={() => setDay('')} hitSlop={8} accessibilityLabel="Clear the day"><Icon name="close" color={Brand.Muted} /></Pressable> : <Icon name="keyboard-arrow-down" color={Brand.Muted} />}
+          </Pressable>
+          <DateRangeSheet open={dayOpen} single allowPast start={day} end={day} title="Which day?" onClose={() => setDayOpen(false)} onPick={(a) => setDay(a)} onDone={() => setDayOpen(false)} />
+          <Gap h={8} />
+          {/* a photo (optional) */}
+          <View style={[st.row, { gap: 10 }]}>
+            {shownPhoto ? (
+              <View>
+                <Image source={{ uri: shownPhoto }} style={{ width: 72, height: 72, borderRadius: 14 }} contentFit="cover" />
+                <Pressable onPress={() => { setPhoto(null); setDropPhoto(true); }} hitSlop={6} style={{ position: 'absolute', top: -6, right: -6, width: 24, height: 24, borderRadius: 12, backgroundColor: Brand.Ink, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Remove the photo"><Icon name="close" size={14} color="#fff" /></Pressable>
+              </View>
+            ) : null}
+            <OutlineButton text={shownPhoto ? 'Change photo' : 'Add a photo (optional)'} icon="add-photo-alternate" style={{ flex: 1 }} onPress={async () => { const p = await pickPhoto('album'); if (p) { setPhoto(p); setDropPhoto(false); } }} />
+            <Pressable onPress={async () => { const p = await pickPhoto('camera'); if (p) { setPhoto(p); setDropPhoto(false); } }} style={[st.headBtn]} accessibilityLabel="Take a photo"><Icon name="photo-camera" color={Brand.Ink} /></Pressable>
+          </View>
+          <Gap />
+          <PrimaryButton text={editing ? 'Save changes' : 'Add to the plan'} loading={busy} disabled={!title.trim()} onPress={save} />
+          {!editing ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 8 }}>It is posted to the trip for everyone. Only you and the person who made the trip can change or remove it.</Txt> : null}
         </>
       )}
     </View>
   );
 }
 
-/** Group trips (from the floating button): your trips, your route plans and your tickets, in one place. */
+/** Group trips (from the floating button): your trips and your tickets, in one place. */
 export function GroupsHub() {
   const [tab, setTab] = useState('trips');
   return (
     <View style={{ flex: 1 }}>
       <BackBar title="Group trips" onBack={Nav.back} />
       <HubTabs tab={tab} onTab={setTab} />
-      <View style={{ flex: 1 }}>{tab === 'plans' ? <SavedPlansList /> : tab === 'tickets' ? <TicketsList /> : <GroupTripsList />}</View>
+      <View style={{ flex: 1 }}>{tab === 'tickets' ? <TicketsList /> : <GroupTripsList />}</View>
     </View>
   );
 }
