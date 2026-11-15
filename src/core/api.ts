@@ -88,6 +88,13 @@ class ApiClient {
   async postSiteMultipart(path: string, fields: [string, string][], files: Upload[]): Promise<J> { return this.multipart(this.url(path), fields, files); }
 
   private multipart(url: string, fields: [string, string][], files: Upload[]) {
+    // nothing to upload: send the fields as JSON — Android's network layer can fail on a multipart body without a file
+    // ("No connection" although the internet works)
+    if (!files.length) {
+      const body: Record<string, string> = {};
+      fields.forEach(([k, v]) => { body[k] = v; });
+      return this.withCsrf((t) => this.send(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': t }, body: JSON.stringify(body) }));
+    }
     return this.withCsrf((t) => {
       const fd = new FormData();
       fields.forEach(([k, v]) => fd.append(k, v));

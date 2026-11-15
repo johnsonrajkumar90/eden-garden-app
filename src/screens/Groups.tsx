@@ -443,15 +443,27 @@ export function AddToGroup({ id, done, item }: { id: number; done: (g: J) => voi
   const shownPhoto = photo ? photo.uri : !dropPhoto ? oldPhoto : null;
   return (
     <View>
-      <Txt k="titleLarge">{editing ? 'Change ' + (kind === 'todo' ? 'to-do' : kind) : 'Add to the plan'}</Txt>
+      <View style={[st.row, { marginBottom: 4 }]}>
+        <LinearGradient colors={['#F0555A', '#D93338']} style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}><Icon name={editing ? 'edit' : 'add'} color={Brand.Sun} /></LinearGradient>
+        <View style={{ flex: 1, paddingLeft: 12 }}>
+          <Txt k="titleLarge">{editing ? 'Change ' + (kind === 'todo' ? 'to-do' : kind) : 'Add to the plan'}</Txt>
+          <Txt k="bodySmall" color={Brand.Muted}>{editing ? 'Everyone in the trip sees the change.' : 'Shared with everyone in the trip, and posted for them.'}</Txt>
+        </View>
+      </View>
       {!editing ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 10 }}>
-          {[['place', 'Place', 'place'], ['todo', 'To-do', 'checklist'], ['note', 'Note', 'description'], ['booking', 'My booking', 'hotel'], ['ticket', 'My ticket', 'confirmation-number']].map(([v, t, ic]) => (
-            <Pressable key={v} onPress={() => { setKind(v); setErr(null); }} style={[st.row, { borderRadius: 50, backgroundColor: kind === v ? Brand.Blue : 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: kind === v ? Brand.Blue : 'rgba(255,255,255,0.95)', paddingHorizontal: 14, paddingVertical: 9 }]}>
-              <Icon name={ic} size={17} color={kind === v ? Brand.Sun : Brand.InkSoft} /><Txt k="labelLarge" color={kind === v ? '#fff' : Brand.InkSoft}> {t}</Txt>
-            </Pressable>
-          ))}
-        </ScrollView>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 12 }}>
+          {[['place', 'Place', 'place', '#FFE4DE', '#B81D2B'], ['todo', 'To-do', 'checklist', '#E3E8FF', '#26338A'], ['note', 'Note', 'description', '#FFF2D6', '#7A4A00'], ['booking', 'My booking', 'hotel', '#DDF3EA', '#0F5C40'], ['ticket', 'My ticket', 'confirmation-number', '#F3E3FF', '#5B2A86']].map(([v, t, ic, bg, fg]) => {
+            const on = kind === v;
+            return (
+              <Pressable key={v} onPress={() => { setKind(v); setErr(null); }} accessibilityRole="button" accessibilityState={{ selected: on }}
+                style={{ width: '31.3%', alignItems: 'center', borderRadius: 20, paddingVertical: 12, backgroundColor: on ? '#FFF5F4' : 'rgba(255,255,255,0.9)', borderWidth: 1.5, borderColor: on ? Brand.Blue : 'rgba(255,255,255,0.98)',
+                  shadowColor: '#D93338', shadowOpacity: on ? 0.2 : 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: on ? 4 : 1 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}><Icon name={ic} size={21} color={fg} /></View>
+                <Txt k="labelMedium" semi color={on ? Brand.Blue : Brand.InkSoft} style={{ marginTop: 6 }}>{t}</Txt>
+              </Pressable>
+            );
+          })}
+        </View>
       ) : <Gap h={10} />}
       {err ? <><Notice text={err} tone="bad" /><Gap h={8} /></> : null}
       {['booking', 'ticket'].includes(kind) ? (
@@ -500,7 +512,7 @@ export function AddToGroup({ id, done, item }: { id: number; done: (g: J) => voi
           <DateRangeSheet open={dayOpen} single allowPast start={day} end={day} title="Which day?" onClose={() => setDayOpen(false)} onPick={(a) => setDay(a)} onDone={() => setDayOpen(false)} />
           <Gap h={8} />
           {/* a photo (optional) */}
-          <View style={[st.row, { gap: 10 }]}>
+          <View style={[st.row, { gap: 10, borderRadius: 20, borderWidth: 1.5, borderStyle: 'dashed', borderColor: '#EBCFCB', backgroundColor: 'rgba(255,255,255,0.7)', padding: 10 }]}>
             {shownPhoto ? (
               <View>
                 <Image source={{ uri: shownPhoto }} style={{ width: 72, height: 72, borderRadius: 14 }} contentFit="cover" />
