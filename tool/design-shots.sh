@@ -4,12 +4,15 @@ set -x
 PKG=triparro.com
 mkdir -p screens
 adb install -r app.apk
+# the emulator's home screen app sometimes hangs and shows a "not responding" box over everything: switch it off for the test
+adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher || true
+sleep 3; adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
 adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb shell pm grant $PKG android.permission.ACCESS_FINE_LOCATION || true
 adb shell settings put secure location_mode 3 || true
 adb emu geo fix 76.9558 11.0168 || true
 n=0
-shot() { sleep "${2:-6}"; n=$((n+1)); adb exec-out screencap -p > "screens/$(printf '%02d' $n)-$1.png"; }
+shot() { sleep "${2:-6}"; adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null 2>&1; n=$((n+1)); adb exec-out screencap -p > "screens/$(printf '%02d' $n)-$1.png"; }
 tap() {   # tap the element whose text or accessibility label is $1
   adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml /tmp/ui.xml >/dev/null 2>&1
   b=$(python3 - "$1" <<'PY'
