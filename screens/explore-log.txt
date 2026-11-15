@@ -1,0 +1,30 @@
+11-15 07:50:06.955   521   759 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=129, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10192 RequestorUid: 10192 RequestorPkg: triparro.com UnderlyingNetworks: Null] ]
+11-15 07:50:07.098  3965  3988 I triparro.com: Compiler allocated 5436KB to compile kotlin.Unit com.triparro.app.screens.ExploreKt.ExploreScreen$lambda$123$lambda$122$lambda$84(androidx.navigation.NavHostController, androidx.compose.runtime.State, androidx.compose.runtime.State, java.lang.String, androidx.compose.runtime.MutableState, androidx.compose.runtime.MutableState, androidx.compose.runtime.MutableState, androidx.compose.runtime.MutableIntState, androidx.compose.runtime.MutableState, kotlinx.coroutines.CoroutineScope, androidx.compose.runtime.MutableState, androidx.compose.foundation.lazy.LazyListState, androidx.compose.runtime.MutableState, androidx.compose.runtime.MutableIntState, androidx.compose.runtime.MutableState, androidx.compose.runtime.snapshots.SnapshotStateList, androidx.compose.runtime.MutableIntState, androidx.compose.runtime.MutableIntState, androidx.compose.foundation.lazy.LazyItemScope, androidx.compose.runtime.Composer, int)
+11-15 07:50:07.346   521  2684 I WindowManager: finishDrawing of relaunch: Window{b5ba799 u0 triparro.com/com.triparro.app.MainActivity} 699ms
+11-15 07:50:07.368  4981  4981 D AndroidRuntime: Shutting down VM
+11-15 07:50:07.520  3965  3965 D WM-WorkerWrapper: Starting work for com.triparro.app.core.NotificationsWorker
+11-15 07:50:07.950  3965  4123 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=80039f4e-a02d-4b6c-b76d-e836b72c78de, tags={ com.triparro.app.core.NotificationsWorker } ]
+11-15 07:50:09.008   521   534 I ImeTracker: triparro.com:b1981e36: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-15 07:50:09.008   521   534 I ImeTracker: triparro.com:b1981e36: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-15 07:50:09.027  1542  1542 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=triparro.com fieldId=0 fieldName=null extras=null}, false)
+11-15 07:50:09.345  3965  3989 I triparro.com: NativeAlloc concurrent copying GC freed 69440(3380KB) AllocSpace objects, 21(416KB) LOS objects, 49% free, 7508KB/14MB, paused 22us,15us total 1.181s
+11-15 07:50:12.287  5129  5129 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-15 07:50:12.293  5129  5129 I AndroidRuntime: Using default boot image
+11-15 07:50:12.293  5129  5129 I AndroidRuntime: Leaving lock profiling enabled
+11-15 07:50:12.554  5129  5129 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-15 07:50:14.052  5129  5129 D AndroidRuntime: Shutting down VM
+11-15 07:50:21.404  5230  5230 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-15 07:50:21.412  5230  5230 I AndroidRuntime: Using default boot image
+11-15 07:50:21.412  5230  5230 I AndroidRuntime: Leaving lock profiling enabled
+11-15 07:50:21.503  5230  5230 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-15 07:50:22.580  5230  5230 D AndroidRuntime: Shutting down VM
+11-15 07:50:29.100  5360  5360 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-15 07:50:29.104  5360  5360 I AndroidRuntime: Using default boot image
+11-15 07:50:29.104  5360  5360 I AndroidRuntime: Leaving lock profiling enabled
+11-15 07:50:29.194  5360  5360 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-15 07:50:30.239  5360  5360 D AndroidRuntime: Shutting down VM
+11-15 07:50:44.321  5622  5622 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-15 07:50:44.332  5622  5622 I AndroidRuntime: Using default boot image
+11-15 07:50:44.332  5622  5622 I AndroidRuntime: Leaving lock profiling enabled
+11-15 07:50:44.590  5622  5622 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-15 07:50:45.703  5622  5622 D AndroidRuntime: Shutting down VM
