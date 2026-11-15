@@ -29,6 +29,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Hotel
+import androidx.compose.material.icons.outlined.ConfirmationNumber
+import androidx.compose.material.icons.outlined.Route
+import androidx.compose.material.icons.outlined.TaskAlt
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Close
@@ -282,13 +288,13 @@ private fun PostCard(id: Int, p: JSONObject, act: (String, Map<String, Any?>) ->
 private fun AutoCard(a: JSONObject, view: (String) -> Unit) {
     val ctx = LocalContext.current
     val (icon, colour) = when (a.text("kind")) {
-        "place" -> androidx.compose.material.icons.Icons.Outlined.Place to Color(0xFF0E9F6E)
-        "booking" -> androidx.compose.material.icons.Icons.Outlined.Hotel to Color(0xFF1F6FEB)
-        "ticket" -> androidx.compose.material.icons.Icons.Outlined.ConfirmationNumber to Color(0xFF7C3AED)
-        "plan" -> androidx.compose.material.icons.Icons.Outlined.Route to Color(0xFFB45309)
-        "todo" -> androidx.compose.material.icons.Icons.Outlined.TaskAlt to Color(0xFF0891B2)
-        "fav" -> androidx.compose.material.icons.Icons.Filled.Favorite to Color(0xFFE8452F)
-        else -> androidx.compose.material.icons.Icons.Outlined.Description to Color(0xFF54656F)
+        "place" -> Icons.Outlined.Place to Color(0xFF0E9F6E)
+        "booking" -> Icons.Outlined.Hotel to Color(0xFF1F6FEB)
+        "ticket" -> Icons.Outlined.ConfirmationNumber to Color(0xFF7C3AED)
+        "plan" -> Icons.Outlined.Route to Color(0xFFB45309)
+        "todo" -> Icons.Outlined.TaskAlt to Color(0xFF0891B2)
+        "fav" -> Icons.Filled.Favorite to Color(0xFFE8452F)
+        else -> Icons.Outlined.Description to Color(0xFF54656F)
     }
     Text("added to the plan", style = MaterialTheme.typography.labelMedium, color = Brand.InkSoft, modifier = Modifier.padding(start = 14.dp, top = 6.dp))
     Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp).fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(colour.copy(alpha = 0.07f))
