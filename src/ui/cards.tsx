@@ -27,7 +27,7 @@ export function OverlayTag({ text: t }: { text: string }) {
 type Tag = { text: string; bg: string; fg: string; icon?: string };
 const T_VERIFIED: Tag = { text: 'Verified', bg: '#FFFFFFF2', fg: '#0B6B3A', icon: 'verified' };
 const T_REFUND: Tag = { text: 'Refundable', bg: '#0B6B3AE6', fg: '#fff' };
-const T_PROPERTY: Tag = { text: 'Pay at property', bg: Brand.Sun, fg: Brand.Ink, icon: 'payments' };
+const T_PROPERTY: Tag = { text: 'Pay Full on Property', bg: Brand.Sun, fg: Brand.Ink, icon: 'payments' };
 
 function TagChip({ t }: { t: Tag }) {
   return (

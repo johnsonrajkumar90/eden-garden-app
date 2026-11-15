@@ -92,7 +92,7 @@ export default function AuthScreen({ startSignUp }: { startSignUp?: boolean }) {
 
   const [title, sub] = ({
     SignIn: ['Welcome back', "Sign in to book, see your trips and look after your pets' stays."],
-    SignUp: ['Create your account', 'Book verified stays, resorts and pet services — in a minute.'],
+    SignUp: ['Guest sign up', 'Book verified stays, resorts and pet services — in a minute.'],
     Code: ['Enter your code', 'Check your email (and SMS) for a 6-digit code.'],
     AskCode: ['Sign in with a code', "No password needed — we'll send you a one-time code."],
     CheckEmail: ['Confirm your email', 'One last step to switch your account on.'],
@@ -152,6 +152,19 @@ export default function AuthScreen({ startSignUp }: { startSignUp?: boolean }) {
             </>
           ) : step === 'SignUp' ? (
             <>
+              {/* guests and hosts sign up separately: this form is for guests; hosts have their own sign-up */}
+              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+                <View style={{ flex: 1, borderRadius: 18, borderWidth: 2, borderColor: Brand.Blue, backgroundColor: '#FFF5F4', padding: 12 }}>
+                  <Icon name="luggage" color={Brand.Blue} />
+                  <Txt k="titleSmall" style={{ marginTop: 4 }}>Guest</Txt>
+                  <Txt k="labelSmall" color={Brand.Muted}>Book stays & pet services</Txt>
+                </View>
+                <Press onPress={() => Nav.replace('become-host')} style={{ flex: 1, borderRadius: 18, borderWidth: 1.5, borderColor: Brand.Line, backgroundColor: '#fff', padding: 12 }} accessibilityLabel="Host sign up">
+                  <Icon name="home-work" color={Brand.SunDark} />
+                  <Txt k="titleSmall" style={{ marginTop: 4 }}>Host</Txt>
+                  <Txt k="labelSmall" color={Brand.Muted}>List your property →</Txt>
+                </Press>
+              </View>
               <Field label="Full name" value={name} onChange={setName} autoCapitalize="words" error={fieldErr.name} />
               <Gap />
               <Field label="Email" value={email} onChange={setEmail} keyboard="email-address" autoCapitalize="none" error={fieldErr.email} />

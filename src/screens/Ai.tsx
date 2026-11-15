@@ -136,7 +136,7 @@ export default function AiScreen() {
             })}
           </View>
         )} />
-      <View style={[st.row, { backgroundColor: '#fff', padding: 12, borderTopWidth: 0.5, borderTopColor: Brand.Line }]}>
+      <View style={[st.row, { backgroundColor: 'rgba(255,255,255,0.96)', marginHorizontal: 12, marginBottom: 6, marginTop: 4, borderRadius: 30, padding: 8, borderWidth: 1.5, borderColor: '#fff', elevation: 12, shadowColor: '#C8242B', shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 5 } }]}>
         <TextInput value={body} onChangeText={setBody} placeholder={mode === 'pets' ? 'e.g. Boarding for 2 cats in Ooty' : 'Ask TripArro AI…'} placeholderTextColor="#A59C97" multiline cursorColor={Brand.Blue}
           style={{ flex: 1, maxHeight: 110, borderWidth: 1, borderColor: Brand.Line, borderRadius: 24, backgroundColor: Brand.Page, paddingHorizontal: 16, paddingVertical: 11, fontFamily: Fonts.regular, fontSize: 15, color: Brand.Ink }} accessibilityLabel="Ask TripArro AI" />
         <Pressable onPress={() => send(body)} disabled={!body.trim() || busy} style={{ marginLeft: 8, width: 48, height: 48, borderRadius: 24, backgroundColor: !body.trim() || busy ? '#E6DCD3' : Brand.CoralDark, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Send">

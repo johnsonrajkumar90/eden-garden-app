@@ -23,6 +23,7 @@ import PetListingScreen from './PetListing';
 import PetBookingScreen from './PetBooking';
 import { DeleteAccountScreen, PageScreen } from './Pages';
 import { BecomeHostScreen, BecomePetHostScreen } from './Join';
+import HostKycScreen from './HostKyc';
 import HostingScreen, { HostChatsScreen } from './Hosting';
 import { HostCheckinScreen } from './HostTools';
 import { ChatScreen, ChatTokenScreen, HostChatScreen, MessagesScreen } from './Chat';
@@ -68,6 +69,7 @@ export const SCREENS: Record<RouteName, ComponentType<any>> = {
   'page/{slug}': PageScreen,
   'delete-account': DeleteAccountScreen,
   'become-host': BecomeHostScreen,
+  'hostkyc': HostKycScreen,
   'become-pet-host': BecomePetHostScreen,
   'hosting': HostingScreen,
   'site?path={path}&title={title}': SiteScreen,

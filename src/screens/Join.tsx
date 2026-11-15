@@ -1,10 +1,10 @@
-// List your property (application) and Become a pet host (account with ID, pets and services, photos).
+// Host sign up (List your property) and Become a pet host (account with ID, pets and services, photos).
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Api, ApiError, Upload, errorText } from '../core/api';
-import { useLoader } from '../core/state';
+import { useLoader, useSession } from '../core/state';
 import { J, arr, int, objs, strings, text } from '../core/json';
 import { Picked, pickPhoto, uploadOf } from '../core/files';
 import * as Loc from '../core/location';
@@ -38,14 +38,15 @@ function Done({ title, text: t, button, onPress }: { title: string; text: string
 }
 const Err = ({ e }: { e?: string }) => (e ? <Txt k="bodySmall" color={Brand.Danger}>{e}</Txt> : null);
 
-/** Become a host: why list with TripArro, and the application (the team calls back to set the stay up). */
+/**
+ * Host sign up ("List your property"): hosts make their own host account here — separate from the guest sign-up.
+ * Then: confirm the email if the website asks for it, and complete the KYC verification.
+ */
 export function BecomeHostScreen() {
   const meta = useLoader(() => Api.getSite('become-a-host'));
-  const [f, setF] = useState({ name: '', phone: '', email: '', city: '', type: '', link: '', message: '' });
+  const session = useSession();
+  const [f, setF] = useState({ name: '', phone: '', email: '', city: '', type: '', password: '' });
   const set = (k: keyof typeof f) => (v: string) => setF((x) => ({ ...x, [k]: v }));
-  const [units, setUnits] = useState(1);
-  const [channels, setChannels] = useState<string[]>([]);
-  const [consent, setConsent] = useState(false);
   const [terms, setTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -54,26 +55,30 @@ export function BecomeHostScreen() {
   const [offerSeen, setOfferSeen] = useState(false);
   const m = meta.data;
   const zeroDays = int(m, 'zero_days');
+  const role = session?.user?.role || '';
   const send = async () => {
     setBusy(true); setErr(null); setErrs({});
     try {
-      const r = await Api.postSite('become-a-host', { name: f.name, phone: f.phone, email: f.email, city: f.city, property_type: f.type, units, channels, link: f.link, message: f.message, consent, terms });
-      setSent(text(r, 'message', 'Thank you! Our team will call you within 1–2 working days.'));
+      const r = await Api.postSite('host-signup', { name: f.name, phone: f.phone, email: f.email, city: f.city, property_type: f.type, password: f.password, terms: terms ? 1 : 0 });
+      if (text(r, 'verify') === 'link') setSent(text(r, 'message', 'Your host account is created. Open the link we emailed you, then sign in and complete your KYC.'));
+      else { await Api.refreshSession(); Nav.replace('hostkyc'); }
     } catch (e) { setErr(errorText(e)); if (e instanceof ApiError) setErrs(e.errors); }
     setBusy(false);
   };
   return (
     <View style={{ flex: 1 }}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
-        <ColorHeader title="List your property" sub="List your homestay, villa or resort on TripArro — free to join." onBack={Nav.back} />
+        <ColorHeader title="Host sign up" sub="List your homestay, villa or resort on TripArro — free to join." onBack={Nav.back} />
         <View style={{ padding: 16 }}>
-          {sent ? <Done title="Application sent" text={sent} button="Back to TripArro" onPress={Nav.back} /> : (
+          {sent ? <Done title="Check your email" text={sent} button="Sign in" onPress={() => Nav.replace('login')} />
+            : ['host', 'resort'].includes(role) ? <Done title="You're a host already" text="Open My hosting to manage your stays, or finish your KYC." button="Open KYC verification" onPress={() => Nav.replace('hostkyc')} /> : (
             <>
+              {session?.user ? <><Notice text={`You're signed in as ${session.user.email} (a guest account). A host account needs its own email — sign out first, or use a different email.`} tone="warn" /><Gap /></> : null}
               {m ? (
                 <><Card>
                   <Txt k="titleLarge">Why host with TripArro</Txt>
                   <Txt k="bodySmall" color={Brand.Muted} style={{ marginTop: 2, marginBottom: 6 }}>{text(m, 'commission')}% commission only when you get a booking · online payments · one calendar for Airbnb, Booking.com and more.</Txt>
-                  {arr<any>(m, 'advantages').slice(0, 6).map((row, i) => Array.isArray(row) ? (
+                  {arr<any>(m, 'advantages').slice(0, 4).map((row, i) => Array.isArray(row) ? (
                     <View key={i} style={{ flexDirection: 'row', paddingVertical: 6 }}>
                       <Icon name="check-circle-outline" size={20} color={Brand.Teal} />
                       <View style={{ paddingLeft: 10, flex: 1 }}><Txt k="titleSmall">{String(row[1] ?? '')}</Txt><Txt k="bodySmall" color={Brand.InkSoft}>{String(row[2] ?? '')}</Txt></View>
@@ -82,38 +87,33 @@ export function BecomeHostScreen() {
                 </Card><Gap /></>
               ) : null}
               <Card>
-                <SectionHead n={1} title="About you" />
-                <Field label="Your name" value={f.name} onChange={set('name')} error={errs.name} autoCapitalize="words" /><Gap h={8} />
+                <SectionHead n={1} title="Your host account" sub="You'll sign in with this email and password." />
+                <Field label="Full name" value={f.name} onChange={set('name')} error={errs.name} autoCapitalize="words" /><Gap h={8} />
                 <Field label="Mobile number" value={f.phone} onChange={set('phone')} keyboard="phone-pad" error={errs.phone} /><Gap h={8} />
-                <Field label="Email" value={f.email} onChange={set('email')} keyboard="email-address" autoCapitalize="none" error={errs.email} />
+                <Field label="Email" value={f.email} onChange={set('email')} keyboard="email-address" autoCapitalize="none" error={errs.email} /><Gap h={8} />
+                <Field label="Password" value={f.password} onChange={set('password')} password placeholder="8+ characters, letters and numbers" error={errs.password} />
               </Card>
               <Gap />
               <Card>
                 <SectionHead n={2} title="Your property" />
-                <Field label="City or area" value={f.city} onChange={set('city')} error={errs.city} /><Gap h={8} />
-                <Choice label="Type of property" value={f.type} options={[['', 'Choose…'], ...strings(m, 'types').map((t) => [t, t] as [string, string])]} onChange={set('type')} />
-                <Err e={errs.property_type} />
-                <Gap h={8} />
-                <Stepper label="Rooms or units" value={units} onChange={setUnits} min={1} max={99} />
-                <Txt k="titleSmall" style={{ marginTop: 8, marginBottom: 4 }}>Already listed on</Txt>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                  {strings(m, 'channels').map((c) => <Pressable key={c} onPress={() => setChannels((x) => (x.includes(c) ? x.filter((y) => y !== c) : [...x, c]))} style={{ borderRadius: 10, borderWidth: 1, borderColor: channels.includes(c) ? Brand.Blue : Brand.Line, backgroundColor: channels.includes(c) ? Brand.Sky : '#fff', paddingHorizontal: 12, paddingVertical: 7 }}><Txt k="labelLarge" color={channels.includes(c) ? Brand.Blue : Brand.InkSoft}>{channels.includes(c) ? '✓ ' : ''}{c}</Txt></Pressable>)}
-                </View>
-                <Gap h={8} />
-                <Field label="Link to your listing (optional)" value={f.link} onChange={set('link')} keyboard="url" autoCapitalize="none" error={errs.link} /><Gap h={8} />
-                <Field label="Anything else? (optional)" value={f.message} onChange={set('message')} lines={3} />
+                <Field label="Where is it? (town or city)" value={f.city} onChange={set('city')} error={errs.city} /><Gap h={8} />
+                <Choice label="Type of property (optional)" value={f.type} options={[['', 'Choose…'], ...strings(m, 'types').map((t) => [t, t] as [string, string])]} onChange={set('type')} />
               </Card>
               <Gap />
               <Card>
-                <CheckRow text="TripArro may call or email me about my application" checked={consent} onChange={setConsent} />
-                <Err e={errs.consent} />
-                <CheckRow text="I have read and accept the host terms" checked={terms} onChange={setTerms} />
+                <CheckRow text="I accept the host terms, including the payment terms" checked={terms} onChange={setTerms} />
                 <Err e={errs.terms} />
                 <LinkButton text="Read the host terms" onPress={() => Nav.navigate('page/host-terms')} />
                 {err ? <><Gap h={6} /><Notice text={err} tone="bad" /></> : null}
                 <Gap h={8} />
-                <PrimaryButton text="Send my application" onPress={send} loading={busy} />
+                <PrimaryButton text="Create host account" onPress={send} loading={busy} disabled={!f.name.trim() || !f.email.includes('@') || f.password.length < 8} />
+                <Txt k="bodySmall" color={Brand.Muted} center style={{ marginTop: 8 }}>Next: a short KYC verification, then add your property.</Txt>
               </Card>
+              <Gap />
+              <View style={[st.row, { justifyContent: 'center' }]}>
+                <Txt color={Brand.InkSoft}>Booking a stay instead? </Txt>
+                <Txt k="titleSmall" color={Brand.Blue} onPress={() => Nav.replace('signup')}>Guest sign up</Txt>
+              </View>
             </>
           )}
         </View>

@@ -224,14 +224,16 @@ export function BookingScreen() {
           </Card></>
         ) : null}
         {str(b, 'share_url') && text(b, 'status') === 'confirmed' ? <><Gap /><OutlineButton text="Share booking (WhatsApp, email…)" onPress={() => shareLink(`My TripArro booking ${text(b, 'ref')} at ${text(li, 'title')}`, str(b, 'share_url')!)} /></> : null}
+        {bool(b, 'non_refundable') && ['confirmed', 'pending'].includes(text(b, 'status')) ? <><Gap /><Notice text="🚫 Non-refundable booking — if you cancel, no money is returned." tone="bad" /></> : null}
         {bool(b, 'can_cancel') || bool(b, 'can_cancel_unpaid') ? (
           <><Gap /><LinkButton text="Cancel booking" color={Brand.Danger} onPress={() => act(async () => { setCancelQuote(obj(await Api.post('refunds', { ref, confirm: false }), 'quote') || {}); })} /></>
         ) : null}
       </ScrollView>
-      <Dialog open={!!q} onClose={() => setCancelQuote(null)} title="Cancel this booking?"
-        text={q ? ((num(q, 'paid') || 0) > 0 ? `You paid ${money(num(q, 'paid'))}. Under the policy you get back ${money(num(q, 'refund'))} (${int(q, 'percent')}%).`
+      <Dialog open={!!q} onClose={() => setCancelQuote(null)} title={q && bool(q, 'non_refundable') && !bool(q, 'unpaid') ? '🚫 This is Non-refundable' : 'Cancel this booking?'}
+        text={q ? (bool(q, 'non_refundable') && !bool(q, 'unpaid') ? `Are you sure you want to cancel? This booking is non-refundable — you will not get any money back${(num(q, 'paid') || 0) > 0 ? ` (you paid ${money(num(q, 'paid'))})` : ''}.`
+          : (num(q, 'paid') || 0) > 0 ? `You paid ${money(num(q, 'paid'))}. Under the policy you get back ${money(num(q, 'refund'))} (${int(q, 'percent')}%).`
           : 'Nothing has been paid, so nothing is charged.' + ((num(q, 'wallet_back') || 0) > 0 ? ` ${money(num(q, 'wallet_back'))} goes back to your wallet at once.` : '')) : ''}
-        actions={[['Keep it', () => setCancelQuote(null), Brand.InkSoft], ['Cancel booking', () => { setCancelQuote(null); act(async () => { await Api.post('refunds', { ref, confirm: true }); AppState.bump(); }); }, Brand.Danger]]} />
+        actions={[[q && bool(q, 'non_refundable') && !bool(q, 'unpaid') ? 'No' : 'Keep it', () => setCancelQuote(null), Brand.InkSoft], [q && bool(q, 'non_refundable') && !bool(q, 'unpaid') ? 'Yes, cancel' : 'Cancel booking', () => { setCancelQuote(null); act(async () => { await Api.post('refunds', { ref, confirm: true }); AppState.bump(); }); }, Brand.Danger]]} />
     </View>
   );
 }

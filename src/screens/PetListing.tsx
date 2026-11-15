@@ -7,7 +7,7 @@ import { J, bool, int, num, obj, objs, priceLines, str, strings, text } from '..
 import { Brand } from '../theme';
 import { Avatar, BackBar, Bordered, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Pill, PriceTable, PrimaryButton, RoundAction, Stars, Txt, initialsOf, money, plural, shareLink, shortDate, st } from '../ui/kit';
 import { CheckRow, DateRangeField, Field, Segmented, Stepper } from '../ui/inputs';
-import { AmenityGrid, DetailSection, ExpandRow, FactTiles, HeroGallery, PriceBar, RatingBadge, TimeTiles, TitleCard } from '../ui/detail';
+import { AmenityGrid, DetailSection, ExpandRow, FactTiles, HeroGallery, PRICE_BAR_SPACE, PriceBar, RatingBadge, TimeTiles, TitleCard } from '../ui/detail';
 import { RefundTag, isRefundable } from '../ui/cards';
 import { ExpandText } from '../ui/sheets';
 import { petEmoji } from '../ui/petcards';
@@ -91,7 +91,7 @@ export default function PetListingScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView ref={scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: PRICE_BAR_SPACE }}>
         <HeroGallery urls={gallery} onOpen={(u) => Nav.navigate('photo?url=' + enc(u) + '&title=' + enc(text(p, 'title')))} actions={<>
           <RoundAction icon="arrow-back" label="Back" onPress={Nav.back} />
           <View style={{ flex: 1 }} />

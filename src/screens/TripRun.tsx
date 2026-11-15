@@ -92,7 +92,7 @@ export function StopSheet({ s, picked, onToggle, onClose }: { s: J; picked: bool
 /** Bottom bar of a plan once stops are added: stops, km, hours and Start. */
 export function TripTotalsBar({ count, trip, busy, starting, onStart }: { count: number; trip: J | null; busy: boolean; starting: boolean; onStart: () => void }) {
   return (
-    <View style={[st.row, { backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: Brand.Line, paddingHorizontal: 16, paddingVertical: 10 }]}>
+    <View style={[st.row, { backgroundColor: 'rgba(255,255,255,0.96)', marginHorizontal: 12, marginBottom: 6, borderRadius: 26, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1.5, borderColor: '#fff', elevation: 12, shadowColor: '#C8242B', shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 5 } }]}>
       <View style={{ flex: 1 }}>
         <Txt bold>{count} stop{count === 1 ? '' : 's'} in your trip</Txt>
         <Txt k="labelLarge" color={Brand.Blue}>{!trip ? (busy ? 'Working out km and hours…' : '') : `${num(trip, 'km')} km · ${hmText(int(trip, 'total_minutes'))} in all`}</Txt>

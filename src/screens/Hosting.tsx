@@ -36,6 +36,8 @@ export default function HostingScreen() {
   );
 }
 
+import { KycBanner } from './HostKyc';
+
 function HStat({ label, value, flex }: { label: string; value: string; flex: number }) {
   return (
     <View style={{ flex, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.08)', padding: 12 }}>
@@ -77,6 +79,7 @@ function HostDashboard({ role }: { role: string }) {
           <HStat label={pets ? 'Pets now' : 'Staying now'} value={String(int(h, 'staying'))} flex={1} />
         </View>
       </View>
+      {role === 'host' ? <KycBanner /> : null}
       <View style={{ borderBottomWidth: 1, borderBottomColor: Brand.Line }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10, gap: 8 }}>
           {tabs.map(([k, label, icon]) => {
@@ -498,21 +501,66 @@ function AgentPortal() {
   const l = useLoader(() => Api.get('partner/overview'));
   const d = l.data;
   const t = obj(d, 'totals') || {};
+  const links = obj(d, 'links') || {};
+  const hosts = objs(d, 'hosts');
+  const payouts = objs(d, 'payouts');
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
       <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
       <View>
         {d ? (
           <View style={{ flexDirection: 'row', gap: 6, marginHorizontal: 16, padding: 8, borderRadius: 26, backgroundColor: Brand.Blue }}>
-            <HStat label="Commission earned" value={money(num(t, 'earned') || 0)} flex={1} />
-            <HStat label="Bookings" value={String(int(t, 'bookings'))} flex={1} />
+            <HStat label="Commission earned" value={money(num(t, 'earned') || 0)} flex={1.3} />
+            <HStat label="Payout due" value={money(num(t, 'pending_payout') || 0)} flex={1.1} />
+            <HStat label="Bookings" value={String(int(t, 'bookings'))} flex={0.8} />
           </View>
         ) : null}
       </View>
       <View style={{ padding: 16 }}>
         {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your summary.'} onRetry={l.reload} /> : (
           <>
-            <SectionTitle text="Recent bookings" />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <PrimaryButton text="Book for a guest" icon="person-add-alt" onPress={() => Nav.openSite('/referral/new-booking', 'Book for a guest')} style={{ flex: 1 }} />
+              <OutlineButton text="Finance" icon="account-balance-wallet" onPress={() => Nav.openSite('/referral/commission', 'Finance & payouts')} style={{ flex: 1 }} />
+            </View>
+            <Gap />
+            <SectionTitle text="My hosts" sub={hosts.length ? 'Hosts TripArro gave you — book their stays for your guests' : undefined} />
+            {!hosts.length ? <Notice text="No hosts are assigned to you yet. You can still book every stay shown to TripArro Agents." /> : null}
+            {hosts.map((h, i) => (
+              <Card key={i} style={{ marginBottom: 10 }}>
+                <View style={st.row}>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Brand.SunSoft, alignItems: 'center', justifyContent: 'center' }}><Txt k="titleSmall">{text(h, 'name').slice(0, 1)}</Txt></View>
+                  <View style={{ flex: 1, paddingLeft: 10 }}><Txt k="titleSmall">{text(h, 'name')}</Txt>{text(h, 'phone') ? <Txt k="bodySmall" color={Brand.Muted}>{text(h, 'phone')}</Txt> : null}</View>
+                </View>
+                {objs(h, 'stays').map((p, j) => (
+                  <View key={j} style={[st.row, { marginTop: 10, borderRadius: 16, backgroundColor: '#fff', borderWidth: 1, borderColor: Brand.Line, padding: 8 }]}>
+                    <Photo url={str(p, 'image')} corner={12} style={{ width: 64, height: 64 }} />
+                    <View style={{ flex: 1, paddingHorizontal: 10 }}>
+                      <Txt k="titleSmall" numberOfLines={1}>{text(p, 'title')}</Txt>
+                      <Txt k="bodySmall" color={Brand.Muted} numberOfLines={1}>{text(p, 'location')}</Txt>
+                      <View style={[st.row, { gap: 6, flexWrap: 'wrap' }]}>
+                        <Txt k="labelLarge" color={Brand.BlueDark}>{money(num(p, 'price') || 0)}/night</Txt>
+                        {text(p, 'offer') ? <View style={{ borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 2 }}><Txt k="labelSmall" bold>{text(p, 'offer')}</Txt></View> : null}
+                      </View>
+                    </View>
+                    {bool(p, 'bookable') ? <OutlineButton text="Book" onPress={() => Nav.openSite('/referral/new-booking?property=' + int(p, 'id'), 'Book for a guest')} /> : <Txt k="labelSmall" color={Brand.Warn}>Closed</Txt>}
+                  </View>
+                ))}
+              </Card>
+            ))}
+            <Gap h={6} />
+            <SectionTitle text="Payouts received" />
+            <Card>
+              {!payouts.length ? <Txt color={Brand.InkSoft}>No payouts yet. Commission is paid after your guests check out.</Txt> : null}
+              {payouts.map((p, i) => (
+                <View key={i} style={[st.row, { paddingVertical: 9, borderTopWidth: i ? 1 : 0, borderTopColor: Brand.Line }]}>
+                  <View style={{ flex: 1 }}><Txt k="titleSmall">{shortDate(text(p, 'day'))}</Txt>{text(p, 'ref') ? <Txt k="bodySmall" color={Brand.Muted}>Ref {text(p, 'ref')}</Txt> : null}</View>
+                  <Txt k="titleSmall" bold color={Brand.TealDark}>{money(num(p, 'amount') || 0)}</Txt>
+                </View>
+              ))}
+            </Card>
+            <Gap />
+            <SectionTitle text="Recent bookings" sub="No reward points on agent bookings" />
             <Card>
               {!objs(d, 'bookings').length ? <Txt color={Brand.InkSoft}>No bookings yet.</Txt> : null}
               {objs(d, 'bookings').map((b, i) => (
@@ -525,8 +573,6 @@ function AgentPortal() {
                 </View>
               ))}
             </Card>
-            <Gap />
-            <PrimaryButton text="Find a stay for a guest" onPress={() => Nav.home()} />
           </>
         )}
       </View>

@@ -97,6 +97,9 @@ function Shell() {
 
   const isTab = (TABS as readonly string[]).includes(current);
   const dockH = 68 + Math.max(insets.bottom, 10);   // the floating tab dock's height (pages leave room for it)
+  // the floating menu is on every page, except full-screen viewers, chats (their own message box) and sign-in / payment
+  const NO_DOCK = ['photo', 'video', 'pdf', 'chat/', 'chatt/', 'groupchat/', 'hostchat/', 'checkin', 'site', 'login', 'signup', 'pay'];
+  const showDock = isTab || !NO_DOCK.some((n) => current.startsWith(n));
   const showWelcome = !welcomeDone && !!session && !session.user && startLink === null && current === 'explore';
 
   return (
@@ -104,7 +107,8 @@ function Shell() {
       <StatusBar style="light" />
       <GlassBackdrop />
       <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : '#C8242B' }} />
-      <View style={{ flex: 1, paddingBottom: current === 'ai' ? dockH : 0 }}>
+      {/* tab pages scroll under the floating menu; on other pages (and AI, with its message box) the page ends above it */}
+      <View style={{ flex: 1, paddingBottom: showDock && (!isTab || current === 'ai') ? dockH : 0 }}>
         <NavigationContainer
           ref={navRef}
           theme={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: 'transparent', card: 'transparent' } }}
@@ -120,7 +124,7 @@ function Shell() {
         </NavigationContainer>
         {['explore', 'pets', 'account'].includes(current) ? <GroupTripsFab bottom={dockH + 12} onPress={() => Nav.navigate('groups')} /> : null}
       </View>
-      {isTab ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
+      {showDock ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
       {showWelcome ? (
         <Welcome welcome={session?.welcome || null}
           onEmail={() => { setWelcomeDone(true); Nav.navigate('login'); }}
@@ -207,11 +211,12 @@ function GlassBackdrop() {
   );
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      <LinearGradient colors={['#FFF6F1', '#FFFFFF', '#FFF9EC']} locations={[0, 0.5, 1]} style={StyleSheet.absoluteFill} />
-      {blob([0.05, 0.3], [0.06, 0.14], w * 0.8, '#FF5757', 0.42, a, b, 1)}
-      {blob([1.0, 0.75], [0.3, 0.4], w * 0.75, '#FFC72C', 0.5, b, a, 2)}
-      {blob([0.15, 0.4], [0.68, 0.58], w * 0.7, '#FFC72C', 0.34, b, a, 3)}
-      {blob([0.95, 0.7], [0.9, 0.84], w * 0.8, '#D93338', 0.32, a, b, 4)}
+      {/* mostly white, with soft red and sun-yellow glows at the edges */}
+      <LinearGradient colors={['#FFF4F0', '#FFFFFF', '#FFFFFF', '#FFFAF0']} locations={[0, 0.3, 0.7, 1]} style={StyleSheet.absoluteFill} />
+      {blob([0.05, 0.3], [0.06, 0.14], w * 0.75, '#FF5757', 0.26, a, b, 1)}
+      {blob([1.0, 0.75], [0.3, 0.4], w * 0.7, '#FFC72C', 0.3, b, a, 2)}
+      {blob([0.15, 0.4], [0.68, 0.58], w * 0.6, '#FFC72C', 0.18, b, a, 3)}
+      {blob([0.95, 0.7], [0.9, 0.84], w * 0.7, '#D93338', 0.18, a, b, 4)}
     </View>
   );
 }

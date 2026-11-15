@@ -12,7 +12,7 @@ export function Field({ label, value, onChange, error, lines = 1, keyboard, pass
   const [focus, setFocus] = useState(false);
   return (
     <View style={style}>
-      <View style={{ borderWidth: 1.5, borderColor: error ? '#B42318' : focus ? Brand.Blue : 'rgba(255,255,255,0.95)', borderRadius: 16, backgroundColor: focus ? '#fff' : Brand.Field, paddingHorizontal: 14, paddingTop: 7, paddingBottom: lines > 1 ? 8 : 4 }}>
+      <View style={{ borderWidth: 1.5, borderColor: error ? '#B42318' : focus ? Brand.Blue : '#EFE6E0', borderRadius: 16, backgroundColor: focus ? '#fff' : Brand.Field, paddingHorizontal: 14, paddingTop: 7, paddingBottom: lines > 1 ? 8 : 4 }}>
         <Txt k="labelMedium" color={focus ? Brand.Blue : Brand.Muted}>{label}</Txt>
         <TextInput value={value} onChangeText={onChange} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} placeholder={placeholder} placeholderTextColor="#A59C97"
           multiline={lines > 1} numberOfLines={lines} keyboardType={keyboard} secureTextEntry={password} maxLength={maxLength} autoCapitalize={autoCapitalize}

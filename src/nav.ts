@@ -9,7 +9,7 @@ export const ROUTES = [
   'explore', 'pets', 'chargers', 'planner', 'tripplans', 'groups', 'group/{id}', 'tickets?msg={msg}', 'groupchat/{id}', 'groupjoin/{code}', 'tripplan/{id}',
   'wallet', 'notifyprefs', 'triprun/{id}', 'myplaces', 'placeedit/{id}', 'trips', 'ai', 'account', 'login', 'signup', 'profile', 'notifications', 'mypets',
   'saved', 'reserve', 'property/{kind}/{id}', 'booking/{ref}?paid={paid}&failed={failed}&refund={refund}', 'petlisting/{id}',
-  'petbooking/{ref}?paid={paid}&failed={failed}&refund={refund}', 'petform/{id}', 'page/{slug}', 'delete-account', 'become-host', 'become-pet-host',
+  'petbooking/{ref}?paid={paid}&failed={failed}&refund={refund}', 'petform/{id}', 'page/{slug}', 'delete-account', 'become-host', 'become-pet-host', 'hostkyc',
   'hosting', 'site?path={path}&title={title}', 'hostcheckin/{id}', 'hostchats', 'hostchat/{id}', 'messages', 'chatt/{token}', 'place/{id}',
   'checkin?url={url}', 'chat/{kind}/{id}', 'pdf?url={url}&title={title}', 'photo?url={url}&title={title}', 'video?url={url}', 'petreceipt/{ref}', 'pay',
 ] as const;
@@ -101,6 +101,8 @@ export const Nav = {
     if (first === 'cancellation-policy') return Nav.navigate('page/cancellation');
     if (first === 'host-terms') return Nav.navigate('page/host-terms');
     if (first === 'become-a-host') return Nav.navigate('become-host');
+    if (first === 'host-signup') return Nav.navigate('become-host');
+    if (first === 'host' && seg[1] === 'kyc') return Nav.navigate('hostkyc');
     if (first === 'become-a-pet-host') return Nav.navigate('become-pet-host');
     if (first === 'delete-account') return Nav.navigate('delete-account');
     if (first === 'login') return Nav.navigate('login');

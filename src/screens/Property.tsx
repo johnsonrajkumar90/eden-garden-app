@@ -8,7 +8,7 @@ import { J, arr, bool, int, num, obj, objs, priceLines, str, strings, text } fro
 import { Brand } from '../theme';
 import { Avatar, BackBar, Bordered, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, Photo, Pill, PriceTable, PrimaryButton, RoundAction, Stars, Txt, initialsOf, money, shareLink, st } from '../ui/kit';
 import { CheckRow, DateRangeField, Field, Stepper } from '../ui/inputs';
-import { AmenityGrid, DetailSection, ExpandRow, FactTiles, HeroGallery, PriceBar, RatingBadge, RefundTimeline, TimeTiles, TitleCard } from '../ui/detail';
+import { AmenityGrid, DetailSection, ExpandRow, FactTiles, HeroGallery, PRICE_BAR_SPACE, PriceBar, RatingBadge, RefundTimeline, TimeTiles, TitleCard } from '../ui/detail';
 import { RefundTag, isRefundable } from '../ui/cards';
 import { Dialog, ExpandText, Sheet, copyText, openMaps } from '../ui/sheets';
 import { Nav, enc, intParam, useParams } from '../nav';
@@ -45,7 +45,7 @@ export default function PropertyScreen() {
   return (
     <View style={{ flex: 1 }}>
       {obj(price, 'offer') ? <ListingOfferDialog k={`${kind}-${id}`} title={text(p, 'title')} price={price} o={obj(price, 'offer')!} book={() => setSheet(true)} /> : null}
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: PRICE_BAR_SPACE }}>
         <HeroGallery urls={photos} onOpen={(u) => Nav.navigate('photo?url=' + enc(u) + '&title=' + enc(text(p, 'title')))} actions={<>
           <RoundAction icon="arrow-back" label="Back" onPress={Nav.back} />
           <View style={{ flex: 1 }} />
@@ -63,6 +63,7 @@ export default function PropertyScreen() {
               {bool(badges, 'verified') ? <Pill text="✓ Verified" tone="ok" /> : null}
               {bool(badges, 'favourite') ? <Pill text="Guest favourite" tone="info" /> : null}
               <RefundTag refundable={canc ? isRefundable(canc) : true} />
+              {canc && canc.refundable === false ? <Pill text="🚫 Non-refundable" tone="bad" /> : null}
             </View>
             {text(p, 'booking_mode') === 'request' ? <><Gap h={8} /><Notice text="The host approves each request — you pay only after they accept." tone="warn" /></> : null}
             {facts.length ? <><Gap h={14} /><FactTiles items={facts.map((f) => [factIcon(f), f])} /></> : null}

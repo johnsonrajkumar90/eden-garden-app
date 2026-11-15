@@ -1,5 +1,5 @@
 // Explore: find homestays, villas and resorts (search, dates, guests), with favourites and places on the home view.
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,6 +33,19 @@ export default function ExploreScreen() {
   const session = useSession();
   const unread = useAppState('unread');
   const first = session?.user?.name?.split(' ')[0];
+  // "Where to next?": suggestions while typing — places, and stays / resorts by name
+  const [typing, setTyping] = useState(false);
+  const [sugg, setSugg] = useState<{ places: J[]; listings: J[] }>({ places: [], listings: [] });
+  useEffect(() => {
+    if (!typing) return;
+    const term = q.trim();
+    let live = true;
+    const t = setTimeout(async () => {
+      try { const r = await Api.get('destinations', { q: term }); if (live) setSugg({ places: objs(r, 'items').slice(0, 6), listings: term.length >= 2 ? objs(r, 'listings').slice(0, 5) : [] }); } catch { /* suggestions are optional */ }
+    }, term ? 220 : 0);
+    return () => { live = false; clearTimeout(t); };
+  }, [q, typing]);
+  const pickPlace = (name: string) => { setQ(name); setTyping(false); search(1, kind, name); };
 
   const search = async (p = 1, k = kind, query = q) => {
     setSearched(true); setLoading(true); setError(null);
@@ -68,9 +81,30 @@ export default function ExploreScreen() {
           <Appear index={1} style={[st.card, { borderRadius: 28, padding: 14, shadowOpacity: 0.08, shadowRadius: 18, elevation: 6 }]}>
             <View style={[st.row, { borderRadius: 18, backgroundColor: Brand.Field, paddingHorizontal: 14 }]}>
               <Icon name="search" color={Brand.Ink} />
-              <TextInput value={q} onChangeText={setQ} placeholder="Where to? Ooty, Munnar, Goa…" placeholderTextColor="#A59C97" returnKeyType="search" onSubmitEditing={() => search()}
+              <TextInput value={q} onChangeText={(v) => { setQ(v); setTyping(true); }} onFocus={() => setTyping(true)} onBlur={() => setTimeout(() => setTyping(false), 200)}
+                placeholder="Where to? Ooty, Munnar, Goa…" placeholderTextColor="#A59C97" returnKeyType="search" onSubmitEditing={() => { setTyping(false); search(); }}
                 style={{ flex: 1, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, paddingVertical: 14, paddingLeft: 8 }} accessibilityLabel="Where to" />
+              {q ? <Pressable onPress={() => { setQ(''); setTyping(true); }} hitSlop={8} accessibilityLabel="Clear"><Icon name="close" size={18} color={Brand.Muted} /></Pressable> : null}
             </View>
+            {typing && (sugg.places.length || sugg.listings.length) ? (
+              <View style={{ marginTop: 8, borderRadius: 18, backgroundColor: '#fff', borderWidth: 1, borderColor: '#F1E6DF', paddingVertical: 4, elevation: 4, shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+                {!q.trim() ? <Txt k="labelMedium" color={Brand.Muted} style={{ paddingHorizontal: 14, paddingTop: 6 }}>Popular places</Txt> : null}
+                {sugg.places.map((d, i) => (
+                  <Pressable key={'p' + i} onPress={() => pickPlace(text(d, 'name'))} style={({ pressed }) => [st.row, { paddingHorizontal: 14, paddingVertical: 10, backgroundColor: pressed ? '#FFF3F1' : 'transparent' }]}>
+                    <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FDECEC', alignItems: 'center', justifyContent: 'center' }}><Icon name="place" size={18} color={Brand.Blue} /></View>
+                    <View style={{ flex: 1, paddingLeft: 10 }}><Txt k="titleSmall">{text(d, 'name')}</Txt><Txt k="bodySmall" color={Brand.Muted}>{text(d, 'location')}</Txt></View>
+                    <Txt k="labelSmall" color={Brand.Muted}>{int(d, 'count')} {int(d, 'count') === 1 ? 'stay' : 'stays'}</Txt>
+                  </Pressable>
+                ))}
+                {sugg.listings.map((x, i) => (
+                  <Pressable key={'l' + i} onPress={() => { setTyping(false); Nav.navigate(`property/${text(x, 'kind')}/${int(x, 'id')}`); }} style={({ pressed }) => [st.row, { paddingHorizontal: 14, paddingVertical: 8, backgroundColor: pressed ? '#FFF3F1' : 'transparent' }]}>
+                    <Photo url={str(x, 'image')} corner={10} style={{ width: 34, height: 34 }} />
+                    <View style={{ flex: 1, paddingLeft: 10 }}><Txt k="titleSmall" numberOfLines={1}>{text(x, 'title')}</Txt><Txt k="bodySmall" color={Brand.Muted}>{text(x, 'kind') === 'resort' ? 'Resort' : 'Stay'} · {text(x, 'place')}</Txt></View>
+                    <Icon name="chevron-right" size={18} color={Brand.Muted} />
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
             <Gap h={10} />
             <DateRangeField checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); }} />
             <Gap h={4} />

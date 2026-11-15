@@ -187,10 +187,14 @@ export function RefundTimeline({ rows }: { rows: [string, number][] }) {
   );
 }
 
-/** The sticky bar at the bottom of a details page: price, a note, and the main button. */
+/** Room at the end of a page for the floating price bar. */
+export const PRICE_BAR_SPACE = 100;
+
+/** The floating bar at the bottom of a details page: price, a note, and the main button. */
 export function PriceBar({ price, unit, was, note, button }: { price: string; unit: string; was?: string | null; note?: string | null; button: ReactNode }) {
   return (
-    <View style={[st.row, { backgroundColor: '#fff', margin: 10, marginBottom: 6, borderRadius: 30, paddingLeft: 20, paddingRight: 8, paddingVertical: 8, borderWidth: 1, borderColor: '#EFEDE9', elevation: 12, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 16, shadowOffset: { width: 0, height: 4 } }]}>
+    // floats over the page (the page leaves room for it with PRICE_BAR_SPACE), just above the floating menu
+    <View style={[st.row, { position: 'absolute', left: 12, right: 12, bottom: 8, backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: 30, paddingLeft: 20, paddingRight: 8, paddingVertical: 8, borderWidth: 1.5, borderColor: '#FFFFFF', elevation: 14, shadowColor: '#C8242B', shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } }]}>
       <View style={{ flex: 1 }}>
         <View style={[st.row, { alignItems: 'flex-end' }]}>
           {was ? <Txt color={Brand.Muted} style={{ textDecorationLine: 'line-through' }}>{was} </Txt> : null}
