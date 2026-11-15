@@ -10,7 +10,7 @@ import { Api, ApiError, errorText } from '../core/api';
 import { useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
-import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today } from '../ui/kit';
+import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today, TopBar } from '../ui/kit';
 import { Field } from '../ui/inputs';
 import { Dialog, dial } from '../ui/sheets';
 import { RED_GRAD, SUN_GRAD } from '../ui/cards';
@@ -60,16 +60,16 @@ function HostDashboard({ role }: { role: string }) {
   const m = obj(h, 'month') || {};
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 6 }}>
+      <TopBar style={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 14, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <HeadButton icon="arrow-back" label="Back" onPress={Nav.back} />
         <View style={{ paddingTop: 10 }}>
           <View>
-            <Txt k="headlineMedium">{pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting'}</Txt>
-            <Txt k="bodyMedium" color={Brand.Muted} numberOfLines={1}>Hi {text(h, 'name').split(' ')[0]} — everything for your guests, here in the app</Txt>
+            <Txt k="headlineMedium" color="#fff">{pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting'}</Txt>
+            <Txt k="bodyMedium" color="#FFE3E1" numberOfLines={1}>Hi {text(h, 'name').split(' ')[0]} — everything for your guests, here in the app</Txt>
           </View>
         </View>
-      </View>
-      <View style={{ margin: 16, marginBottom: 8, borderRadius: 26, backgroundColor: Brand.Blue, padding: 8, overflow: 'hidden' }}>
+      </TopBar>
+      <View style={{ margin: 16, marginBottom: 8, borderRadius: 26, backgroundColor: Brand.Ink, padding: 8, overflow: 'hidden' }}>
         <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: -50, width: 140, height: 120, borderTopLeftRadius: 70, borderTopRightRadius: 70, backgroundColor: Brand.Sun, opacity: 0.9 }} />
         <View style={{ flexDirection: 'row', gap: 6 }}>
           <HStat label={`Earnings · ${text(m, 'label', 'this month')}`} value={money(num(m, 'earnings') || 0)} flex={1.4} />

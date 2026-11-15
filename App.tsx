@@ -100,9 +100,9 @@ function Shell() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFF8F2' }}>
-      <StatusBar style={darkTop(current) ? 'light' : 'dark'} />
+      <StatusBar style="light" />
       <GlassBackdrop />
-      <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : 'rgba(255,255,255,0.55)' }} />
+      <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : '#C8242B' }} />
       <View style={{ flex: 1 }}>
         <NavigationContainer
           ref={navRef}

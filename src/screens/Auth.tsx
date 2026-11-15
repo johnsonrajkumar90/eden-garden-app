@@ -12,7 +12,7 @@ import { Api, ApiError, errorText } from '../core/api';
 import { AppState } from '../core/state';
 import { str, text } from '../core/json';
 import { Brand, Fonts, RedBar } from '../theme';
-import { Gap, Icon, LinkButton, Notice, OutlineButton, PrimaryButton, Press, Txt, st , HeadButton } from '../ui/kit';
+import { Gap, Icon, LinkButton, Notice, OutlineButton, PrimaryButton, Press, Txt, st , HeadButton, TopBar } from '../ui/kit';
 import { Field } from '../ui/inputs';
 import { Nav, useParams } from '../nav';
 import { handleIncomingLink } from '../links';
@@ -103,15 +103,15 @@ export default function AuthScreen({ startSignUp }: { startSignUp?: boolean }) {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled">
+        <TopBar style={[st.row, { paddingHorizontal: 16 }]}>
+          <HeadButton icon="arrow-back" label="Back" onPress={() => (step === 'SignIn' || step === 'SignUp' ? Nav.back() : go('SignIn'))} />
+          <View style={{ flex: 1 }} />
+          <Image source={require('../../assets/logo_white.png')} style={{ height: 30, width: 112 }} contentFit="contain" />
+        </TopBar>
         <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 22 }}>
-          <View pointerEvents="none" style={{ position: 'absolute', right: -36, top: 56, width: 200, height: 160, borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: '#FFE4E1' }} />
-          <View pointerEvents="none" style={{ position: 'absolute', right: 120, top: 150, width: 20, height: 20, borderRadius: 10, backgroundColor: Brand.Sun }} />
-          <View style={st.row}>
-            <HeadButton icon="arrow-back" label="Back" onPress={() => (step === 'SignIn' || step === 'SignUp' ? Nav.back() : go('SignIn'))} />
-            <View style={{ flex: 1 }} />
-            <Image source={require('../../assets/logo_full.png')} style={{ height: 32, width: 112 }} contentFit="contain" />
-          </View>
-          <View style={{ paddingTop: 34 }}>
+          <View pointerEvents="none" style={{ position: 'absolute', right: -36, top: 10, width: 200, height: 160, borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: '#FFE4E1' }} />
+          <View pointerEvents="none" style={{ position: 'absolute', right: 120, top: 104, width: 20, height: 20, borderRadius: 10, backgroundColor: Brand.Sun }} />
+          <View style={{ paddingTop: 18 }}>
             <Txt k="displaySmall" style={{ maxWidth: 290 }}>{title}</Txt>
             <Txt color={Brand.Muted} style={{ marginTop: 6, maxWidth: 300 }}>{sub}</Txt>
           </View>

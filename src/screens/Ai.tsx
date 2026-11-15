@@ -7,7 +7,7 @@ import { AppState, useAppState } from '../core/state';
 import { J, int, objs, str, text } from '../core/json';
 import * as Loc from '../core/location';
 import { Brand, Fonts, RedBar } from '../theme';
-import { Gap, Icon, OutlineButton, Photo, Press, Txt, st } from '../ui/kit';
+import { Gap, Icon, OutlineButton, Photo, Press, Txt, st, TopBar } from '../ui/kit';
 import { PropertyCard } from '../ui/cards';
 import { PetHostCard } from '../ui/petcards';
 import { Nav } from '../nav';
@@ -62,15 +62,16 @@ export default function AiScreen() {
     : ['A cottage in Ooty for 6 people this weekend', 'How many guests can stay, and what do extra guests cost?', 'Resorts in Munnar under ₹6,000', 'Plan 3 days in Kodaikanal'];
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 12 }}>
+      <TopBar style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12 }}>
         <View style={st.row}>
-          <View style={{ width: 44, height: 40, borderTopLeftRadius: 22, borderTopRightRadius: 22, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, backgroundColor: Brand.Ink, alignItems: 'center', justifyContent: 'center' }}><Icon name="auto-awesome" color={Brand.Sun} /></View>
+          <View style={{ width: 44, height: 40, borderTopLeftRadius: 22, borderTopRightRadius: 22, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}><Icon name="auto-awesome" color={Brand.Sun} /></View>
           <View style={{ paddingLeft: 10 }}>
-            <Txt k="headlineSmall">TripArro AI</Txt>
-            <Txt k="bodySmall" color={Brand.Muted}>{mode === 'pets' ? 'Verified pet hosts only · not veterinary advice' : 'Real listings at live prices'}</Txt>
+            <Txt k="headlineSmall" color="#fff">TripArro AI</Txt>
+            <Txt k="bodySmall" color="#FFE3E1">{mode === 'pets' ? 'Verified pet hosts only · not veterinary advice' : 'Real listings at live prices'}</Txt>
           </View>
         </View>
-        <Gap />
+      </TopBar>
+      <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
         <View style={{ flexDirection: 'row', borderRadius: 50, backgroundColor: Brand.Field, padding: 4 }}>
           {([['travel', 'Stays & trips'], ['pets', 'Pet services']] as const).map(([k, l]) => (
             <Pressable key={k} onPress={() => AppState.set({ aiMode: k })} style={{ flex: 1, borderRadius: 50, backgroundColor: mode === k ? Brand.Blue : 'transparent', paddingVertical: 10 }}>

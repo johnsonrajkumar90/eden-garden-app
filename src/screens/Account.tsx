@@ -8,7 +8,7 @@ import { Api } from '../core/api';
 import { useAppState, useSession } from '../core/state';
 import * as Notifier from '../core/notifier';
 import { Brand } from '../theme';
-import { Card, Gap, Icon, LinkButton, PrimaryButton, Txt, money, st } from '../ui/kit';
+import { Card, Gap, Icon, LinkButton, PrimaryButton, Txt, money, st, TopBar } from '../ui/kit';
 import { RED_GRAD } from '../ui/cards';
 import { dial } from '../ui/sheets';
 import { Nav } from '../nav';
@@ -40,7 +40,7 @@ export default function AccountScreen() {
   const s = session;
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 14 }}><Txt k="displaySmall">Account</Txt></View>
+      <TopBar style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 14 }}><Txt k="displaySmall" color="#fff">Account</Txt></TopBar>
       <View style={{ margin: 16, marginBottom: 0, borderRadius: 28, backgroundColor: Brand.Blue, overflow: 'hidden', padding: 18 }}>
         <View pointerEvents="none" style={{ position: 'absolute', right: -50, bottom: -70, width: 150, height: 130, borderTopLeftRadius: 75, borderTopRightRadius: 75, backgroundColor: '#FF7A6E' }} />
         <View pointerEvents="none" style={{ position: 'absolute', right: 18, top: 16, width: 14, height: 14, borderRadius: 7, backgroundColor: Brand.Sun }} />

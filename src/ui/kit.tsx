@@ -69,30 +69,41 @@ export function Appear({ children, index = 0, style }: { children: ReactNode; in
 
 /* ---------- Layout pieces ---------- */
 /** A round button in the header: back, share, star (white on the light page, hairline ring). */
-export function HeadButton({ icon, label, onPress, tint = Brand.Ink }: { icon: string; label: string; onPress: () => void; tint?: string }) {
+/** A round button on the red top bar: back, share, star (frosted white ring, white icon). */
+export function HeadButton({ icon, label, onPress, tint = '#fff' }: { icon: string; label: string; onPress: () => void; tint?: string }) {
   return (
     <Pressable onPress={onPress} hitSlop={6} accessibilityRole="button" accessibilityLabel={label}
-      style={({ pressed }) => [st.headBtn, pressed ? { backgroundColor: '#fff' } : null]}>
+      style={({ pressed }) => [st.barRound, pressed ? { backgroundColor: 'rgba(255,255,255,0.34)' } : null]}>
       <Icon name={icon} size={21} color={tint} />
     </Pressable>
   );
 }
 
-/** The top of every inner screen: a round back button, the title, actions — on the page itself, no coloured band. */
-export function BackBar({ title, onBack, actions }: { title: string; onBack?: () => void; actions?: ReactNode }) {
+/** The filled top bar every screen has: red with a soft gradient, white text and buttons. */
+export const BAR_GRAD = ['#C8242B', '#D93338', '#EE4F4F'] as const;
+export function TopBar({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return (
-    <View style={st.bar}>
-      {onBack ? <HeadButton icon="arrow-back" label="Back" onPress={onBack} /> : <View style={{ width: 4 }} />}
-      <Txt k="titleMedium" numberOfLines={1} style={{ flex: 1, marginLeft: 12, fontFamily: Fonts.s, fontSize: 17 }}>{title}</Txt>
-      <View style={[st.row, { gap: 4 }]}>{actions}</View>
-    </View>
+    <LinearGradient colors={BAR_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]}>
+      {children}
+    </LinearGradient>
   );
 }
 
-/** Main screens: the round back button on top, then a big title on the page (no coloured band). */
+/** The top of every inner screen: the red bar with a round back button, the title and actions. */
+export function BackBar({ title, onBack, actions }: { title: string; onBack?: () => void; actions?: ReactNode }) {
+  return (
+    <TopBar style={[st.row, { minHeight: 60 }]}>
+      {onBack ? <HeadButton icon="arrow-back" label="Back" onPress={onBack} /> : <View style={{ width: 4 }} />}
+      <Txt k="titleMedium" color="#fff" numberOfLines={1} style={{ flex: 1, marginLeft: 12, fontFamily: Fonts.s, fontSize: 17 }}>{title}</Txt>
+      <View style={[st.row, { gap: 4 }]}>{actions}</View>
+    </TopBar>
+  );
+}
+
+/** Main screens: the red bar with the back button, then a big white title in it. */
 export function ColorHeader({ title, sub, onBack, actions, children }: { title: string; sub?: string | null; onBack?: () => void; actions?: ReactNode; children?: ReactNode }) {
   return (
-    <View style={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 14 }}>
+    <TopBar style={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 16, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
       {onBack || actions ? (
         <View style={[st.row, { minHeight: 44, marginBottom: 6 }]}>
           {onBack ? <HeadButton icon="arrow-back" label="Back" onPress={onBack} /> : null}
@@ -100,10 +111,10 @@ export function ColorHeader({ title, sub, onBack, actions, children }: { title: 
           <View style={[st.row, { gap: 4 }]}>{actions}</View>
         </View>
       ) : null}
-      <Txt k="headlineMedium">{title}</Txt>
-      {sub ? <Txt k="bodyMedium" color={Brand.Muted} style={{ marginTop: 2 }}>{sub}</Txt> : null}
+      <Txt k="headlineMedium" color="#fff">{title}</Txt>
+      {sub ? <Txt k="bodyMedium" color="#FFE3E1" style={{ marginTop: 2 }}>{sub}</Txt> : null}
       {children}
-    </View>
+    </TopBar>
   );
 }
 
@@ -271,7 +282,7 @@ export function ChipChoice<V extends string | number>({ options, value, onChange
 }
 
 /** The safe-area spacer at the top (status bar), the page colour by default. */
-export function StatusSpace({ color = Brand.Page }: { color?: string }) {
+export function StatusSpace({ color = '#C8242B' }: { color?: string }) {
   const i = useSafeAreaInsets();
   return <View style={{ height: i.top, backgroundColor: color }} />;
 }
@@ -280,6 +291,7 @@ export const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
   bar: { flexDirection: 'row', alignItems: 'center', minHeight: 60, paddingHorizontal: 12, paddingVertical: 8 },
   barBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22 },
+  barRound: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   headBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
   card: { backgroundColor: 'rgba(255,255,255,0.74)', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.07, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
   glass: { backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 3 },

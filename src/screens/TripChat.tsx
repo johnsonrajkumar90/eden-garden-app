@@ -10,7 +10,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Api, errorText } from '../core/api';
 import { J, bool, int, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
-import { ErrorBox, Icon, Loading, Txt, clock, parseIso, st, MONTHS , HeadButton } from '../ui/kit';
+import { ErrorBox, Icon, Loading, Txt, clock, parseIso, st, MONTHS , HeadButton, TopBar } from '../ui/kit';
 import { Dialog } from '../ui/sheets';
 import { TripCover } from './GroupsUi';
 import { Nav, intParam, useParams } from '../nav';
@@ -87,15 +87,15 @@ export default function TripChatScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: Wallpaper }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[st.row, { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: Brand.Page, borderBottomWidth: 1, borderBottomColor: Brand.Line }]}>
+      <TopBar style={st.row}>
         <HeadButton icon="arrow-back" label="Back" onPress={Nav.back} />
         <View style={{ width: 42, height: 42, borderRadius: 21, overflow: 'hidden', marginLeft: 10 }}><TripCover cover={str(g, 'cover')} name={text(g, 'title') + ' ' + text(g, 'destination')} style={{ flex: 1 }} iconSize={26} /></View>
         <View style={{ flex: 1, paddingLeft: 10 }}>
-          <Txt k="titleMedium" semi numberOfLines={1}>{text(g, 'title') || 'Trip chat'}</Txt>
-          <Txt k="bodySmall" color={Brand.Muted} numberOfLines={1}>{names.join(', ') || 'Everyone in the trip'}</Txt>
+          <Txt k="titleMedium" semi color="#fff" numberOfLines={1}>{text(g, 'title') || 'Trip chat'}</Txt>
+          <Txt k="bodySmall" color="#FFE3E1" numberOfLines={1}>{names.join(', ') || 'Everyone in the trip'}</Txt>
         </View>
         <HeadButton icon="more-vert" label="More" onPress={() => setMenu(true)} />
-      </View>
+      </TopBar>
       <View style={{ flex: 1 }}>
         <Doodles />
         {!g && !err ? <Loading /> : !g ? <ErrorBox message={err || 'Could not open the chat.'} /> : (

@@ -46,6 +46,7 @@ echo "stay=$STAY resort=$RESORT pet=$PET"
 
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1; shot welcome 18
 # the welcome screen and the offer popup animate, so the screen reader dump can't see them: tap by position (Pixel 6, 1080x2400)
+adb shell input tap 860 652; sleep 1         # the system "Viewing full screen" hint
 adb shell input tap 540 2124; sleep 6          # "Look around first"
 adb shell input tap 940 792; sleep 2            # the offer popup's close button
 shot explore 4

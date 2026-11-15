@@ -25,7 +25,7 @@ export function PdfScreen() {
   return (
     <View style={{ flex: 1 }}>
       <ColorHeader title={title} onBack={Nav.back} actions={file ? (
-        <Pressable onPress={() => Sharing.shareAsync(file, { mimeType: 'application/pdf', dialogTitle: 'Share or save', UTI: 'com.adobe.pdf' }).catch(() => {})} style={{ padding: 10 }} accessibilityLabel="Share or save"><Icon name="share" color={Brand.Ink} /></Pressable>
+        <Pressable onPress={() => Sharing.shareAsync(file, { mimeType: 'application/pdf', dialogTitle: 'Share or save', UTI: 'com.adobe.pdf' }).catch(() => {})} style={{ padding: 10 }} accessibilityLabel="Share or save"><Icon name="share" color="#fff" /></Pressable>
       ) : null} />
       {err ? <ErrorBox message={err} onRetry={() => setTick((t) => t + 1)} /> : !file ? <Loading /> : (
         <Pdf source={{ uri: file }} style={{ flex: 1, backgroundColor: 'transparent' }} trustAllCerts={false} onError={() => setErr('This document could not be shown.')} />

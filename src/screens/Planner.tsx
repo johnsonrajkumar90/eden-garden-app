@@ -94,7 +94,7 @@ export default function PlannerScreen() {
   if (busy) return <TripLoading from={from?.kind === 'gps' ? 'Your location' : from?.name} to={to?.name} />;
   return (
     <View style={{ flex: 1 }}>
-      <BackBar title="Travel planner" onBack={Nav.back} actions={<Pressable onPress={() => Nav.navigate('myplaces')} style={st.barBtn} accessibilityLabel="My places"><Icon name="star" color={Brand.Ink} /></Pressable>} />
+      <BackBar title="Travel planner" onBack={Nav.back} actions={<Pressable onPress={() => Nav.navigate('myplaces')} style={st.barBtn} accessibilityLabel="My places"><Icon name="star" color="#fff" /></Pressable>} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
           <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 }}>
@@ -189,7 +189,7 @@ function PlanView({ plan, savedId, onBack, onDeleted, tripInfo }: { plan: J; sav
 
   return (
     <View style={{ flex: 1 }}>
-      <BackBar title={title} onBack={onBack} actions={saved !== null && onDeleted ? <Pressable onPress={() => Api.post(`trip/plans/${saved}/delete`).then(onDeleted).catch(() => {})} style={st.barBtn} accessibilityLabel="Delete plan"><Icon name="delete-outline" color={Brand.Ink} /></Pressable> : null} />
+      <BackBar title={title} onBack={onBack} actions={saved !== null && onDeleted ? <Pressable onPress={() => Api.post(`trip/plans/${saved}/delete`).then(onDeleted).catch(() => {})} style={st.barBtn} accessibilityLabel="Delete plan"><Icon name="delete-outline" color="#fff" /></Pressable> : null} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <FlatList data={stops} keyExtractor={(s, i) => stopKey(s) + i} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 40, gap: 12 }} keyboardShouldPersistTaps="handled"
           ListHeaderComponent={

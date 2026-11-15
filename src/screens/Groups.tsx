@@ -13,7 +13,7 @@ import { Picked, pickPhoto, uploadOf } from '../core/files';
 import { AppState, useAppState, useLoader, useSession } from '../core/state';
 import { J, arr, bool, int, num, obj, objs, str, text } from '../core/json';
 import { Brand } from '../theme';
-import { BackBar, Card, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, OutlineButton, Photo, PrimaryButton, Txt, prettyDate, shareLink, shortDate, st, DAYS, MONTHS, parseIso } from '../ui/kit';
+import { BackBar, Card, EmptyBox, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, OutlineButton, Photo, PrimaryButton, Txt, prettyDate, shareLink, shortDate, st, DAYS, MONTHS, parseIso } from '../ui/kit';
 import { DateRangeSheet, Field } from '../ui/inputs';
 import { Dialog, copyText } from '../ui/sheets';
 import { HubTabs, MakeTripCard, TripCard, TripCover } from './GroupsUi';
@@ -28,6 +28,7 @@ const prettyRange = (a: string, b: string) => (!b || b === a ? prettyDay(a) : pr
 /** The list in My trips → Group trips: your group trips, make a new one, or join with a code. */
 export function GroupTripsList() {
   const tick = useAppState('refreshTick');
+  const session = useSession();
   const l = useLoader(() => Api.get('trip-groups'), [tick]);
   const [creating, setCreating] = useState(false);
   const [newIdea, setNewIdea] = useState('');
@@ -43,7 +44,8 @@ export function GroupTripsList() {
         <InvitationCard key={int(inv, 'id')} inv={inv} onJoin={() => Nav.navigate(`groupjoin/${text(inv, 'code')}`)}
           onDecline={() => Api.post(`trip-groups/invites/${int(inv, 'id')}/decline`).then(() => AppState.bump()).catch(() => {})} />
       ))}
-      {!data && l.loading ? <Loading /> : !data ? <ErrorBox message={l.error || 'Could not load your group trips.'} onRetry={l.reload} />
+      {!session?.user ? <EmptyBox title="Sign in to plan trips together" text="Make a trip, invite family and friends, and plan it together." action="Sign in" icon="groups" onAction={() => Nav.navigate('login')} />
+        : !data && l.loading ? <Loading /> : !data ? <ErrorBox message={l.error || 'Could not load your group trips.'} onRetry={l.reload} />
         : !objs(data, 'items').length ? <Txt color={Brand.Muted} style={{ padding: 8 }}>No trips yet. Name one above — or tap an idea — and share its link with family and friends.</Txt>
         : (
           <>

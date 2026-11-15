@@ -8,7 +8,7 @@ import { AppState } from '../core/state';
 import { J, int, objs } from '../core/json';
 import * as Loc from '../core/location';
 import { Brand, Fonts } from '../theme';
-import { Appear, EmptyBox, ErrorBox, Gap, Icon, LinkButton, Press, PrimaryButton, Txt, st } from '../ui/kit';
+import { Appear, EmptyBox, ErrorBox, Gap, Icon, LinkButton, Press, PrimaryButton, Txt, st, TopBar } from '../ui/kit';
 import { Choice, DateRangeField, Stepper } from '../ui/inputs';
 import { Floaty, SUN_GRAD, SkeletonGrid, chunk } from '../ui/cards';
 import { PetGridCard, petEmoji, petTypes } from '../ui/petcards';
@@ -64,12 +64,14 @@ export default function PetSearchScreen() {
   const rows: { key: string; el: React.ReactElement }[] = [];
   rows.push({ key: 'head', el: (
     <View>
-      <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: 40, width: 190, height: 150, borderTopLeftRadius: 95, borderTopRightRadius: 95, backgroundColor: '#FFF1C7' }} />
+      <TopBar style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+        <Image source={require('../../assets/logo_white.png')} style={{ height: 30, width: 112 }} contentFit="contain" contentPosition="left" accessibilityLabel="TripArro" />
+      </TopBar>
+      <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: 70, width: 190, height: 150, borderTopLeftRadius: 95, borderTopRightRadius: 95, backgroundColor: '#FFF1C7' }} />
       <Floaty distance={6} ms={2400} style={{ position: 'absolute', right: 40, top: 70, opacity: 0.8, transform: [{ rotate: '18deg' }] }}><Text style={{ fontSize: 40 }}>🐾</Text></Floaty>
       <Floaty distance={5} ms={2100} style={{ position: 'absolute', right: 110, top: 140, opacity: 0.6 }}><Text style={{ fontSize: 24 }}>🦴</Text></Floaty>
       <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-        <Image source={require('../../assets/logo_full.png')} style={{ height: 32, width: 112 }} contentFit="contain" contentPosition="left" />
-        <Gap h={18} />
+        <Gap h={8} />
         <Appear><Txt k="displaySmall" style={{ maxWidth: 260 }}>A loving home for your pet</Txt></Appear>
         <Appear index={1}><Txt color={Brand.Muted} style={{ marginTop: 6 }}>Verified pet hosts · daily photo diary · secure payment</Txt></Appear>
         <Gap h={16} />

@@ -11,7 +11,7 @@ import { useLoader } from '../core/state';
 import { J, int, obj, objs, str, text } from '../core/json';
 import * as Notifier from '../core/notifier';
 import { Brand, Fonts } from '../theme';
-import { Appear, EmptyBox, ErrorBox, Icon, Loading, Notice, Photo, Press, Txt, ColorHeader, clock, initialsOf, parseIso, st , HeadButton } from '../ui/kit';
+import { Appear, EmptyBox, ErrorBox, Icon, Loading, Notice, Photo, Press, Txt, ColorHeader, clock, initialsOf, parseIso, st , HeadButton, TopBar } from '../ui/kit';
 import { Pulse, RED_GRAD, SUN_GRAD } from '../ui/cards';
 import { Nav, intParam, useParams } from '../nav';
 
@@ -116,14 +116,14 @@ function ChatWindow({ title, sub, avatar, me, otherName, start, load, send, foot
   const rows = pending ? [...msgs, { id: Number.MAX_SAFE_INTEGER, from: me, body: pending, at: new Date().toISOString(), _pending: true }] : msgs;
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[st.row, { paddingHorizontal: 12, paddingTop: 8, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: Brand.Line }]}>
+      <TopBar style={[st.row, { paddingTop: 8, paddingBottom: 10 }]}>
         <HeadButton icon="arrow-back" label="Back" onPress={Nav.back} />
         <View style={{ width: 42, height: 42, borderRadius: 21, marginLeft: 10, backgroundColor: Brand.Sun, alignItems: 'center', justifyContent: 'center' }}><Txt k="titleSmall" color={Brand.Ink}>{avatar}</Txt></View>
         <View style={{ flex: 1, paddingLeft: 10 }}>
-          <Txt k="titleMedium" numberOfLines={1}>{title}</Txt>
-          <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1}>{sub}</Txt>
+          <Txt k="titleMedium" color="#fff" numberOfLines={1}>{title}</Txt>
+          <Txt k="labelMedium" color="#FFE3E1" numberOfLines={1}>{sub}</Txt>
         </View>
-      </View>
+      </TopBar>
       <View style={{ flex: 1 }}>
         <WallpaperBg />
         {!loaded ? <Loading /> : null}

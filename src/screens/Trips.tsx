@@ -7,7 +7,7 @@ import { Api, errorText } from '../core/api';
 import { AppState, useAppState, useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, text } from '../core/json';
 import { Brand, RedBar } from '../theme';
-import { BackBar, Card, EmptyBox, ErrorBox, Gap, Icon, KeyValue, LinkButton, Loading, Notice, OutlineButton, Photo, Pill, PriceTable, PrimaryButton, SectionTitle, StarPicker, Txt, dateTime, money, plural, prettyDate, shareLink, shortDate, st, today } from '../ui/kit';
+import { BackBar, Card, EmptyBox, ErrorBox, Gap, Icon, KeyValue, LinkButton, Loading, Notice, OutlineButton, Photo, Pill, PriceTable, PrimaryButton, SectionTitle, StarPicker, Txt, dateTime, money, plural, prettyDate, shareLink, shortDate, st, today, TopBar } from '../ui/kit';
 import { GatewayPicker, chosenGateway } from '../ui/gateway';
 import { CheckRow, Field } from '../ui/inputs';
 import { Dialog, dial } from '../ui/sheets';
@@ -29,10 +29,10 @@ export default function TripsScreen() {
   }, [session?.user?.id, tick]);
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10 }}>
-        <Txt k="displaySmall">My trips</Txt>
-        <Txt color={Brand.Muted} style={{ marginTop: 2 }}>Trips with family & friends, bookings and tickets</Txt>
-      </View>
+      <TopBar style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+        <Txt k="displaySmall" color="#fff">My trips</Txt>
+        <Txt color="#FFE3E1" style={{ marginTop: 2 }}>Trips with family & friends, bookings and tickets</Txt>
+      </TopBar>
       {!session?.user ? <EmptyBox title="Sign in to see your trips" text="Your stays, resorts and pet services bookings appear here." action="Sign in" icon="luggage" onAction={() => Nav.navigate('login')} />
         : <TripsList tab={tab} setTab={setTab} l={l} />}
     </View>

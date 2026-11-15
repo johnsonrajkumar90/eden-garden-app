@@ -7,7 +7,7 @@ import { Api, errorText } from '../core/api';
 import { useAppState, useLoader, useSession } from '../core/state';
 import { J, int, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
-import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, Photo, Press, PrimaryButton, SectionTitle, Txt, st } from '../ui/kit';
+import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar } from '../ui/kit';
 import { DateRangeField, Stepper } from '../ui/inputs';
 import { GridRow, PlaceCard, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
 import { Nav } from '../nav';
@@ -48,15 +48,15 @@ export default function ExploreScreen() {
 
   const rows: Row[] = [{ key: 'head', render: () => (
     <View>
-      <View style={[st.row, { paddingLeft: 16, paddingRight: 12, paddingTop: 8, paddingBottom: 4 }]}>
-        <Image source={require('../../assets/logo_full.png')} style={{ height: 34, width: 120 }} contentFit="contain" contentPosition="left" accessibilityLabel="TripArro" />
+      <TopBar style={[st.row, { paddingLeft: 16, paddingRight: 12, paddingTop: 8, paddingBottom: 8 }]}>
+        <Image source={require('../../assets/logo_white.png')} style={{ height: 32, width: 120 }} contentFit="contain" contentPosition="left" accessibilityLabel="TripArro" />
         <View style={{ flex: 1 }} />
         <WalletChip />
         <View>
           <HeadButton icon="notifications-none" label="Notifications" onPress={() => Nav.navigate(session?.user ? 'notifications' : 'login')} />
-          {unread > 0 ? <View pointerEvents="none" style={{ position: 'absolute', top: 2, right: 2, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: Brand.Blue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Txt k="labelSmall" color="#fff" style={{ fontSize: 9 }}>{unread > 9 ? '9+' : unread}</Txt></View> : null}
+          {unread > 0 ? <View pointerEvents="none" style={{ position: 'absolute', top: 2, right: 2, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: Brand.Sun, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Txt k="labelSmall" color={Brand.Ink} style={{ fontSize: 9 }}>{unread > 9 ? '9+' : unread}</Txt></View> : null}
         </View>
-      </View>
+      </TopBar>
       <View>
         {/* the logo's arch, faint, behind the greeting */}
         <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: 8, width: 190, height: 150, borderTopLeftRadius: 95, borderTopRightRadius: 95, backgroundColor: '#FFE4E1' }} />
