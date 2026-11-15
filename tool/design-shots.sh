@@ -42,13 +42,17 @@ PY
 echo "stay=$STAY resort=$RESORT pet=$PET"
 
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1; shot welcome 18
-tap "Look around first"; closepopup; shot explore 5
+# the welcome screen and the offer popup animate, so the screen reader dump can't see them: tap by position (Pixel 6, 1080x2400)
+adb shell input tap 540 2124; sleep 6          # "Look around first"
+adb shell input tap 940 792; sleep 2            # the offer popup's close button
+shot explore 4
 up; shot explore-2 3; up; shot explore-3 3; up; shot explore-4 3
-tap "Pets"; closepopup; shot pets 6; up; shot pets-2 3
-tap "Trips"; shot trips 5
-tap "AI"; shot ai 5
-tap "Account"; shot account 5; up; shot account-2 3
-[ "$STAY" != 0 ] && { link "https://triparro.com/stays/$STAY"; shot stay 10; up; shot stay-2 3; up; shot stay-3 3; up; shot stay-4 3; adb shell input keyevent KEYCODE_BACK; }
+# the tab dock: the open tab is wider, so each tap position is worked out for the tab before it
+adb shell input tap 378 2252; shot pets 7; up; shot pets-2 3
+adb shell input tap 549 2252; shot trips 5
+adb shell input tap 721 2252; shot ai 5
+adb shell input tap 892 2252; shot account 5; up; shot account-2 3
+[ "$STAY" != 0 ] && { link "https://triparro.com/stays/$STAY"; sleep 9; adb shell input keyevent KEYCODE_BACK; shot stay 3; up; shot stay-2 3; up; shot stay-3 3; up; shot stay-4 3; adb shell input keyevent KEYCODE_BACK; }
 [ "$RESORT" != 0 ] && { link "https://triparro.com/resorts/$RESORT"; shot resort 10; adb shell input keyevent KEYCODE_BACK; }
 [ "$PET" != 0 ] && { link "https://triparro.com/pet-boarding/$PET"; shot pet-host 10; up; shot pet-host-2 3; adb shell input keyevent KEYCODE_BACK; }
 for r in groups login signup become-host hosting notifications messages page/privacy; do link "triparro-app://$r"; shot "${r//\//-}" 6; done
