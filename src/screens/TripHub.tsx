@@ -26,9 +26,10 @@ import { CoverSheet, LiveSpot, PlaceSource } from './TripExtras';
 import { RestaurantsRow } from './Restaurants';
 import { Nav, intParam, useParams } from '../nav';
 
-const Night = '#15161C', NightPlum = '#241A2A', Frost = '#FFFFFF1F', FrostLine = '#FFFFFF2E', Soft = '#FFFFFFB3';
+// light glass (white, red and sun-yellow): frosted white panels over the app's glowing backdrop
+const Frost = '#FDECEC', FrostLine = 'rgba(255,255,255,0.95)', Soft = Brand.InkSoft;
 const niceDay = (iso?: string | null) => { const d = parseIso(iso); return d ? `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}` : ''; };
-const darkGlass = { borderRadius: 26, backgroundColor: '#FFFFFF1F', borderWidth: 1, borderColor: '#FFFFFF2E' };
+const darkGlass = { borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.86)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)', shadowColor: '#D93338', shadowOpacity: 0.12, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 4 };
 
 export default function GroupTripScreen() {
   const id = intParam(useParams().id);
@@ -53,10 +54,10 @@ export default function GroupTripScreen() {
   };
   const g = data;
   if (!g) return (
-    <LinearGradient colors={[Night, NightPlum, Night]} style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <TopRow g={null} onCamera={() => {}} />
       {loading ? <Loading /> : <View style={{ backgroundColor: '#fff', margin: 16, borderRadius: 20 }}><ErrorBox message={loadErr || 'This trip was not found.'} onRetry={load} /></View>}
-    </LinearGradient>
+    </View>
   );
   const r = obj(g, 'readiness') || {};
   const msgs = objs(g, 'messages'); const last = msgs[msgs.length - 1];
@@ -69,27 +70,27 @@ export default function GroupTripScreen() {
   const dest = arr<number>(g, 'dest');
 
   return (
-    <LinearGradient colors={[Night, NightPlum, Night]} style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <TopRow g={g} onCamera={() => setCoverMenu(true)} />
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-        <View style={{ height: 360 }}>
+        <View style={{ height: 360, marginHorizontal: 12, marginTop: 12, borderRadius: 32, overflow: 'hidden', borderWidth: 2, borderColor: '#fff' }}>
           <TripSlider g={g} />
-          <LinearGradient pointerEvents="none" colors={['#00000055', '#00000000', '#00000099', Night]} locations={[0, 0.35, 0.7, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+          <LinearGradient pointerEvents="none" colors={['#00000044', '#00000000', '#00000088', '#000000B3']} locations={[0, 0.35, 0.7, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
           <View style={{ position: 'absolute', left: 20, right: 20, bottom: 96 }}>
             {d1 ? <Txt k="titleMedium" color="#fff">{d2 && d2 !== d1 ? `${d1}  →  ${d2}` : d1}</Txt> : null}
             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
               <Text numberOfLines={3} style={{ flex: 1, color: '#fff', fontSize: 34, lineHeight: 38, fontFamily: Fonts.b }}>{text(g, 'title')}</Text>
-              <Txt k="titleSmall" color={Soft} style={{ marginLeft: 8, marginBottom: 6 }} onPress={() => setSheet('expenses')}>Track spending ›</Txt>
+              <Txt k="titleSmall" color={Brand.Sun} style={{ marginLeft: 8, marginBottom: 6 }} onPress={() => setSheet('expenses')}>Track spending ›</Txt>
             </View>
           </View>
           <Pressable onPress={() => setSheet('readiness')} style={{ position: 'absolute', left: 16, right: 16, bottom: 12, borderRadius: 40, overflow: 'hidden', borderWidth: 1, borderColor: FrostLine }}>
-            <BlurView intensity={40} tint="dark" style={[st.row, { padding: 12, backgroundColor: '#20202866' }]}>
+            <BlurView intensity={45} tint="light" experimentalBlurMethod="dimezisBlurView" style={[st.row, { padding: 12, backgroundColor: 'rgba(255,255,255,0.72)' }]}>
               <Ring percent={int(r, 'percent')} />
               <View style={{ flex: 1, paddingLeft: 14 }}>
-                <Txt k="titleMedium" color="#fff">Trip readiness</Txt>
+                <Txt k="titleMedium">Trip readiness</Txt>
                 <Txt k="bodySmall" color={Soft}>{int(r, 'left') === 0 ? 'All set — have a great trip!' : int(r, 'left') === 1 ? 'One thing left to sort' : 'A few things left to sort'}</Txt>
               </View>
-              <Icon name="keyboard-arrow-right" color="#fff" />
+              <Icon name="keyboard-arrow-right" color={Brand.Blue} />
             </BlurView>
           </Pressable>
         </View>
@@ -98,25 +99,25 @@ export default function GroupTripScreen() {
           {bool(g, 'ended') ? <Notice text={bool(g, 'owner') ? 'You ended this trip. The plan and expenses are closed; photos, posts and albums stay. Open it again in Who\'s going.' : 'This trip has ended. Photos, posts and albums stay here.'} tone="ok" style={{ marginBottom: 10 }} /> : null}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <DarkTile onPress={() => Nav.navigate(`groupchat/${id}`)}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Frost, alignItems: 'center', justifyContent: 'center' }}><Icon name="chat-bubble" color="#fff" /></View>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Frost, alignItems: 'center', justifyContent: 'center' }}><Icon name="chat-bubble" color={Brand.Blue} /></View>
               <View style={{ flex: 1, paddingLeft: 10 }}>
-                <Txt k="titleSmall" color="#fff">Trip chat</Txt>
+                <Txt k="titleSmall">Trip chat</Txt>
                 <Txt k="bodySmall" color={Soft} numberOfLines={1}>{last ? (bool(last, 'mine') ? 'You' : text(last, 'by').split(' ')[0]) + ': ' + text(last, 'body') : 'Say hello'}</Txt>
               </View>
             </DarkTile>
             <DarkTile onPress={() => setSheet('people')}>
               <Avatars initials={members.map((m) => text(m, 'initial'))} size={34} />
               <View style={{ flex: 1, paddingLeft: 8 }}>
-                <Txt k="titleSmall" color="#fff">{members.length} traveller{members.length === 1 ? '' : 's'}</Txt>
+                <Txt k="titleSmall">{members.length} traveller{members.length === 1 ? '' : 's'}</Txt>
                 <Txt k="bodySmall" color={Soft}>See all</Txt>
               </View>
             </DarkTile>
           </View>
           <Gap />
-          <Press onPress={() => setInviting(true)} style={[st.row, { borderRadius: 30, backgroundColor: '#2A2414', borderWidth: 1, borderColor: '#E0B44A55', paddingHorizontal: 18, paddingVertical: 14 }]}>
-            <Icon name="person-add-alt" color="#F2C14E" />
-            <Txt k="titleSmall" color="#F2C14E" style={{ flex: 1, marginLeft: 10 }}>{members.length < 2 ? 'Invite family & friends' : 'Invite more people'}</Txt>
-            <Txt k="titleSmall" color="#fff">· Code {text(g, 'code')}</Txt>
+          <Press onPress={() => setInviting(true)} style={[st.row, { borderRadius: 30, backgroundColor: 'rgba(255,246,214,0.92)', borderWidth: 1.5, borderColor: '#FFD54A', paddingHorizontal: 18, paddingVertical: 14, shadowColor: '#E0A800', shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }]}>
+            <Icon name="person-add-alt" color={Brand.SunInk} />
+            <Txt k="titleSmall" color={Brand.SunInk} style={{ flex: 1, marginLeft: 10 }}>{members.length < 2 ? 'Invite family & friends' : 'Invite more people'}</Txt>
+            <Txt k="titleSmall" color={Brand.Ink}>· Code {text(g, 'code')}</Txt>
           </Press>
           <Gap />
           <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -126,17 +127,17 @@ export default function GroupTripScreen() {
             <Shortcut icon="checklist" ball={['#E3E8FF', '#8C9BF2']} tint="#26338A" label={'Trip\nchecklist'} badge={todos.length ? `${todos.filter((t) => bool(t, 'done')).length}/${todos.length}` : null} onPress={() => setSheet('checklist')} />
           </View>
           <Gap h={18} />
-          <View style={{ flexDirection: 'row', borderRadius: 30, backgroundColor: '#00000066', padding: 5 }}>
+          <View style={[darkGlass, { flexDirection: 'row', borderRadius: 30, padding: 5 }]}>
             {[['posts', 'Posts'], ['plan', 'Plan'], ['albums', 'Albums'], ['fav', 'Places'], ['map', 'Map']].map(([v, t]) => (
-              <Pressable key={v} onPress={() => setTab(v)} style={{ flex: 1, borderRadius: 26, backgroundColor: tab === v ? '#fff' : 'transparent', paddingVertical: 12, alignItems: 'center' }} accessibilityRole="tab" accessibilityState={{ selected: tab === v }}>
-                <Txt k="labelLarge" numberOfLines={1} color={tab === v ? Brand.Ink : '#fff'}>{t}</Txt>
+              <Pressable key={v} onPress={() => setTab(v)} style={{ flex: 1, borderRadius: 26, backgroundColor: tab === v ? Brand.Blue : 'transparent', paddingVertical: 12, alignItems: 'center' }} accessibilityRole="tab" accessibilityState={{ selected: tab === v }}>
+                <Txt k="labelLarge" numberOfLines={1} color={tab === v ? '#fff' : Brand.InkSoft}>{t}</Txt>
               </Pressable>
             ))}
           </View>
           <Gap h={14} />
         </View>
         {tab === 'map' ? <GroupMap g={g} tall /> : (
-          <View style={{ marginHorizontal: 12, borderRadius: 30, backgroundColor: '#F7F3F1F2', padding: 16 }}>
+          <View style={[darkGlass, { marginHorizontal: 12, borderRadius: 30, backgroundColor: 'rgba(255,255,255,0.9)', padding: 16 }]}>
             {tab === 'fav' ? (
               <>
                 <FavouritesPanel g={g} onAdd={() => setSheet('fav')} toggle={(iid) => act(`trip-groups/${id}/items/${iid}/toggle`)} del={(iid) => act(`trip-groups/${id}/items/${iid}/delete`)} />
@@ -157,7 +158,7 @@ export default function GroupTripScreen() {
       </ScrollView>
 
       {inviting ? <ShareTripDialog g={g} justMade={false} onClose={() => setInviting(false)} /> : null}
-      <Sheet open={coverMenu} onClose={() => setCoverMenu(false)} style={{ backgroundColor: '#FBF8F6' }}>
+      <Sheet open={coverMenu} onClose={() => setCoverMenu(false)} style={{ backgroundColor: 'rgba(255,251,248,0.98)' }}>
         {err ? <Notice text={err} tone="bad" style={{ marginBottom: 8 }} /> : null}
         {coverMenu ? <CoverSheet id={id} g={g} busy={busy}
           onAlbum={async () => { const p = await pickPhoto('album'); if (p) upload(`trip-groups/${id}/cover`, [], p); }}
@@ -165,7 +166,7 @@ export default function GroupTripScreen() {
           onDesign={async (key) => { setBusy(true); try { setData(await Api.post(`trip-groups/${id}/cover`, { design: key })); setErr(null); } catch (e) { setErr(errorText(e)); } setBusy(false); }}
           onWeb={async (photo) => { setBusy(true); try { setData(await Api.post(`trip-groups/${id}/cover`, photo ? { google_photo: photo } : { auto: 1 })); setErr(null); } catch (e) { setErr(errorText(e)); } setBusy(false); }} /> : null}
       </Sheet>
-      <Sheet open={!!sheet} onClose={() => { setSheet(''); setErr(null); }} style={{ backgroundColor: '#FBF8F6' }}>
+      <Sheet open={!!sheet} onClose={() => { setSheet(''); setErr(null); }} style={{ backgroundColor: 'rgba(255,251,248,0.98)' }}>
         {/* what went wrong shows here, on the sheet — not hidden behind it */}
         {err ? <Notice text={err} tone="bad" style={{ marginBottom: 8 }} /> : null}
         {sheet === 'add' ? <AddToGroup id={id} done={(nd) => { setData(nd); setSheet(''); setTab('plan'); }} />
@@ -192,7 +193,7 @@ export default function GroupTripScreen() {
           : sheet === 'fav' ? <AddFavourite g={g} busy={busy} save={(fields, photo) => upload(`trip-groups/${id}/items`, fields, photo, () => { setSheet(''); setTab('fav'); })} />
           : null}
       </Sheet>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -221,8 +222,8 @@ function Ring({ percent }: { percent: number }) {
     <View style={{ width: 58, height: 58, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={58} height={58} style={{ position: 'absolute' }}>
         <SvgCircle cx={29} cy={29} r={23} fill="#fff" />
-        <SvgCircle cx={29} cy={29} r={R} stroke="#FFFFFF33" strokeWidth={3} fill="none" />
-        <SvgCircle cx={29} cy={29} r={R} stroke="#5B7BF0" strokeWidth={3} fill="none" strokeDasharray={`${(C * percent) / 100},${C}`} strokeLinecap="round" transform="rotate(-90 29 29)" />
+        <SvgCircle cx={29} cy={29} r={R} stroke="#F5C9C6" strokeWidth={3} fill="none" />
+        <SvgCircle cx={29} cy={29} r={R} stroke={Brand.Blue} strokeWidth={3} fill="none" strokeDasharray={`${(C * percent) / 100},${C}`} strokeLinecap="round" transform="rotate(-90 29 29)" />
       </Svg>
       <Text style={{ color: Brand.Ink, fontFamily: Fonts.bold, fontSize: 15 }}>{percent}%</Text>
     </View>
@@ -237,7 +238,7 @@ function Avatars({ initials, size }: { initials: string[]; size: number }) {
   const shown = initials.slice(0, 3); const colors = ['#FFC72C', '#FF8A7A', '#8C9BF2', '#5CC29A'];
   return (
     <View style={{ width: size + size * 0.55 * Math.max(0, shown.length - 1), height: size }}>
-      {shown.map((t, i) => <View key={i} style={{ position: 'absolute', left: size * 0.55 * i, width: size, height: size, borderRadius: size / 2, backgroundColor: colors[i % 4], borderWidth: 2, borderColor: Night, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontFamily: Fonts.bold, fontSize: 14, color: Brand.Ink }}>{t}</Text></View>)}
+      {shown.map((t, i) => <View key={i} style={{ position: 'absolute', left: size * 0.55 * i, width: size, height: size, borderRadius: size / 2, backgroundColor: colors[i % 4], borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontFamily: Fonts.bold, fontSize: 14, color: Brand.Ink }}>{t}</Text></View>)}
     </View>
   );
 }
@@ -248,10 +249,10 @@ function Shortcut({ icon, ball, tint, label, badge, onPress }: { icon: string; b
       <Appear>
         <Press onPress={onPress} style={[darkGlass, { paddingVertical: 16, paddingHorizontal: 6, alignItems: 'center' }]} accessibilityLabel={label.replace('\n', ' ')}>
           <LinearGradient colors={ball as any} start={{ x: 0.3, y: 0.2 }} end={{ x: 1, y: 1 }} style={{ width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} size={28} color={tint} /></LinearGradient>
-          <Txt k="labelMedium" color="#fff" center style={{ marginTop: 10, lineHeight: 15 }}>{label}</Txt>
+          <Txt k="labelMedium" color={Brand.Ink} center style={{ marginTop: 10, lineHeight: 15 }}>{label}</Txt>
         </Press>
       </Appear>
-      {badge ? <View style={{ position: 'absolute', top: -4, right: -2, borderRadius: 50, backgroundColor: '#fff', paddingHorizontal: 7, paddingVertical: 2 }}><Text numberOfLines={1} style={{ fontFamily: Fonts.bold, fontSize: 11, color: Brand.Ink }}>{badge}</Text></View> : null}
+      {badge ? <View style={{ position: 'absolute', top: -4, right: -2, borderRadius: 50, backgroundColor: Brand.Sun, borderWidth: 1.5, borderColor: '#fff', paddingHorizontal: 7, paddingVertical: 2 }}><Text numberOfLines={1} style={{ fontFamily: Fonts.bold, fontSize: 11, color: Brand.Ink }}>{badge}</Text></View> : null}
     </View>
   );
 }
@@ -273,7 +274,7 @@ function TripSlider({ g }: { g: J }) {
     <View style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }}>
       <FlatList ref={list} data={slides} horizontal pagingEnabled showsHorizontalScrollIndicator={false} keyExtractor={(u, i) => u + i}
         onScrollBeginDrag={() => { dragging.current = true; }} onMomentumScrollEnd={(e) => { dragging.current = false; setPage(Math.round(e.nativeEvent.contentOffset.x / width)); }}
-        renderItem={({ item, index }) => <Image source={{ uri: item }} style={{ width, height: 360, backgroundColor: Night }} contentFit="cover" accessibilityLabel={`Trip photo ${index + 1} of ${slides.length}`} />} />
+        renderItem={({ item, index }) => <Image source={{ uri: item }} style={{ width, height: 360, backgroundColor: '#F3E6E2' }} contentFit="cover" accessibilityLabel={`Trip photo ${index + 1} of ${slides.length}`} />} />
       <View pointerEvents="none" style={{ position: 'absolute', top: 14, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
         {slides.map((_, i) => <View key={i} style={{ height: 6, width: i === page ? 18 : 6, borderRadius: 3, backgroundColor: i === page ? '#fff' : '#FFFFFF88' }} />)}
       </View>
@@ -521,14 +522,14 @@ function ExpensesSheet({ id, g, add, del, act }: { id: number; g: J; add: (b: Re
   return (
     <View>
       <Txt k="titleLarge">Trip expenses</Txt>
-      <LinearGradient colors={['#1F2430', '#3A2440']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[st.row, { marginTop: 10, borderRadius: 22, padding: 18 }]}>
+      <LinearGradient colors={['#C8242B', '#E8474B', '#FF8A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[st.row, { marginTop: 10, borderRadius: 22, padding: 18 }]}>
         <View style={{ flex: 1 }}>
-          <Txt k="labelMedium" color={Soft}>Spent so far</Txt>
+          <Txt k="labelMedium" color="#FFE3E1">Spent so far</Txt>
           <Text style={{ color: '#fff', fontSize: 30, fontFamily: Fonts.b }}>{money(num(ex, 'total') || 0)}</Text>
-          <Txt k="labelSmall" color={Soft}>{int(ex, 'count')} expenses</Txt>
+          <Txt k="labelSmall" color="#FFE3E1">{int(ex, 'count')} expenses</Txt>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Txt k="labelMedium" color={Soft}>Each person</Txt>
+          <Txt k="labelMedium" color="#FFE3E1">Each person</Txt>
           <Text style={{ color: '#fff', fontSize: 20, fontFamily: Fonts.b }}>{money(num(ex, 'per_person') || 0)}</Text>
         </View>
       </LinearGradient>

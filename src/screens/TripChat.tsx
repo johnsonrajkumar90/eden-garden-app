@@ -15,7 +15,7 @@ import { Dialog } from '../ui/sheets';
 import { TripCover } from './GroupsUi';
 import { Nav, intParam, useParams } from '../nav';
 
-const Wallpaper = '#EFE7DE', Mine = '#D9FDD3', WaGreen = '#00A884', TimeGrey = '#667781';
+const Wallpaper = 'rgba(255,255,255,0.35)', Mine = '#FFE1DE', WaGreen = '#D93338', TimeGrey = '#8A7F7A';   // glass theme: the app's backdrop shows through; my messages in soft red
 const NameColors = ['#1F7AEC', '#D62976', '#0E9F6E', '#B45309', '#7C3AED', '#DC2626', '#0891B2', '#65A30D'];
 const WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const FULL_MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

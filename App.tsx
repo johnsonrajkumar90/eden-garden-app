@@ -10,6 +10,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
@@ -98,7 +99,7 @@ function Shell() {
   }, [uid]);
 
   const isTab = (TABS as readonly string[]).includes(current);
-  const dockH = 68 + Math.max(insets.bottom, 10);   // the floating tab dock's height (pages leave room for it)
+  const dockH = 68 + DOCK_GAP + Math.max(insets.bottom, 10);   // the floating tab dock's height (pages leave room for it)
   // the floating menu is on every page, except full-screen viewers, chats (their own message box) and sign-in / payment
   const NO_DOCK = ['photo', 'video', 'pdf', 'chat/', 'chatt/', 'groupchat/', 'hostchat/', 'checkin', 'site', 'login', 'signup', 'pay'];
   const showDock = isTab || !NO_DOCK.some((n) => current.startsWith(n));
@@ -140,11 +141,16 @@ function Shell() {
 }
 
 /** The tab bar: a frosted-glass dock floating at the bottom over the page (pages scroll under it); the open tab is a red pill with a sun-yellow icon and its name. */
+/** Clear space under the floating menu. */
+const DOCK_GAP = 14;
+
 function TabBar({ current, unread, bottom }: { current: string; unread: number; bottom: number }) {
   return (
-    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(bottom, 10), paddingTop: 6, paddingHorizontal: 14 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 32, padding: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)',
-        shadowColor: '#D93338', shadowOpacity: 0.22, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 14 }}>
+    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(bottom, 10) + DOCK_GAP, paddingTop: 6, paddingHorizontal: 16 }}>
+      {/* frosted glass: the page shows softly through; it floats with clear space under it */}
+      <View style={{ borderRadius: 32, shadowColor: '#D93338', shadowOpacity: 0.22, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 14, backgroundColor: 'rgba(255,255,255,0.35)' }}>
+      <BlurView intensity={45} tint="light" experimentalBlurMethod="dimezisBlurView" style={{ borderRadius: 32, overflow: 'hidden' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.62)', borderRadius: 32, padding: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.95)' }}>
         {TABS.map((t) => {
           const [label, icon] = TAB_INFO[t];
           const on = current === t;
@@ -166,6 +172,8 @@ function TabBar({ current, unread, bottom }: { current: string; unread: number; 
             </Pressable>
           );
         })}
+      </View>
+      </BlurView>
       </View>
     </View>
   );
