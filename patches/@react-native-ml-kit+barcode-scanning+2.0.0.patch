@@ -1,0 +1,51 @@
+diff --git a/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/java/com/rnmlkit/barcodescanning/BarcodeScanningModule.java b/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/java/com/rnmlkit/barcodescanning/BarcodeScanningModule.java
+index 30323b4..e7389f3 100644
+--- a/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/java/com/rnmlkit/barcodescanning/BarcodeScanningModule.java
++++ b/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/java/com/rnmlkit/barcodescanning/BarcodeScanningModule.java
+@@ -73,6 +73,15 @@ public class BarcodeScanningModule extends ReactContextBaseJavaModule {
+                                 WritableMap map = Arguments.createMap();
+                                 map.putString("value", barcode.getRawValue());
+                                 map.putDouble("format", barcode.getFormat());
++                                android.graphics.Rect b = barcode.getBoundingBox();
++                                if (b != null) {
++                                    WritableMap frame = Arguments.createMap();
++                                    frame.putDouble("left", b.left);
++                                    frame.putDouble("top", b.top);
++                                    frame.putDouble("width", b.width());
++                                    frame.putDouble("height", b.height());
++                                    map.putMap("frame", frame);
++                                }
+                                 result.pushMap(map);
+                             }
+                             promise.resolve(result);
+diff --git a/node_modules/@react-native-ml-kit/barcode-scanning/index.ts b/node_modules/@react-native-ml-kit/barcode-scanning/index.ts
+index d0bd38d..2330b82 100644
+--- a/node_modules/@react-native-ml-kit/barcode-scanning/index.ts
++++ b/node_modules/@react-native-ml-kit/barcode-scanning/index.ts
+@@ -21,6 +21,8 @@ export enum BarcodeFormat {
+ export interface Barcode {
+   format: BarcodeFormat;
+   value: string;
++  /** Where the code is on the photo (pixels). */
++  frame?: { left: number; top: number; width: number; height: number };
+ }
+ 
+ interface IBarcodeScanning {
+diff --git a/node_modules/@react-native-ml-kit/barcode-scanning/ios/BarcodeScanning.m b/node_modules/@react-native-ml-kit/barcode-scanning/ios/BarcodeScanning.m
+index 6ce5445..ed1e98d 100644
+--- a/node_modules/@react-native-ml-kit/barcode-scanning/ios/BarcodeScanning.m
++++ b/node_modules/@react-native-ml-kit/barcode-scanning/ios/BarcodeScanning.m
+@@ -41,9 +41,11 @@ RCT_EXPORT_METHOD(scan
+                     format = @(barcode.format);
+             }
+               
++            CGRect f = barcode.frame;
+             [result addObject:@{
+-              @"value": barcode.displayValue,
+-              @"format": format
++              @"value": barcode.displayValue ?: @"",
++              @"format": format,
++              @"frame": @{ @"left": @(f.origin.x), @"top": @(f.origin.y), @"width": @(f.size.width), @"height": @(f.size.height) }
+             }];
+           }
+ 

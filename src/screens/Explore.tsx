@@ -1,0 +1,177 @@
+// Explore: find homestays, villas and resorts (search, dates, guests), with favourites and places on the home view.
+import React, { useRef, useState } from 'react';
+import { FlatList, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Api, errorText } from '../core/api';
+import { useAppState, useLoader, useSession } from '../core/state';
+import { J, int, objs, str, text } from '../core/json';
+import { Brand, Fonts } from '../theme';
+import { Appear, EmptyBox, ErrorBox, Gap, Icon, Loading, OutlineButton, Photo, Press, PrimaryButton, SectionTitle, Txt, st } from '../ui/kit';
+import { DateRangeField, Stepper } from '../ui/inputs';
+import { Floaty, GridRow, PlaceCard, RED_GRAD, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
+import { Nav } from '../nav';
+
+type Row = { key: string; render: () => React.ReactElement };
+
+export default function ExploreScreen() {
+  const [q, setQ] = useState('');
+  const [kind, setKind] = useState('all');
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [adults, setAdults] = useState(2);
+  const [searched, setSearched] = useState(false);
+  const [results, setResults] = useState<J[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const home = useLoader(() => Api.get('home'));
+  const sights = useLoader(() => Api.get('explore', { limit: 10 }));
+  const list = useRef<FlatList<Row>>(null);
+  const session = useSession();
+  const unread = useAppState('unread');
+  const first = session?.user?.name?.split(' ')[0];
+
+  const search = async (p = 1, k = kind, query = q) => {
+    setSearched(true); setLoading(true); setError(null);
+    try {
+      const r = await Api.get('properties', { q: query.trim(), kind: k !== 'all' ? k : null, check_in: checkIn || null, check_out: checkOut || null, adults, page: p, per_page: 20 });
+      setResults((old) => (p === 1 ? objs(r, 'items') : [...old, ...objs(r, 'items')]));
+      setTotal(int(r, 'total')); setPage(int(r, 'page', p)); setPages(int(r, 'pages', 1));
+      if (str(r, 'date_error')) setError(str(r, 'date_error'));
+    } catch (e) { setError(errorText(e)); }
+    setLoading(false);
+    if (p === 1) setTimeout(() => { try { list.current?.scrollToIndex({ index: 1, animated: true }); } catch {} }, 100);
+  };
+
+  const rows: Row[] = [{ key: 'head', render: () => (
+    <View>
+      <View style={[st.row, { backgroundColor: Brand.Matte, paddingLeft: 16, paddingRight: 6, paddingTop: 6, paddingBottom: 2 }]}>
+        <Image source={require('../../assets/logo_white.png')} style={{ height: 32, width: 130 }} contentFit="contain" contentPosition="left" accessibilityLabel="TripArro" />
+        <View style={{ flex: 1 }} />
+        <WalletChip />
+        <Pressable onPress={() => Nav.navigate(session?.user ? 'notifications' : 'login')} style={st.barBtn} accessibilityLabel="Notifications">
+          <Icon name="notifications-none" color="#fff" />
+          {unread > 0 ? <View style={{ position: 'absolute', top: 6, right: 6, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: Brand.Coral, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Txt k="labelSmall" color="#fff">{unread > 9 ? '9+' : unread}</Txt></View> : null}
+        </Pressable>
+      </View>
+      <View>
+        <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 230, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }} />
+        <Floaty distance={8} ms={2600} style={{ position: 'absolute', left: 250, top: 10 }}><View style={{ width: 150, height: 150, borderRadius: 75, backgroundColor: '#FFC42E33' }} /></Floaty>
+        <Floaty distance={6} ms={2100} style={{ position: 'absolute', left: 20, top: 150 }}><View style={{ width: 70, height: 70, borderRadius: 35, backgroundColor: '#FFFFFF22' }} /></Floaty>
+        <View style={{ paddingHorizontal: 16, paddingTop: 14 }}>
+          <Appear><Txt k="headlineMedium" color="#fff">{first ? `Hi ${first}, where to next?` : 'Where to next?'}</Txt></Appear>
+          <Txt color="#FFE0DC" style={{ marginTop: 4 }}>Verified homestays, villas and resorts — the full price before you pay.</Txt>
+          <Gap h={18} />
+          <Appear index={1} style={{ borderRadius: 26, backgroundColor: '#fff', padding: 14, elevation: 10, shadowColor: '#B81D2B', shadowOpacity: 0.27, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
+            <View style={[st.row, { borderWidth: 1, borderColor: Brand.Line, borderRadius: 14, backgroundColor: Brand.Page, paddingHorizontal: 12 }]}>
+              <Icon name="search" color={Brand.Blue} />
+              <TextInput value={q} onChangeText={setQ} placeholder="Where to? Ooty, Munnar, Goa…" placeholderTextColor="#A59C97" returnKeyType="search" onSubmitEditing={() => search()}
+                style={{ flex: 1, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, paddingVertical: 14, paddingLeft: 8 }} accessibilityLabel="Where to" />
+            </View>
+            <Gap h={10} />
+            <DateRangeField checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); }} />
+            <Gap h={4} />
+            <Stepper label="Guests" value={adults} onChange={setAdults} min={1} max={30} />
+            <View style={{ flexDirection: 'row', gap: 8, paddingVertical: 6 }}>
+              {[['all', 'All'], ['stay', 'Homestays'], ['resort', 'Resorts']].map(([k, l]) => (
+                <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Matte : Brand.Line, backgroundColor: kind === k ? Brand.Matte : '#fff', paddingHorizontal: 14, paddingVertical: 7 }}>
+                  <Txt k="labelLarge" color={kind === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
+                </Pressable>
+              ))}
+            </View>
+            <Gap h={4} />
+            <PrimaryButton text="Search stays" icon="search" onPress={() => search()} loading={loading && page === 1} />
+          </Appear>
+        </View>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 18, gap: 2 }}>
+        <Shortcut icon="cottage" label="Homestays" tint={Brand.Blue} bg={Brand.Sky} i={2} onPress={() => { setKind('stay'); search(1, 'stay'); }} />
+        <Shortcut icon="pool" label="Resorts" tint={Brand.TealDark} bg={Brand.TealSoft} i={3} onPress={() => { setKind('resort'); search(1, 'resort'); }} />
+        <Shortcut icon="map" label="Trip planner" tint={Brand.Blue} bg={Brand.SunSoft} i={4} onPress={() => Nav.navigate('planner')} />
+        <Shortcut icon="pets" label="Pet services" tint={Brand.CoralDark} bg={Brand.Sky} i={4} onPress={() => Nav.navigate('pets')} />
+        <Shortcut icon="auto-awesome" label="Ask AI" tint={Brand.SunInk} bg={Brand.SunSoft} i={5} onPress={() => Nav.navigate('ai')} />
+        <Shortcut icon="ev-station" label="EV chargers" tint="#00704A" bg={Brand.TealSoft} i={6} onPress={() => Nav.navigate('chargers')} />
+      </ScrollView>
+    </View>
+  ) }];
+
+  if (searched) {
+    rows.push({ key: 'count', render: () => (
+      <View>
+        <View style={[st.row, { paddingHorizontal: 16, paddingVertical: 8 }]}>
+          <Txt k="titleMedium" style={{ flex: 1 }}>{loading && !results.length ? 'Searching…' : `${total} ${total === 1 ? 'place' : 'places'}`}</Txt>
+          <Pressable onPress={() => { setSearched(false); setResults([]); setQ(''); }} style={{ padding: 6 }}><Txt color={Brand.Blue}>Clear</Txt></Pressable>
+        </View>
+        {error ? <ErrorBox message={error} /> : null}
+        {!loading && !results.length && !error ? <EmptyBox title="No places found" text="Try another place, other dates or fewer guests." icon="travel-explore" /> : null}
+        {loading && !results.length ? <SkeletonGrid /> : null}
+      </View>
+    ) });
+    chunk(results).forEach((row, i) => rows.push({ key: 'r' + i + row.map((p) => text(p, 'kind') + int(p, 'id')).join('|'), render: () => <GridRow row={row} index={i} /> }));
+    if (page < pages) rows.push({ key: 'more', render: () => <View style={{ padding: 16 }}><OutlineButton text={loading ? 'Loading…' : 'Show more'} onPress={() => search(page + 1)} /></View> });
+  } else {
+    const h = home.data;
+    if (home.loading && !h) rows.push({ key: 'load', render: () => <Loading /> });
+    if (home.error) rows.push({ key: 'err', render: () => <ErrorBox message={home.error === 'Not found.' ? `We can't reach TripArro right now (${Api.base.replace('https://', '')}). Check your internet connection and try again.` : home.error!} onRetry={home.reload} /> });
+    if (h) {
+      const places = objs(h, 'destinations');
+      if (places.length) rows.push({ key: 'dest', render: () => (
+        <View>
+          <SectionTitle text="Popular places" sub="Tap a place to see its stays" style={{ paddingHorizontal: 16 }} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
+            {places.map((d, i) => (
+              <Press key={i} onPress={() => { setQ(text(d, 'name')); search(1, kind, text(d, 'name')); }} style={{ width: 150, height: 196, borderRadius: 20, overflow: 'hidden' }} accessibilityLabel={text(d, 'name')}>
+                <Photo url={str(d, 'image')} corner={0} style={{ width: '100%', height: '100%' }} />
+                <LinearGradient colors={['transparent', '#3A0A10CC']} locations={[0.45, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+                <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
+                  <Txt k="titleLarge" color="#fff" numberOfLines={1}>{text(d, 'name')}</Txt>
+                  <Txt k="bodySmall" color="#FFE0DC">{int(d, 'count')} {int(d, 'count') === 1 ? 'stay' : 'stays'}</Txt>
+                </View>
+              </Press>
+            ))}
+          </ScrollView>
+        </View>
+      ) });
+      const spots = objs(sights.data, 'places');
+      if (spots.length) rows.push({ key: 'spots', render: () => (
+        <View>
+          <SectionTitle text="Places to visit" sub="With today's weather and the best time to go" style={{ paddingHorizontal: 16, paddingTop: 22 }} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12, paddingBottom: 8 }}>
+            {spots.map((pl, i) => <Appear key={i} index={i}><PlaceCard p={pl} style={{ width: 220 }} onPress={() => Nav.navigate(`place/${int(pl, 'id')}`)} /></Appear>)}
+          </ScrollView>
+        </View>
+      ) });
+      const fav = objs(h, 'favourites');
+      if (fav.length) {
+        rows.push({ key: 'favT', render: () => <SectionTitle text="Guest favourites" sub="Loved by guests, rated highly" style={{ paddingHorizontal: 16, paddingTop: 22 }} /> });
+        chunk(fav).forEach((row, i) => rows.push({ key: 'f' + i, render: () => <GridRow row={row} index={i} /> }));
+      }
+      const sp = objs(h, 'sponsored');
+      if (sp.length) {
+        rows.push({ key: 'spT', render: () => <SectionTitle text="Sponsored" sub="Paid placements, labelled" style={{ paddingHorizontal: 16, paddingTop: 22 }} /> });
+        chunk(sp).forEach((row, i) => rows.push({ key: 's' + i, render: () => <GridRow row={row} index={i} /> }));
+      }
+    }
+  }
+
+  return (
+    <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.render()} contentContainerStyle={{ paddingBottom: 96 }}
+      keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />
+  );
+}
+
+function Shortcut({ icon, label, tint, bg, i, onPress }: { icon: string; label: string; tint: string; bg: string; i: number; onPress: () => void }) {
+  return (
+    <Appear index={i}>
+      <Press onPress={onPress} style={{ width: 82, alignItems: 'center', paddingVertical: 4 }} accessibilityLabel={label}>
+        <View style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: tint, shadowOpacity: 0.3, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } }}>
+          <Icon name={icon} size={26} color={tint} />
+        </View>
+        <Txt k="labelMedium" numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>
+      </Press>
+    </Appear>
+  );
+}

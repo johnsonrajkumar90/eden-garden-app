@@ -1,0 +1,534 @@
+/*
+ * My hosting — the whole hosting dashboard in the app (hosts, resort owners, pet hosts):
+ * Today · Bookings (requests to approve, check-in / check-out) · Calendar (close dates, prices) ·
+ * Listings (price, live / paused) · Money · Messages with guests. TripArro Agents see their portal.
+ */
+import React, { useEffect, useState } from 'react';
+import { Linking, Pressable, ScrollView, Switch, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Api, ApiError, errorText } from '../core/api';
+import { useLoader, useSession } from '../core/state';
+import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
+import { Brand } from '../theme';
+import { Appear, Card, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today } from '../ui/kit';
+import { Field } from '../ui/inputs';
+import { Dialog, dial } from '../ui/sheets';
+import { RED_GRAD, SUN_GRAD } from '../ui/cards';
+import { Nav } from '../nav';
+import { ChatList } from './Chat';
+import { AllListingsCalendar, HostToolsTab, MonthHead, WeekHead, addMonths, leadDays, stateColor, thisMonth, weeks } from './HostTools';
+
+const longDay = (iso: string) => parseIso(iso)?.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) || iso;
+
+export default function HostingScreen() {
+  const s = useSession();
+  const role = s?.user?.role || '';
+  if (['host', 'resort', 'pethost', 'admin'].includes(role)) return <HostDashboard role={role} />;
+  if (role === 'referral') return <AgentPortal />;
+  return (
+    <View style={{ flex: 1 }}>
+      <ColorHeader title="My hosting" sub={s?.user?.name} onBack={Nav.back} />
+      <View style={{ padding: 16 }}>
+        <Notice text="My hosting is for hosts, resort owners and pet hosts. List your property to get started." />
+        <Gap /><PrimaryButton text="List your property" onPress={() => Nav.navigate('become-host')} />
+      </View>
+    </View>
+  );
+}
+
+function HStat({ label, value, flex }: { label: string; value: string; flex: number }) {
+  return (
+    <View style={{ flex, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', padding: 12 }}>
+      <Txt k="titleLarge" color="#fff" numberOfLines={1}>{value}</Txt>
+      <Txt k="labelSmall" color="#FFE0DC" numberOfLines={1}>{label}</Txt>
+    </View>
+  );
+}
+
+function HostDashboard({ role }: { role: string }) {
+  const pets = role === 'pethost';
+  const tabs: [string, string, string][] = [['today', 'Today', 'today'], ['bookings', 'Bookings', 'list-alt']];
+  if (!pets) tabs.push(['calendar', 'Calendar', 'calendar-month']);
+  tabs.push(['listings', 'Listings', 'home'], ['money', 'Money', 'payments']);
+  if (!pets) tabs.push(['chats', 'Messages', 'chat-bubble-outline']);
+  tabs.push(['more', 'More', 'apps']);
+  const [tab, setTab] = useState('today');
+  const [tick, setTick] = useState(0);
+  const home = useLoader(() => Api.get('hostapp/home'), [tick]);
+  const h = home.data;
+  const changed = () => setTick((t) => t + 1);
+  const m = obj(h, 'month') || {};
+  return (
+    <View style={{ flex: 1 }}>
+      <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 14 }}>
+        <View style={[st.row, { paddingLeft: 4, paddingRight: 12, paddingTop: 4 }]}>
+          <Pressable onPress={Nav.back} style={{ padding: 12 }} accessibilityLabel="Back"><Icon name="arrow-back" color="#fff" /></Pressable>
+          <View style={{ flex: 1 }}>
+            <Txt k="headlineSmall" color="#fff">{pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting'}</Txt>
+            <Txt k="labelMedium" color="#FFE0DC" numberOfLines={1}>Hi {text(h, 'name').split(' ')[0]} — everything for your guests, here in the app</Txt>
+          </View>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 10 }}>
+          <HStat label={`Earnings · ${text(m, 'label', 'this month')}`} value={money(num(m, 'earnings') || 0)} flex={1.4} />
+          <HStat label="Bookings" value={String(int(m, 'bookings'))} flex={1} />
+          <HStat label={pets ? 'Pets now' : 'Staying now'} value={String(int(h, 'staying'))} flex={1} />
+        </View>
+      </LinearGradient>
+      <View style={{ backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: Brand.Line }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10, gap: 8 }}>
+          {tabs.map(([k, label, icon]) => {
+            const on = tab === k;
+            const badge = k === 'bookings' ? objs(h, 'requests').length : k === 'chats' ? int(h, 'unread_chats') : 0;
+            const inner = (
+              <>
+                <Icon name={icon} size={18} color={on ? Brand.SunInk : Brand.InkSoft} />
+                <Txt k="labelLarge" color={on ? Brand.SunInk : Brand.InkSoft}> {label}</Txt>
+                {badge > 0 ? <View style={{ marginLeft: 6, minWidth: 20, height: 20, borderRadius: 10, backgroundColor: Brand.Blue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}><Txt k="labelSmall" color="#fff">{badge}</Txt></View> : null}
+              </>
+            );
+            return (
+              <Press key={k} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: on }}>
+                {on ? <LinearGradient colors={SUN_GRAD as any} style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9 }]}>{inner}</LinearGradient>
+                  : <View style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: Brand.Page }]}>{inner}</View>}
+              </Press>
+            );
+          })}
+        </ScrollView>
+      </View>
+      <View style={{ flex: 1 }}>
+        {tab === 'today' ? <TodayTab home={home} pets={pets} changed={changed} />
+          : tab === 'bookings' ? <BookingsTab pets={pets} changed={changed} />
+          : tab === 'calendar' ? <CalendarTab />
+          : tab === 'listings' ? <ListingsTab pets={pets} changed={changed} />
+          : tab === 'money' ? <MoneyTab />
+          : tab === 'chats' ? <ChatsTab />
+          : <HostToolsTab />}
+      </View>
+    </View>
+  );
+}
+
+/* ---------- Today ---------- */
+function TodayTab({ home, pets, changed }: { home: { data: J | null; loading: boolean; error: string | null; reload: () => void }; pets: boolean; changed: () => void }) {
+  const h = home.data;
+  if (!h && home.loading) return <Loading />;
+  if (!h) return <View style={{ padding: 16 }}><ErrorBox message={home.error || 'Could not load your dashboard.'} onRetry={home.reload} /></View>;
+  const req = objs(h, 'requests'); const tod = objs(h, 'today'); const tom = objs(h, 'tomorrow'); const up = objs(h, 'upcoming');
+  const admin = obj(h, 'admin');
+  const list = (bs: J[]) => bs.map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={changed} /></Appear>);
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+      {req.length ? <><SectionTitle text="Waiting for your answer" sub="Approve or decline before the time runs out" />{list(req)}<Gap h={6} /></> : null}
+      {admin ? <><AdminCards a={admin} /><Gap h={10} /></> : null}
+      <SectionTitle text="Today" sub={longDay(today())} />
+      {!tod.length ? <Notice text={pets ? 'No pets arriving or leaving today.' : 'Nobody is arriving or leaving today.'} /> : null}
+      {list(tod)}
+      <Gap h={10} />
+      <SectionTitle text="Arriving tomorrow" sub={longDay(addDays(today(), 1))} />
+      {!tom.length ? <Notice text={pets ? 'No pets arriving tomorrow.' : 'Nobody is arriving tomorrow.'} /> : null}
+      {list(tom)}
+      <Gap h={10} />
+      <SectionTitle text="Coming up" />
+      {!up.length ? <Notice text="No upcoming bookings yet." /> : null}
+      {list(up)}
+      {!pets && int(h, 'unread_chats') > 0 ? <><Gap h={6} /><PrimaryButton text={`${int(h, 'unread_chats')} unread guest messages`} icon="chat-bubble-outline" onPress={() => Nav.navigate('hostchats')} /></> : null}
+    </ScrollView>
+  );
+}
+
+/** The admin's cards on the app dashboard: this month and what is waiting (opens the website's admin page). */
+function AdminCards({ a }: { a: J }) {
+  const m = obj(a, 'month') || {};
+  const w = obj(a, 'wallet');
+  const waiting = objs(a, 'waiting');
+  return (
+    <View>
+      <SectionTitle text="This month" sub="All stays and resorts" />
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {[['Bookings', String(int(m, 'bookings'))], ['Value', money(num(m, 'bookings_value') || 0)], ['Fee + commission', money(num(m, 'platform') || 0)], ['New guests', String(int(m, 'new_guests'))]].map(([k, v]) => (
+          <View key={k} style={{ flex: 1, borderRadius: 16, backgroundColor: '#fff', padding: 10 }}>
+            <Txt bold numberOfLines={1}>{v}</Txt><Txt k="labelSmall" color={Brand.Muted} numberOfLines={2}>{k}</Txt>
+          </View>
+        ))}
+      </View>
+      {w ? <Txt k="bodySmall" color={Brand.Muted} style={{ marginTop: 6 }}>Guest wallets: {money(num(w, 'in_wallets') || 0)} unused · {money(num(w, 'used') || 0)} used on bookings</Txt> : null}
+      {waiting.length ? (
+        <>
+          <Gap h={12} /><SectionTitle text="Waiting for you" />
+          {waiting.map((x, i) => (
+            <Pressable key={i} onPress={() => Linking.openURL(Api.url(text(x, 'link'))).catch(() => {})} style={[st.row, { marginBottom: 6, borderRadius: 14, backgroundColor: Brand.SunSoft, padding: 12 }]}>
+              <Txt semi style={{ flex: 1 }}>{text(x, 'label')}</Txt>
+              <Txt bold color={Brand.SunInk}>{int(x, 'count')}</Txt>
+            </Pressable>
+          ))}
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+/* ---------- One booking, with what the host can do now ---------- */
+const ACT_LABEL: Record<string, string> = { approve: 'Approve', decline: 'Decline', check_in: 'Check in', check_out: 'Check out', complete: 'Complete' };
+
+export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [msg, setMsg] = useState<[string, boolean] | null>(null);
+  const [ask, setAsk] = useState<string | null>(null);
+  const [note, setNote] = useState('');
+  const [balance, setBalance] = useState(false);
+  const run = async (action: string, extra: Record<string, any> = {}) => {
+    setBusy(action); setMsg(null);
+    try {
+      const r = await Api.post(`hostapp/bookings/${text(b, 'kind')}/${int(b, 'id')}/${action}`, extra);
+      setMsg([text(r, 'message', 'Done.'), true]); changed();
+    } catch (e) {
+      if (e instanceof ApiError && e.code === 'balance_due') setBalance(true); else setMsg([errorText(e), false]);
+    }
+    setBusy(null);
+  };
+  const state = text(b, 'state');
+  const [tone, accent] = state === 'request' ? ['warn', Brand.Sun] : state === 'checked_in' ? ['ok', Brand.Teal] : state === 'cancelled' ? ['bad', Brand.Danger] : ['info', Brand.Blue];
+  const pet = text(b, 'kind') === 'pet';
+  const who = pet ? `${int(b, 'pets')} pet${int(b, 'pets') === 1 ? '' : 's'}` : `${int(b, 'guests')} guest${int(b, 'guests') === 1 ? '' : 's'}`;
+  const acts = strings(b, 'actions');
+  const phone = str(b, 'phone');
+  return (
+    <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#B81D2B', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+      <View style={{ height: 5, backgroundColor: accent }} />
+      <View style={{ flexDirection: 'row', padding: 14 }}>
+        <Photo url={str(b, 'image')} style={{ width: 64, height: 64 }} corner={16} />
+        <View style={{ flex: 1, paddingLeft: 12 }}>
+          <View style={st.row}><Txt k="titleMedium" numberOfLines={1} style={{ flex: 1 }}>{text(b, 'guest')}</Txt><Pill text={text(b, 'state_label')} tone={tone} /></View>
+          <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1}>{text(b, 'listing')}</Txt>
+          <Txt k="bodySmall" color={Brand.Muted}>{shortDate(str(b, 'check_in'))} → {shortDate(str(b, 'check_out'))} · {int(b, 'nights')}n · {who}</Txt>
+          <View style={[st.row, { marginTop: 4 }]}>
+            <Txt k="titleSmall" bold color={Brand.BlueDark}>{money(num(b, 'payout') || 0)}</Txt>
+            <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ flex: 1 }}>  your payout · {text(b, 'payment')}</Txt>
+          </View>
+          {str(b, 'requests') ? <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3} style={{ marginTop: 4 }}>“{str(b, 'requests')}”</Txt> : null}
+          {str(b, 'arrival_time') ? <Txt k="labelMedium" color={Brand.TealDark}>Arriving around {str(b, 'arrival_time')}</Txt> : null}
+        </View>
+      </View>
+      {acts.length || phone ? (
+        <View style={[st.row, { gap: 8, paddingHorizontal: 14, paddingBottom: 14 }]}>
+          {phone ? <Press onPress={() => dial(phone)} accessibilityLabel={`Call ${text(b, 'guest')}`} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: Brand.TealSoft, alignItems: 'center', justifyContent: 'center' }}><Icon name="call" color={Brand.TealDark} /></Press> : null}
+          {acts.map((a) => {
+            const idCheckin = a === 'check_in' && text(b, 'kind') === 'stay';   // stays: with the guest's ID (camera or photo)
+            const label = idCheckin ? 'Check in · ID' : ACT_LABEL[a] || a;
+            if (a === 'decline') return <OutlineButton key={a} text={label} color={Brand.Danger} onPress={() => { setNote(''); setAsk(a); }} style={{ flex: 1 }} />;
+            return <PrimaryButton key={a} text={label} loading={busy === a} style={{ flex: 1 }} onPress={() => { if (idCheckin) Nav.navigate(`hostcheckin/${int(b, 'id')}`); else if (a === 'approve') { setNote(''); setAsk(a); } else run(a); }} />;
+          })}
+        </View>
+      ) : null}
+      {msg ? <Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} style={{ marginHorizontal: 14, marginBottom: 14 }} /> : null}
+      <Dialog open={!!ask} onClose={() => setAsk(null)} title={ask === 'approve' ? 'Approve this request?' : 'Decline this request?'}
+        text={ask === 'approve' ? `${text(b, 'guest')} gets a message to pay. The booking is confirmed when the payment succeeds.` : `${text(b, 'guest')} is told and the dates are free again.`}
+        actions={[['Not now', () => setAsk(null)], [ask === 'approve' ? 'Approve' : 'Decline', () => { const a = ask!; setAsk(null); run(a, { note: note.trim() || null }); }, ask === 'approve' ? Brand.TealDark : Brand.Danger]]}>
+        <Field label={ask === 'approve' ? 'A note for the guest (optional)' : 'Reason (optional)'} value={note} onChange={setNote} />
+      </Dialog>
+      <Dialog open={balance} onClose={() => setBalance(false)} title="Balance received?" text="The guest still owes part of the price. Check out only after you received it."
+        actions={[['Cancel', () => setBalance(false)], ['Yes, received — check out', () => { setBalance(false); run('check_out', { collected: true }); }]]} />
+    </View>
+  );
+}
+
+/* ---------- Bookings ---------- */
+function BookingsTab({ pets, changed }: { pets: boolean; changed: () => void }) {
+  const [which, setWhich] = useState('upcoming');
+  const [tick, setTick] = useState(0);
+  const l = useLoader(() => Api.get('hostapp/bookings', { which }), [which, tick]);
+  const d = l.data;
+  const opts: [string, string][] = [['upcoming', 'Upcoming'], ['requests', 'Requests'], ['today', 'Today'], ['in_house', pets ? 'Pets now' : 'Staying now'], ['past', 'Past']];
+  return (
+    <View style={{ flex: 1 }}>
+      <View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 8 }}>
+          {opts.map(([k, lab]) => {
+            const on = which === k;
+            return <Press key={k} onPress={() => setWhich(k)} style={{ borderRadius: 50, backgroundColor: on ? Brand.Matte : '#fff', borderWidth: 1, borderColor: on ? Brand.Matte : Brand.Line, paddingHorizontal: 14, paddingVertical: 8 }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{lab}</Txt></Press>;
+          })}
+        </ScrollView>
+      </View>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 30 }}>
+        {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load bookings.'} onRetry={l.reload} />
+          : !objs(d, 'bookings').length ? <EmptyBox title="Nothing here" icon="list-alt" text={which === 'requests' ? 'No requests waiting for you.' : which === 'past' ? 'No past bookings yet.' : 'No bookings in this list.'} />
+          : objs(d, 'bookings').map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={() => { setTick((t) => t + 1); changed(); }} /></Appear>)}
+      </ScrollView>
+    </View>
+  );
+}
+
+/* ---------- Calendar: close dates, open them again, set prices ---------- */
+function CalendarTab() {
+  const [listing, setListing] = useState('');
+  const [month, setMonth] = useState(thisMonth());
+  const [tick, setTick] = useState(0);
+  const [first, setFirst] = useState<string | null>(null);
+  const [last, setLast] = useState<string | null>(null);
+  const [msg, setMsg] = useState<[string, boolean] | null>(null);
+  const [priceAsk, setPriceAsk] = useState(false);
+  const [price, setPrice] = useState('');
+  const [busy, setBusy] = useState(false);
+  const l = useLoader(() => Api.get('hostapp/calendar', { listing: listing || null, month }), [listing, month, tick]);
+  const d = l.data;
+  useEffect(() => { if (!listing) { const t = str(obj(d, 'listing'), 'tag'); if (t) setListing(t); } }, [d]);
+  const act = async (path: string, body: Record<string, any>) => {
+    setBusy(true); setMsg(null);
+    try { setMsg([text(await Api.post(path, body), 'message', 'Saved.'), true]); setFirst(null); setLast(null); setTick((t) => t + 1); } catch (e) { setMsg([errorText(e), false]); }
+    setBusy(false);
+  };
+  if (!d) return <View style={{ padding: 16 }}>{l.loading ? <Loading /> : <ErrorBox message={l.error || 'Could not load the calendar.'} onRetry={l.reload} />}</View>;
+  const ls = objs(d, 'listings');
+  const all = bool(d, 'all');
+  const cur = obj(d, 'listing');
+  const tag = text(cur, 'tag', listing);
+  const pick = (t: string) => { setListing(t); setFirst(null); setLast(null); };
+  const chip = (key: string, label: string, on: boolean, onPress: () => void) => (
+    <Press key={key} onPress={onPress}>
+      {on ? <LinearGradient colors={SUN_GRAD as any} style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8 }}><Txt k="labelLarge" color={Brand.SunInk} numberOfLines={1}>{label}</Txt></LinearGradient>
+        : <View style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#fff' }}><Txt k="labelLarge" color={Brand.InkSoft} numberOfLines={1}>{label}</Txt></View>}
+    </Press>
+  );
+  const days = objs(d, 'days');
+  const t0 = today();
+  const kind = text(cur, 'kind');
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+      {ls.length > 1 ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {chip('all', 'All in one', all, () => pick('all'))}
+          {ls.map((x) => chip(text(x, 'tag'), text(x, 'title'), !all && text(x, 'tag') === tag, () => pick(text(x, 'tag'))))}
+        </ScrollView>
+      ) : null}
+      <Gap h={12} />
+      {all ? <AllListingsCalendar d={d} month={month} onMonth={setMonth} onListing={pick} /> : (
+        <>
+          <Card padding={12}>
+            <MonthHead label={text(d, 'label')} month={month} onMonth={setMonth} />
+            <WeekHead />
+            {weeks(days.length ? leadDays(text(days[0], 'date')) : 0, days).map((w, wi) => (
+              <View key={wi} style={{ flexDirection: 'row', paddingVertical: 2 }}>
+                {Array.from({ length: 7 }, (_, i) => {
+                  const c = w[i];
+                  return (
+                    <View key={i} style={{ flex: 1, aspectRatio: 0.82, padding: 2 }}>
+                      {c ? (() => {
+                        const date = text(c, 'date'); const s = text(c, 'state');
+                        const sel = !!first && date >= first && date <= (last || first);
+                        const past = date < t0;
+                        const bg = sel ? Brand.Sun : stateColor(s === 'free' ? '' : s);
+                        const fg = ['booked', 'platform', 'closed'].includes(s) && !sel ? '#fff' : Brand.Ink;
+                        const p = num(c, 'price');
+                        return (
+                          <Press scaleTo={0.9} onPress={() => {
+                            if (past) return;
+                            if (s === 'closed' && int(c, 'block_id') > 0) { setFirst(null); setLast(null); act('hostapp/calendar/open', { block_id: int(c, 'block_id') }); }
+                            else if (s !== 'free') setMsg([str(c, 'label') || 'Booked', true]);
+                            else if (!first || last || date < first) { setFirst(date); setLast(null); }
+                            else setLast(date);
+                          }} style={{ flex: 1, borderRadius: 10, backgroundColor: bg, opacity: past ? 0.4 : 1, alignItems: 'center', justifyContent: 'center' }}>
+                            <Txt k="labelLarge" bold={date === t0} color={fg}>{parseIso(date)?.getDate()}</Txt>
+                            {p != null ? <Txt k="labelSmall" color={fg} style={{ opacity: 0.85 }}>₹{p >= 1000 ? (p / 1000).toFixed(1) + 'k' : Math.round(p)}</Txt> : null}
+                          </Press>
+                        );
+                      })() : null}
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
+            <Gap h={8} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+              {[['free', 'Free'], ['booked', 'Booked'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed (tap to open)']].map(([k, lb]) => <View key={k} style={st.row}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(k) }} /><Txt k="labelSmall" color={Brand.InkSoft}> {lb}</Txt></View>)}
+            </ScrollView>
+          </Card>
+          <Gap h={12} />
+          {first && kind === 'stay' ? (
+            <>
+              <Txt k="titleSmall">Selected: {shortDate(first)}{last && last !== first ? ` → ${shortDate(last)}` : ''}</Txt>
+              <Gap h={8} />
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <PrimaryButton text="Close these nights" loading={busy} style={{ flex: 1 }} onPress={() => act('hostapp/calendar/close', { listing: tag, first, last: last || first, reason: 'Closed in the app' })} />
+                <OutlineButton text="Set price" style={{ flex: 1 }} onPress={() => { const p = num(cur, 'price'); setPrice(p ? String(Math.round(p)) : ''); setPriceAsk(true); }} />
+              </View>
+            </>
+          ) : kind === 'stay' ? <Txt k="bodySmall" color={Brand.Muted}>Tap a free night (then another to pick a range) to close it or change its price. Tap a grey night to open it again.</Txt>
+            : kind === 'resort' ? <Txt k="bodySmall" color={Brand.Muted}>Each day shows how many rooms are still free.</Txt> : null}
+        </>
+      )}
+      {msg ? <><Gap h={8} /><Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} /></> : null}
+      <Dialog open={priceAsk} onClose={() => setPriceAsk(false)} title="Price per night"
+        actions={[['Cancel', () => setPriceAsk(false)], ['Save', () => { setPriceAsk(false); act('hostapp/calendar/price', { listing: tag, first, last: last || first, price: parseInt(price, 10) || null }); }]]}>
+        <Field label="Price (₹)" value={price} onChange={(v) => setPrice(v.replace(/\D/g, '').slice(0, 7))} keyboard="number-pad" />
+      </Dialog>
+    </ScrollView>
+  );
+}
+
+/* ---------- Listings ---------- */
+function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) {
+  const [tick, setTick] = useState(0);
+  const l = useLoader(() => Api.get('hostapp/home'), [tick]);
+  const [msg, setMsg] = useState<[string, boolean] | null>(null);
+  const [edit, setEdit] = useState<J | null>(null);
+  const [price, setPrice] = useState('');
+  const save = async (x: J, body: Record<string, any>) => {
+    setMsg(null);
+    try { setMsg([text(await Api.post(`hostapp/listings/${text(x, 'kind')}/${int(x, 'id')}`, body), 'message', 'Saved.'), true]); setTick((t) => t + 1); changed(); } catch (e) { setMsg([errorText(e), false]); }
+  };
+  const d = l.data;
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+      {msg ? <><Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} /><Gap h={10} /></> : null}
+      {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your listings.'} onRetry={l.reload} />
+        : !objs(d, 'listings').length ? <EmptyBox title="No listings yet" text="Your listings show here once they are added." icon="home" />
+        : objs(d, 'listings').map((x, i) => {
+          const active = bool(x, 'active');
+          const p = num(x, 'price');
+          return (
+            <Appear key={text(x, 'kind') + int(x, 'id')} index={i} style={{ marginBottom: 12 }}>
+              <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#B81D2B', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+                <View>
+                  <Photo url={str(x, 'image')} style={{ width: '100%', aspectRatio: 2.2 }} corner={0} />
+                  <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
+                    <Pill text={active ? 'Live' : ({ pending: 'Being checked', rejected: 'Not approved', draft: 'Draft' } as Record<string, string>)[text(x, 'approval')] || 'Paused'} tone={active ? 'ok' : 'warn'} />
+                    {bool(x, 'verified') ? <Pill text="Verified" tone="info" /> : null}
+                  </View>
+                </View>
+                <View style={{ padding: 14 }}>
+                  <Txt k="titleMedium">{text(x, 'title')}</Txt>
+                  <Txt k="bodySmall" color={Brand.Muted}>{text(x, 'location')}</Txt>
+                  {bool(x, 'hidden_for_dues') ? <Txt k="labelMedium" color={Brand.Danger}>Hidden: a settlement is overdue (Money tab).</Txt> : null}
+                  <View style={[st.row, { marginTop: 10 }]}>
+                    {p != null ? (
+                      <Press onPress={() => { setPrice(String(Math.round(p))); setEdit(x); }} style={{ flex: 1, borderRadius: 14, backgroundColor: Brand.SunSoft, paddingHorizontal: 12, paddingVertical: 8 }}>
+                        <Txt k="titleSmall" bold color={Brand.SunInk}>{money(p)} / night</Txt>
+                        <Txt k="labelSmall" color={Brand.Warn}>Tap to change</Txt>
+                      </Press>
+                    ) : <View style={{ flex: 1 }} />}
+                    {text(x, 'kind') !== 'pet' ? (
+                      <View style={[st.row, { marginLeft: 12 }]}>
+                        <Txt k="labelLarge" color={Brand.InkSoft}>{active ? 'Live ' : 'Paused '}</Txt>
+                        <Switch value={active} onValueChange={(on) => save(x, { active: on })} trackColor={{ true: Brand.Teal }} accessibilityLabel="Listing live" />
+                      </View>
+                    ) : null}
+                  </View>
+                </View>
+              </View>
+            </Appear>
+          );
+        })}
+      <Dialog open={!!edit} onClose={() => setEdit(null)} title="Standard price per night" text={text(edit, 'title')}
+        actions={[['Cancel', () => setEdit(null)], ['Save', () => { const x = edit!; setEdit(null); save(x, { price: parseInt(price, 10) || null }); }]]}>
+        <Field label="Price (₹)" value={price} onChange={(v) => setPrice(v.replace(/\D/g, '').slice(0, 7))} keyboard="number-pad" />
+        {!pets ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 6 }}>Special prices for single nights: Calendar tab.</Txt> : null}
+      </Dialog>
+    </ScrollView>
+  );
+}
+
+/* ---------- Money ---------- */
+function MoneyTab() {
+  const l = useLoader(() => Api.get('hostapp/money'));
+  const d = l.data;
+  return (
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+      {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your money summary.'} onRetry={l.reload} /> : (
+        <>
+          {objs(d, 'cards').map((c, i) => {
+            const [bg, fg] = ({ ok: [Brand.TealSoft, Brand.TealDark], bad: [Brand.DangerSoft, Brand.Danger], warn: [Brand.SunSoft, Brand.SunInk] } as Record<string, string[]>)[text(c, 'tone')] || [Brand.Sky, Brand.BlueDark];
+            return (
+              <Appear key={i} index={i} style={{ marginBottom: 10 }}>
+                <View style={{ borderRadius: 20, backgroundColor: bg, padding: 16 }}>
+                  <Txt k="labelLarge" color={fg}>{text(c, 'label')}</Txt>
+                  <Txt k="headlineMedium" color={fg}>{money(num(c, 'amount') || 0)}</Txt>
+                </View>
+              </Appear>
+            );
+          })}
+          {str(d, 'due_on') ? <Txt k="bodySmall" color={Brand.Muted}>Month-end settlement: {shortDate(str(d, 'due_on'))}</Txt> : null}
+          <Gap h={14} />
+          <SectionTitle text="Recent stays" />
+          <Card padding={12}>
+            {!objs(d, 'recent').length ? <Txt color={Brand.InkSoft}>No completed stays yet.</Txt> : null}
+            {objs(d, 'recent').map((x, i) => (
+              <View key={i} style={[st.row, { paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: Brand.Line }]}>
+                <View style={{ flex: 1 }}><Txt k="titleSmall">{text(x, 'ref')}</Txt><Txt k="labelMedium" color={Brand.Muted}>{shortDate(str(x, 'date'))}</Txt></View>
+                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                  <Txt k="titleSmall" bold color={Brand.BlueDark}>{money(num(x, 'amount') || 0)}</Txt>
+                  <Pill text={bool(x, 'paid') ? 'Paid out' : 'Pending'} tone={bool(x, 'paid') ? 'ok' : 'warn'} />
+                </View>
+              </View>
+            ))}
+          </Card>
+          <Gap h={10} />
+          {str(d, 'note') ? <Notice text={str(d, 'note')!} /> : null}
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
+/* ---------- Messages ---------- */
+function ChatsTab() {
+  const l = useLoader(() => Api.get('hostapp/chats'));
+  useEffect(() => { const t = setInterval(l.reload, 15000); return () => clearInterval(t); }, []);
+  const d = l.data;
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      {!d && l.loading ? <Loading /> : !d ? <View style={{ padding: 16 }}><ErrorBox message={l.error || 'Could not load your chats.'} onRetry={l.reload} /></View>
+        : <ChatList chats={objs(d, 'chats')} host open={(c) => Nav.navigate(`hostchat/${int(c, 'id')}`)} />}
+    </ScrollView>
+  );
+}
+
+/** The host's guest chats on their own (from Today's "unread messages" button). */
+export function HostChatsScreen() {
+  return (
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <ColorHeader title="Guest messages" sub="Answer quickly — guests book more" onBack={Nav.back} />
+      <ChatsTab />
+    </View>
+  );
+}
+
+/* ---------- TripArro Agent portal ---------- */
+function AgentPortal() {
+  const l = useLoader(() => Api.get('partner/overview'));
+  const d = l.data;
+  const t = obj(d, 'totals') || {};
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+      <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 16 }}>
+        <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
+        {d ? (
+          <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 16 }}>
+            <HStat label="Commission earned" value={money(num(t, 'earned') || 0)} flex={1} />
+            <HStat label="Bookings" value={String(int(t, 'bookings'))} flex={1} />
+          </View>
+        ) : null}
+      </LinearGradient>
+      <View style={{ padding: 16 }}>
+        {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your summary.'} onRetry={l.reload} /> : (
+          <>
+            <SectionTitle text="Recent bookings" />
+            <Card>
+              {!objs(d, 'bookings').length ? <Txt color={Brand.InkSoft}>No bookings yet.</Txt> : null}
+              {objs(d, 'bookings').map((b, i) => (
+                <View key={i} style={[st.row, { paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: Brand.Line }]}>
+                  <View style={{ flex: 1 }}>
+                    <Txt k="titleSmall">{text(b, 'listing')}</Txt>
+                    <Txt k="bodySmall" color={Brand.InkSoft}>{text(b, 'guest')} · {shortDate(text(b, 'check_in'))} → {shortDate(text(b, 'check_out'))}</Txt>
+                  </View>
+                  <Txt k="titleSmall" bold color={Brand.BlueDark}>{money(num(b, 'commission') || 0)}</Txt>
+                </View>
+              ))}
+            </Card>
+            <Gap />
+            <PrimaryButton text="Find a stay for a guest" onPress={() => Nav.home()} />
+          </>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
