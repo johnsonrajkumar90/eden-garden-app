@@ -12,7 +12,7 @@ import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
 import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today, TopBar } from '../ui/kit';
 import { Field } from '../ui/inputs';
-import { Dialog, dial } from '../ui/sheets';
+import { Dialog, Sheet, dial } from '../ui/sheets';
 import { RED_GRAD, SUN_GRAD } from '../ui/cards';
 import { Nav } from '../nav';
 import { ChatList } from './Chat';
@@ -197,10 +197,23 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
   const who = pet ? `${int(b, 'pets')} pet${int(b, 'pets') === 1 ? '' : 's'}` : `${int(b, 'guests')} guest${int(b, 'guests') === 1 ? '' : 's'}`;
   const acts = strings(b, 'actions');
   const phone = str(b, 'phone');
+  const [details, setDetails] = useState(false);
+  const due = (num(b, 'balance') || 0) > 0 && state !== 'cancelled';
   return (
-    <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+    <View style={{ borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.95)', borderWidth: 1.5, borderColor: '#fff', overflow: 'hidden', elevation: 4, shadowColor: '#D93338', shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
       <View style={{ height: 5, backgroundColor: accent }} />
-      <View style={{ flexDirection: 'row', padding: 14 }}>
+      {/* always in front: what the guest pays */}
+      <Pressable onPress={() => setDetails(true)} accessibilityRole="button" accessibilityLabel={`Guest pays ${money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}. Open booking details`}>
+        <LinearGradient colors={due ? ['#FFF6D6', '#FFEFC2'] : ['#E9F7EF', '#DDF3E5']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[st.row, { paddingHorizontal: 14, paddingVertical: 10 }]}>
+          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: due ? Brand.Sun : '#7CE0A3', alignItems: 'center', justifyContent: 'center' }}><Icon name="payments" size={19} color={Brand.Ink} /></View>
+          <View style={{ flex: 1, paddingLeft: 10 }}>
+            <Txt k="labelSmall" color={Brand.InkSoft}>Guest pays</Txt>
+            <Txt k="titleMedium" bold>{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
+          </View>
+          <Txt k="labelSmall" semi color={due ? Brand.SunInk : '#0B6B3A'} numberOfLines={2} style={{ maxWidth: '52%', textAlign: 'right' }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt>
+        </LinearGradient>
+      </Pressable>
+      <Pressable onPress={() => setDetails(true)} style={{ flexDirection: 'row', padding: 14 }} accessibilityLabel="Booking details">
         <Photo url={str(b, 'image')} style={{ width: 64, height: 64 }} corner={16} />
         <View style={{ flex: 1, paddingLeft: 12 }}>
           <View style={st.row}><Txt k="titleMedium" numberOfLines={1} style={{ flex: 1 }}>{text(b, 'guest')}</Txt><Pill text={text(b, 'state_label')} tone={tone} /></View>
@@ -212,8 +225,9 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
           </View>
           {str(b, 'requests') ? <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3} style={{ marginTop: 4 }}>“{str(b, 'requests')}”</Txt> : null}
           {str(b, 'arrival_time') ? <Txt k="labelMedium" color={Brand.TealDark}>Arriving around {str(b, 'arrival_time')}</Txt> : null}
+          <Txt k="labelMedium" semi color={Brand.Blue} style={{ marginTop: 4 }}>View details ›</Txt>
         </View>
-      </View>
+      </Pressable>
       {acts.length || phone ? (
         <View style={[st.row, { gap: 8, paddingHorizontal: 14, paddingBottom: 14 }]}>
           {phone ? <Press onPress={() => dial(phone)} accessibilityLabel={`Call ${text(b, 'guest')}`} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: Brand.TealSoft, alignItems: 'center', justifyContent: 'center' }}><Icon name="call" color={Brand.TealDark} /></Press> : null}
@@ -231,10 +245,104 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
         actions={[['Not now', () => setAsk(null)], [ask === 'approve' ? 'Approve' : 'Decline', () => { const a = ask!; setAsk(null); run(a, { note: note.trim() || null }); }, ask === 'approve' ? Brand.TealDark : Brand.Danger]]}>
         <Field label={ask === 'approve' ? 'A note for the guest (optional)' : 'Reason (optional)'} value={note} onChange={setNote} />
       </Dialog>
+      <BookingDetails b={b} open={details} onClose={() => setDetails(false)} />
       <Dialog open={balance} onClose={() => setBalance(false)} title="Balance received?" text="The guest still owes part of the price. Check out only after you received it."
         actions={[['Cancel', () => setBalance(false)], ['Yes, received — check out', () => { setBalance(false); run('check_out', { collected: true }); }]]} />
     </View>
   );
+}
+
+/** Everything about one booking, in a popup: what the guest pays, the stay, the people, contact, money and the booking itself. */
+function BookingDetails({ b, open, onClose }: { b: J; open: boolean; onClose: () => void }) {
+  const pet = text(b, 'kind') === 'pet';
+  const phone = str(b, 'phone'); const email = str(b, 'email');
+  const row = (icon: string, label: string, value: string | null | undefined) => value ? (
+    <View style={[st.row, { paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#F3E9E5' }]}>
+      <Icon name={icon} size={18} color={Brand.Blue} />
+      <Txt k="bodyMedium" color={Brand.Muted} style={{ width: 120, marginLeft: 10 }}>{label}</Txt>
+      <Txt k="bodyMedium" semi style={{ flex: 1, textAlign: 'right' }}>{value}</Txt>
+    </View>
+  ) : null;
+  const ppl = pet ? `${int(b, 'pets')} pet${int(b, 'pets') === 1 ? '' : 's'}`
+    : num(b, 'adults') != null ? `${int(b, 'adults')} adult${int(b, 'adults') === 1 ? '' : 's'}${int(b, 'children') ? ` · ${int(b, 'children')} child${int(b, 'children') === 1 ? '' : 'ren'}` : ''}` : `${int(b, 'guests')} guest${int(b, 'guests') === 1 ? '' : 's'}`;
+  const due = (num(b, 'balance') || 0) > 0 && text(b, 'state') !== 'cancelled';
+  return (
+    <Sheet open={open} onClose={onClose}>
+      {open ? (
+        <View>
+          <View style={st.row}>
+            <Photo url={str(b, 'image')} style={{ width: 58, height: 58 }} corner={16} />
+            <View style={{ flex: 1, paddingLeft: 12 }}>
+              <Txt k="titleLarge" numberOfLines={1}>{text(b, 'guest')}</Txt>
+              <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1}>{text(b, 'listing')}</Txt>
+            </View>
+            <Pill text={text(b, 'state_label')} tone={text(b, 'state') === 'cancelled' ? 'bad' : text(b, 'state') === 'request' ? 'warn' : 'info'} />
+          </View>
+          <Gap h={12} />
+          <LinearGradient colors={['#C8242B', '#E8474B', '#FF8A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 22, padding: 16 }}>
+            <Txt k="labelMedium" color="#FFE3E1">Guest pays</Txt>
+            <Txt k="displaySmall" color="#fff">{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
+            <Txt k="bodyMedium" color="#fff" style={{ marginTop: 2 }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+              {[['Paid', money(num(b, 'paid') || 0)], ['Balance', money(num(b, 'balance') || 0)], ['Your payout', money(num(b, 'payout') || 0)]].map(([l, v]) => (
+                <View key={l} style={{ flex: 1, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.18)', padding: 8 }}>
+                  <Txt k="labelSmall" color="#FFE3E1">{l}</Txt>
+                  <Txt k="titleSmall" color={l === 'Balance' && due ? Brand.Sun : '#fff'}>{v}</Txt>
+                </View>
+              ))}
+            </View>
+          </LinearGradient>
+          <Gap h={12} />
+          <Txt k="titleSmall">Stay</Txt>
+          {row('event', 'Check-in', `${shortDate(str(b, 'check_in'))}${str(b, 'arrival_time') ? ' · around ' + str(b, 'arrival_time') : ''}`)}
+          {row('event-available', 'Check-out', `${shortDate(str(b, 'check_out'))}${str(b, 'checkout_time') ? ' · ' + str(b, 'checkout_time') : ''}`)}
+          {row('nights-stay', 'Nights', String(int(b, 'nights')))}
+          {row(pet ? 'pets' : 'group', pet ? 'Pets' : 'Guests', ppl)}
+          {row('login', 'Checked in', str(b, 'checked_in_at') ? shortDate(str(b, 'checked_in_at')!.slice(0, 10)) : null)}
+          {row('logout', 'Checked out', str(b, 'checked_out_at') ? shortDate(str(b, 'checked_out_at')!.slice(0, 10)) : null)}
+          <Gap h={10} />
+          <Txt k="titleSmall">Money</Txt>
+          {row('receipt-long', 'Total', money(num(b, 'total') || 0))}
+          {row('credit-card', 'Payment', text(b, 'payment'))}
+          {(num(b, 'service_fee') || 0) > 0 ? row('percent', 'Guest service fee', money(num(b, 'service_fee'))) : null}
+          {(num(b, 'commission') || 0) > 0 ? row('account-balance', 'TripArro commission', money(num(b, 'commission'))) : null}
+          {row('local-offer', 'Coupon', str(b, 'coupon'))}
+          <Gap h={10} />
+          <Txt k="titleSmall">Booking</Txt>
+          {row('confirmation-number', 'Reference', text(b, 'ref'))}
+          {row('public', 'Booked on', bool(b, 'by_agent') ? 'A TripArro Agent' : ({ website: 'TripArro website / app', host: 'You (dashboard)', referral: 'A TripArro Agent', admin: 'TripArro team' } as Record<string, string>)[text(b, 'source')] || text(b, 'source'))}
+          {row('schedule', 'Booked at', str(b, 'booked_on') ? shortDate(str(b, 'booked_on')!.slice(0, 10)) + ' · ' + str(b, 'booked_on')!.slice(11, 16) : null)}
+          {row('info-outline', 'Cancelled because', str(b, 'cancel_reason'))}
+          {str(b, 'requests') ? <><Gap h={10} /><Txt k="titleSmall">Guest's note</Txt><View style={{ marginTop: 6, borderRadius: 16, backgroundColor: '#FFF6D6', padding: 12 }}><Txt>“{str(b, 'requests')}”</Txt></View></> : null}
+          {phone || email ? (
+            <>
+              <Gap h={12} />
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {phone ? <PrimaryButton text="Call" icon="call" style={{ flex: 1 }} onPress={() => dial(phone)} /> : null}
+                {phone ? <OutlineButton text="WhatsApp" icon="chat" style={{ flex: 1 }} onPress={() => Linking.openURL('https://wa.me/' + phone.replace(/\D/g, '').replace(/^(\d{10})$/, '91$1')).catch(() => {})} /> : null}
+                {!phone && email ? <OutlineButton text="Email" icon="mail" style={{ flex: 1 }} onPress={() => Linking.openURL('mailto:' + email).catch(() => {})} /> : null}
+              </View>
+              {email && phone ? <Txt k="bodySmall" color={Brand.Muted} center style={{ marginTop: 8 }} onPress={() => Linking.openURL('mailto:' + email).catch(() => {})}>{email}</Txt> : null}
+            </>
+          ) : text(b, 'state') === 'request' ? <><Gap h={10} /><Txt k="bodySmall" color={Brand.Muted}>The guest's phone and email show after you approve the request.</Txt></> : null}
+        </View>
+      ) : null}
+    </Sheet>
+  );
+}
+
+/** A booking found by its reference (a booked night in the calendar), in the same popup. */
+function BookingByRef({ refCode, onClose, changed }: { refCode: string | null; onClose: () => void; changed: () => void }) {
+  const [b, setB] = useState<J | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    setB(null); setErr(null);
+    if (!refCode) return;
+    Api.get('hostapp/booking', { ref: refCode }).then((j) => setB(obj(j, 'booking'))).catch((e) => setErr(errorText(e)));
+  }, [refCode]);
+  if (!refCode) return null;
+  if (b) return <BookingDetails b={b} open onClose={onClose} />;
+  return <Sheet open onClose={onClose}>{err ? <Notice text={err} tone="bad" /> : <Loading />}</Sheet>;
 }
 
 /* ---------- Bookings ---------- */
@@ -274,6 +382,7 @@ function CalendarTab() {
   const [priceAsk, setPriceAsk] = useState(false);
   const [price, setPrice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [openRef, setOpenRef] = useState<string | null>(null);   // a booked night tapped: that booking's details
   const l = useLoader(() => Api.get('hostapp/calendar', { listing: listing || null, month }), [listing, month, tick]);
   const d = l.data;
   useEffect(() => { if (!listing) { const t = str(obj(d, 'listing'), 'tag'); if (t) setListing(t); } }, [d]);
@@ -321,16 +430,18 @@ function CalendarTab() {
                         const sel = !!first && date >= first && date <= (last || first);
                         const past = date < t0;
                         const bg = sel ? Brand.Sun : stateColor(s === 'free' ? '' : s);
-                        const fg = ['booked', 'platform', 'closed'].includes(s) && !sel ? '#fff' : Brand.Ink;
+                        const fg = ['booked', 'platform', 'closed', 'request'].includes(s) && !sel ? '#fff' : Brand.Ink;
+                        const isToday = date === t0;
                         const p = num(c, 'price');
                         return (
                           <Press scaleTo={0.9} onPress={() => {
                             if (past) return;
                             if (s === 'closed' && int(c, 'block_id') > 0) { setFirst(null); setLast(null); act('hostapp/calendar/open', { block_id: int(c, 'block_id') }); }
-                            else if (s !== 'free') setMsg([str(c, 'label') || 'Booked', true]);
+                            else if (s !== 'free') { if (str(c, 'ref')) setOpenRef(str(c, 'ref')); else setMsg([str(c, 'label') || 'Booked', true]); }
                             else if (!first || last || date < first) { setFirst(date); setLast(null); }
                             else setLast(date);
-                          }} style={{ flex: 1, borderRadius: 10, backgroundColor: bg, opacity: past ? 0.4 : 1, alignItems: 'center', justifyContent: 'center' }}>
+                          }} style={{ flex: 1, borderRadius: 14, backgroundColor: bg, opacity: past ? 0.4 : 1, alignItems: 'center', justifyContent: 'center',
+                            borderWidth: isToday ? 2 : 1, borderColor: isToday ? Brand.Blue : s === 'free' && !sel ? '#F1E4E0' : 'transparent' }}>
                             <Txt k="labelLarge" bold={date === t0} color={fg}>{parseIso(date)?.getDate()}</Txt>
                             {p != null ? <Txt k="labelSmall" color={fg} style={{ opacity: 0.85 }}>₹{p >= 1000 ? (p / 1000).toFixed(1) + 'k' : Math.round(p)}</Txt> : null}
                           </Press>
@@ -343,7 +454,7 @@ function CalendarTab() {
             ))}
             <Gap h={8} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-              {[['free', 'Free'], ['booked', 'Booked'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed (tap to open)']].map(([k, lb]) => <View key={k} style={st.row}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(k) }} /><Txt k="labelSmall" color={Brand.InkSoft}> {lb}</Txt></View>)}
+              {[['free', 'Free'], ['booked', 'Booked (tap for details)'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed (tap to open)']].map(([k, lb]) => <View key={k} style={st.row}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(k), borderWidth: 1, borderColor: '#E7D9D4' }} /><Txt k="labelSmall" color={Brand.InkSoft}> {lb}</Txt></View>)}
             </ScrollView>
           </Card>
           <Gap h={12} />
@@ -361,6 +472,7 @@ function CalendarTab() {
         </>
       )}
       {msg ? <><Gap h={8} /><Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} /></> : null}
+      <BookingByRef refCode={openRef} onClose={() => setOpenRef(null)} changed={() => setTick((t) => t + 1)} />
       <Dialog open={priceAsk} onClose={() => setPriceAsk(false)} title="Price per night"
         actions={[['Cancel', () => setPriceAsk(false)], ['Save', () => { setPriceAsk(false); act('hostapp/calendar/price', { listing: tag, first, last: last || first, price: parseInt(price, 10) || null }); }]]}>
         <Field label="Price (₹)" value={price} onChange={(v) => setPrice(v.replace(/\D/g, '').slice(0, 7))} keyboard="number-pad" />

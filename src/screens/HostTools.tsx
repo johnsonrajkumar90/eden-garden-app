@@ -3,6 +3,7 @@
  * calendar, and checking a guest in with the ID card photographed with the camera or attached from the phone.
  * Aadhaar photos are masked on the phone (first 8 digits and the QR code blacked out) before they are sent.
  */
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -61,7 +62,7 @@ export function HostToolsTab() {
 }
 
 /* ---------- Every listing on one calendar ---------- */
-export const stateColor = (s: string) => ({ booked: Brand.Blue, request: '#FFB74D', platform: '#7E57C2', closed: '#9E9E9E', some: Brand.Sun } as Record<string, string>)[s] || Brand.TealSoft;
+export const stateColor = (s: string) => ({ booked: Brand.Blue, request: '#FFB020', platform: '#7E57C2', closed: '#B8B1AC', some: Brand.Sun } as Record<string, string>)[s] || '#FFFFFF';
 export const addMonths = (ym: string, n: number) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
 export const thisMonth = () => today().slice(0, 7);
 export const leadDays = (iso: string) => { const d = parseIso(iso); return d ? (d.getDay() + 6) % 7 : 0; };   // Monday first
@@ -69,14 +70,14 @@ export const leadDays = (iso: string) => { const d = parseIso(iso); return d ? (
 export function MonthHead({ label, sub, month, onMonth }: { label: string; sub?: string; month: string; onMonth: (m: string) => void }) {
   const canBack = month > thisMonth();
   return (
-    <View style={st.row}>
-      <Pressable disabled={!canBack} onPress={() => onMonth(addMonths(month, -1))} style={{ padding: 10, opacity: canBack ? 1 : 0.3 }} accessibilityLabel="Previous month"><Icon name="chevron-left" /></Pressable>
-      <View style={{ flex: 1, alignItems: 'center' }}><Txt k="titleMedium">{label}</Txt>{sub ? <Txt k="labelSmall" color={Brand.Muted}>{sub}</Txt> : null}</View>
-      <Pressable onPress={() => onMonth(addMonths(month, 1))} style={{ padding: 10 }} accessibilityLabel="Next month"><Icon name="chevron-right" /></Pressable>
-    </View>
+    <LinearGradient colors={['#C8242B', '#E8474B', '#F06A4F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[st.row, { borderRadius: 20, paddingHorizontal: 6, paddingVertical: 6, marginBottom: 10 }]}>
+      <Pressable disabled={!canBack} onPress={() => onMonth(addMonths(month, -1))} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', opacity: canBack ? 1 : 0.35 }} accessibilityLabel="Previous month"><Icon name="chevron-left" color="#fff" /></Pressable>
+      <View style={{ flex: 1, alignItems: 'center' }}><Txt k="titleMedium" color="#fff">{label}</Txt>{sub ? <Txt k="labelSmall" color="#FFE3E1">{sub}</Txt> : null}</View>
+      <Pressable onPress={() => onMonth(addMonths(month, 1))} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Next month"><Icon name="chevron-right" color="#fff" /></Pressable>
+    </LinearGradient>
   );
 }
-export const WeekHead = () => <View style={{ flexDirection: 'row' }}>{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => <Txt key={d} k="labelSmall" color={Brand.Muted} center style={{ flex: 1 }}>{d}</Txt>)}</View>;
+export const WeekHead = () => <View style={{ flexDirection: 'row', marginBottom: 4 }}>{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d, i) => <Txt key={d} k="labelMedium" semi color={i >= 5 ? Brand.Blue : Brand.Muted} center style={{ flex: 1 }}>{d}</Txt>)}</View>;
 export function weeks<T>(lead: number, days: T[]): (T | null)[][] { const cells: (T | null)[] = [...Array(lead).fill(null), ...days]; const out: (T | null)[][] = []; for (let i = 0; i < cells.length; i += 7) out.push(cells.slice(i, i + 7)); return out; }
 
 export function AllListingsCalendar({ d, month, onMonth, onListing }: { d: J; month: string; onMonth: (m: string) => void; onListing: (tag: string) => void }) {
@@ -99,7 +100,7 @@ export function AllListingsCalendar({ d, month, onMonth, onListing }: { d: J; mo
                   {c ? (() => {
                     const date = text(c, 'date'); const busy = int(c, 'busy'); const total = busy + int(c, 'free'); const sel = picked === date;
                     return (
-                      <Press onPress={() => setPicked(date)} scaleTo={0.9} style={{ flex: 1, borderRadius: 10, backgroundColor: sel ? Brand.Sun : busy === 0 ? Brand.TealSoft : Brand.Sky, borderWidth: date === t ? 2 : 0, borderColor: Brand.Blue, padding: 3, alignItems: 'center', justifyContent: 'center' }}>
+                      <Press onPress={() => setPicked(date)} scaleTo={0.9} style={{ flex: 1, borderRadius: 14, backgroundColor: sel ? Brand.Sun : busy === 0 ? '#FFFFFF' : '#FFE6E3', borderWidth: date === t ? 2 : 1, borderColor: date === t ? Brand.Blue : busy === 0 ? '#F1E4E0' : '#F7C9C4', padding: 3, alignItems: 'center', justifyContent: 'center' }}>
                         <Txt k="labelLarge" bold={date === t} color={date < t ? Brand.Muted : Brand.Ink}>{parseIso(date)?.getDate()}</Txt>
                         <View style={{ flexDirection: 'row', gap: 2 }}>{objs(c, 'items').slice(0, 6).map((x, k) => <View key={k} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: text(x, 'state') === 'free' ? '#00875A33' : stateColor(text(x, 'state')) }} />)}</View>
                         {total > 0 ? <Txt k="labelSmall" color={Brand.InkSoft}>{busy}/{total}</Txt> : null}
@@ -113,7 +114,7 @@ export function AllListingsCalendar({ d, month, onMonth, onListing }: { d: J; mo
         ))}
         <Gap h={8} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-          {[['free', 'Free'], ['booked', 'Booked'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed'], ['some', 'Some rooms left']].map(([k, l]) => <View key={k} style={st.row}><View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: stateColor(k) }} /><Txt k="labelSmall" color={Brand.InkSoft}> {l}</Txt></View>)}
+          {[['free', 'Free'], ['booked', 'Booked'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed'], ['some', 'Some rooms left']].map(([k, l]) => <View key={k} style={st.row}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(k), borderWidth: 1, borderColor: '#E7D9D4' }} /><Txt k="labelSmall" color={Brand.InkSoft}> {l}</Txt></View>)}
         </ScrollView>
       </Card>
       <Gap />
