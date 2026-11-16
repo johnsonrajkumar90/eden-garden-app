@@ -1,0 +1,31 @@
+--------- beginning of crash
+11-16 11:34:53.907   835   835 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 11:34:53.907   835   835 E AndroidRuntime: Process: com.android.systemui, PID: 835
+11-16 11:34:53.907   835   835 E AndroidRuntime: java.lang.RuntimeException: Error receiving broadcast Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x5000010 (has extras) } in com.android.systemui.recents.OverviewProxyService$2@114207d
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.app.LoadedApk$ReceiverDispatcher$Args.lambda$getRunnable$0(LoadedApk.java:1810)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.app.LoadedApk$ReceiverDispatcher$Args.$r8$lambda$gDuJqgxY6Zb-ifyeubKeivTLAwk(Unknown Source:0)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0.run(Unknown Source:2)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:958)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:99)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:294)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-16 11:34:53.907   835   835 E AndroidRuntime: Caused by: java.lang.NullPointerException: Attempt to read from field 'android.content.pm.ServiceInfo android.content.pm.ResolveInfo.serviceInfo' on a null object reference in method 'void com.android.systemui.recents.OverviewProxyService$2.onReceive(android.content.Context, android.content.Intent)'
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at com.android.systemui.recents.OverviewProxyService$2.onReceive(go/retraceme 19693c2b0a8439b7183751b64d60893829dbf56dc1e08e0669fc0cfc55754948:44)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	at android.app.LoadedApk$ReceiverDispatcher$Args.lambda$getRunnable$0(LoadedApk.java:1802)
+11-16 11:34:53.907   835   835 E AndroidRuntime: 	... 10 more
+--------- beginning of main
+11-16 11:34:58.296  4236  4304 I ReactNativeJS: Running "main"
+11-16 11:35:01.548  4236  4304 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-16 11:35:01.548  4236  4304 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.
+11-16 11:36:53.555  4236  4304 W ReactNativeJS: Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+11-16 11:37:34.497  4236  4304 W ReactNativeJS: Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+11-16 11:37:43.245  4236  4304 W ReactNativeJS: Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+11-16 11:37:52.137  4236  4304 W ReactNativeJS: Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+11-16 11:39:34.197  4236  4304 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-16 11:39:34.197  4236  4304 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.
+11-16 11:40:31.076  4236  4304 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-16 11:40:31.076  4236  4304 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.
