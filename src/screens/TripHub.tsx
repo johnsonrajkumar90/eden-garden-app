@@ -25,6 +25,7 @@ import { AlbumsPanel } from './TripAlbums';
 import { CoverSheet, LiveSpot, PlaceSource } from './TripExtras';
 import { RestaurantsRow } from './Restaurants';
 import { Nav, intParam, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 // light glass (white, red and sun-yellow): frosted white panels over the app's glowing backdrop
 const Frost = '#FDECEC', FrostLine = 'rgba(255,255,255,0.95)', Soft = Brand.InkSoft;
@@ -72,7 +73,7 @@ export default function GroupTripScreen() {
   return (
     <View style={{ flex: 1 }}>
       <TopRow g={g} onCamera={() => setCoverMenu(true)} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
         <View style={{ height: 360, marginHorizontal: 12, marginTop: 12, borderRadius: 32, overflow: 'hidden', borderWidth: 2, borderColor: '#fff' }}>
           <TripSlider g={g} />
           <LinearGradient pointerEvents="none" colors={['#00000044', '#00000000', '#00000088', '#000000B3']} locations={[0, 0.35, 0.7, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />

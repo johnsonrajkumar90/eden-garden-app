@@ -11,6 +11,7 @@ import { Floaty, GridRow, PlaceCard, Pulse, RED_GRAD, catEmoji, chunk, weatherEm
 import { HeroGallery } from '../ui/detail';
 import { openMaps } from '../ui/sheets';
 import { Nav, intParam, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export default function PlaceScreen() {
   const id = intParam(useParams().id);
@@ -23,7 +24,7 @@ export default function PlaceScreen() {
   const stays = objs(p, 'stays');
   const near = objs(p, 'nearby').filter((x) => int(x, 'id') !== id);
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 28 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: DOCK_SPACE }}>
       {photos.length ? <HeroGallery urls={photos} actions={<RoundAction icon="arrow-back" label="Back" onPress={Nav.back} />} /> : (
         <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ height: 220 }}>
           <View style={{ padding: 12 }}><RoundAction icon="arrow-back" label="Back" onPress={Nav.back} /></View>

@@ -12,6 +12,7 @@ import { Field } from '../ui/inputs';
 import { Dialog, dial } from '../ui/sheets';
 import { petEmoji } from '../ui/petcards';
 import { Nav, enc, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const steps: [string, string][] = [['awaiting_approval', 'Request sent'], ['awaiting_payment', 'Payment'], ['confirmed', 'Confirmed'], ['checked_in', 'Checked in'], ['checked_out', 'Checked out']];
 
@@ -65,7 +66,7 @@ export default function PetBookingScreen() {
   return (
     <View style={{ flex: 1 }}>
       <BackBar title={`Pet booking ${ref}`} onBack={Nav.back} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
         {notice === 'paid' ? <Notice tone="ok" text="Payment received — your pet's stay is confirmed. We've emailed the details." />
           : notice === 'failed' ? <Notice tone="bad" text="The payment did not go through. Nothing was charged — you can try again below." />
           : notice === 'refund' ? <Notice tone="warn" text="The place was taken before your payment arrived. Your money will be refunded in full." /> : null}

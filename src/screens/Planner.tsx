@@ -18,6 +18,7 @@ import { weatherEmoji } from '../ui/cards';
 import { RestaurantsRow } from './Restaurants';
 import { RUN_GRAD, StopSheet, TripLoading, TripTotalsBar, hmText, navigateTo, stopEmoji, stopKey } from './TripRun';
 import { Nav, intParam, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const hm = hmText;
 const openUrl = (u?: string | null) => { if (u) Linking.openURL(u).catch(() => {}); };
@@ -96,7 +97,7 @@ export default function PlannerScreen() {
     <View style={{ flex: 1 }}>
       <BackBar title="Travel planner" onBack={Nav.back} actions={<Pressable onPress={() => Nav.navigate('myplaces')} style={st.barBtn} accessibilityLabel="My places"><Icon name="star" color="#fff" /></Pressable>} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
           <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 }}>
             <Txt k="headlineSmall" bold color="#fff">Plan your drive</Txt>
             <Txt color="#FFE3DE">Restaurants, coffee, petrol pumps and EV chargers on the way — each with directions, and TripArro AI to guide you.</Txt>
@@ -191,7 +192,7 @@ function PlanView({ plan, savedId, onBack, onDeleted, tripInfo }: { plan: J; sav
     <View style={{ flex: 1 }}>
       <BackBar title={title} onBack={onBack} actions={saved !== null && onDeleted ? <Pressable onPress={() => Api.post(`trip/plans/${saved}/delete`).then(onDeleted).catch(() => {})} style={st.barBtn} accessibilityLabel="Delete plan"><Icon name="delete-outline" color="#fff" /></Pressable> : null} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <FlatList data={stops} keyExtractor={(s, i) => stopKey(s) + i} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 40, gap: 12 }} keyboardShouldPersistTaps="handled"
+        <FlatList data={stops} keyExtractor={(s, i) => stopKey(s) + i} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: DOCK_SPACE, gap: 12 }} keyboardShouldPersistTaps="handled"
           ListHeaderComponent={
             <View style={{ gap: 12 }}>
               {ti ? (
@@ -312,7 +313,7 @@ export function SavedPlansList() {
   if (!items) return <ErrorBox message={l.error || 'Could not load your plans.'} onRetry={l.reload} />;
   if (!items.length) return <EmptyBox title="No saved trip plans yet" text="Plan a drive in the Travel planner and tap Save to My trips." action="Plan a trip" icon="map" onAction={() => Nav.navigate('planner')} />;
   return (
-    <FlatList data={items} keyExtractor={(p) => String(int(p, 'id'))} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 40 }}
+    <FlatList data={items} keyExtractor={(p) => String(int(p, 'id'))} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: DOCK_SPACE }}
       ListHeaderComponent={<PrimaryButton text="Plan a new trip" icon="map" onPress={() => Nav.navigate('planner')} style={{ marginBottom: 2 }} />}
       renderItem={({ item: p, index: i }) => {
         const stt = text(p, 'status');
@@ -387,7 +388,7 @@ export function MyPlacesScreen() {
 function PlaceList({ items, mine }: { items: J[]; mine: boolean }) {
   const [reported, setReported] = useState<number[]>([]);
   return (
-    <FlatList data={items} keyExtractor={(p) => String(int(p, 'id'))} contentContainerStyle={{ padding: 16, paddingTop: 12, paddingBottom: 90, gap: 12 }}
+    <FlatList data={items} keyExtractor={(p) => String(int(p, 'id'))} contentContainerStyle={{ padding: 16, paddingTop: 12, paddingBottom: DOCK_SPACE, gap: 12 }}
       renderItem={({ item: p, index: i }) => {
         const photos = strings(p, 'photos'); const id = int(p, 'id');
         const pub = text(p, 'visibility') === 'public';
@@ -463,7 +464,7 @@ export function PlaceEditScreen() {
       <BackBar title={id === 0 ? 'Add a favourite place' : 'Edit place'} onBack={Nav.back}
         actions={id !== 0 ? <Pressable onPress={() => Api.post(`places/${id}/delete`).then(() => { AppState.bump(); Nav.back(); }).catch((e) => setErr(errorText(e)))} style={st.barBtn} accessibilityLabel="Delete"><Icon name="delete-outline" color="#fff" /></Pressable> : null} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
           <Txt bold>Photos</Txt>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingTop: 6 }}>
             {keep.map((u) => <View key={u}><Photo url={u} corner={14} style={{ width: 96, height: 96 }} /><RemoveDot onPress={() => setKeep((k) => k.filter((x) => x !== u))} /></View>)}

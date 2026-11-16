@@ -16,6 +16,7 @@ import { Brand } from '../theme';
 import { Appear, Card, ColorHeader, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Press, PrimaryButton, Txt, money, parseIso, prettyDate, st, today } from '../ui/kit';
 import { CheckRow, Choice, Field } from '../ui/inputs';
 import { Nav, intParam, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const toolIcon = (k: string) => ({
   visitors: 'visibility', finance: 'payments', earnings: 'payments', payouts: 'payments', reports: 'bar-chart', revenue: 'bar-chart', petstats: 'bar-chart',
@@ -30,7 +31,7 @@ export function HostToolsTab() {
   const d = l.data;
   let n = 0;
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your tools.'} onRetry={l.reload} /> : (
         <>
           {objs(d, 'groups').map((g, gi) => {
@@ -230,7 +231,7 @@ export function HostCheckinScreen() {
         : d.checked_in ? <View style={{ padding: 16 }}><Notice text={`${text(d, 'guest')} is already checked in.`} tone="ok" /></View>
         : !d.can ? <View style={{ padding: 16 }}><Notice text={`Check-in opens on ${prettyDate(text(d, 'check_in'))} for confirmed bookings.`} /></View>
         : (
-          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
             <Card>
               <Txt k="titleMedium">Booking {text(d, 'ref')}</Txt>
               <Txt k="bodySmall" color={Brand.Muted}>{prettyDate(text(d, 'check_in'))} → {prettyDate(text(d, 'check_out'))} · {int(d, 'guests')} guests booked</Txt>

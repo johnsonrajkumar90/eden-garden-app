@@ -11,6 +11,7 @@ import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButt
 import { DateRangeField, Stepper } from '../ui/inputs';
 import { GridRow, PlaceCard, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 type Row = { key: string; render: () => React.ReactElement };
 
@@ -192,7 +193,7 @@ export default function ExploreScreen() {
   }
 
   return (
-    <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.render()} contentContainerStyle={{ paddingBottom: 130 }}
+    <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.render()} contentContainerStyle={{ paddingBottom: DOCK_SPACE }}
       keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />
   );
 }

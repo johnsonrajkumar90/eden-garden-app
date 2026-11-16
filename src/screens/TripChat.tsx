@@ -127,10 +127,10 @@ export default function TripChatScreen() {
             }} />
         )}
       </View>
-      <View style={[st.row, { padding: 6, alignItems: 'flex-end' }]}>
+      <View style={[st.row, { backgroundColor: 'rgba(255,255,255,0.92)', margin: 10, marginTop: 4, borderRadius: 32, padding: 6, alignItems: 'flex-end', borderWidth: 1.5, borderColor: '#fff', elevation: 12, shadowColor: '#C8242B', shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 5 } }]}>
         <TextInput value={body} onChangeText={(v) => setBody(v.slice(0, 2000))} placeholder="Message" placeholderTextColor={TimeGrey} multiline cursorColor={WaGreen}
-          style={{ flex: 1, maxHeight: 130, borderRadius: 26, backgroundColor: '#fff', paddingHorizontal: 18, paddingVertical: 12, fontFamily: Fonts.regular, fontSize: 16, color: '#111B21', elevation: 1 }} accessibilityLabel="Message" />
-        <Pressable onPress={send} disabled={!body.trim()} style={{ marginLeft: 6, width: 50, height: 50, borderRadius: 25, backgroundColor: body.trim() ? WaGreen : '#8FCFBF', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Send">
+          style={{ flex: 1, maxHeight: 130, borderRadius: 26, backgroundColor: '#FBF6F3', paddingHorizontal: 18, paddingVertical: 12, fontFamily: Fonts.regular, fontSize: 16, color: '#111B21', elevation: 1 }} accessibilityLabel="Message" />
+        <Pressable onPress={send} disabled={!body.trim()} style={{ marginLeft: 6, width: 50, height: 50, borderRadius: 25, backgroundColor: body.trim() ? WaGreen : '#F2B8B5', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Send">
           <Icon name="send" size={22} color="#fff" style={{ marginLeft: 3 }} />
         </Pressable>
       </View>

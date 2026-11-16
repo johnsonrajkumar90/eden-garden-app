@@ -8,6 +8,7 @@ import * as Notifier from '../core/notifier';
 import { Brand } from '../theme';
 import { ColorHeader, EmptyBox, ErrorBox, Icon, LinkButton, Loading, Txt, dateTime, st } from '../ui/kit';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export default function NotificationsScreen() {
   const session = useSession();
@@ -28,7 +29,7 @@ export default function NotificationsScreen() {
         : l.loading && !l.data ? <Loading />
         : l.error ? <ErrorBox message={l.error} onRetry={() => setTick((t) => t + 1)} />
         : (
-          <FlatList data={list} keyExtractor={(n) => String(int(n, 'id'))} contentContainerStyle={{ padding: 16, gap: 8, paddingBottom: 40 }}
+          <FlatList data={list} keyExtractor={(n) => String(int(n, 'id'))} contentContainerStyle={{ padding: 16, gap: 8, paddingBottom: DOCK_SPACE }}
             ListHeaderComponent={!allowed ? (
               <View style={{ backgroundColor: Brand.WarnSoft, borderRadius: 14, padding: 14, marginBottom: 8 }}>
                 <View style={st.row}><Icon name="notifications-off" color={Brand.Warn} /><Txt semi>  Phone notifications are off</Txt></View>

@@ -9,6 +9,7 @@ import * as Notifier from '../core/notifier';
 import { Brand } from '../theme';
 import { BackBar, ErrorBox, Gap, Icon, Loading, Notice, PrimaryButton, Txt, money, shareLink, st } from '../ui/kit';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export function WalletScreen() {
   const l = useLoader(() => Api.get('wallet'));
@@ -18,7 +19,7 @@ export function WalletScreen() {
     <View style={{ flex: 1 }}>
       <BackBar title="My wallet" onBack={Nav.back} />
       {!w && l.loading ? <Loading /> : !w ? <ErrorBox message={l.error || 'Could not load your wallet.'} onRetry={l.reload} /> : (
-        <FlatList data={objs(w, 'items')} keyExtractor={(_, i) => String(i)} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40 }}
+        <FlatList data={objs(w, 'items')} keyExtractor={(_, i) => String(i)} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: DOCK_SPACE }}
           ListHeaderComponent={<View style={{ gap: 12, marginBottom: 12 }}>
             <LinearGradient colors={['#161616', '#2A2A2E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 20 }}>
               <View style={st.row}><Icon name="account-balance-wallet" color="#fff" /><Txt bold color="#FFE3DE">  TripArro wallet</Txt></View>
@@ -91,7 +92,7 @@ export function NotifyPrefsScreen() {
     <View style={{ flex: 1 }}>
       <BackBar title="Notification settings" onBack={Nav.back} />
       {!list && l.loading ? <Loading /> : !list ? <ErrorBox message={l.error || 'Could not load your settings.'} onRetry={l.reload} /> : (
-        <ScrollView contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 40 }}>
+        <ScrollView contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: DOCK_SPACE }}>
           {!allowed ? <Notice tone="warn" text="Notifications are switched off for TripArro on this phone — allow them in the phone's settings to get these." /> : null}
           <Txt k="bodySmall" color={Brand.Muted}>Choose what reaches your phone. Everything still shows in Notifications in the app.</Txt>
           <View style={[st.row, { borderRadius: 18, backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 10 }]}>

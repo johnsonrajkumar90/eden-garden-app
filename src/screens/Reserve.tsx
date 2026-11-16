@@ -11,6 +11,7 @@ import { BackBar, Card, EmptyBox, Gap, Notice, OutlineButton, Photo, PriceTable,
 import { GatewayPicker, chosenGateway } from '../ui/gateway';
 import { CheckRow, Choice, Field } from '../ui/inputs';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const idTypes: [string, string][] = [['aadhaar', 'Aadhaar card'], ['passport', 'Passport'], ['dl', 'Driving licence'], ['voter', 'Voter ID'], ['pan', 'PAN card'], ['other', 'Other government ID']];
 
@@ -82,7 +83,7 @@ export default function ReserveScreen() {
   return (
     <View style={{ flex: 1 }}>
       <BackBar title={isRequest ? 'Request to book' : 'Confirm and pay'} onBack={Nav.back} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
         <Card>
           <View style={{ flexDirection: 'row' }}>
             <Photo url={d.image} style={{ width: 96, aspectRatio: 1.2 }} />

@@ -12,6 +12,7 @@ import { CheckRow, Choice, Field } from '../ui/inputs';
 import { Dialog } from '../ui/sheets';
 import { PetHostCard, petEmoji, petSizes, petTypes } from '../ui/petcards';
 import { Nav, intParam, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const n2s = (v: number | null) => (v === null ? '' : String(v).replace(/\.0$/, ''));
 
@@ -26,7 +27,7 @@ export function MyPetsScreen() {
         : !d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your pets.'} onRetry={l.reload} />
         : !objs(d, 'items').length ? <EmptyBox title="No pets yet" text="Add your dog, cat or other pet — feeding, medicines, allergies and vet details." action="Add a pet" onAction={() => Nav.navigate('petform/0')} />
         : (
-          <FlatList data={objs(d, 'items')} keyExtractor={(p) => String(int(p, 'id'))} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}
+          <FlatList data={objs(d, 'items')} keyExtractor={(p) => String(int(p, 'id'))} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: DOCK_SPACE }}
             renderItem={({ item: p, index }) => (
               <Card index={index} onPress={() => Nav.navigate(`petform/${int(p, 'id')}`)}>
                 <View style={st.row}>
@@ -91,7 +92,7 @@ export function PetFormScreen() {
     <View style={{ flex: 1 }}>
       <BackBar title={id === 0 ? 'Add a pet' : f.name || 'Edit pet'} onBack={Nav.back} />
       {!ready ? (l.loading ? <Loading /> : <ErrorBox message={l.error || 'Pet not found.'} />) : (
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
           <View style={st.row}>
             {shown ? <Image source={{ uri: shown }} style={{ width: 72, height: 72, borderRadius: 36 }} />
               : <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: Brand.TealSoft, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 28 }}>{petEmoji[f.type] || '🐾'}</Text></View>}
@@ -155,7 +156,7 @@ export function SavedPetsScreen() {
       <BackBar title="Saved pet hosts" onBack={Nav.back} />
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load.'} onRetry={l.reload} />
         : !objs(d, 'items').length ? <EmptyBox title="Nothing saved yet" text="Tap the heart on a pet host's page to keep it here." action="Find pet services" onAction={() => Nav.navigate('pets')} />
-        : <FlatList data={objs(d, 'items')} keyExtractor={(c) => String(int(c, 'id'))} contentContainerStyle={{ padding: 16, gap: 10 }} renderItem={({ item: c }) => <PetHostCard c={c} onPress={() => Nav.navigate(`petlisting/${int(c, 'id')}`)} />} />}
+        : <FlatList data={objs(d, 'items')} keyExtractor={(c) => String(int(c, 'id'))} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: DOCK_SPACE }} renderItem={({ item: c }) => <PetHostCard c={c} onPress={() => Nav.navigate(`petlisting/${int(c, 'id')}`)} />} />}
     </View>
   );
 }
@@ -177,7 +178,7 @@ export function ProfileScreen() {
     <View style={{ flex: 1 }}>
       <BackBar title="Profile" onBack={Nav.back} />
       {!p && l.loading ? <Loading /> : !p ? <ErrorBox message={l.error || 'Could not load your profile.'} onRetry={l.reload} /> : (
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
           {msg ? <><Notice text={msg[0]} tone={msg[1]} /><Gap /></> : null}
           <Card>
             <Txt color={Brand.InkSoft}>{text(p, 'email')}</Txt>

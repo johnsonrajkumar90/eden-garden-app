@@ -13,6 +13,7 @@ import { Dialog } from '../ui/sheets';
 import { Floaty } from '../ui/cards';
 import { handleIncomingLink } from '../links';
 import { Nav, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export const kindIcon = (kind: string) => ({ flight: 'flight', train: 'train', bus: 'directions-bus', ferry: 'directions-boat', cab: 'local-taxi' } as Record<string, string>)[kind] || 'confirmation-number';
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -122,7 +123,7 @@ export function TicketsList({ message }: { message?: string | null }) {
   const upcoming = saved.filter((x) => bool(x, 'upcoming') || !str(x, 'depart_at'));
   const past = saved.filter((x) => !upcoming.includes(x));
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {message ? <><Notice text={message} tone={message.startsWith('Found') ? 'ok' : 'info'} /><Gap /></> : null}
       <Card>
         <View style={st.row}>

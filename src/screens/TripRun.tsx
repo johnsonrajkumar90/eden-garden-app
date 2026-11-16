@@ -16,6 +16,7 @@ import { Brand } from '../theme';
 import { BackBar, ErrorBox, Gap, Icon, LinkButton, OutlineButton, Photo, Press, PrimaryButton, Txt, st } from '../ui/kit';
 import { Sheet, dial } from '../ui/sheets';
 import { Nav, intParam, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export const RUN_GRAD = ['#D93338', '#E8474B', '#FF5757'] as const;
 export const stopKey = (s: J) => `${text(s, 'category')}:${(num(s, 'lat') || 0).toFixed(4)}:${(num(s, 'lng') || 0).toFixed(4)}`;
@@ -222,7 +223,7 @@ export default function TripRunScreen() {
   return (
     <View style={{ flex: 1 }}>
       <BackBar title={title || 'Your trip'} onBack={Nav.back} />
-      <FlatList data={all} keyExtractor={(_, i) => String(i)} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 40, gap: 12 }}
+      <FlatList data={all} keyExtractor={(_, i) => String(i)} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: DOCK_SPACE, gap: 12 }}
         ListHeaderComponent={
           <View style={{ gap: 12 }}>
             <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 }}>

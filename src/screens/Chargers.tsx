@@ -14,6 +14,7 @@ import { Appear, BackBar, ErrorBox, Gap, Icon, KeyValue, LinkButton, Loading, No
 import { Field } from '../ui/inputs';
 import { Sheet, dial } from '../ui/sheets';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const DC = '#00875A', AC = '#1F6FEB', SLOW = '#8A8580';
 const tierColor = (t?: string | null) => (t === 'dc' ? DC : t === 'ac' ? AC : SLOW);
@@ -131,7 +132,7 @@ export default function ChargersScreen() {
   return (
     <View style={{ flex: 1 }}>
       <BackBar title="EV chargers" onBack={Nav.back} />
-      <FlatList data={error ? [] : items} keyExtractor={(c) => String(c.id)} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 32, gap: 12 }} keyboardShouldPersistTaps="handled"
+      <FlatList data={error ? [] : items} keyExtractor={(c) => String(c.id)} contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: DOCK_SPACE, gap: 12 }} keyboardShouldPersistTaps="handled"
         ListHeaderComponent={header}
         ListFooterComponent={<Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 12 }}>Public chargers come from community databases (Open Charge Map / OpenStreetMap) — status and prices can be out of date. Data © Open Charge Map and OpenStreetMap contributors.</Txt>}
         renderItem={({ item: c, index }) => <Appear index={Math.min(index, 8)}><ChargerCard c={c} onPress={() => setDetails(Number(c.id))} /></Appear>} />

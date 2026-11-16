@@ -37,6 +37,7 @@ export default function HostingScreen() {
 }
 
 import { KycBanner } from './HostKyc';
+import { DOCK_SPACE } from '../ui/dock';
 
 function HStat({ label, value, flex }: { label: string; value: string; flex: number }) {
   return (
@@ -122,7 +123,7 @@ function TodayTab({ home, pets, changed }: { home: { data: J | null; loading: bo
   const admin = obj(h, 'admin');
   const list = (bs: J[]) => bs.map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={changed} /></Appear>);
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {req.length ? <><SectionTitle text="Waiting for your answer" sub="Approve or decline before the time runs out" />{list(req)}<Gap h={6} /></> : null}
       {admin ? <><AdminCards a={admin} /><Gap h={10} /></> : null}
       <SectionTitle text="Today" sub={longDay(today())} />
@@ -362,7 +363,7 @@ function BookingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
           })}
         </ScrollView>
       </View>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 30 }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: DOCK_SPACE }}>
         {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load bookings.'} onRetry={l.reload} />
           : !objs(d, 'bookings').length ? <EmptyBox title="Nothing here" icon="list-alt" text={which === 'requests' ? 'No requests waiting for you.' : which === 'past' ? 'No past bookings yet.' : 'No bookings in this list.'} />
           : objs(d, 'bookings').map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={() => { setTick((t) => t + 1); changed(); }} /></Appear>)}
@@ -406,7 +407,7 @@ function CalendarTab() {
   const t0 = today();
   const kind = text(cur, 'kind');
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {ls.length > 1 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
           {chip('all', 'All in one', all, () => pick('all'))}
@@ -494,7 +495,7 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
   };
   const d = l.data;
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {msg ? <><Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} /><Gap h={10} /></> : null}
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your listings.'} onRetry={l.reload} />
         : !objs(d, 'listings').length ? <EmptyBox title="No listings yet" text="Your listings show here once they are added." icon="home" />
@@ -548,7 +549,7 @@ function MoneyTab() {
   const l = useLoader(() => Api.get('hostapp/money'));
   const d = l.data;
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 30 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your money summary.'} onRetry={l.reload} /> : (
         <>
           {objs(d, 'cards').map((c, i) => {
@@ -591,7 +592,7 @@ function ChatsTab() {
   useEffect(() => { const t = setInterval(l.reload, 15000); return () => clearInterval(t); }, []);
   const d = l.data;
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: DOCK_SPACE }} style={{ flex: 1, backgroundColor: '#fff' }}>
       {!d && l.loading ? <Loading /> : !d ? <View style={{ padding: 16 }}><ErrorBox message={l.error || 'Could not load your chats.'} onRetry={l.reload} /></View>
         : <ChatList chats={objs(d, 'chats')} host open={(c) => Nav.navigate(`hostchat/${int(c, 'id')}`)} />}
     </ScrollView>
@@ -601,7 +602,7 @@ function ChatsTab() {
 /** The host's guest chats on their own (from Today's "unread messages" button). */
 export function HostChatsScreen() {
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1 }}>
       <ColorHeader title="Guest messages" sub="Answer quickly — guests book more" onBack={Nav.back} />
       <ChatsTab />
     </View>
@@ -617,7 +618,7 @@ function AgentPortal() {
   const hosts = objs(d, 'hosts');
   const payouts = objs(d, 'payouts');
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: DOCK_SPACE }}>
       <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
       <View>
         {d ? (

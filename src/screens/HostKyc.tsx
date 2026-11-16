@@ -14,6 +14,7 @@ import { Brand } from '../theme';
 import { Card, ColorHeader, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, PrimaryButton, Txt, st } from '../ui/kit';
 import { Choice, Field } from '../ui/inputs';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const FILES: [string, string, boolean][] = [['id_front', 'ID proof (front)', true], ['id_back', 'ID proof (back)', false], ['ownership_doc', 'Property ownership / lease proof', true], ['selfie', 'Your photo', false]];
 const TONE: Record<string, [string, string, string]> = {
@@ -83,7 +84,7 @@ export default function HostKycScreen() {
   return (
     <View style={{ flex: 1 }}>
       <ColorHeader title="KYC verification" sub="Your identity, kept private" onBack={Nav.back} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
         <View style={[st.row, { borderRadius: 22, backgroundColor: bg, padding: 14 }]}>
           <View style={{ width: 46, height: 46, borderRadius: 16, backgroundColor: '#ffffffaa', alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} color={fg} /></View>
           <View style={{ flex: 1, paddingLeft: 12 }}>

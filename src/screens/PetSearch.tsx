@@ -13,6 +13,7 @@ import { Choice, DateRangeField, Stepper } from '../ui/inputs';
 import { Floaty, SUN_GRAD, SkeletonGrid, chunk } from '../ui/cards';
 import { PetGridCard, petEmoji, petTypes } from '../ui/petcards';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 const facilityChips: [string, string][] = [['pickup', 'Pickup & drop'], ['ac', 'AC'], ['cctv', 'CCTV'], ['grooming', 'Grooming'], ['vet', 'Vet help'],
   ['supervision', '24-hour care'], ['outdoor', 'Outdoor play'], ['indoor', 'Indoor'], ['private_room', 'Private room']];
@@ -132,7 +133,7 @@ export default function PetSearchScreen() {
       </View>
     ) }));
   }
-  return <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.el} contentContainerStyle={{ paddingBottom: 130 }} keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />;
+  return <FlatList ref={list} data={rows} keyExtractor={(r) => r.key} renderItem={({ item }) => item.el} contentContainerStyle={{ paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled" onScrollToIndexFailed={() => {}} />;
 }
 
 function PetTile({ emoji, label, bg, i, onPress }: { emoji: string; label: string; bg: string; i: number; onPress: () => void }) {

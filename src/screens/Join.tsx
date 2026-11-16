@@ -13,6 +13,7 @@ import { Card, ColorHeader, Gap, Icon, LinkButton, Notice, Photo, PrimaryButton,
 import { CheckRow, Choice, Field, Stepper } from '../ui/inputs';
 import { Dialog } from '../ui/sheets';
 import { Nav } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 function SectionHead({ n, title, sub }: { n: number; title: string; sub?: string }) {
   return (
@@ -67,7 +68,7 @@ export function BecomeHostScreen() {
   };
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: DOCK_SPACE }}>
         <ColorHeader title="Host sign up" sub="List your homestay, villa or resort on TripArro — free to join." onBack={Nav.back} />
         <View style={{ padding: 16 }}>
           {sent ? <Done title="Check your email" text={sent} button="Sign in" onPress={() => Nav.replace('login')} />
@@ -178,7 +179,7 @@ export function BecomePetHostScreen() {
   const pt = objs(m, 'pet_types').length ? objs(m, 'pet_types').map((x) => [text(x, 'value'), text(x, 'label')]) : [['dog', 'Dogs'], ['cat', 'Cats']];
   const sv = objs(m, 'services').length ? objs(m, 'services').map((x) => [text(x, 'value'), text(x, 'label')]) : [['boarding', 'Overnight boarding'], ['daycare', 'Daycare']];
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: DOCK_SPACE }}>
       <ColorHeader title="Become a pet host" sub="Board dogs, cats and other pets from home — verified pet parents, paid securely." onBack={Nav.back} />
       <View style={{ padding: 16 }}>
         {sent ? <Done title="Registration sent" text={sent} button={signedIn ? 'Open My hosting' : 'Sign in'} onPress={() => Nav.replace(signedIn ? 'hosting' : 'login')} /> : (

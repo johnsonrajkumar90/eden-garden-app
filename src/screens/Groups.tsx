@@ -20,6 +20,7 @@ import { HubTabs, MakeTripCard, TripCard, TripCover } from './GroupsUi';
 import { BoardingPass, TicketsList, kindIcon } from './Tickets';
 import { LiveSpot, PlaceSource } from './TripExtras';
 import { Nav, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export const openGroupUrl = (u?: string | null) => { if (u) Linking.openURL(u).catch(() => {}); };
 const prettyDay = (iso?: string | null) => { const d = parseIso(iso); return d ? `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}` : iso || ''; };
@@ -37,7 +38,7 @@ export function GroupTripsList() {
   const [made, setMade] = useState<J | null>(null);
   const data = l.data;
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 130 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       <MakeTripCard onNew={(idea) => { setNewIdea(idea); setCreating(true); }} onJoin={() => setJoining(true)} />
       <Gap />
       {objs(data, 'invites').map((inv) => (
@@ -196,7 +197,7 @@ export function GroupJoinScreen() {
     <View style={{ flex: 1 }}>
       <BackBar title="Join a group trip" onBack={Nav.back} />
       {!p && l.loading ? <Loading /> : !p ? <ErrorBox message={l.error || 'This trip was not found.'} onRetry={l.reload} /> : bool(p, 'member') ? <Loading /> : (
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
           <Card>
             <Txt k="labelLarge" color={Brand.Coral}>{text(p, 'by')} invited you</Txt>
             <Txt k="headlineSmall" style={{ marginTop: 4 }}>{text(p, 'title')}</Txt>

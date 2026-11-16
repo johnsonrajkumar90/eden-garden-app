@@ -19,6 +19,7 @@ import { Api } from './src/core/api';
 import { AppState, useAppState, useSession } from './src/core/state';
 import * as Notifier from './src/core/notifier';
 import * as Push from './src/core/push';
+import { Dock } from './src/ui/dock';
 import { int } from './src/core/json';
 import { Brand } from './src/theme';
 import { Icon, Txt } from './src/ui/kit';
@@ -103,6 +104,7 @@ function Shell() {
   // the floating menu is on every page, except full-screen viewers, chats (their own message box) and sign-in / payment
   const NO_DOCK = ['photo', 'video', 'pdf', 'chat/', 'chatt/', 'groupchat/', 'hostchat/', 'checkin', 'site', 'login', 'signup', 'pay'];
   const showDock = isTab || !NO_DOCK.some((n) => current.startsWith(n));
+  Dock.h = showDock ? dockH : 0;   // floating bars (the price bar) sit just above the menu
   const showWelcome = !welcomeDone && !!session && !session.user && startLink === null && current === 'explore';
 
   return (
@@ -110,8 +112,8 @@ function Shell() {
       <StatusBar style="light" />
       <GlassBackdrop />
       <View style={{ height: insets.top, backgroundColor: darkTop(current) ? '#000' : '#C8242B' }} />
-      {/* tab pages scroll under the floating menu; on other pages (and AI, with its message box) the page ends above it */}
-      <View style={{ flex: 1, paddingBottom: showDock && (!isTab || current === 'ai') ? dockH : 0 }}>
+      {/* every page scrolls under the floating menu (it floats over the page); pages with their own box at the bottom (AI, trip run) end above it */}
+      <View style={{ flex: 1, paddingBottom: showDock && (current === 'ai' || current.startsWith('triprun')) ? dockH : 0 }}>
         <NavigationContainer
           ref={navRef}
           theme={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: 'transparent', card: 'transparent' } }}

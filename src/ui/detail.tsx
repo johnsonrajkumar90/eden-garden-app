@@ -4,6 +4,7 @@ import { FlatList, Pressable, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Brand } from '../theme';
 import { Icon, Photo, Txt, st } from './kit';
+import { DOCK_SPACE, Dock } from './dock';
 
 /** Photos across the top of a details page: swipe, dot indicators, a soft shade so the buttons read on any photo. */
 export function HeroGallery({ urls, onOpen, actions, ratio = 1.08 }: { urls: string[]; onOpen?: (u: string) => void; actions?: ReactNode; ratio?: number }) {
@@ -188,13 +189,13 @@ export function RefundTimeline({ rows }: { rows: [string, number][] }) {
 }
 
 /** Room at the end of a page for the floating price bar. */
-export const PRICE_BAR_SPACE = 100;
+export const PRICE_BAR_SPACE = 100 + DOCK_SPACE;
 
 /** The floating bar at the bottom of a details page: price, a note, and the main button. */
 export function PriceBar({ price, unit, was, note, button }: { price: string; unit: string; was?: string | null; note?: string | null; button: ReactNode }) {
   return (
     // floats over the page (the page leaves room for it with PRICE_BAR_SPACE), just above the floating menu
-    <View style={[st.row, { position: 'absolute', left: 12, right: 12, bottom: 8, backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: 30, paddingLeft: 20, paddingRight: 8, paddingVertical: 8, borderWidth: 1.5, borderColor: '#FFFFFF', elevation: 14, shadowColor: '#C8242B', shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } }]}>
+    <View style={[st.row, { position: 'absolute', left: 12, right: 12, bottom: Dock.h + 6, backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: 30, paddingLeft: 20, paddingRight: 8, paddingVertical: 8, borderWidth: 1.5, borderColor: '#FFFFFF', elevation: 14, shadowColor: '#C8242B', shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } }]}>
       <View style={{ flex: 1 }}>
         <View style={[st.row, { alignItems: 'flex-end' }]}>
           {was ? <Txt color={Brand.Muted} style={{ textDecorationLine: 'line-through' }}>{was} </Txt> : null}

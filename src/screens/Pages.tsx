@@ -10,6 +10,7 @@ import { Card, ColorHeader, ErrorBox, Gap, Loading, Notice, PrimaryButton, Txt }
 import { CheckRow, Field } from '../ui/inputs';
 import { HtmlText } from '../ui/html';
 import { Nav, useParams } from '../nav';
+import { DOCK_SPACE } from '../ui/dock';
 
 export function PageScreen() {
   const slug = useParams().slug || 'privacy';
@@ -19,7 +20,7 @@ export function PageScreen() {
     <View style={{ flex: 1 }}>
       <ColorHeader title={d ? text(d, 'title') : slug === 'privacy' ? 'Privacy policy' : slug === 'cancellation' ? 'Cancellation policy' : 'Host terms'} onBack={Nav.back} />
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load this page.'} onRetry={l.reload} /> : (
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}><Card><HtmlText html={text(d, 'html')} /></Card></ScrollView>
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}><Card><HtmlText html={text(d, 'html')} /></Card></ScrollView>
       )}
     </View>
   );
@@ -37,7 +38,7 @@ export function DeleteAccountScreen() {
   return (
     <View style={{ flex: 1 }}>
       <ColorHeader title="Delete my account" sub="This can't be undone." onBack={Nav.back} />
-      <ScrollView contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
         {done ? <><Notice text={done} tone="ok" /><Gap /><PrimaryButton text="Back to TripArro" onPress={() => Nav.home()} /></>
           : !u ? <Notice text="Sign in to delete your account." />
           : u.role !== 'guest' ? <Notice tone="warn" text="Host, resort owner, pet host, partner and admin accounts are closed by the TripArro team so your listings, bookings and payouts are handled properly. Please contact customer care from the Account menu." />

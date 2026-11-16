@@ -15,7 +15,7 @@ import { Appear, EmptyBox, ErrorBox, Icon, Loading, Notice, Photo, Press, Txt, C
 import { Pulse, RED_GRAD, SUN_GRAD } from '../ui/cards';
 import { Nav, intParam, useParams } from '../nav';
 
-export const Wallpaper = '#F3EBE2';
+export const Wallpaper = 'rgba(255,255,255,0.35)';   // glass: the app's backdrop shows through the chat
 const MineBubble = '#FFE9B0';
 const ReadBlue = '#34B7F1';
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -142,9 +142,9 @@ function ChatWindow({ title, sub, avatar, me, otherName, start, load, send, foot
       </View>
       {err ? <Notice text={err} tone="bad" style={{ margin: 8 }} /> : null}
       {footer?.(info, take)}
-      <View style={[st.row, { backgroundColor: Wallpaper, padding: 8, alignItems: 'flex-end' }]}>
+      <View style={[st.row, { backgroundColor: 'rgba(255,255,255,0.92)', margin: 10, marginTop: 4, borderRadius: 32, padding: 6, alignItems: 'flex-end', borderWidth: 1.5, borderColor: '#fff', elevation: 12, shadowColor: '#C8242B', shadowOpacity: 0.18, shadowRadius: 16, shadowOffset: { width: 0, height: 5 } }]}>
         <TextInput value={body} onChangeText={setBody} placeholder="Message" placeholderTextColor="#A59C97" multiline cursorColor={Brand.Blue}
-          style={{ flex: 1, maxHeight: 120, backgroundColor: '#fff', borderRadius: 26, paddingHorizontal: 18, paddingVertical: 12, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, elevation: 1 }} accessibilityLabel="Message" />
+          style={{ flex: 1, maxHeight: 120, backgroundColor: '#FBF6F3', borderRadius: 26, paddingHorizontal: 18, paddingVertical: 12, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, elevation: 1 }} accessibilityLabel="Message" />
         <Press onPress={doSend} disabled={!body.trim() || !!pending} style={{ marginLeft: 8, width: 52, height: 52, borderRadius: 26, overflow: 'hidden', elevation: 4 }} accessibilityLabel="Send">
           <LinearGradient colors={body.trim() ? (SUN_GRAD as any) : ['#E6DCD3', '#E6DCD3']} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Icon name="send" color={Brand.SunInk} /></LinearGradient>
         </Press>
@@ -238,7 +238,7 @@ export function MessagesScreen() {
   useEffect(() => { const t = setInterval(l.reload, 15000); return () => clearInterval(t); }, []);
   const d = l.data;
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1 }}>
       <ColorHeader title="Messages" sub="Your chats with hosts" onBack={Nav.back} />
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your messages.'} onRetry={l.reload} /> : (
         <FlatList data={[0]} keyExtractor={() => 'x'} renderItem={() => <ChatList chats={objs(d, 'chats')} host={false} open={(c) => Nav.navigate(`chatt/${text(c, 'token')}`)} />} />
