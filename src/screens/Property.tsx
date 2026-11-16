@@ -219,6 +219,21 @@ function BookingSheet({ kind, id, p, onClose }: { kind: string; id: number; p: J
 
   return (
     <Sheet open onClose={onClose} title="Your trip">
+      {/* the host's promotions (apply by themselves) and pay-at-property stays */}
+      {objs(p, 'promotions').length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+          {objs(p, 'promotions').map((x) => (
+            <View key={text(x, 'label')} style={{ borderRadius: 20, backgroundColor: Brand.Blue, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelSmall" bold color="#fff">🏷 {text(x, 'label')}</Txt></View>
+          ))}
+          <Txt k="labelSmall" color={Brand.Muted} style={{ width: '100%' }}>Applied by itself when your dates qualify — no code needed.</Txt>
+        </View>
+      ) : null}
+      {bool(p, 'pay_at_property') ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 16, backgroundColor: '#FFF3C4', borderWidth: 1, borderColor: '#F5D36B', padding: 12, marginBottom: 10 }}>
+          <Txt k="titleLarge">💵</Txt>
+          <View style={{ flex: 1 }}><Txt k="titleSmall" bold color="#4A3400">Pay at property available</Txt><Txt k="bodySmall" color="#6B5200">Book now and pay the host in cash or UPI when you arrive — nothing to pay online.</Txt></View>
+        </View>
+      ) : null}
       <DateRangeField checkIn={checkIn} checkOut={checkOut} booked={strings(p, 'booked_dates')} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); reset(); }} />
       <Gap h={8} />
       <Stepper label="Adults" value={adults} onChange={(n) => { setAdults(n); reset(); }} min={1} max={40} note={note} />
