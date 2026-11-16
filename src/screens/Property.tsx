@@ -171,11 +171,11 @@ export default function PropertyScreen() {
       </ScrollView>
       <PriceBar price={money(offer ?? nightly)} unit={kind === 'resort' ? '/ room night' : '/ night'} was={offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
         note={str(p, 'cancellation') || str(canc, 'label')}
-        button={bool(p, 'bookable') || p.bookable === undefined ? (
+        button={(
           <Pressable onPress={() => setSheet(true)} style={[st.redShadow, { borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 26, paddingVertical: 15 }]}>
             <Txt k="labelLarge" bold color="#fff">{text(p, 'booking_mode') === 'request' ? 'Request to book' : 'Reserve'}</Txt>
           </Pressable>
-        ) : <Txt color={Brand.Warn}>Not taking bookings</Txt>} />
+        )} />
       {sheet ? <BookingSheet kind={kind} id={id} p={p} onClose={() => setSheet(false)} /> : null}
     </View>
   );
@@ -219,7 +219,7 @@ function BookingSheet({ kind, id, p, onClose }: { kind: string; id: number; p: J
 
   return (
     <Sheet open onClose={onClose} title="Your trip">
-      <DateRangeField checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); reset(); }} />
+      <DateRangeField checkIn={checkIn} checkOut={checkOut} booked={strings(p, 'booked_dates')} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); reset(); }} />
       <Gap h={8} />
       <Stepper label="Adults" value={adults} onChange={(n) => { setAdults(n); reset(); }} min={1} max={40} note={note} />
       <Stepper label="Children" value={ages.length} onChange={(n) => { setAges((a) => { const b = a.slice(0, n); while (b.length < n) b.push(5); return b; }); reset(); }} min={0} max={10} note="Ages help us price correctly" />

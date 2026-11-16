@@ -89,7 +89,7 @@ export function Stepper({ label, value, onChange, min = 0, max = 20, note }: { l
 }
 
 /** One month of days to tap: a start and an end (or one day). No past dates unless allowPast. */
-export function Calendar({ start, end, onPick, single, allowPast }: { start: string; end: string; onPick: (a: string, b: string) => void; single?: boolean; allowPast?: boolean }) {
+export function Calendar({ start, end, onPick, single, allowPast, booked, onNote }: { start: string; end: string; onPick: (a: string, b: string) => void; single?: boolean; allowPast?: boolean; booked?: Set<string>; onNote?: (m: string) => void }) {
   const first = parseIso(start) || new Date();
   const [month, setMonth] = useState(new Date(first.getFullYear(), first.getMonth(), 1));
   const t = today();
@@ -101,10 +101,17 @@ export function Calendar({ start, end, onPick, single, allowPast }: { start: str
     for (let d = 1; d <= n; d++) out.push(isoDate(new Date(month.getFullYear(), month.getMonth(), d)));
     return out;
   }, [month]);
+  // every night from the check-in day up to (not including) d is free
+  const canOut = (d: string) => { if (!start || !booked) return true; for (let x = start; x < d; x = addDays(x, 1)) if (booked.has(x)) return false; return true; };
   const tap = (d: string) => {
+    onNote?.('');
     if (single) return onPick(d, d);
-    if (!start || (start && end) || d <= start) onPick(d, '');
-    else onPick(start, d);
+    if (!start || (start && end) || d <= start) {
+      if (booked?.has(d)) { onNote?.(booked.size >= 300 ? 'Sorry — this stay is fully booked.' : 'That night is booked — please pick a free date.'); return; }
+      onPick(d, '');
+    } else if (!canOut(d)) {
+      if (booked?.has(d)) onNote?.('Some nights in between are booked — please pick other dates.'); else onPick(d, '');
+    } else onPick(start, d);
   };
   return (
     <View>
@@ -119,11 +126,12 @@ export function Calendar({ start, end, onPick, single, allowPast }: { start: str
           if (!d) return <View key={i} style={{ width: `${100 / 7}%`, height: 42 }} />;
           const off = !allowPast && d < t;
           const edge = d === start || d === end;
+          const taken = !off && !!booked?.has(d) && !edge;
           const inside = start && end && d > start && d < end;
           return (
-            <Pressable key={i} disabled={off} onPress={() => tap(d)} style={{ width: `${100 / 7}%`, height: 42, alignItems: 'center', justifyContent: 'center', backgroundColor: inside ? Brand.Sky : 'transparent' }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: edge ? Brand.Blue : 'transparent' }}>
-                <Txt k="bodyMedium" color={off ? '#C9C1BB' : edge ? '#fff' : Brand.Ink} semi={edge}>{Number(d.slice(8))}</Txt>
+            <Pressable key={i} disabled={off} onPress={() => tap(d)} accessibilityLabel={`${d}${booked?.has(d) ? ', booked' : ''}`} style={{ width: `${100 / 7}%`, height: 42, alignItems: 'center', justifyContent: 'center', backgroundColor: inside ? Brand.Sky : 'transparent' }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: edge ? Brand.Blue : taken ? '#FFE0E0' : 'transparent', borderWidth: taken ? 1 : 0, borderColor: '#F5B5B5' }}>
+                <Txt k="bodyMedium" color={off ? '#C9C1BB' : edge ? '#fff' : taken ? '#B4232F' : Brand.Ink} semi={edge || taken}>{Number(d.slice(8))}</Txt>
               </View>
             </Pressable>
           );
@@ -134,7 +142,7 @@ export function Calendar({ start, end, onPick, single, allowPast }: { start: str
 }
 
 /** A "Check-in → Check-out" field that opens a date-range calendar (no past dates). */
-export function DateRangeField({ checkIn, checkOut, onChange, label = 'Dates', style }: { checkIn: string; checkOut: string; onChange: (a: string, b: string) => void; label?: string; style?: StyleProp<ViewStyle> }) {
+export function DateRangeField({ checkIn, checkOut, onChange, label = 'Dates', style, booked }: { checkIn: string; checkOut: string; onChange: (a: string, b: string) => void; label?: string; style?: StyleProp<ViewStyle>; booked?: string[] }) {
   const [open, setOpen] = useState(false);
   const [a, setA] = useState(checkIn); const [b, setB] = useState(checkOut);
   return (
@@ -148,13 +156,16 @@ export function DateRangeField({ checkIn, checkOut, onChange, label = 'Dates', s
           </View>
         </View>
       </Bordered>
-      <DateRangeSheet open={open} start={a} end={b} title="Check-in and check-out" onClose={() => setOpen(false)}
+      <DateRangeSheet open={open} start={a} end={b} booked={booked} title="Check-in and check-out" onClose={() => setOpen(false)}
         onPick={(x, y) => { setA(x); setB(y); }} onDone={() => { if (a) { onChange(a, b && b > a ? b : addDays(a, 1)); } setOpen(false); }} />
     </>
   );
 }
 
-export function DateRangeSheet({ open, start, end, title, onClose, onPick, onDone, single, allowPast }: { open: boolean; start: string; end: string; title: string; onClose: () => void; onPick: (a: string, b: string) => void; onDone: () => void; single?: boolean; allowPast?: boolean }) {
+export function DateRangeSheet({ open, start, end, title, onClose, onPick, onDone, single, allowPast, booked: bookedList }: { open: boolean; start: string; end: string; title: string; onClose: () => void; onPick: (a: string, b: string) => void; onDone: () => void; single?: boolean; allowPast?: boolean; booked?: string[] }) {
+  const booked = useMemo(() => (bookedList && bookedList.length ? new Set(bookedList) : undefined), [bookedList]);
+  const full = !!booked && booked.size >= 300;   // every night for months ahead is taken
+  const [note, setNote] = useState('');
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' }}>
@@ -162,7 +173,15 @@ export function DateRangeSheet({ open, start, end, title, onClose, onPick, onDon
           <Txt k="titleLarge">{title}</Txt>
           <Txt k="bodySmall" color={Brand.Muted}>{start ? `${shortDate(start)}${single ? '' : ' → ' + (end ? shortDate(end) : 'pick the last day')}` : single ? 'Pick a day' : 'Pick the first day'}</Txt>
           <Gap />
-          <Calendar start={start} end={end} onPick={onPick} single={single} allowPast={allowPast} />
+          <Calendar start={start} end={end} onPick={onPick} single={single} allowPast={allowPast} booked={booked} onNote={setNote} />
+          {full || note ? <View style={{ marginTop: 8, borderRadius: 14, backgroundColor: '#FDEAEA', padding: 10 }}><Txt k="bodyMedium" semi center color="#A3141D">{full ? 'Sorry — this stay is fully booked. Please choose another stay.' : note}</Txt></View> : null}
+          {booked ? (
+            <View style={[st.row, { gap: 14, marginTop: 8 }]}>
+              {[['#FFE0E0', '#F5B5B5', 'Booked'], ['#fff', '#E4DAD3', 'Free'], [Brand.Blue, Brand.Blue, 'Your dates']].map(([bg, bd, l]) => (
+                <View key={l} style={st.row}><View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: bg, borderWidth: 1, borderColor: bd, marginRight: 5 }} /><Txt k="labelSmall" color={Brand.Muted}>{l}</Txt></View>
+              ))}
+            </View>
+          ) : null}
           <View style={[st.row, { justifyContent: 'flex-end', marginTop: 8 }]}>
             <LinkButton text="Cancel" onPress={onClose} color={Brand.InkSoft} />
             <LinkButton text="Done" onPress={onDone} disabled={!start} />

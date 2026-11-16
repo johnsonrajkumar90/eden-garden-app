@@ -153,13 +153,12 @@ export const chunk = <T,>(a: T[], n = 2) => { const out: T[][] = []; for (let i 
 export function GridPropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
   const price = obj(p, 'price') || {};
   const offer = num(price, 'offer_nightly'); const nightly = num(price, 'nightly'); const total = obj(price, 'total');
-  const bookable = bool(p, 'bookable') || p.bookable === undefined;
   return (
     <GlassListingCard image={str(p, 'image')} title={text(p, 'title')} place={str(p, 'area') || str(p, 'location') || ''}
-      price={!bookable ? null : total ? money(num(total, 'amount')) : money(offer ?? nightly)} unit={total ? `· ${int(total, 'nights')}n` : '/night'}
+      price={total ? money(num(total, 'amount')) : money(offer ?? nightly)} unit={total ? `· ${int(total, 'nights')}n` : '/night'}
       was={!total && offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
       offer={offer !== null && nightly !== null && offer < nightly ? `${Math.round((1 - offer / nightly) * 100)}% OFF` : null}
-      tags={listingTags(p)} rating={num(p, 'rating')} note={!bookable ? 'Not taking bookings' : null} noteTone="warn" onPress={onPress} />
+      tags={listingTags(p)} rating={num(p, 'rating')} note={null} noteTone="warn" onPress={onPress} />
   );
 }
 
@@ -167,14 +166,13 @@ export function GridPropertyCard({ p, onPress }: { p: J; onPress: () => void }) 
 export function PropertyCard({ p, onPress }: { p: J; onPress: () => void }) {
   const price = obj(p, 'price') || {};
   const offer = num(price, 'offer_nightly'); const nightly = num(price, 'nightly'); const total = obj(price, 'total');
-  const bookable = bool(p, 'bookable') || p.bookable === undefined;
   return (
     <Appear style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
       <GlassListingCard wide image={str(p, 'image')} title={text(p, 'title')} place={[str(p, 'area'), str(p, 'location')].filter(Boolean).join(', ')}
-        price={!bookable ? null : total ? money(num(total, 'amount')) : (bool(price, 'from') ? 'from ' : '') + money(offer ?? nightly)}
+        price={total ? money(num(total, 'amount')) : (bool(price, 'from') ? 'from ' : '') + money(offer ?? nightly)}
         unit={total ? `for ${int(total, 'nights')} nights` : '/ night'} was={!total && offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
         offer={offer !== null && nightly !== null && offer < nightly ? `${Math.round((1 - offer / nightly) * 100)}% OFF` : null}
-        tags={listingTags(p)} rating={num(p, 'rating')} note={!bookable ? 'Not taking bookings right now' : str(p, 'cancellation')} noteTone={!bookable ? 'warn' : 'ok'} onPress={onPress} />
+        tags={listingTags(p)} rating={num(p, 'rating')} note={str(p, 'cancellation')} noteTone="ok" onPress={onPress} />
     </Appear>
   );
 }
