@@ -27,7 +27,7 @@ import { Nav, ROUTES, TABS, navRef } from './src/nav';
 import { flushPendingLink, handleIncomingLink } from './src/links';
 import { SCREENS } from './src/screens/registry';
 import Welcome from './src/screens/Welcome';
-import { OfferPopup, RewardPopup } from './src/screens/Popups';
+import { OfferPopup, RewardPopup, UpdatePrompt } from './src/screens/Popups';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 const Stack = createNativeStackNavigator();
@@ -138,6 +138,7 @@ function Shell() {
       ) : null}
       <OfferPopup offer={session?.user || welcomeDone ? session?.offerPopup || null : null} open={(l) => Nav.openLink(l.startsWith('/') ? Api.url(l) : l)} />
       <RewardPopup reward={session?.user?.reward || null} openWallet={() => Nav.navigate('wallet')} />
+      <UpdatePrompt />
     </View>
   );
 }

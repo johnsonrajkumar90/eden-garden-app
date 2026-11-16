@@ -3,14 +3,16 @@
  * "You got ₹200!" when a reward lands in the wallet (shown once per reward).
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, AppState as RNAppState, Easing, Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import * as Application from 'expo-application';
+import { Api } from '../core/api';
 import { Image } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { J, int, num, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
-import { Icon, LinkButton, PrimaryButton, Txt } from '../ui/kit';
+import { Gap, Icon, LinkButton, PrimaryButton, Txt } from '../ui/kit';
 
 export function OfferPopup({ offer, open }: { offer: J | null; open: (link: string) => void }) {
   const [visible, setVisible] = useState(false);
@@ -136,6 +138,66 @@ export function RewardPopup({ reward, openWallet }: { reward: J | null; openWall
           </PopIn>
         </View>
       </BlurView>
+    </Modal>
+  );
+}
+
+/**
+ * Google Play updates: the website (Admin → Settings → Mobile app updates) says which version is the latest and which
+ * is the oldest that still works. Below the minimum the app asks to update before going on; below the latest it offers
+ * the update once per version (again after 3 days). Checked on start and when the app comes back to the front.
+ */
+const cmpVer = (a: string, b: string) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; } return 0; };
+export function UpdatePrompt() {
+  const [info, setInfo] = useState<{ must: boolean; latest: string; note: string; url: string } | null>(null);
+  useEffect(() => {
+    const mine = Application.nativeApplicationVersion || '0';
+    let last = 0;
+    const check = async () => {
+      if (Date.now() - last < 30 * 60_000) return;   // at most every half hour
+      last = Date.now();
+      try {
+        const j = await Api.get('app/version');
+        const latest = str(j, 'latest'), min = str(j, 'min');
+        const url = str(j, 'url') || 'https://play.google.com/store/apps/details?id=triparro.com';
+        if (min && cmpVer(mine, min) < 0) { setInfo({ must: true, latest: latest || min, note: str(j, 'note') || '', url }); return; }
+        if (latest && cmpVer(mine, latest) < 0) {
+          const seen = await AsyncStorage.getItem('update_seen_' + latest);
+          if (seen && Date.now() - Number(seen) < 3 * 86400_000) return;
+          setInfo({ must: false, latest, note: str(j, 'note') || '', url });
+        }
+      } catch {}
+    };
+    check();
+    const s = RNAppState.addEventListener('change', (st) => { if (st === 'active') check(); });
+    return () => s.remove();
+  }, []);
+  if (!info) return null;
+  const later = async () => { await AsyncStorage.setItem('update_seen_' + info.latest, String(Date.now())).catch(() => {}); setInfo(null); };
+  const update = () => {
+    const id = (info.url.match(/[?&]id=([\w.]+)/) || [])[1];
+    Linking.openURL(id ? 'market://details?id=' + id : info.url).catch(() => Linking.openURL(info.url).catch(() => {}));
+  };
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={info.must ? () => {} : later}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(30,8,10,0.55)', justifyContent: 'center', padding: 24 }}>
+        <PopIn>
+          <View style={{ borderRadius: 28, backgroundColor: '#fff', overflow: 'hidden' }}>
+            <LinearGradient colors={['#B50F22', '#D7192A', '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 22, alignItems: 'center' }}>
+              <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FFC42E', alignItems: 'center', justifyContent: 'center' }}><Icon name="system-update" color="#4A3400" size={32} /></View>
+              <Txt k="titleLarge" bold color="#fff" style={{ marginTop: 10 }}>{info.must ? 'Please update TripArro' : 'A new version is ready'}</Txt>
+              <Txt k="bodySmall" color="#FFE3DC">Version {info.latest} on Google Play</Txt>
+            </LinearGradient>
+            <View style={{ padding: 20 }}>
+              <Txt k="bodyMedium" color={Brand.InkSoft} center>{info.must ? 'This version of the app no longer works with TripArro. Update to keep booking and managing your trips.' : 'Update for the newest features and fixes.'}</Txt>
+              {info.note ? <Txt k="bodySmall" center color={Brand.Ink} style={{ marginTop: 8 }}>{info.note}</Txt> : null}
+              <Gap />
+              <PrimaryButton text="Update now" icon="shop" onPress={update} />
+              {!info.must ? <LinkButton text="Later" color={Brand.InkSoft} onPress={later} /> : null}
+            </View>
+          </View>
+        </PopIn>
+      </View>
     </Modal>
   );
 }
