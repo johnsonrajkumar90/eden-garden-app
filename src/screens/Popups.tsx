@@ -42,18 +42,16 @@ export function OfferPopup({ offer, open }: { offer: J | null; open: (link: stri
       <BlurView intensity={30} tint="dark" style={{ flex: 1 }}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(30,8,10,0.45)', justifyContent: 'center', padding: 22 }} onPress={close}>
           <PopIn>
-            <Pressable onPress={() => {}} style={{ borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.92)', borderWidth: 1.5, borderColor: '#fff', padding: 8, shadowColor: '#C8242B', shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 16 }}>
-              <Pressable onPress={() => { if (link) { close(); open(link); } }} accessibilityLabel="Offer">
-                <Image source={{ uri: text(offer, 'image') }} onLoad={(e) => e.source.width && setRatio(e.source.width / e.source.height)} style={{ width: '100%', aspectRatio: ratio, borderRadius: 26 }} contentFit="cover" />
+            {/* the offer is just its picture: tap it to open the offer, tap outside or × to close */}
+            <View style={{ alignSelf: 'center', width: '100%', maxWidth: 440 }}>
+              <Pressable onPress={() => { close(); if (link) open(link); }} accessibilityRole={link ? 'button' : 'image'} accessibilityLabel={text(offer, 'title') || 'Offer'}
+                style={{ borderRadius: 26, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 16 }}>
+                <Image source={{ uri: text(offer, 'image') }} onLoad={(e) => e.source.width && setRatio(e.source.width / e.source.height)} style={{ width: '100%', aspectRatio: ratio, maxHeight: 640 }} contentFit="contain" />
               </Pressable>
-              <View style={{ paddingHorizontal: 8, paddingTop: 12, paddingBottom: 6 }}>
-                {link ? <PrimaryButton text={text(offer, 'button') || 'Claim this offer'} icon="redeem" onPress={() => { close(); open(link); }} /> : null}
-                <LinkButton text="Maybe later" color={Brand.InkSoft} onPress={close} />
-              </View>
-              <Pressable onPress={close} hitSlop={8} style={{ position: 'absolute', top: -10, right: -10, width: 40, height: 40, borderRadius: 20, backgroundColor: Brand.Blue, borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center', elevation: 18 }} accessibilityLabel="Close">
-                <Icon name="close" color="#fff" size={20} />
+              <Pressable onPress={close} hitSlop={10} style={{ position: 'absolute', top: -12, right: -8, width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.55)', borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center', elevation: 18 }} accessibilityLabel="Close">
+                <Icon name="close" color="#fff" size={18} />
               </Pressable>
-            </Pressable>
+            </View>
           </PopIn>
         </Pressable>
       </BlurView>
