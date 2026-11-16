@@ -8,6 +8,7 @@ import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import * as BackgroundTask from 'expo-background-task';
 import { Platform } from 'react-native';
+import { AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Api } from './api';
 import { AppState } from './state';
 import { bool, int, objs, text } from './json';
@@ -88,10 +89,19 @@ export async function reset() {
   AppState.set({ unread: 0 });
 }
 
-/** A short sound so people hear what new messages sound like (shown as a small notification). */
+/** The message sound: a short two-note chime played in the app (not a notification), when sound is on. */
 let lastChime = 0;
+let player: AudioPlayer | null = null;
 export async function chime() {
-  if (!(await soundOn()) || Date.now() - lastChime < 1500 || !(await canPost())) return;
+  if (!(await soundOn()) || Date.now() - lastChime < 1500) return;
   lastChime = Date.now();
-  await Notifications.scheduleNotificationAsync({ content: { title: 'TripArro', body: 'Sounds are on for new messages and updates.', sound: 'default' }, trigger: Platform.OS === 'android' ? ({ channelId: CHANNEL_MSG } as any) : null }).catch(() => {});
+  try {
+    if (!player) {
+      await setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers', shouldPlayInBackground: false }).catch(() => {});
+      player = createAudioPlayer(require('../../assets/chime.wav'));
+      player.volume = 0.7;
+    }
+    player.seekTo(0).catch(() => {});
+    player.play();
+  } catch {}
 }

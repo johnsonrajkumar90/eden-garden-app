@@ -46,6 +46,7 @@ const config: ExpoConfig = {
     ['expo-build-properties', { android: { minSdkVersion: 24, targetSdkVersion: 36, useLegacyPackaging: true, enableMinifyInReleaseBuilds: false, enableShrinkResourcesInReleaseBuilds: false } }],   // compressed native libraries: a much smaller APK
     ['expo-splash-screen', { image: './assets/splash-logo.png', imageWidth: 220, backgroundColor: '#C41E2E' }],
     ['expo-notifications', { color: '#D7192A' }],
+    ['expo-audio', { recordAudioAndroid: false, microphonePermission: false, enableBackgroundPlayback: false }],   // only the short message sound: no microphone, no background audio
     ['expo-location', { locationWhenInUsePermission: 'TripArro uses your location to name the place you are at and to find chargers near you.' }],
     ['expo-image-picker', { photosPermission: 'TripArro lets you choose photos for trips, posts and favourites.', cameraPermission: 'TripArro uses the camera for trip photos, receipts and guest ID scans.' }],
     ['expo-font', { fonts: ['./assets/fonts/poppins_medium.ttf', './assets/fonts/poppins_semibold.ttf', './assets/fonts/poppins_bold.ttf', './assets/fonts/inter_regular.ttf', './assets/fonts/inter_medium.ttf', './assets/fonts/inter_semibold.ttf', './assets/fonts/inter_bold.ttf'] }],
