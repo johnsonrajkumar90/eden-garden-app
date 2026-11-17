@@ -122,13 +122,26 @@ class ApiClient {
     }
   }
 
+  /** Can the phone reach the website at all? A quick look (at most 6 s), used to word an error correctly. */
+  async reachable(): Promise<boolean> {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 6000);
+    try { const r = await fetch(this.url('api/app/version'), { method: 'GET', signal: ctl.signal, headers: { Accept: 'application/json', 'User-Agent': userAgent } }); return r.status > 0; }
+    catch { return false; }
+    finally { clearTimeout(t); }
+  }
+
   private async send(url: string, init: RequestInit): Promise<J> {
     await this.ready;
     let r: Response;
     try {
       r = await fetch(url, { ...init, credentials: 'include', headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'User-Agent': userAgent, ...(init.headers as any) } });
     } catch {
-      throw new ApiError(0, 'No connection. Check your internet and try again.', 'offline');
+      // the request did not finish: either the phone is offline, or the website closed the connection while working on it
+      const online = await this.reachable();
+      throw online
+        ? new ApiError(0, 'The website did not answer in time. Please try again in a moment.', 'no_answer')
+        : new ApiError(0, 'No connection. Check your internet and try again.', 'offline');
     }
     const raw = await r.text();
     let j: J | null = null;

@@ -220,10 +220,7 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
           <View style={st.row}><Txt k="titleMedium" numberOfLines={1} style={{ flex: 1 }}>{text(b, 'guest')}</Txt><Pill text={text(b, 'state_label')} tone={tone} /></View>
           <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1}>{text(b, 'listing')}</Txt>
           <Txt k="bodySmall" color={Brand.Muted}>{shortDate(str(b, 'check_in'))} → {shortDate(str(b, 'check_out'))} · {int(b, 'nights')}n · {who}</Txt>
-          <View style={[st.row, { marginTop: 4 }]}>
-            <Txt k="titleSmall" bold color={Brand.BlueDark}>{money(num(b, 'payout') || 0)}</Txt>
-            <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ flex: 1 }}>  your payout · {text(b, 'payment')}</Txt>
-          </View>
+          {text(b, 'payment') ? <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ marginTop: 4 }}>{text(b, 'payment')}</Txt> : null}
           {str(b, 'requests') ? <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3} style={{ marginTop: 4 }}>“{str(b, 'requests')}”</Txt> : null}
           {str(b, 'arrival_time') ? <Txt k="labelMedium" color={Brand.TealDark}>Arriving around {str(b, 'arrival_time')}</Txt> : null}
           <Txt k="labelMedium" semi color={Brand.Blue} style={{ marginTop: 4 }}>View details ›</Txt>
@@ -285,7 +282,7 @@ function BookingDetails({ b, open, onClose }: { b: J; open: boolean; onClose: ()
             <Txt k="displaySmall" color="#fff">{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
             <Txt k="bodyMedium" color="#fff" style={{ marginTop: 2 }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt>
             <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-              {[['Paid', money(num(b, 'paid') || 0)], ['Balance', money(num(b, 'balance') || 0)], ['Your payout', money(num(b, 'payout') || 0)]].map(([l, v]) => (
+              {[['Paid', money(num(b, 'paid') || 0)], ['Balance', money(num(b, 'balance') || 0)]].map(([l, v]) => (
                 <View key={l} style={{ flex: 1, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.18)', padding: 8 }}>
                   <Txt k="labelSmall" color="#FFE3E1">{l}</Txt>
                   <Txt k="titleSmall" color={l === 'Balance' && due ? Brand.Sun : '#fff'}>{v}</Txt>

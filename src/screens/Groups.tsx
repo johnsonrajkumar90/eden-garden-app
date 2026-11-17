@@ -7,7 +7,7 @@ import { Linking, Platform, Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT, Callout } from 'react-native-maps';
-import { Api, Upload, errorText } from '../core/api';
+import { Api, ApiError, Upload, errorText } from '../core/api';
 import { Image } from 'expo-image';
 import { Picked, pickPhoto, uploadOf } from '../core/files';
 import { AppState, useAppState, useLoader, useSession } from '../core/state';
@@ -429,6 +429,16 @@ export function AddToGroup({ id, done, item }: { id: number; done: (g: J) => voi
   const s = share.data;
   const list = objs(s, kind === 'booking' ? 'bookings' : 'tickets');
   const oldPhoto = item ? str(item, 'photo') : null;
+  /** After a dropped connection: the trip as it is now, if the change was saved after all. */
+  const savedAlready = async (): Promise<J | null> => {
+    try {
+      const g = await Api.get(`trip-groups/${id}`);
+      const mine = objs(g, 'items').filter((x) => bool(x, 'mine'));
+      if (editing) { const now = mine.find((x) => int(x, 'id') === int(item, 'id')); return now && str(now, 'title') === title.trim() ? g : null; }
+      const recent = (x: J) => { const t = Date.parse(String(str(x, 'at') || '').replace(' ', 'T')); return !isFinite(t) || Math.abs(Date.now() - t) < 15 * 60 * 1000; };
+      return mine.some((x) => str(x, 'kind') === kind && str(x, 'title') === title.trim() && recent(x)) ? g : null;
+    } catch { return null; }
+  };
   const save = async () => {
     setBusy(true); setErr(null);
     try {
@@ -437,7 +447,17 @@ export function AddToGroup({ id, done, item }: { id: number; done: (g: J) => voi
       else if (editing && kind === 'place' && changePlace) f.push(['lat', ''], ['lng', '']);
       if (dropPhoto && !photo) f.push(['remove_photo', '1']);
       const files: Upload[] = photo ? [await uploadOf('photo', photo, 'plan')] : [];
-      done(await Api.postMultipart(editing ? `trip-groups/${id}/items/${int(item, 'id')}/edit` : `trip-groups/${id}/items`, f, files));
+      const path = editing ? `trip-groups/${id}/items/${int(item, 'id')}/edit` : `trip-groups/${id}/items`;
+      try {
+        done(await Api.postMultipart(path, f, files));
+      } catch (e) {
+        // the connection dropped: it may still have been saved — look before saying it failed (and before trying again, so nothing is added twice)
+        if (!(e instanceof ApiError) || e.status !== 0) throw e;
+        const saved = await savedAlready();
+        if (saved) { done(saved); return; }
+        if (e.code !== 'no_answer') throw e;
+        done(await Api.postMultipart(path, f, files));   // the website is reachable: one more try
+      }
     } catch (e) { setErr(errorText(e)); }
     setBusy(false);
   };
