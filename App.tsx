@@ -127,7 +127,7 @@ function Shell() {
             {ROUTES.map((r) => <Stack.Screen key={r} name={r} component={SCREENS[r]} />)}
           </Stack.Navigator>
         </NavigationContainer>
-        {['explore', 'pets', 'account'].includes(current) ? <GroupTripsFab bottom={dockH + 12} onPress={() => Nav.navigate('groups')} /> : null}
+        {/* the floating Group trips button was removed: Group trips is in the bottom menu */}
       </View>
       {showDock ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
       {showWelcome ? (

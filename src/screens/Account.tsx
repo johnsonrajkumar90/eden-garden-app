@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 import { Api } from '../core/api';
 import { useAppState, useSession } from '../core/state';
+import { obj, str } from '../core/json';
 import * as Notifier from '../core/notifier';
 import { Brand } from '../theme';
 import { Card, Gap, Icon, LinkButton, PrimaryButton, Txt, money, st, TopBar } from '../ui/kit';
@@ -80,6 +81,7 @@ export default function AccountScreen() {
             <Line />
             <Item icon="chat-bubble-outline" text="Messages" sub="Your chats with hosts" onPress={() => Nav.navigate('messages')} />
             <Line />
+            {str(obj(session?.raw, 'links'), 'cohost') ? <><Item icon="handshake" text="Co-hosting" sub="Help run the stays of the hosts who invited you" onPress={() => Nav.openSite('/cohost', 'Co-hosting')} /><Line /></> : null}
             <Item icon="person-outline" text="Profile and password" onPress={() => Nav.navigate('profile')} />
             <Line />
             <Item icon="notifications-active" text="Notification settings" sub={u.role === 'guest' ? 'Choose what reaches your phone' : 'Guests arriving today / tomorrow, messages, bookings'} onPress={() => Nav.navigate('notifyprefs')} />

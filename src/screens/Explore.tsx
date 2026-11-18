@@ -125,7 +125,6 @@ export default function ExploreScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 18, gap: 2 }}>
         <Shortcut icon="cottage" label="Homestays" tint={Brand.Blue} bg={Brand.Sky} i={2} onPress={() => { setKind('stay'); search(1, 'stay'); }} />
         <Shortcut icon="pool" label="Resorts" tint={Brand.TealDark} bg={Brand.TealSoft} i={3} onPress={() => { setKind('resort'); search(1, 'resort'); }} />
-        <Shortcut icon="map" label="Trip planner" tint={Brand.Blue} bg={Brand.SunSoft} i={4} onPress={() => Nav.navigate('planner')} />
         <Shortcut icon="pets" label="Pet services" tint={Brand.CoralDark} bg={Brand.Sky} i={4} onPress={() => Nav.navigate('pets')} />
         <Shortcut icon="auto-awesome" label="Ask AI" tint={Brand.SunInk} bg={Brand.SunSoft} i={5} onPress={() => Nav.navigate('ai')} />
         <Shortcut icon="ev-station" label="EV chargers" tint="#00704A" bg={Brand.TealSoft} i={6} onPress={() => Nav.navigate('chargers')} />

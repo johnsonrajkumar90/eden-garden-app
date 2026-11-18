@@ -294,11 +294,30 @@ export function GoogleButton({ label, onPress }: { label: string; onPress: () =>
  * (triparro-app://auth?code=…). Returns an error, or null.
  */
 export async function startGoogleSignIn(): Promise<string | null> {
+  // a one-time ticket for this app session: if the browser can't hand the sign-in back (Chrome often blocks a page from
+  // opening an app), the app picks it up by itself as soon as the person closes the browser page
+  let ticket = '';
+  try { ticket = str(await Api.post('app-login/ticket'), 'ticket') || ''; } catch { /* older website: the code link still works */ }
+  const url = Api.url('auth/google?app=1' + (ticket ? '&ticket=' + ticket : ''));
   try {
-    const r = await WebBrowser.openAuthSessionAsync(Api.url('auth/google?app=1'), 'triparro-app://auth', { toolbarColor: Brand.Matte, showTitle: true });
-    if (r.type === 'success' && r.url) handleIncomingLink(r.url);
-    return null;
+    const r = await WebBrowser.openAuthSessionAsync(url, 'triparro-app://auth', { toolbarColor: Brand.Matte, showTitle: true });
+    if (r.type === 'success' && r.url) { handleIncomingLink(r.url); return null; }
   } catch {
-    try { await Linking.openURL(Api.url('auth/google?app=1')); return null; } catch { return 'Could not open Google sign-in on this phone.'; }
+    try { await Linking.openURL(url); } catch { return 'Could not open Google sign-in on this phone.'; }
   }
+  if (!ticket) return null;
+  // back in the app without the code: ask the website whether this ticket was signed in (a few tries — the page may still be finishing)
+  for (let i = 0; i < 4; i++) {
+    if (Api.session?.user) return null;   // the link arrived meanwhile
+    try {
+      await Api.post('app-login', { ticket });
+      await Api.refreshSession();
+      Nav.fromHome('account');
+      return null;
+    } catch (e) {
+      if (!(e instanceof ApiError) || e.code !== 'pending') return i === 0 ? null : errorText(e);
+    }
+    await new Promise((ok) => setTimeout(ok, 1500));
+  }
+  return null;   // cancelled: nothing to say
 }
