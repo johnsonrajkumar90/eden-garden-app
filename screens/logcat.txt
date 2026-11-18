@@ -1,0 +1,7 @@
+--------- beginning of main
+11-18 05:34:11.830  3830  3879 I ReactNativeJS: Running "main"
+11-18 05:34:11.845  3830  3830 I ReactNative: [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{edab983 V.E...... ......ID 0,0-1080,2400 #1}
+11-18 05:34:12.110  3830  3879 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-18 05:34:12.110  3830  3879 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.
+11-18 05:35:42.935  3830  3879 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-18 05:35:42.936  3830  3879 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.

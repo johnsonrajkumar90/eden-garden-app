@@ -1,0 +1,108 @@
++ PKG=triparro.com
++ adb install -r app.apk
+Performing Streamed Install
+Success
++ adb shell pm grant triparro.com android.permission.POST_NOTIFICATIONS
++ adb shell pm grant triparro.com android.permission.ACCESS_FINE_LOCATION
++ adb shell settings put secure location_mode 3
++ adb emu geo fix 76.9558 11.0168
+OK
++ adb logcat -c
++ adb shell monkey -p triparro.com -c android.intent.category.LAUNCHER 1
+  bash arg: -p
+  bash arg: triparro.com
+  bash arg: -c
+  bash arg: android.intent.category.LAUNCHER
+  bash arg: 1
+args: [-p, triparro.com, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "triparro.com"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="triparro.com"
+data="android.intent.category.LAUNCHER"
+Events injected: 1
+## Network stats: elapsed time=84ms (0ms mobile, 0ms wifi, 84ms not connected)
++ shot 01-start 20
++ sleep 20
++ adb exec-out screencap -p
++ adb shell input keyevent KEYCODE_BACK
++ shot 02-after-back 6
++ sleep 6
++ adb exec-out screencap -p
++ adb shell monkey -p triparro.com -c android.intent.category.LAUNCHER 1
+  bash arg: -p
+  bash arg: triparro.com
+  bash arg: -c
+  bash arg: android.intent.category.LAUNCHER
+  bash arg: 1
+args: [-p, triparro.com, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "triparro.com"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="triparro.com"
+data="android.intent.category.LAUNCHER"
+Events injected: 1
+## Network stats: elapsed time=58ms (0ms mobile, 0ms wifi, 58ms not connected)
++ shot 03-reopen 8
++ sleep 8
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://login triparro.com
++ shot 10-login 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://signup triparro.com
++ shot 10-signup 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://notifications triparro.com
++ shot 10-notifications 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://hosting triparro.com
++ shot 10-hosting 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://groups triparro.com
++ shot 10-groups 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://messages triparro.com
++ shot 10-messages 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://page/privacy triparro.com
++ shot 10-page-privacy 7
++ sleep 7
++ adb exec-out screencap -p
++ for r in login signup notifications hosting groups messages page/privacy become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://become-host triparro.com
++ shot 10-become-host 7
++ sleep 7
++ adb exec-out screencap -p
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/stays/ triparro.com
+Starting: Intent { act=android.intent.action.VIEW dat=https://triparro.com/... pkg=triparro.com }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Status: ok
+LaunchState: UNKNOWN (0)
+Activity: triparro.com/.MainActivity
+TotalTime: 0
+WaitTime: 164
+Complete
++ shot 20-stays-link 10
++ sleep 10
++ adb exec-out screencap -p
++ adb logcat -d -s ReactNativeJS:V ReactNative:V AndroidRuntime:E '*:F'
++ head -100
++ grep -E 'FATAL|Error|TypeError|ReferenceError|Invariant' screens/logcat.txt
++ adb shell pidof triparro.com
