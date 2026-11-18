@@ -1,0 +1,1801 @@
+Downloading https://services.gradle.org/distributions/gradle-9.4.1-bin.zip
+.............10%.............20%.............30%.............40%.............50%.............60%..............70%.............80%.............90%.............100%
+
+Welcome to Gradle 9.4.1!
+
+Here are the highlights of this release:
+ - Java 26 support
+ - Non-class-based JVM tests
+ - Enhanced console progress bar
+
+For more details see https://docs.gradle.org/9.4.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.4.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :gradle-plugin:shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:settings-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:pluginDescriptors
+> Task :gradle-plugin:settings-plugin:pluginDescriptors
+> Task :gradle-plugin:settings-plugin:processResources
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:processResources
+> Task :gradle-plugin:shared:processResources NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:processResources NO-SOURCE
+> Task :gradle-plugin:shared:compileKotlin
+> Task :gradle-plugin:shared:compileJava NO-SOURCE
+> Task :gradle-plugin:shared:classes UP-TO-DATE
+> Task :gradle-plugin:shared:jar
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:compileKotlin
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:classes UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:jar
+> Task :gradle-plugin:settings-plugin:compileKotlin
+> Task :gradle-plugin:settings-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:settings-plugin:classes
+> Task :gradle-plugin:settings-plugin:jar
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:compileKotlin
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:classes
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:jar
+> Task :gradle-plugin:react-native-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-gradle-plugin:expo-autolinking-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-module-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-module-gradle-plugin:pluginDescriptors
+> Task :expo-module-gradle-plugin:processResources
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:pluginDescriptors
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:processResources
+> Task :expo-gradle-plugin:expo-autolinking-plugin:pluginDescriptors
+> Task :expo-gradle-plugin:expo-autolinking-plugin:processResources
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:compileKotlin
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:classes
+> Task :expo-gradle-plugin:expo-max-sdk-override-plugin:jar
+> Task :gradle-plugin:react-native-gradle-plugin:pluginDescriptors
+> Task :gradle-plugin:react-native-gradle-plugin:processResources
+> Task :expo-gradle-plugin:expo-autolinking-plugin:compileKotlin
+> Task :expo-gradle-plugin:expo-autolinking-plugin:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:classes
+> Task :expo-gradle-plugin:expo-autolinking-plugin:jar
+> Task :gradle-plugin:react-native-gradle-plugin:compileKotlin
+> Task :gradle-plugin:react-native-gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:react-native-gradle-plugin:classes
+> Task :gradle-plugin:react-native-gradle-plugin:jar
+> Task :expo-module-gradle-plugin:compileKotlin
+> Task :expo-module-gradle-plugin:compileJava NO-SOURCE
+> Task :expo-module-gradle-plugin:classes
+> Task :expo-module-gradle-plugin:jar
+
+> Configure project :
+[32m[ExpoRootProject][0m The Kotlin Gradle plugin used by this build is [32m2.2.10[0m, but the version catalog declares [33m2.2.0[0m. Using the plugin version.
+[32m[ExpoRootProject][0m Using the following versions:
+  - buildTools:  [32m37.0.0[0m
+  - minSdk:      [32m24[0m
+  - compileSdk:  [32m37[0m
+  - targetSdk:   [32m36[0m
+  - ndk:         [32m27.1.12297006[0m
+  - kotlin:      [32m2.2.10[0m
+  - ksp:         [32m2.2.10-2.0.2[0m
+
+> Configure project :app
+WARNING: The option setting 'android.builtInKotlin=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+WARNING: The option setting 'android.newDsl=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+ ℹ️  [33mApplying gradle plugin[0m '[32mexpo-max-sdk-override-plugin[0m'
+  [expo-max-sdk-override-plugin] This plugin will find all permissions declared with `android:maxSdkVersion`. If there exists a declaration with the `android:maxSdkVersion` annotation and another one without, the plugin will remove the annotation from the final merged manifest. In order to see a log with the changes run a clean build of the app.
+WARNING: API 'applicationVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling applicationVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+WARNING: API 'testVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling testVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+WARNING: API 'unitTestVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling unitTestVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+Checking the license for package NDK (Side by side) 27.1.12297006 in /usr/local/lib/android/sdk/licenses
+License for package NDK (Side by side) 27.1.12297006 accepted.
+Preparing "Install NDK (Side by side) 27.1.12297006 v.27.1.12297006".
+"Install NDK (Side by side) 27.1.12297006 v.27.1.12297006" ready.
+Installing NDK (Side by side) 27.1.12297006 in /usr/local/lib/android/sdk/ndk/27.1.12297006
+"Install NDK (Side by side) 27.1.12297006 v.27.1.12297006" complete.
+"Install NDK (Side by side) 27.1.12297006 v.27.1.12297006" finished.
+
+> Configure project :expo
+WARNING: API 'libraryVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling libraryVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+
+Using expo modules
+  - [32mexpo-dom-webview[0m (58.0.2)
+  - [32mexpo-log-box[0m (58.0.15)
+  - [32mexpo-constants[0m (58.0.16)
+
+> Configure project :react-native-worklets
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-worklets/android/build.gradle.kts:162:1: 'fun Project.android(configure: Action<LibraryExtension>): Unit' is deprecated. Replaced by com.android.build.api.dsl.LibraryExtension.
+This class is not used for the public extensions in AGP when android.newDsl=true, which is the default in AGP 9.0, and will be removed in AGP 10.0.
+
+> Configure project :expo-modules-core
+Linking react-native-worklets native libs into expo-modules-core build tasks
+task ':react-native-worklets:mergeDebugNativeLibs'
+task ':react-native-worklets:mergeReleaseNativeLibs'
+
+> Configure project :expo
+  - [32mexpo-modules-core[0m (58.1.0)
+  - [32mfirebase-init[0m (1.0.0)
+  - [33m[📦][0m [32mexpo-application[0m (58.1.2)
+  - [33m[📦][0m [32mexpo-asset[0m (58.0.21)
+  - [33m[📦][0m [32mexpo-audio[0m (58.0.12)
+  - [33m[📦][0m [32mexpo-background-task[0m (58.0.13)
+  - [33m[📦][0m [32mexpo-blur[0m (58.0.6)
+  - [33m[📦][0m [32mexpo-clipboard[0m (58.0.4)
+  - [33m[📦][0m [32mexpo-file-system[0m (58.0.13)
+  - [33m[📦][0m [32mexpo-font[0m (58.0.12)
+  - [33m[📦][0m [32mexpo-haptics[0m (58.0.8)
+  - [33m[📦][0m [32mexpo-image[0m (58.0.18)
+  - [33m[📦][0m [32mexpo-image-loader[0m (58.0.3)
+  - [33m[📦][0m [32mexpo-image-manipulator[0m (58.0.16)
+  - [33m[📦][0m [32mexpo-image-picker[0m (58.0.10)
+  - [33m[📦][0m [32mexpo-keep-awake[0m (58.0.4)
+  - [33m[📦][0m [32mexpo-linear-gradient[0m (58.0.4)
+  - [33m[📦][0m [32mexpo-linking[0m (58.0.17)
+  - [33m[📦][0m [32mexpo-location[0m (58.0.22)
+  - [33m[📦][0m [32mexpo-notifications[0m (58.1.9)
+  - [33m[📦][0m [32mexpo-sharing[0m (58.0.23)
+  - [33m[📦][0m [32mexpo-splash-screen[0m (58.0.14)
+  - [33m[📦][0m [32mexpo-status-bar[0m (58.0.5)
+  - [33m[📦][0m [32mexpo-system-ui[0m (58.0.7)
+  - [33m[📦][0m [32mexpo-task-manager[0m (58.0.14)
+  - [33m[📦][0m [32mexpo-video[0m (58.0.14)
+  - [33m[📦][0m [32mexpo-web-browser[0m (58.0.8)
+  - [33m[📦][0m [32munimodules-app-loader[0m (58.0.2)
+
+
+> Configure project :react-native-reanimated
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/build.gradle.kts:168:1: 'fun Project.android(configure: Action<LibraryExtension>): Unit' is deprecated. Replaced by com.android.build.api.dsl.LibraryExtension.
+This class is not used for the public extensions in AGP when android.newDsl=true, which is the default in AGP 9.0, and will be removed in AGP 10.0.
+
+> Configure project :shopify_react-native-skia
+react-native-skia: SK_GRAPHITE: false
+react-native-skia: Skia libs: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-skia-android/libs
+react-native-skia: node_modules/ found at: /home/runner/work/eden-garden-app/eden-garden-app/node_modules
+react-native-skia: RN Version: 88 / 0.88.1
+react-native-skia: isSourceBuild: false
+react-native-skia: buildDir: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@shopify/react-native-skia/android/build
+react-native-skia: node_modules: /home/runner/work/eden-garden-app/eden-garden-app/node_modules
+
+> Task :expo-constants:preBuild UP-TO-DATE
+> Task :expo-log-box:preBuild UP-TO-DATE
+> Task :expo-dom-webview:preBuild UP-TO-DATE
+> Task :firebase-init:preBuild UP-TO-DATE
+> Task :app:generateAutolinkingNewArchitectureFiles
+> Task :app:generateAutolinkingPackageList
+> Task :app:generateCodegenSchemaFromJavaScript SKIPPED
+> Task :app:generateCodegenArtifactsFromSchema SKIPPED
+> Task :app:generateReactNativeEntryPoint
+> Task :expo:generateInlineModules
+> Task :expo:generatePackagesList
+> Task :expo:preBuild
+> Task :react-native-async-storage_async-storage:generateCodegenSchemaFromJavaScript
+> Task :react-native-blob-util:generateCodegenSchemaFromJavaScript
+> Task :react-native-async-storage_async-storage:generateCodegenArtifactsFromSchema
+> Task :react-native-async-storage_async-storage:preBuild
+> Task :react-native-community_datetimepicker:generateCodegenSchemaFromJavaScript
+> Task :expo-modules-core:decompressPrebuiltNativeLibs
+> Task :expo-modules-core:preBuild
+> Task :react-native-maps:generateCodegenSchemaFromJavaScript SKIPPED
+> Task :react-native-maps:generateCodegenArtifactsFromSchema SKIPPED
+> Task :react-native-maps:preBuild UP-TO-DATE
+> Task :react-native-ml-kit_barcode-scanning:preBuild UP-TO-DATE
+> Task :react-native-ml-kit_text-recognition:preBuild UP-TO-DATE
+> Task :react-native-blob-util:generateCodegenArtifactsFromSchema
+> Task :react-native-blob-util:preBuild
+> Task :react-native-gesture-handler:generateCodegenSchemaFromJavaScript
+> Task :react-native-pager-view:generateCodegenSchemaFromJavaScript
+> Task :react-native-community_datetimepicker:generateCodegenArtifactsFromSchema
+> Task :react-native-community_datetimepicker:preBuild
+> Task :react-native-reanimated:assertMinimalReactNativeVersionTask
+> Task :react-native-reanimated:assertWorkletsVersionTask
+> Task :react-native-pdf:generateCodegenSchemaFromJavaScript
+> Task :react-native-gesture-handler:generateCodegenArtifactsFromSchema
+> Task :react-native-gesture-handler:preBuild
+> Task :react-native-pager-view:generateCodegenArtifactsFromSchema
+> Task :react-native-pager-view:preBuild
+> Task :react-native-reanimated:generateCodegenSchemaFromJavaScript
+> Task :react-native-pdf:generateCodegenArtifactsFromSchema
+> Task :react-native-pdf:preBuild
+> Task :react-native-safe-area-context:generateCodegenSchemaFromJavaScript
+> Task :react-native-screens:generateCodegenSchemaFromJavaScript
+> Task :react-native-reanimated:generateCodegenArtifactsFromSchema
+> Task :react-native-reanimated:prepareReanimatedHeadersForPrefabs
+> Task :react-native-reanimated:preBuild
+> Task :react-native-svg:generateCodegenSchemaFromJavaScript
+> Task :react-native-safe-area-context:generateCodegenArtifactsFromSchema
+> Task :react-native-safe-area-context:preBuild
+> Task :react-native-screens:generateCodegenArtifactsFromSchema
+> Task :react-native-screens:preBuild
+> Task :react-native-worklets:assertMinimalReactNativeVersionTask
+> Task :react-native-webview:generateCodegenSchemaFromJavaScript
+> Task :react-native-svg:generateCodegenArtifactsFromSchema
+> Task :react-native-svg:preBuild
+> Task :react-native-reanimated:preReleaseBuild
+> Task :expo:preReleaseBuild
+> Task :shopify_react-native-skia:generateCodegenSchemaFromJavaScript
+> Task :react-native-worklets:generateCodegenSchemaFromJavaScript
+> Task :expo:mergeReleaseJniLibFolders
+> Task :expo:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo:copyReleaseJniLibsProjectOnly
+> Task :react-native-webview:generateCodegenArtifactsFromSchema
+> Task :react-native-webview:preBuild
+> Task :expo-dom-webview:preReleaseBuild UP-TO-DATE
+> Task :expo-dom-webview:mergeReleaseJniLibFolders
+> Task :expo-dom-webview:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-dom-webview:copyReleaseJniLibsProjectOnly
+> Task :expo-log-box:preReleaseBuild UP-TO-DATE
+> Task :expo-log-box:mergeReleaseJniLibFolders
+> Task :expo-log-box:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-log-box:copyReleaseJniLibsProjectOnly
+> Task :expo-modules-core:preReleaseBuild
+> Task :shopify_react-native-skia:generateCodegenArtifactsFromSchema
+> Task :react-native-worklets:generateCodegenArtifactsFromSchema
+> Task :react-native-worklets:prepareWorkletsHeadersForPrefabs
+> Task :expo-modules-core:unpackExpoModulesV2Cpp
+> Task :react-native-worklets:preBuild
+> Task :react-native-worklets:preReleaseBuild
+> Task :expo-modules-core:mergeReleaseJniLibFolders
+> Task :firebase-init:preReleaseBuild UP-TO-DATE
+> Task :firebase-init:mergeReleaseJniLibFolders
+> Task :firebase-init:mergeReleaseNativeLibs NO-SOURCE
+> Task :firebase-init:copyReleaseJniLibsProjectOnly
+> Task :react-native-async-storage_async-storage:preReleaseBuild
+> Task :react-native-async-storage_async-storage:mergeReleaseJniLibFolders
+> Task :react-native-async-storage_async-storage:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-async-storage_async-storage:copyReleaseJniLibsProjectOnly
+> Task :react-native-blob-util:preReleaseBuild
+> Task :react-native-blob-util:mergeReleaseJniLibFolders
+> Task :react-native-blob-util:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-blob-util:copyReleaseJniLibsProjectOnly
+> Task :react-native-community_datetimepicker:preReleaseBuild
+> Task :react-native-community_datetimepicker:mergeReleaseJniLibFolders
+> Task :react-native-community_datetimepicker:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-community_datetimepicker:copyReleaseJniLibsProjectOnly
+> Task :react-native-gesture-handler:preReleaseBuild
+> Task :react-native-gesture-handler:mergeReleaseJniLibFolders
+> Task :react-native-maps:preReleaseBuild UP-TO-DATE
+> Task :expo-constants:createReleaseExpoConfig
+> Task :expo-constants:preReleaseBuild
+> Task :react-native-maps:mergeReleaseJniLibFolders
+> Task :react-native-maps:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-constants:mergeReleaseJniLibFolders
+> Task :expo-constants:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-maps:copyReleaseJniLibsProjectOnly
+> Task :expo-constants:copyReleaseJniLibsProjectOnly
+> Task :react-native-ml-kit_barcode-scanning:preReleaseBuild UP-TO-DATE
+> Task :react-native-ml-kit_text-recognition:preReleaseBuild UP-TO-DATE
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseJniLibFolders
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-ml-kit_barcode-scanning:copyReleaseJniLibsProjectOnly
+> Task :react-native-pager-view:preReleaseBuild
+> Task :react-native-pager-view:mergeReleaseJniLibFolders
+> Task :react-native-ml-kit_text-recognition:mergeReleaseJniLibFolders
+> Task :react-native-pager-view:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-pager-view:copyReleaseJniLibsProjectOnly
+> Task :react-native-pdf:preReleaseBuild
+> Task :react-native-ml-kit_text-recognition:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-pdf:mergeReleaseJniLibFolders
+> Task :react-native-pdf:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-ml-kit_text-recognition:copyReleaseJniLibsProjectOnly
+> Task :react-native-pdf:copyReleaseJniLibsProjectOnly
+> Task :react-native-safe-area-context:preReleaseBuild
+> Task :react-native-reanimated:mergeReleaseJniLibFolders
+> Task :react-native-screens:preReleaseBuild
+> Task :react-native-safe-area-context:mergeReleaseJniLibFolders
+> Task :react-native-safe-area-context:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-safe-area-context:copyReleaseJniLibsProjectOnly
+> Task :react-native-svg:preReleaseBuild
+> Task :react-native-svg:mergeReleaseJniLibFolders
+> Task :react-native-svg:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-svg:copyReleaseJniLibsProjectOnly
+> Task :react-native-webview:preReleaseBuild
+> Task :react-native-webview:mergeReleaseJniLibFolders
+> Task :react-native-webview:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-webview:copyReleaseJniLibsProjectOnly
+> Task :react-native-community_datetimepicker:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-community_datetimepicker:generateReleaseBuildConfig
+> Task :react-native-community_datetimepicker:generateReleaseResources
+> Task :shopify_react-native-skia:prepareHeaders
+> Task :shopify_react-native-skia:preBuild
+> Task :app:preBuild
+> Task :app:preReleaseBuild
+> Task :shopify_react-native-skia:preReleaseBuild
+> Task :react-native-community_datetimepicker:packageReleaseResources
+> Task :app:mergeReleaseJniLibFolders
+> Task :react-native-community_datetimepicker:processReleaseNavigationResources
+
+> Task :react-native-worklets:configureCMakeRelWithDebInfo[arm64-v8a]
+Checking the license for package CMake 3.22.1 in /usr/local/lib/android/sdk/licenses
+License for package CMake 3.22.1 accepted.
+Preparing "Install CMake 3.22.1 v.3.22.1".
+"Install CMake 3.22.1 v.3.22.1" ready.
+Installing CMake 3.22.1 in /usr/local/lib/android/sdk/cmake/3.22.1
+"Install CMake 3.22.1 v.3.22.1" complete.
+"Install CMake 3.22.1 v.3.22.1" finished.
+
+> Task :react-native-community_datetimepicker:parseReleaseLocalResources
+> Task :react-native-community_datetimepicker:generateReleaseRFile
+
+> Task :shopify_react-native-skia:configureCMakeRelWithDebInfo[arm64-v8a]
+C/C++: -- SKIA_LIBS_PATH: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-skia-android/libs/arm64-v8a
+C/C++: -- SK_GRAPHITE: OFF
+C/C++: -- ABI     : arm64-v8a
+C/C++: -- LOG     : /usr/local/lib/android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/24/liblog.so
+
+> Task :react-native-screens:configureCMakeRelWithDebInfo[arm64-v8a]
+
+> Task :shopify_react-native-skia:configureCMakeRelWithDebInfo[armeabi-v7a]
+C/C++: -- SKIA_LIBS_PATH: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-skia-android/libs/armeabi-v7a
+C/C++: -- SK_GRAPHITE: OFF
+C/C++: -- ABI     : armeabi-v7a
+C/C++: -- LOG     : /usr/local/lib/android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/24/liblog.so
+
+> Task :shopify_react-native-skia:configureCMakeRelWithDebInfo[x86_64]
+C/C++: -- SKIA_LIBS_PATH: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-skia-android/libs/x86_64
+C/C++: -- SK_GRAPHITE: OFF
+C/C++: -- ABI     : x86_64
+C/C++: -- LOG     : /usr/local/lib/android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/24/liblog.so
+
+> Task :shopify_react-native-skia:generateJsonModelRelease
+> Task :shopify_react-native-skia:prefabReleaseConfigurePackage
+> Task :react-native-community_datetimepicker:compileReleaseKotlin
+> Task :react-native-screens:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-screens:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[arm64-v8a][worklets]
+> Task :shopify_react-native-skia:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-screens:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-screens:configureCMakeRelWithDebInfo[x86_64]
+> Task :react-native-worklets:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-community_datetimepicker:javaPreCompileRelease
+> Task :react-native-screens:buildCMakeRelWithDebInfo[x86_64]
+> Task :react-native-screens:mergeReleaseJniLibFolders
+> Task :react-native-screens:mergeReleaseNativeLibs
+> Task :react-native-screens:copyReleaseJniLibsProjectOnly
+> Task :react-native-blob-util:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-blob-util:generateReleaseBuildConfig
+> Task :react-native-blob-util:generateReleaseResources
+> Task :react-native-blob-util:packageReleaseResources
+> Task :react-native-blob-util:processReleaseNavigationResources
+> Task :react-native-blob-util:parseReleaseLocalResources
+
+> Task :react-native-community_datetimepicker:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-blob-util:generateReleaseRFile
+> Task :react-native-community_datetimepicker:bundleLibRuntimeToDirRelease
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[armeabi-v7a][worklets]
+> Task :react-native-blob-util:javaPreCompileRelease
+> Task :react-native-gesture-handler:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-gesture-handler:generateReleaseBuildConfig
+> Task :react-native-gesture-handler:generateReleaseResources
+> Task :react-native-gesture-handler:packageReleaseResources
+> Task :react-native-gesture-handler:processReleaseNavigationResources
+> Task :react-native-gesture-handler:parseReleaseLocalResources
+> Task :react-native-gesture-handler:generateReleaseRFile
+> Task :react-native-reanimated:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-reanimated:generateReleaseBuildConfig
+> Task :react-native-reanimated:generateReleaseResources
+> Task :react-native-reanimated:packageReleaseResources
+> Task :react-native-reanimated:processReleaseNavigationResources
+> Task :react-native-reanimated:parseReleaseLocalResources
+> Task :react-native-reanimated:generateReleaseRFile
+> Task :react-native-reanimated:javaPreCompileRelease
+> Task :react-native-svg:generateReleaseBuildConfig
+> Task :react-native-svg:generateReleaseResources
+> Task :react-native-svg:packageReleaseResources
+> Task :react-native-svg:processReleaseNavigationResources
+> Task :react-native-svg:parseReleaseLocalResources
+> Task :react-native-svg:generateReleaseRFile
+> Task :react-native-svg:javaPreCompileRelease
+> Task :react-native-blob-util:compileReleaseKotlin
+
+> Task :react-native-svg:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-svg:bundleLibCompileToJarRelease
+> Task :react-native-gesture-handler:javaPreCompileRelease
+> Task :react-native-maps:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-maps:generateReleaseBuildConfig
+> Task :react-native-maps:generateReleaseResources
+> Task :react-native-maps:packageReleaseResources
+> Task :react-native-maps:processReleaseNavigationResources
+> Task :react-native-maps:parseReleaseLocalResources
+> Task :react-native-maps:generateReleaseRFile
+> Task :react-native-maps:compileReleaseKotlin NO-SOURCE
+> Task :react-native-maps:javaPreCompileRelease
+> Task :react-native-worklets:configureCMakeRelWithDebInfo[x86_64]
+
+> Task :react-native-maps:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-blob-util:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilBody.kt:170:30 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:5:8 'class AsyncTask<Params : Any!, Progress : Any!, Result : Any!> : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:61:30 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:77:36 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:124:30 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:146:36 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:202:30 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:447:35 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:486:29 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:525:45 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:526:39 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:531:39 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:589:37 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:646:32 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:656:34 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:686:37 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:704:49 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:815:39 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:851:37 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:864:52 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:904:33 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:949:33 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:1001:42 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilFS.kt:1048:41 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilImpl.kt:87:64 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilMediaCollection.kt:166:48 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilReq.kt:236:34 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilReq.kt:716:45 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilReq.kt:942:43 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+
+> Task :react-native-maps:bundleLibRuntimeToDirRelease
+> Task :react-native-blob-util:compileReleaseJavaWithJavac
+> Task :react-native-blob-util:bundleLibRuntimeToDirRelease
+> Task :react-native-pager-view:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-pager-view:generateReleaseBuildConfig
+> Task :react-native-pager-view:generateReleaseResources
+> Task :react-native-pager-view:packageReleaseResources
+> Task :react-native-pager-view:processReleaseNavigationResources
+> Task :react-native-pager-view:parseReleaseLocalResources
+> Task :react-native-pager-view:generateReleaseRFile
+> Task :react-native-safe-area-context:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-safe-area-context:generateReleaseBuildConfig
+> Task :react-native-safe-area-context:generateReleaseResources
+> Task :react-native-safe-area-context:packageReleaseResources
+> Task :react-native-safe-area-context:processReleaseNavigationResources
+> Task :react-native-safe-area-context:parseReleaseLocalResources
+> Task :react-native-safe-area-context:generateReleaseRFile
+> Task :react-native-worklets:buildCMakeRelWithDebInfo[x86_64][worklets]
+
+> Task :react-native-safe-area-context:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaProviderManager.kt:46:19 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaView.kt:12:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaView.kt:55:54 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaViewShadowNode.kt:9:32 'class LayoutShadowNode : ReactShadowNodeImpl' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaViewShadowNode.kt:110:61 'class NativeViewHierarchyOptimizer : Any' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+
+> Task :react-native-pager-view:javaPreCompileRelease
+> Task :react-native-safe-area-context:javaPreCompileRelease
+> Task :react-native-safe-area-context:compileReleaseJavaWithJavac
+> Task :react-native-safe-area-context:bundleLibRuntimeToDirRelease
+
+> Task :react-native-pager-view:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/ComposePagerView.kt:436:21 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/ComposePagerView.kt:442:21 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/ComposePagerView.kt:452:21 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:6:8 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:39:19 'fun receiveCommand(view: ComposePagerView, commandName: String, args: ReadableArray?): Unit' is deprecated. args is not nullable, please update your method signature.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:46:26 The corresponding parameter in the supertype 'ViewGroupManager' is named 'parent'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:161:16 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:162:45 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:163:57 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewManager.kt:164:47 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/PagerViewViewPackage.kt:10:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollEvent.kt:6:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollEvent.kt:21:82 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollEvent.kt:27:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollEvent.kt:27:44 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollEvent.kt:28:25 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollStateChangedEvent.kt:6:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollStateChangedEvent.kt:15:89 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollStateChangedEvent.kt:20:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollStateChangedEvent.kt:20:44 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageScrollStateChangedEvent.kt:21:25 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageSelectedEvent.kt:6:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageSelectedEvent.kt:15:69 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageSelectedEvent.kt:24:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageSelectedEvent.kt:24:44 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/event/PageSelectedEvent.kt:25:25 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+
+> Task :react-native-screens:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-screens:generateReleaseBuildConfig
+> Task :react-native-screens:generateReleaseResources
+> Task :react-native-screens:packageReleaseResources
+> Task :react-native-screens:processReleaseNavigationResources
+> Task :react-native-screens:parseReleaseLocalResources
+> Task :react-native-screens:generateReleaseRFile
+> Task :react-native-pager-view:compileReleaseJavaWithJavac
+> Task :react-native-pager-view:bundleLibRuntimeToDirRelease
+> Task :react-native-webview:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-webview:generateReleaseBuildConfig
+> Task :react-native-webview:generateReleaseResources
+> Task :react-native-webview:packageReleaseResources
+> Task :react-native-webview:processReleaseNavigationResources
+> Task :react-native-webview:parseReleaseLocalResources
+> Task :react-native-webview:generateReleaseRFile
+
+> Task :react-native-webview:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:22:8 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:82:18 'var allowFileAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:83:18 'var allowUniversalAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:124:21 'fun allowScanningByMediaScanner(): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:161:36 'var systemUiVisibility: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:300:14 'object MapBuilder : Any' is deprecated. Use Kotlin's built-in collections extensions.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:350:34 Condition is always 'true'.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:369:38 'var allowUniversalAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:430:51 Unchecked cast of 'Any?' to 'HashMap<String, String>'.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:486:23 'var savePassword: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:487:23 'var saveFormData: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:557:23 'var allowFileAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:602:52 'static field FORCE_DARK_ON: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:602:89 'static field FORCE_DARK_OFF: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:603:35 'static fun setForceDark(p0: @NonNull() WebSettings, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:612:35 'static fun setForceDarkStrategy(p0: @NonNull() WebSettings, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:614:39 'static field DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:658:65 Unchecked cast of 'ArrayList<Any?>' to 'List<Map<String, String>>'.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt:679:23 'var saveFormData: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/SubResourceErrorEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/SubResourceErrorEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/SubResourceErrorEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/SubResourceErrorEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/SubResourceErrorEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopCustomMenuSelectionEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopCustomMenuSelectionEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopCustomMenuSelectionEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopCustomMenuSelectionEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopCustomMenuSelectionEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopHttpErrorEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopHttpErrorEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopHttpErrorEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopHttpErrorEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopHttpErrorEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingErrorEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingErrorEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingErrorEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingErrorEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingErrorEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingFinishEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingFinishEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingFinishEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingFinishEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingFinishEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingProgressEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingProgressEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingProgressEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingProgressEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingProgressEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingStartEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingStartEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingStartEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingStartEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopLoadingStartEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopMessageEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopMessageEvent.kt:10:75 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopMessageEvent.kt:21:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopMessageEvent.kt:21:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopMessageEvent.kt:22:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopNewWindowEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopNewWindowEvent.kt:11:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopNewWindowEvent.kt:22:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopNewWindowEvent.kt:22:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopNewWindowEvent.kt:23:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopRenderProcessGoneEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopRenderProcessGoneEvent.kt:12:3 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopRenderProcessGoneEvent.kt:23:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopRenderProcessGoneEvent.kt:23:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopRenderProcessGoneEvent.kt:24:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopShouldStartLoadWithRequestEvent.kt:5:8 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopShouldStartLoadWithRequestEvent.kt:10:89 'constructor<T : Event<T>>(viewTag: Int): Event<T>' is deprecated. Use constructor with explicit surfaceId instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopShouldStartLoadWithRequestEvent.kt:27:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopShouldStartLoadWithRequestEvent.kt:27:42 'interface RCTEventEmitter : JavaScriptModule' is deprecated. Use [RCTModernEventEmitter] instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/events/TopShouldStartLoadWithRequestEvent.kt:28:21 'fun receiveEvent(targetTag: Int, eventName: String, params: WritableMap?): Unit' is deprecated. Use [RCTModernEventEmitter.receiveEvent] instead.
+
+> Task :react-native-screens:javaPreCompileRelease
+> Task :react-native-worklets:externalNativeBuildRelease
+> Task :react-native-worklets:generateJsonModelRelease
+> Task :react-native-webview:javaPreCompileRelease
+> Task :react-native-worklets:prefabReleaseConfigurePackage
+
+> Task :react-native-webview:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-worklets:prefabReleasePackage
+> Task :react-native-worklets:mergeReleaseJniLibFolders
+> Task :react-native-worklets:mergeReleaseNativeLibs
+> Task :react-native-worklets:copyReleaseJniLibsProjectOnly
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[x86_64]
+> Task :react-native-reanimated:generateJsonModelRelease
+> Task :react-native-reanimated:prefabReleaseConfigurePackage
+> Task :react-native-screens:compileReleaseKotlin
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :app:configureCMakeRelWithDebInfo[arm64-v8a]
+
+> Task :react-native-screens:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:70:9 The corresponding parameter in the supertype 'BaseReactPackage' is named 'name'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:71:9 The corresponding parameter in the supertype 'BaseReactPackage' is named 'reactContext'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:83:17 'constructor(name: String, className: String, canOverrideExistingModule: Boolean, needsEagerInit: Boolean, hasConstants: Boolean, isCxxModule: Boolean, isTurboModule: Boolean): ReactModuleInfo' is deprecated. This constructor is deprecated and will be removed in the future. Use ReactModuleInfo(String, String, boolean, boolean, boolean, boolean)].
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:54:77 Unchecked cast of '(CoordinatorLayout.Behavior<View!>?..CoordinatorLayout.Behavior<*>?)' to 'BottomSheetBehavior<Screen>'.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:59:33 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:534:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:73:74 'static field HIDE_NOT_ALWAYS: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:252:18 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:262:18 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:225:37 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:242:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:258:22 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFragment.kt:327:22 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt:120:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:179:18 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:236:31 'var targetElevation: Float' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:239:13 'fun setHasOptionsMenu(p0: Boolean): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:450:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:457:22 'fun onPrepareOptionsMenu(p0: Menu): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:460:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:465:22 'fun onCreateOptionsMenu(p0: Menu, p1: MenuInflater): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfig.kt:199:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfig.kt:209:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:48:42 'fun replaceSystemWindowInsets(p0: Int, p1: Int, p2: Int, p3: Int): @NonNull() WindowInsetsCompat' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:49:39 'val systemWindowInsetLeft: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:51:39 'val systemWindowInsetRight: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:52:39 'val systemWindowInsetBottom: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreensModule.kt:104:14 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarView.kt:137:29 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:66:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:67:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:71:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt:72:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/common/event/BaseEventEmitter.kt:12:38 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:64:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:65:9 The corresponding parameter in the supertype 'ReactCompoundView' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:69:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchX'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/dimmingview/DimmingView.kt:70:9 The corresponding parameter in the supertype 'ReactCompoundViewGroup' is named 'touchY'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetContentView.kt:11:8 'object ReactFeatureFlags : Any' is deprecated. Use com.facebook.react.internal.featureflags.ReactNativeFeatureFlags instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetContentView.kt:39:33 'fun getEventDispatcher(context: ReactContext, uiManagerType: Int): EventDispatcher?' is deprecated. UIManagerType is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetContentView.kt:44:13 'object ReactFeatureFlags : Any' is deprecated. Use com.facebook.react.internal.featureflags.ReactNativeFeatureFlags instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/modals/formsheet/FormSheetHostViewManager.kt:38:9 The corresponding parameter in the supertype 'ViewGroupManager' is named 'view'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/gamma/tabs/host/TabsHostViewManager.kt:44:9 The corresponding parameter in the supertype 'ViewGroupManager' is named 'view'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/safearea/SafeAreaView.kt:143:45 'fun consumeDisplayCutout(): @NonNull() WindowInsetsCompat' is deprecated. Deprecated in Java.
+
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[arm64-v8a][reanimated]
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[x86_64]
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[x86_64]
+> Task :expo-modules-core:mergeReleaseNativeLibs
+> Task :expo-modules-core:copyReleaseJniLibsProjectOnly
+> Task :react-native-gesture-handler:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-gesture-handler:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-gesture-handler:configureCMakeRelWithDebInfo[x86_64]
+> Task :react-native-worklets:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :react-native-worklets:generateReleaseBuildConfig
+> Task :react-native-worklets:generateReleaseResources
+> Task :react-native-worklets:packageReleaseResources
+> Task :react-native-worklets:processReleaseNavigationResources
+> Task :react-native-worklets:parseReleaseLocalResources
+> Task :react-native-worklets:generateReleaseRFile
+> Task :react-native-worklets:compileReleaseKotlin
+> Task :react-native-worklets:javaPreCompileRelease
+> Task :react-native-worklets:compileReleaseJavaWithJavac
+> Task :react-native-worklets:bundleLibCompileToJarRelease
+> Task :react-native-screens:compileReleaseJavaWithJavac
+> Task :react-native-screens:bundleLibRuntimeToDirRelease
+> Task :react-native-webview:bundleLibRuntimeToDirRelease
+> Task :expo:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo:generateReleaseResources
+> Task :expo:packageReleaseResources
+> Task :expo:processReleaseNavigationResources
+> Task :expo:parseReleaseLocalResources
+> Task :expo:generateReleaseRFile
+> Task :expo-constants:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-constants:generateReleaseResources
+> Task :expo-constants:packageReleaseResources
+> Task :expo-constants:processReleaseNavigationResources
+> Task :expo-constants:parseReleaseLocalResources
+> Task :expo-constants:generateReleaseRFile
+> Task :expo-modules-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-modules-core:generateReleaseBuildConfig
+> Task :expo-modules-core:generateReleaseResources
+> Task :expo-modules-core:packageReleaseResources
+> Task :expo-modules-core:processReleaseNavigationResources
+> Task :expo-modules-core:parseReleaseLocalResources
+> Task :expo-modules-core:generateReleaseRFile
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[armeabi-v7a][reanimated]
+> Task :expo-modules-core:compileReleaseKotlin
+> Task :shopify_react-native-skia:buildCMakeRelWithDebInfo[armeabi-v7a]
+
+> Task :expo-modules-core:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/CppType.kt:42:23 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/JavaCallback.kt:38:10 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/JavaCallback.kt:96:45 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:49:15 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:64:30 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:66:14 'constructor(byteBuffer: ByteBuffer): NativeArrayBuffer' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:74:39 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:75:7 'constructor(byteBuffer: ByteBuffer): NativeArrayBuffer' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:80:37 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:86:47 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:92:23 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:92:43 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:95:41 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/NativeArrayBuffer.kt:105:14 'constructor(byteBuffer: ByteBuffer): NativeArrayBuffer' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/ColorCompat.kt:115:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/JSTypeConverter.kt:7:8 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/JSTypeConverter.kt:245:55 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/JSTypeConverter.kt:247:19 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/ReturnType.kt:6:8 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/ReturnType.kt:45:5 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/TypeConverterProvider.kt:19:8 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/types/TypeConverterProvider.kt:254:7 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+
+> Task :expo-modules-core:javaPreCompileRelease
+
+> Task :expo-modules-core:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :expo-modules-core:bundleLibCompileToJarRelease
+> Task :expo-constants:compileReleaseKotlin
+> Task :expo-constants:javaPreCompileRelease
+> Task :expo-constants:compileReleaseJavaWithJavac NO-SOURCE
+> Task :expo-constants:bundleLibCompileToJarRelease
+> Task :expo-dom-webview:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-dom-webview:generateReleaseResources
+> Task :expo-dom-webview:packageReleaseResources
+> Task :expo-dom-webview:processReleaseNavigationResources
+> Task :expo-dom-webview:parseReleaseLocalResources
+> Task :expo-dom-webview:generateReleaseRFile
+
+> Task :expo-dom-webview:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/node_modules/@expo/dom-webview/android/src/main/java/expo/modules/webview/DomWebView.kt:200:16 'var allowFileAccessFromFileURLs: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/node_modules/@expo/dom-webview/android/src/main/java/expo/modules/webview/DomWebView.kt:254:18 'fun executeOnJavaScriptThread(runnable: Runnable): Unit' is deprecated. Use RuntimeContext.schedule instead.
+
+> Task :expo-dom-webview:javaPreCompileRelease
+> Task :expo-dom-webview:compileReleaseJavaWithJavac NO-SOURCE
+> Task :expo-dom-webview:bundleLibCompileToJarRelease
+> Task :expo-log-box:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-log-box:generateReleaseBuildConfig
+> Task :expo-log-box:generateReleaseResources
+> Task :expo-log-box:packageReleaseResources
+> Task :expo-log-box:processReleaseNavigationResources
+> Task :expo-log-box:parseReleaseLocalResources
+> Task :expo-log-box:generateReleaseRFile
+> Task :expo-log-box:compileReleaseKotlin
+> Task :expo-log-box:javaPreCompileRelease
+> Task :expo-log-box:compileReleaseJavaWithJavac
+> Task :expo-log-box:bundleLibCompileToJarRelease
+> Task :firebase-init:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :firebase-init:generateReleaseResources
+> Task :firebase-init:packageReleaseResources
+> Task :firebase-init:processReleaseNavigationResources
+> Task :firebase-init:parseReleaseLocalResources
+> Task :firebase-init:generateReleaseRFile
+> Task :firebase-init:compileReleaseKotlin
+> Task :firebase-init:javaPreCompileRelease
+> Task :firebase-init:compileReleaseJavaWithJavac NO-SOURCE
+> Task :firebase-init:bundleLibCompileToJarRelease
+
+> Task :expo:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/ExpoModulesPackage.kt:34:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:22:8 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:103:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:103:43 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:104:21 'val reactInstanceManager: ReactInstanceManager' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/fetch/ExpoFetchModule.kt:15:8 'class NativeArrayBuffer : Destructible' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/fetch/ExpoFetchModule.kt:33:39 'constructor(reactContext: ReactContext): ForwardingCookieHandler' is deprecated. Use the default constructor.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/fetch/ExpoFetchModule.kt:111:27 'constructor(byteBuffer: ByteBuffer): NativeArrayBuffer' is deprecated. Use ArrayBuffer instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/fetch/NativeResponse.kt:44:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/src/main/java/expo/modules/fetch/NativeResponse.kt:46:11 'fun deallocate(): Unit' is deprecated. Use sharedObjectDidRelease() instead.
+
+> Task :expo:javaPreCompileRelease
+> Task :expo:compileReleaseJavaWithJavac NO-SOURCE
+> Task :expo:bundleLibRuntimeToDirRelease
+> Task :expo-modules-core:bundleLibRuntimeToDirRelease
+> Task :react-native-worklets:bundleLibRuntimeToDirRelease
+> Task :react-native-async-storage_async-storage:generateReleaseBuildConfig
+> Task :react-native-async-storage_async-storage:generateReleaseResources
+> Task :react-native-async-storage_async-storage:packageReleaseResources
+> Task :react-native-async-storage_async-storage:processReleaseNavigationResources
+> Task :react-native-async-storage_async-storage:parseReleaseLocalResources
+> Task :react-native-async-storage_async-storage:generateReleaseRFile
+> Task :react-native-async-storage_async-storage:javaPreCompileRelease
+
+> Task :react-native-async-storage_async-storage:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-async-storage/async-storage/android/src/javaPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-async-storage_async-storage:bundleLibRuntimeToDirRelease
+> Task :react-native-ml-kit_barcode-scanning:generateReleaseResources
+> Task :react-native-ml-kit_barcode-scanning:packageReleaseResources
+> Task :react-native-ml-kit_barcode-scanning:processReleaseNavigationResources
+> Task :react-native-ml-kit_barcode-scanning:parseReleaseLocalResources
+> Task :react-native-ml-kit_barcode-scanning:generateReleaseRFile
+> Task :react-native-ml-kit_barcode-scanning:javaPreCompileRelease
+
+> Task :react-native-ml-kit_barcode-scanning:compileReleaseJavaWithJavac
+Note: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/java/com/rnmlkit/barcodescanning/BarcodeScanningPackage.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-ml-kit_barcode-scanning:bundleLibRuntimeToDirRelease
+> Task :react-native-ml-kit_text-recognition:generateReleaseResources
+> Task :react-native-ml-kit_text-recognition:packageReleaseResources
+> Task :react-native-ml-kit_text-recognition:processReleaseNavigationResources
+> Task :react-native-ml-kit_text-recognition:parseReleaseLocalResources
+> Task :react-native-ml-kit_text-recognition:generateReleaseRFile
+> Task :react-native-ml-kit_text-recognition:javaPreCompileRelease
+
+> Task :react-native-ml-kit_text-recognition:compileReleaseJavaWithJavac
+Note: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/text-recognition/android/src/main/java/com/rnmlkit/textrecognition/TextRecognitionPackage.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-ml-kit_text-recognition:bundleLibRuntimeToDirRelease
+> Task :react-native-pdf:generateReleaseBuildConfig
+> Task :react-native-pdf:generateReleaseResources
+> Task :react-native-pdf:packageReleaseResources
+> Task :react-native-pdf:processReleaseNavigationResources
+> Task :react-native-pdf:parseReleaseLocalResources
+> Task :react-native-pdf:generateReleaseRFile
+> Task :react-native-pdf:javaPreCompileRelease
+
+> Task :react-native-pdf:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-pdf:bundleLibRuntimeToDirRelease
+> Task :react-native-svg:bundleLibRuntimeToDirRelease
+> Task :expo-log-box:bundleLibRuntimeToDirRelease
+> Task :expo-dom-webview:bundleLibRuntimeToDirRelease
+> Task :expo-constants:bundleLibRuntimeToDirRelease
+> Task :firebase-init:bundleLibRuntimeToDirRelease
+> Task :expo:bundleLibCompileToJarRelease
+> Task :react-native-async-storage_async-storage:bundleLibCompileToJarRelease
+> Task :react-native-blob-util:bundleLibCompileToJarRelease
+> Task :react-native-community_datetimepicker:bundleLibCompileToJarRelease
+> Task :react-native-maps:bundleLibCompileToJarRelease
+> Task :react-native-ml-kit_barcode-scanning:bundleLibCompileToJarRelease
+> Task :react-native-ml-kit_text-recognition:bundleLibCompileToJarRelease
+> Task :react-native-pager-view:bundleLibCompileToJarRelease
+> Task :react-native-pdf:bundleLibCompileToJarRelease
+> Task :react-native-safe-area-context:bundleLibCompileToJarRelease
+> Task :react-native-screens:bundleLibCompileToJarRelease
+> Task :react-native-webview:bundleLibCompileToJarRelease
+> Task :expo:writeReleaseAarMetadata
+> Task :expo-constants:writeReleaseAarMetadata
+> Task :expo-dom-webview:writeReleaseAarMetadata
+> Task :expo-log-box:writeReleaseAarMetadata
+> Task :expo-modules-core:writeReleaseAarMetadata
+> Task :firebase-init:writeReleaseAarMetadata
+> Task :react-native-async-storage_async-storage:writeReleaseAarMetadata
+> Task :react-native-blob-util:writeReleaseAarMetadata
+> Task :react-native-community_datetimepicker:writeReleaseAarMetadata
+> Task :react-native-gesture-handler:writeReleaseAarMetadata
+> Task :react-native-maps:writeReleaseAarMetadata
+> Task :react-native-ml-kit_barcode-scanning:writeReleaseAarMetadata
+> Task :react-native-ml-kit_text-recognition:writeReleaseAarMetadata
+> Task :react-native-pager-view:writeReleaseAarMetadata
+> Task :react-native-pdf:writeReleaseAarMetadata
+> Task :react-native-safe-area-context:writeReleaseAarMetadata
+> Task :react-native-screens:writeReleaseAarMetadata
+> Task :react-native-svg:writeReleaseAarMetadata
+> Task :react-native-webview:writeReleaseAarMetadata
+> Task :react-native-worklets:writeReleaseAarMetadata
+> Task :expo:extractDeepLinksRelease
+> Task :expo:processReleaseManifest
+> Task :expo-constants:extractDeepLinksRelease
+> Task :expo-constants:processReleaseManifest
+> Task :expo-dom-webview:extractDeepLinksRelease
+> Task :expo-dom-webview:processReleaseManifest
+> Task :expo-log-box:extractDeepLinksRelease
+> Task :expo-log-box:processReleaseManifest
+> Task :expo-modules-core:extractDeepLinksRelease
+
+> Task :expo-modules-core:processReleaseManifest
+/home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/src/main/AndroidManifest.xml:8:9-11:45 Warning:
+	meta-data#com.facebook.soloader.enabled@android:value was tagged at AndroidManifest.xml:8 to replace other declarations but no other declaration present
+
+> Task :firebase-init:extractDeepLinksRelease
+> Task :firebase-init:processReleaseManifest
+> Task :react-native-async-storage_async-storage:extractDeepLinksRelease
+
+> Task :react-native-async-storage_async-storage:processReleaseManifest
+package="com.reactnativecommunity.asyncstorage" found in source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnativecommunity.asyncstorage" from the source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-blob-util:extractDeepLinksRelease
+> Task :react-native-blob-util:processReleaseManifest
+> Task :react-native-community_datetimepicker:extractDeepLinksRelease
+> Task :react-native-community_datetimepicker:processReleaseManifest
+> Task :react-native-gesture-handler:extractDeepLinksRelease
+> Task :react-native-gesture-handler:processReleaseManifest
+> Task :react-native-maps:extractDeepLinksRelease
+> Task :react-native-maps:processReleaseManifest
+> Task :react-native-ml-kit_barcode-scanning:extractDeepLinksRelease
+
+> Task :react-native-ml-kit_barcode-scanning:processReleaseManifest
+package="com.rnmlkit.barcodescanning" found in source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.rnmlkit.barcodescanning" from the source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/barcode-scanning/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-ml-kit_text-recognition:extractDeepLinksRelease
+
+> Task :react-native-ml-kit_text-recognition:processReleaseManifest
+package="com.rnmlkit.textrecognition" found in source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/text-recognition/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.rnmlkit.textrecognition" from the source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/text-recognition/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-pager-view:extractDeepLinksRelease
+> Task :react-native-pager-view:processReleaseManifest
+> Task :react-native-pdf:extractDeepLinksRelease
+> Task :react-native-pdf:processReleaseManifest
+> Task :react-native-safe-area-context:extractDeepLinksRelease
+
+> Task :react-native-safe-area-context:processReleaseManifest
+package="com.th3rdwave.safeareacontext" found in source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.th3rdwave.safeareacontext" from the source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-screens:extractDeepLinksRelease
+> Task :react-native-screens:processReleaseManifest
+> Task :react-native-svg:extractDeepLinksRelease
+> Task :react-native-svg:processReleaseManifest
+> Task :react-native-webview:extractDeepLinksRelease
+> Task :react-native-webview:processReleaseManifest
+> Task :react-native-worklets:extractDeepLinksRelease
+> Task :react-native-worklets:processReleaseManifest
+> Task :expo:mapReleaseSourceSetPaths
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86_64][reanimated]
+> Task :expo:compileReleaseLibraryResources
+> Task :expo-constants:mapReleaseSourceSetPaths
+> Task :expo-constants:compileReleaseLibraryResources
+> Task :expo-dom-webview:mapReleaseSourceSetPaths
+> Task :expo-dom-webview:compileReleaseLibraryResources
+> Task :expo-log-box:mapReleaseSourceSetPaths
+> Task :expo-log-box:compileReleaseLibraryResources
+> Task :expo-modules-core:mapReleaseSourceSetPaths
+> Task :expo-modules-core:compileReleaseLibraryResources
+> Task :firebase-init:mapReleaseSourceSetPaths
+> Task :firebase-init:compileReleaseLibraryResources
+> Task :react-native-async-storage_async-storage:mapReleaseSourceSetPaths
+> Task :react-native-async-storage_async-storage:compileReleaseLibraryResources
+> Task :react-native-blob-util:mapReleaseSourceSetPaths
+> Task :react-native-blob-util:compileReleaseLibraryResources
+> Task :react-native-community_datetimepicker:mapReleaseSourceSetPaths
+> Task :react-native-community_datetimepicker:compileReleaseLibraryResources
+> Task :react-native-gesture-handler:mapReleaseSourceSetPaths
+> Task :react-native-gesture-handler:compileReleaseLibraryResources
+> Task :react-native-maps:mapReleaseSourceSetPaths
+> Task :react-native-maps:compileReleaseLibraryResources
+> Task :react-native-ml-kit_barcode-scanning:mapReleaseSourceSetPaths
+> Task :react-native-ml-kit_barcode-scanning:compileReleaseLibraryResources
+> Task :react-native-ml-kit_text-recognition:mapReleaseSourceSetPaths
+> Task :react-native-ml-kit_text-recognition:compileReleaseLibraryResources
+> Task :react-native-pager-view:mapReleaseSourceSetPaths
+> Task :react-native-pager-view:compileReleaseLibraryResources
+> Task :react-native-pdf:mapReleaseSourceSetPaths
+> Task :react-native-pdf:compileReleaseLibraryResources
+> Task :react-native-safe-area-context:mapReleaseSourceSetPaths
+> Task :react-native-safe-area-context:compileReleaseLibraryResources
+> Task :react-native-screens:mapReleaseSourceSetPaths
+> Task :react-native-screens:compileReleaseLibraryResources
+> Task :react-native-svg:mapReleaseSourceSetPaths
+> Task :react-native-svg:compileReleaseLibraryResources
+> Task :react-native-webview:mapReleaseSourceSetPaths
+> Task :react-native-webview:compileReleaseLibraryResources
+> Task :react-native-worklets:mapReleaseSourceSetPaths
+> Task :react-native-worklets:compileReleaseLibraryResources
+> Task :expo:prepareReleaseArtProfile
+> Task :expo-constants:prepareReleaseArtProfile
+> Task :expo-dom-webview:prepareReleaseArtProfile
+> Task :expo-log-box:prepareReleaseArtProfile
+> Task :expo-modules-core:prepareReleaseArtProfile
+> Task :firebase-init:prepareReleaseArtProfile
+> Task :react-native-async-storage_async-storage:prepareReleaseArtProfile
+> Task :react-native-blob-util:prepareReleaseArtProfile
+> Task :react-native-community_datetimepicker:prepareReleaseArtProfile
+> Task :react-native-gesture-handler:prepareReleaseArtProfile
+> Task :react-native-maps:prepareReleaseArtProfile
+> Task :react-native-ml-kit_barcode-scanning:prepareReleaseArtProfile
+> Task :react-native-ml-kit_text-recognition:prepareReleaseArtProfile
+> Task :react-native-pager-view:prepareReleaseArtProfile
+> Task :react-native-pdf:prepareReleaseArtProfile
+> Task :react-native-safe-area-context:prepareReleaseArtProfile
+> Task :react-native-screens:prepareReleaseArtProfile
+> Task :react-native-svg:prepareReleaseArtProfile
+> Task :react-native-webview:prepareReleaseArtProfile
+> Task :react-native-worklets:prepareReleaseArtProfile
+> Task :react-native-community_datetimepicker:bundleLibRuntimeToJarRelease
+> Task :react-native-blob-util:bundleLibRuntimeToJarRelease
+> Task :react-native-maps:bundleLibRuntimeToJarRelease
+> Task :react-native-pager-view:bundleLibRuntimeToJarRelease
+> Task :react-native-safe-area-context:bundleLibRuntimeToJarRelease
+> Task :react-native-screens:bundleLibRuntimeToJarRelease
+> Task :react-native-webview:bundleLibRuntimeToJarRelease
+> Task :expo:bundleLibRuntimeToJarRelease
+> Task :expo-modules-core:bundleLibRuntimeToJarRelease
+> Task :react-native-worklets:bundleLibRuntimeToJarRelease
+> Task :react-native-async-storage_async-storage:bundleLibRuntimeToJarRelease
+> Task :react-native-ml-kit_barcode-scanning:bundleLibRuntimeToJarRelease
+> Task :react-native-ml-kit_text-recognition:bundleLibRuntimeToJarRelease
+> Task :react-native-pdf:bundleLibRuntimeToJarRelease
+> Task :react-native-svg:bundleLibRuntimeToJarRelease
+> Task :expo-log-box:bundleLibRuntimeToJarRelease
+> Task :expo-dom-webview:bundleLibRuntimeToJarRelease
+> Task :expo-constants:bundleLibRuntimeToJarRelease
+> Task :firebase-init:bundleLibRuntimeToJarRelease
+> Task :expo:generateReleaseAssets UP-TO-DATE
+> Task :expo:mergeReleaseAssets
+> Task :expo-constants:generateReleaseAssets UP-TO-DATE
+> Task :expo-constants:mergeReleaseAssets
+> Task :expo-dom-webview:generateReleaseAssets UP-TO-DATE
+> Task :expo-dom-webview:mergeReleaseAssets
+> Task :expo-log-box:generateReleaseAssets UP-TO-DATE
+> Task :expo-log-box:mergeReleaseAssets
+> Task :expo-modules-core:generateReleaseAssets UP-TO-DATE
+> Task :expo-modules-core:mergeReleaseAssets
+> Task :firebase-init:generateReleaseAssets UP-TO-DATE
+> Task :firebase-init:mergeReleaseAssets
+> Task :react-native-async-storage_async-storage:generateReleaseAssets UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseAssets
+> Task :react-native-blob-util:generateReleaseAssets UP-TO-DATE
+> Task :react-native-blob-util:mergeReleaseAssets
+> Task :react-native-community_datetimepicker:generateReleaseAssets UP-TO-DATE
+> Task :react-native-community_datetimepicker:mergeReleaseAssets
+> Task :react-native-gesture-handler:generateReleaseAssets UP-TO-DATE
+> Task :react-native-gesture-handler:mergeReleaseAssets
+> Task :react-native-maps:generateReleaseAssets UP-TO-DATE
+> Task :react-native-maps:mergeReleaseAssets
+> Task :react-native-ml-kit_barcode-scanning:generateReleaseAssets UP-TO-DATE
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseAssets
+> Task :react-native-ml-kit_text-recognition:generateReleaseAssets UP-TO-DATE
+> Task :react-native-ml-kit_text-recognition:mergeReleaseAssets
+> Task :react-native-pager-view:generateReleaseAssets UP-TO-DATE
+> Task :react-native-pager-view:mergeReleaseAssets
+> Task :react-native-pdf:generateReleaseAssets UP-TO-DATE
+> Task :react-native-pdf:mergeReleaseAssets
+> Task :react-native-safe-area-context:generateReleaseAssets UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseAssets
+> Task :react-native-screens:generateReleaseAssets UP-TO-DATE
+> Task :react-native-screens:mergeReleaseAssets
+> Task :react-native-svg:generateReleaseAssets UP-TO-DATE
+> Task :react-native-svg:mergeReleaseAssets
+> Task :react-native-webview:generateReleaseAssets UP-TO-DATE
+> Task :react-native-webview:mergeReleaseAssets
+> Task :react-native-worklets:generateReleaseAssets UP-TO-DATE
+> Task :react-native-worklets:mergeReleaseAssets
+> Task :expo:processReleaseJavaRes
+> Task :expo:createFullJarRelease
+> Task :expo:extractProguardFiles
+> Task :expo-constants:processReleaseJavaRes
+> Task :expo-constants:createFullJarRelease
+> Task :expo-constants:extractProguardFiles
+> Task :expo-modules-core:processReleaseJavaRes
+> Task :expo-modules-core:createFullJarRelease
+> Task :expo-modules-core:extractProguardFiles
+> Task :react-native-worklets:processReleaseJavaRes
+> Task :react-native-worklets:createFullJarRelease
+> Task :react-native-worklets:extractProguardFiles
+> Task :react-native-worklets:generateReleaseLintModel
+> Task :react-native-worklets:prepareLintJarForPublish
+> Task :expo-modules-core:generateReleaseLintModel
+> Task :expo-modules-core:prepareLintJarForPublish
+> Task :expo-constants:generateReleaseLintModel
+> Task :expo-constants:prepareLintJarForPublish
+> Task :expo-dom-webview:processReleaseJavaRes
+> Task :expo-dom-webview:createFullJarRelease
+> Task :expo-dom-webview:extractProguardFiles
+> Task :expo-dom-webview:generateReleaseLintModel
+> Task :expo-dom-webview:prepareLintJarForPublish
+> Task :expo-log-box:processReleaseJavaRes
+> Task :expo-log-box:createFullJarRelease
+> Task :expo-log-box:extractProguardFiles
+> Task :expo-log-box:generateReleaseLintModel
+> Task :expo-log-box:prepareLintJarForPublish
+> Task :firebase-init:processReleaseJavaRes
+> Task :firebase-init:createFullJarRelease
+> Task :firebase-init:extractProguardFiles
+> Task :firebase-init:generateReleaseLintModel
+> Task :firebase-init:prepareLintJarForPublish
+> Task :expo:generateReleaseLintModel
+> Task :expo:prepareLintJarForPublish
+> Task :react-native-async-storage_async-storage:processReleaseJavaRes NO-SOURCE
+> Task :react-native-async-storage_async-storage:createFullJarRelease
+> Task :react-native-async-storage_async-storage:extractProguardFiles
+> Task :react-native-async-storage_async-storage:generateReleaseLintModel
+> Task :react-native-async-storage_async-storage:prepareLintJarForPublish
+> Task :react-native-blob-util:processReleaseJavaRes
+> Task :react-native-blob-util:createFullJarRelease
+> Task :react-native-blob-util:extractProguardFiles
+> Task :react-native-blob-util:generateReleaseLintModel
+> Task :react-native-blob-util:prepareLintJarForPublish
+> Task :react-native-community_datetimepicker:processReleaseJavaRes
+> Task :react-native-community_datetimepicker:createFullJarRelease
+> Task :react-native-community_datetimepicker:extractProguardFiles
+> Task :react-native-community_datetimepicker:generateReleaseLintModel
+> Task :react-native-community_datetimepicker:prepareLintJarForPublish
+> Task :react-native-gesture-handler:extractProguardFiles
+> Task :react-native-svg:processReleaseJavaRes NO-SOURCE
+> Task :react-native-svg:createFullJarRelease
+> Task :react-native-svg:extractProguardFiles
+> Task :react-native-svg:generateReleaseLintModel
+> Task :react-native-svg:prepareLintJarForPublish
+> Task :react-native-gesture-handler:prepareLintJarForPublish
+> Task :react-native-maps:processReleaseJavaRes NO-SOURCE
+> Task :react-native-maps:createFullJarRelease
+> Task :react-native-maps:extractProguardFiles
+> Task :react-native-maps:generateReleaseLintModel
+> Task :react-native-maps:prepareLintJarForPublish
+> Task :react-native-ml-kit_barcode-scanning:processReleaseJavaRes NO-SOURCE
+> Task :react-native-ml-kit_barcode-scanning:createFullJarRelease
+> Task :react-native-ml-kit_barcode-scanning:extractProguardFiles
+> Task :react-native-ml-kit_barcode-scanning:generateReleaseLintModel
+> Task :react-native-ml-kit_barcode-scanning:prepareLintJarForPublish
+> Task :react-native-ml-kit_text-recognition:processReleaseJavaRes NO-SOURCE
+> Task :react-native-ml-kit_text-recognition:createFullJarRelease
+> Task :react-native-ml-kit_text-recognition:extractProguardFiles
+> Task :react-native-ml-kit_text-recognition:generateReleaseLintModel
+> Task :react-native-ml-kit_text-recognition:prepareLintJarForPublish
+> Task :react-native-pager-view:processReleaseJavaRes
+> Task :react-native-pager-view:createFullJarRelease
+> Task :react-native-pager-view:extractProguardFiles
+> Task :react-native-pager-view:generateReleaseLintModel
+> Task :react-native-pager-view:prepareLintJarForPublish
+> Task :react-native-pdf:processReleaseJavaRes NO-SOURCE
+> Task :react-native-pdf:createFullJarRelease
+> Task :react-native-pdf:extractProguardFiles
+> Task :react-native-pdf:generateReleaseLintModel
+> Task :react-native-pdf:prepareLintJarForPublish
+> Task :react-native-safe-area-context:processReleaseJavaRes
+> Task :react-native-safe-area-context:createFullJarRelease
+> Task :react-native-safe-area-context:extractProguardFiles
+> Task :react-native-safe-area-context:generateReleaseLintModel
+> Task :react-native-safe-area-context:prepareLintJarForPublish
+> Task :react-native-screens:processReleaseJavaRes
+> Task :react-native-screens:createFullJarRelease
+> Task :react-native-screens:extractProguardFiles
+> Task :react-native-screens:generateReleaseLintModel
+> Task :react-native-screens:prepareLintJarForPublish
+> Task :react-native-webview:processReleaseJavaRes
+> Task :react-native-webview:createFullJarRelease
+> Task :react-native-webview:extractProguardFiles
+> Task :react-native-webview:generateReleaseLintModel
+> Task :react-native-webview:prepareLintJarForPublish
+> Task :react-native-community_datetimepicker:checkReleaseAarMetadata
+> Task :react-native-community_datetimepicker:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-community_datetimepicker:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-community_datetimepicker:extractDeepLinksForAarRelease
+> Task :react-native-community_datetimepicker:extractReleaseAnnotations
+> Task :react-native-community_datetimepicker:mergeReleaseGeneratedProguardFiles
+> Task :react-native-community_datetimepicker:mergeReleaseConsumerProguardFiles
+> Task :react-native-community_datetimepicker:mergeReleaseJavaResource
+> Task :react-native-community_datetimepicker:syncReleaseLibJars
+> Task :react-native-community_datetimepicker:bundleReleaseLocalLintAar
+> Task :react-native-blob-util:checkReleaseAarMetadata
+> Task :react-native-blob-util:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-blob-util:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-reanimated:externalNativeBuildRelease
+> Task :react-native-blob-util:extractDeepLinksForAarRelease
+> Task :react-native-blob-util:extractReleaseAnnotations
+> Task :react-native-blob-util:mergeReleaseGeneratedProguardFiles
+> Task :react-native-blob-util:mergeReleaseConsumerProguardFiles
+> Task :react-native-blob-util:mergeReleaseJavaResource
+> Task :react-native-blob-util:syncReleaseLibJars
+> Task :react-native-blob-util:bundleReleaseLocalLintAar
+> Task :react-native-gesture-handler:extractDeepLinksForAarRelease
+> Task :react-native-reanimated:prefabReleasePackage
+> Task :react-native-maps:checkReleaseAarMetadata
+> Task :react-native-reanimated:mergeReleaseNativeLibs
+> Task :react-native-reanimated:copyReleaseJniLibsProjectOnly
+
+> Task :react-native-reanimated:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NodesManager.kt:13:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NodesManager.kt:58:95 'fun resolveCustomDirectEventName(eventName: String): String?' is deprecated.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/NodesManager.kt:232:29 'fun receiveEvent(surfaceId: Int, targetTag: Int, eventName: String, canCoalesceEvent: Boolean, customCoalesceKey: Int, params: WritableMap?, category: Int): Unit' is deprecated. Use the overload with eventTimestamp parameter instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/ReanimatedPackage.kt:5:8 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/ReanimatedPackage.kt:60:73 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/ReanimatedPackage.kt:61:63 'val reactNativeHost: ReactNativeHost' is deprecated. You should not use ReactNativeHost directly in the New Architecture. Use ReactHost instead.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:7:8 'class UIManagerModule : ReactContextBaseJavaModule, LifecycleEventListener, UIManager' is deprecated. This class is part of Legacy Architecture and will be removed in a future release.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:26:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:39:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:49:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/EventHandler.kt:58:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:8:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:20:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:29:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/nativeProxy/NoopEventHandler.kt:37:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/sensor/ReanimatedSensor.kt:28:26 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-reanimated:compileReleaseJavaWithJavac
+> Task :react-native-reanimated:bundleLibCompileToJarRelease
+> Task :react-native-reanimated:bundleLibRuntimeToDirRelease
+> Task :react-native-reanimated:writeReleaseAarMetadata
+> Task :react-native-reanimated:extractDeepLinksRelease
+> Task :react-native-reanimated:processReleaseManifest
+> Task :react-native-reanimated:mapReleaseSourceSetPaths
+> Task :react-native-reanimated:compileReleaseLibraryResources
+> Task :react-native-reanimated:prepareReleaseArtProfile
+> Task :react-native-reanimated:bundleLibRuntimeToJarRelease
+> Task :react-native-reanimated:generateReleaseAssets UP-TO-DATE
+> Task :react-native-reanimated:mergeReleaseAssets
+> Task :react-native-reanimated:processReleaseJavaRes
+> Task :react-native-reanimated:createFullJarRelease
+> Task :react-native-reanimated:extractProguardFiles
+> Task :react-native-reanimated:generateReleaseLintModel
+> Task :react-native-reanimated:prepareLintJarForPublish
+> Task :react-native-maps:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-maps:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-maps:extractDeepLinksForAarRelease
+> Task :react-native-maps:extractReleaseAnnotations
+> Task :react-native-maps:mergeReleaseGeneratedProguardFiles
+> Task :react-native-maps:mergeReleaseConsumerProguardFiles
+> Task :react-native-maps:mergeReleaseJavaResource
+> Task :react-native-maps:syncReleaseLibJars
+> Task :react-native-maps:bundleReleaseLocalLintAar
+> Task :react-native-pager-view:checkReleaseAarMetadata
+> Task :react-native-pager-view:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-pager-view:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-pager-view:extractDeepLinksForAarRelease
+> Task :react-native-pager-view:extractReleaseAnnotations
+> Task :react-native-pager-view:mergeReleaseGeneratedProguardFiles
+> Task :react-native-pager-view:mergeReleaseConsumerProguardFiles
+> Task :react-native-pager-view:mergeReleaseJavaResource
+> Task :react-native-pager-view:syncReleaseLibJars
+> Task :react-native-pager-view:bundleReleaseLocalLintAar
+> Task :react-native-reanimated:checkReleaseAarMetadata
+> Task :react-native-reanimated:stripReleaseDebugSymbols
+> Task :react-native-reanimated:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-reanimated:extractDeepLinksForAarRelease
+> Task :react-native-reanimated:extractReleaseAnnotations
+> Task :react-native-reanimated:mergeReleaseGeneratedProguardFiles
+> Task :react-native-reanimated:mergeReleaseConsumerProguardFiles
+> Task :react-native-reanimated:mergeReleaseJavaResource
+> Task :react-native-reanimated:syncReleaseLibJars
+> Task :react-native-reanimated:bundleReleaseLocalLintAar
+> Task :react-native-safe-area-context:checkReleaseAarMetadata
+> Task :react-native-safe-area-context:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-safe-area-context:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-safe-area-context:extractDeepLinksForAarRelease
+> Task :react-native-safe-area-context:extractReleaseAnnotations
+> Task :react-native-safe-area-context:mergeReleaseGeneratedProguardFiles
+> Task :react-native-safe-area-context:mergeReleaseConsumerProguardFiles
+> Task :react-native-safe-area-context:mergeReleaseJavaResource
+> Task :react-native-safe-area-context:syncReleaseLibJars
+> Task :react-native-safe-area-context:bundleReleaseLocalLintAar
+> Task :react-native-screens:checkReleaseAarMetadata
+> Task :react-native-screens:stripReleaseDebugSymbols
+> Task :react-native-screens:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-screens:extractDeepLinksForAarRelease
+> Task :react-native-screens:extractReleaseAnnotations
+> Task :react-native-screens:mergeReleaseGeneratedProguardFiles
+> Task :react-native-screens:mergeReleaseConsumerProguardFiles
+> Task :react-native-screens:mergeReleaseJavaResource
+> Task :react-native-screens:syncReleaseLibJars
+> Task :react-native-screens:bundleReleaseLocalLintAar
+> Task :react-native-webview:checkReleaseAarMetadata
+> Task :react-native-webview:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-webview:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-webview:extractDeepLinksForAarRelease
+> Task :react-native-webview:extractReleaseAnnotations
+> Task :react-native-webview:mergeReleaseGeneratedProguardFiles
+> Task :react-native-webview:mergeReleaseConsumerProguardFiles
+> Task :react-native-webview:mergeReleaseJavaResource
+> Task :react-native-webview:syncReleaseLibJars
+> Task :react-native-webview:bundleReleaseLocalLintAar
+> Task :expo:checkReleaseAarMetadata
+> Task :expo:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo:extractDeepLinksForAarRelease
+> Task :expo:extractReleaseAnnotations
+> Task :expo:mergeReleaseGeneratedProguardFiles
+> Task :expo:mergeReleaseConsumerProguardFiles
+> Task :expo:mergeReleaseJavaResource
+> Task :expo:syncReleaseLibJars
+> Task :expo:bundleReleaseLocalLintAar
+> Task :expo-modules-core:checkReleaseAarMetadata
+> Task :expo-modules-core:stripReleaseDebugSymbols
+> Task :expo-modules-core:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-modules-core:extractDeepLinksForAarRelease
+> Task :react-native-gesture-handler:buildCMakeRelWithDebInfo[x86_64]
+> Task :react-native-gesture-handler:mergeReleaseNativeLibs
+> Task :react-native-gesture-handler:copyReleaseJniLibsProjectOnly
+> Task :expo-modules-core:extractReleaseAnnotations
+> Task :expo-modules-core:mergeReleaseGeneratedProguardFiles
+> Task :expo-modules-core:mergeReleaseConsumerProguardFiles
+> Task :expo-modules-core:mergeReleaseJavaResource
+> Task :expo-modules-core:syncReleaseLibJars
+> Task :expo-modules-core:bundleReleaseLocalLintAar
+> Task :react-native-worklets:checkReleaseAarMetadata
+> Task :react-native-gesture-handler:checkReleaseAarMetadata
+> Task :react-native-gesture-handler:stripReleaseDebugSymbols
+> Task :react-native-gesture-handler:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-worklets:stripReleaseDebugSymbols
+> Task :react-native-worklets:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-worklets:extractDeepLinksForAarRelease
+> Task :react-native-worklets:extractReleaseAnnotations
+> Task :react-native-worklets:mergeReleaseGeneratedProguardFiles
+> Task :react-native-worklets:mergeReleaseConsumerProguardFiles
+> Task :react-native-worklets:mergeReleaseJavaResource
+> Task :react-native-worklets:syncReleaseLibJars
+> Task :react-native-worklets:bundleReleaseLocalLintAar
+> Task :react-native-async-storage_async-storage:checkReleaseAarMetadata
+> Task :react-native-async-storage_async-storage:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-async-storage_async-storage:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-async-storage_async-storage:extractDeepLinksForAarRelease
+> Task :react-native-async-storage_async-storage:extractReleaseAnnotations
+> Task :react-native-async-storage_async-storage:mergeReleaseGeneratedProguardFiles
+> Task :react-native-async-storage_async-storage:mergeReleaseConsumerProguardFiles
+> Task :react-native-async-storage_async-storage:mergeReleaseJavaResource
+> Task :react-native-async-storage_async-storage:syncReleaseLibJars
+> Task :react-native-async-storage_async-storage:bundleReleaseLocalLintAar
+> Task :react-native-ml-kit_barcode-scanning:checkReleaseAarMetadata
+> Task :react-native-ml-kit_barcode-scanning:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-ml-kit_barcode-scanning:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-ml-kit_barcode-scanning:extractDeepLinksForAarRelease
+> Task :react-native-ml-kit_barcode-scanning:extractReleaseAnnotations
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseGeneratedProguardFiles
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseConsumerProguardFiles
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseJavaResource
+> Task :react-native-ml-kit_barcode-scanning:syncReleaseLibJars
+> Task :react-native-ml-kit_barcode-scanning:bundleReleaseLocalLintAar
+> Task :react-native-ml-kit_text-recognition:checkReleaseAarMetadata
+> Task :react-native-ml-kit_text-recognition:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-ml-kit_text-recognition:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-ml-kit_text-recognition:extractDeepLinksForAarRelease
+> Task :react-native-ml-kit_text-recognition:extractReleaseAnnotations
+> Task :react-native-ml-kit_text-recognition:mergeReleaseGeneratedProguardFiles
+> Task :react-native-ml-kit_text-recognition:mergeReleaseConsumerProguardFiles
+> Task :react-native-ml-kit_text-recognition:mergeReleaseJavaResource
+> Task :react-native-ml-kit_text-recognition:syncReleaseLibJars
+> Task :react-native-ml-kit_text-recognition:bundleReleaseLocalLintAar
+> Task :react-native-pdf:checkReleaseAarMetadata
+> Task :react-native-pdf:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-pdf:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-pdf:extractDeepLinksForAarRelease
+> Task :react-native-pdf:extractReleaseAnnotations
+> Task :react-native-pdf:mergeReleaseGeneratedProguardFiles
+> Task :react-native-pdf:mergeReleaseConsumerProguardFiles
+> Task :react-native-pdf:mergeReleaseJavaResource
+> Task :react-native-pdf:syncReleaseLibJars
+> Task :react-native-pdf:bundleReleaseLocalLintAar
+> Task :react-native-svg:checkReleaseAarMetadata
+> Task :react-native-svg:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-svg:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-svg:extractDeepLinksForAarRelease
+> Task :react-native-svg:extractReleaseAnnotations
+> Task :react-native-svg:mergeReleaseGeneratedProguardFiles
+> Task :react-native-svg:mergeReleaseConsumerProguardFiles
+> Task :react-native-svg:mergeReleaseJavaResource
+> Task :react-native-svg:syncReleaseLibJars
+> Task :react-native-svg:bundleReleaseLocalLintAar
+> Task :expo-log-box:checkReleaseAarMetadata
+> Task :expo-log-box:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-log-box:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-log-box:extractDeepLinksForAarRelease
+> Task :expo-log-box:extractReleaseAnnotations
+> Task :expo-log-box:mergeReleaseGeneratedProguardFiles
+> Task :expo-log-box:mergeReleaseConsumerProguardFiles
+> Task :expo-log-box:mergeReleaseJavaResource
+> Task :expo-log-box:syncReleaseLibJars
+> Task :expo-log-box:bundleReleaseLocalLintAar
+> Task :expo-dom-webview:checkReleaseAarMetadata
+> Task :expo-dom-webview:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-dom-webview:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-dom-webview:extractDeepLinksForAarRelease
+> Task :expo-dom-webview:extractReleaseAnnotations
+> Task :expo-dom-webview:mergeReleaseGeneratedProguardFiles
+> Task :expo-dom-webview:mergeReleaseConsumerProguardFiles
+> Task :expo-dom-webview:mergeReleaseJavaResource
+> Task :expo-dom-webview:syncReleaseLibJars
+> Task :expo-dom-webview:bundleReleaseLocalLintAar
+> Task :expo-constants:checkReleaseAarMetadata
+> Task :expo-constants:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-constants:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-constants:extractDeepLinksForAarRelease
+> Task :expo-constants:extractReleaseAnnotations
+> Task :expo-constants:mergeReleaseGeneratedProguardFiles
+> Task :expo-constants:mergeReleaseConsumerProguardFiles
+> Task :expo-constants:mergeReleaseJavaResource
+> Task :expo-constants:syncReleaseLibJars
+> Task :expo-constants:bundleReleaseLocalLintAar
+> Task :firebase-init:checkReleaseAarMetadata
+> Task :firebase-init:stripReleaseDebugSymbols NO-SOURCE
+> Task :firebase-init:copyReleaseJniLibsProjectAndLocalJars
+> Task :firebase-init:extractDeepLinksForAarRelease
+> Task :firebase-init:extractReleaseAnnotations
+> Task :firebase-init:mergeReleaseGeneratedProguardFiles
+> Task :firebase-init:mergeReleaseConsumerProguardFiles
+> Task :firebase-init:mergeReleaseJavaResource
+> Task :firebase-init:syncReleaseLibJars
+> Task :firebase-init:bundleReleaseLocalLintAar
+> Task :expo-constants:writeReleaseLintModelMetadata
+> Task :expo-dom-webview:writeReleaseLintModelMetadata
+> Task :expo-log-box:writeReleaseLintModelMetadata
+> Task :expo-modules-core:writeReleaseLintModelMetadata
+> Task :firebase-init:writeReleaseLintModelMetadata
+> Task :react-native-worklets:writeReleaseLintModelMetadata
+> Task :expo:lintVitalAnalyzeRelease SKIPPED
+> Task :expo:writeReleaseLintModelMetadata
+> Task :expo-constants:lintVitalAnalyzeRelease SKIPPED
+> Task :expo-dom-webview:lintVitalAnalyzeRelease SKIPPED
+> Task :expo-log-box:lintVitalAnalyzeRelease SKIPPED
+> Task :expo-modules-core:lintVitalAnalyzeRelease SKIPPED
+> Task :firebase-init:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-async-storage_async-storage:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-async-storage_async-storage:writeReleaseLintModelMetadata
+> Task :react-native-blob-util:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-blob-util:writeReleaseLintModelMetadata
+> Task :react-native-community_datetimepicker:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-community_datetimepicker:writeReleaseLintModelMetadata
+> Task :react-native-reanimated:writeReleaseLintModelMetadata
+> Task :react-native-svg:writeReleaseLintModelMetadata
+> Task :react-native-gesture-handler:writeReleaseLintModelMetadata
+> Task :react-native-maps:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-maps:writeReleaseLintModelMetadata
+> Task :react-native-ml-kit_barcode-scanning:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-ml-kit_barcode-scanning:writeReleaseLintModelMetadata
+> Task :react-native-ml-kit_text-recognition:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-ml-kit_text-recognition:writeReleaseLintModelMetadata
+> Task :react-native-pager-view:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-pager-view:writeReleaseLintModelMetadata
+> Task :react-native-pdf:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-pdf:writeReleaseLintModelMetadata
+> Task :react-native-reanimated:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-safe-area-context:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-safe-area-context:writeReleaseLintModelMetadata
+> Task :react-native-screens:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-screens:writeReleaseLintModelMetadata
+> Task :react-native-svg:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-webview:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-webview:writeReleaseLintModelMetadata
+> Task :react-native-worklets:lintVitalAnalyzeRelease SKIPPED
+> Task :expo:generateReleaseLintVitalModel
+> Task :expo-constants:generateReleaseLintVitalModel
+> Task :expo-dom-webview:generateReleaseLintVitalModel
+> Task :expo-log-box:generateReleaseLintVitalModel
+> Task :expo-modules-core:generateReleaseLintVitalModel
+> Task :firebase-init:generateReleaseLintVitalModel
+> Task :react-native-async-storage_async-storage:generateReleaseLintVitalModel
+> Task :react-native-blob-util:generateReleaseLintVitalModel
+> Task :react-native-community_datetimepicker:generateReleaseLintVitalModel
+> Task :react-native-maps:generateReleaseLintVitalModel
+> Task :react-native-ml-kit_barcode-scanning:generateReleaseLintVitalModel
+> Task :react-native-ml-kit_text-recognition:generateReleaseLintVitalModel
+> Task :react-native-pager-view:generateReleaseLintVitalModel
+> Task :react-native-pdf:generateReleaseLintVitalModel
+> Task :react-native-reanimated:generateReleaseLintVitalModel
+> Task :react-native-safe-area-context:generateReleaseLintVitalModel
+> Task :react-native-screens:generateReleaseLintVitalModel
+> Task :react-native-svg:generateReleaseLintVitalModel
+> Task :react-native-webview:generateReleaseLintVitalModel
+> Task :react-native-worklets:generateReleaseLintVitalModel
+> Task :expo:bundleReleaseAar
+
+> Task :react-native-gesture-handler:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/RNGestureHandlerButtonViewManager.kt:799:45 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/RNGestureHandlerButtonViewManager.kt:1187:45 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/RNGestureHandlerDetectorView.kt:240:43 'fun getEventDispatcherForReactTag(context: ReactContext, reactTag: Int): EventDispatcher?' is deprecated. reactTag is no longer needed.
+
+> Task :react-native-gesture-handler:compileReleaseJavaWithJavac
+> Task :react-native-gesture-handler:bundleLibRuntimeToDirRelease
+> Task :react-native-gesture-handler:bundleLibCompileToJarRelease
+> Task :react-native-gesture-handler:bundleLibRuntimeToJarRelease
+> Task :expo:mergeReleaseResources
+> Task :react-native-gesture-handler:processReleaseJavaRes
+> Task :react-native-gesture-handler:createFullJarRelease
+> Task :react-native-gesture-handler:generateReleaseLintModel
+> Task :react-native-gesture-handler:extractReleaseAnnotations
+> Task :react-native-gesture-handler:mergeReleaseGeneratedProguardFiles
+> Task :react-native-gesture-handler:mergeReleaseConsumerProguardFiles
+> Task :react-native-gesture-handler:mergeReleaseJavaResource
+> Task :react-native-gesture-handler:syncReleaseLibJars
+> Task :react-native-gesture-handler:bundleReleaseLocalLintAar
+> Task :react-native-gesture-handler:lintVitalAnalyzeRelease SKIPPED
+> Task :react-native-gesture-handler:generateReleaseLintVitalModel
+> Task :expo-constants:bundleReleaseAar
+> Task :expo-constants:mergeReleaseResources
+> Task :expo-constants:verifyReleaseResources
+> Task :expo-constants:assembleRelease
+> Task :expo-dom-webview:bundleReleaseAar
+> Task :expo-dom-webview:mergeReleaseResources
+> Task :expo-dom-webview:verifyReleaseResources
+> Task :expo-dom-webview:assembleRelease
+> Task :expo-log-box:bundleReleaseAar
+> Task :expo-log-box:mergeReleaseResources
+> Task :expo:verifyReleaseResources
+> Task :expo:assembleRelease
+> Task :expo-log-box:verifyReleaseResources
+> Task :expo-log-box:assembleRelease
+> Task :firebase-init:bundleReleaseAar
+> Task :firebase-init:mergeReleaseResources
+> Task :expo-modules-core:bundleReleaseAar
+> Task :firebase-init:verifyReleaseResources
+> Task :firebase-init:assembleRelease
+> Task :react-native-async-storage_async-storage:bundleReleaseAar
+> Task :expo-modules-core:mergeReleaseResources
+> Task :react-native-async-storage_async-storage:mergeReleaseResources
+> Task :expo-modules-core:verifyReleaseResources
+> Task :expo-modules-core:assembleRelease
+> Task :react-native-blob-util:bundleReleaseAar
+> Task :react-native-async-storage_async-storage:verifyReleaseResources
+> Task :react-native-async-storage_async-storage:assembleRelease
+> Task :react-native-community_datetimepicker:bundleReleaseAar
+> Task :react-native-blob-util:mergeReleaseResources
+> Task :react-native-blob-util:verifyReleaseResources
+> Task :react-native-blob-util:assembleRelease
+> Task :react-native-community_datetimepicker:mergeReleaseResources
+> Task :react-native-gesture-handler:bundleReleaseAar
+> Task :react-native-gesture-handler:mergeReleaseResources
+> Task :react-native-gesture-handler:verifyReleaseResources
+> Task :react-native-gesture-handler:assembleRelease
+> Task :react-native-maps:bundleReleaseAar
+> Task :react-native-community_datetimepicker:verifyReleaseResources
+> Task :react-native-community_datetimepicker:assembleRelease
+> Task :react-native-ml-kit_barcode-scanning:bundleReleaseAar
+> Task :react-native-maps:mergeReleaseResources
+> Task :react-native-ml-kit_barcode-scanning:mergeReleaseResources
+> Task :react-native-maps:verifyReleaseResources
+> Task :react-native-maps:assembleRelease
+> Task :react-native-ml-kit_text-recognition:bundleReleaseAar
+> Task :react-native-ml-kit_barcode-scanning:verifyReleaseResources
+> Task :react-native-ml-kit_barcode-scanning:assembleRelease
+> Task :react-native-pager-view:bundleReleaseAar
+> Task :react-native-ml-kit_text-recognition:mergeReleaseResources
+> Task :react-native-pager-view:mergeReleaseResources
+> Task :react-native-ml-kit_text-recognition:verifyReleaseResources
+> Task :react-native-ml-kit_text-recognition:assembleRelease
+> Task :react-native-pdf:bundleReleaseAar
+> Task :react-native-pager-view:verifyReleaseResources
+> Task :react-native-pager-view:assembleRelease
+> Task :react-native-pdf:mergeReleaseResources
+> Task :react-native-pdf:verifyReleaseResources
+> Task :react-native-pdf:assembleRelease
+> Task :react-native-safe-area-context:bundleReleaseAar
+> Task :react-native-safe-area-context:mergeReleaseResources
+> Task :react-native-safe-area-context:verifyReleaseResources
+> Task :react-native-safe-area-context:assembleRelease
+> Task :react-native-screens:bundleReleaseAar
+> Task :react-native-screens:mergeReleaseResources
+> Task :react-native-reanimated:bundleReleaseAar
+> Task :react-native-reanimated:mergeReleaseResources
+> Task :react-native-screens:verifyReleaseResources
+> Task :react-native-screens:assembleRelease
+> Task :react-native-svg:bundleReleaseAar
+> Task :react-native-reanimated:verifyReleaseResources
+> Task :react-native-reanimated:assembleRelease
+> Task :react-native-webview:bundleReleaseAar
+> Task :react-native-svg:mergeReleaseResources
+> Task :react-native-webview:mergeReleaseResources
+> Task :react-native-svg:verifyReleaseResources
+> Task :react-native-svg:assembleRelease
+> Task :react-native-webview:verifyReleaseResources
+> Task :react-native-webview:assembleRelease
+> Task :shopify_react-native-skia:buildCMakeRelWithDebInfo[x86_64]
+> Task :react-native-worklets:bundleReleaseAar
+> Task :react-native-worklets:mergeReleaseResources
+> Task :react-native-worklets:verifyReleaseResources
+> Task :react-native-worklets:assembleRelease
+> Task :shopify_react-native-skia:externalNativeBuildRelease
+> Task :shopify_react-native-skia:prefabReleasePackage
+> Task :shopify_react-native-skia:mergeReleaseJniLibFolders
+> Task :shopify_react-native-skia:generateReleaseBuildConfig
+> Task :shopify_react-native-skia:generateReleaseResources
+> Task :shopify_react-native-skia:packageReleaseResources
+> Task :shopify_react-native-skia:processReleaseNavigationResources
+> Task :shopify_react-native-skia:parseReleaseLocalResources
+> Task :shopify_react-native-skia:javaPreCompileRelease
+> Task :shopify_react-native-skia:writeReleaseAarMetadata
+> Task :shopify_react-native-skia:generateReleaseRFile
+> Task :shopify_react-native-skia:extractDeepLinksRelease
+> Task :shopify_react-native-skia:mergeReleaseNativeLibs
+
+> Task :shopify_react-native-skia:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@shopify/react-native-skia/android/src/main/java/com/reactnative/skia/SkiaPictureViewManager.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :shopify_react-native-skia:bundleLibCompileToJarRelease
+> Task :shopify_react-native-skia:bundleLibRuntimeToDirRelease
+
+> Task :shopify_react-native-skia:processReleaseManifest
+package="com.reactnative.skia" found in source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@shopify/react-native-skia/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnative.skia" from the source AndroidManifest.xml: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@shopify/react-native-skia/android/src/main/AndroidManifest.xml.
+
+> Task :shopify_react-native-skia:mapReleaseSourceSetPaths
+> Task :shopify_react-native-skia:compileReleaseLibraryResources
+> Task :shopify_react-native-skia:prepareReleaseArtProfile
+> Task :shopify_react-native-skia:bundleLibRuntimeToJarRelease
+> Task :shopify_react-native-skia:generateReleaseAssets UP-TO-DATE
+> Task :shopify_react-native-skia:mergeReleaseAssets
+> Task :shopify_react-native-skia:processReleaseJavaRes NO-SOURCE
+> Task :shopify_react-native-skia:createFullJarRelease
+> Task :shopify_react-native-skia:extractProguardFiles
+> Task :shopify_react-native-skia:copyReleaseJniLibsProjectOnly
+> Task :shopify_react-native-skia:generateReleaseLintModel
+> Task :shopify_react-native-skia:prepareLintJarForPublish
+> Task :shopify_react-native-skia:extractDeepLinksForAarRelease
+> Task :shopify_react-native-skia:extractReleaseAnnotations
+> Task :shopify_react-native-skia:mergeReleaseGeneratedProguardFiles
+> Task :shopify_react-native-skia:mergeReleaseConsumerProguardFiles
+> Task :shopify_react-native-skia:mergeReleaseJavaResource
+> Task :shopify_react-native-skia:stripReleaseDebugSymbols
+> Task :shopify_react-native-skia:syncReleaseLibJars
+> Task :shopify_react-native-skia:lintVitalAnalyzeRelease SKIPPED
+> Task :shopify_react-native-skia:writeReleaseLintModelMetadata
+> Task :shopify_react-native-skia:generateReleaseLintVitalModel
+> Task :shopify_react-native-skia:copyReleaseJniLibsProjectAndLocalJars
+> Task :shopify_react-native-skia:checkReleaseAarMetadata
+> Task :shopify_react-native-skia:mergeReleaseResources
+> Task :shopify_react-native-skia:bundleReleaseLocalLintAar
+> Task :shopify_react-native-skia:bundleReleaseAar
+> Task :shopify_react-native-skia:verifyReleaseResources
+> Task :shopify_react-native-skia:assembleRelease
+> Task :app:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :app:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :app:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :app:configureCMakeRelWithDebInfo[x86_64]
+> Task :app:buildCMakeRelWithDebInfo[x86_64]
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:buildKotlinToolingMetadata
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateReleaseBuildConfig
+
+> Task :app:createBundleReleaseJsAndAssets
+Starting Metro Bundler
+
+
+> Task :app:mergeReleaseNativeLibs
+
+> Task :app:createBundleReleaseJsAndAssets
+Android Bundled 16791ms index.ts (2070 modules)
+Writing bundle output to: /home/runner/work/eden-garden-app/eden-garden-app/android/app/build/generated/assets/react/release/index.android.bundle
+Writing sourcemap output to: /home/runner/work/eden-garden-app/eden-garden-app/android/app/build/intermediates/sourcemaps/react/release/index.android.bundle.packager.map
+Copying 41 asset files
+Done writing bundle output
+Done writing sourcemap output
+
+> Task :app:generateReleaseResValues
+> Task :app:generateReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:processReleaseNavigationResources
+> Task :app:javaPreCompileRelease
+> Task :app:parseReleaseLocalResources
+> Task :app:stripReleaseDebugSymbols
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseRFile
+> Task :app:compileReleaseNavigationResources
+> Task :app:checkReleaseAarMetadata
+> Task :app:extractReleaseNativeSymbolTables
+
+> Task :app:compileReleaseKotlin
+w: file:///home/runner/work/eden-garden-app/eden-garden-app/android/app/src/main/java/triparro/com/MainActivity.kt:40:20 'constructor(activity: ReactActivity, mainComponentName: String, fabricEnabled: Boolean): DefaultReactActivityDelegate' is deprecated. Creating DefaultReactActivityDelegate with flags is deprecated.
+
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:mergeReleaseResources
+
+> Task :app:processReleaseMainManifest
+/home/runner/work/eden-garden-app/eden-garden-app/android/app/src/main/AndroidManifest.xml Warning:
+	provider#expo.modules.filesystem.FileSystemFileProvider@android:authorities was tagged at AndroidManifest.xml:0 to replace other declarations but no other declaration present
+/home/runner/work/eden-garden-app/eden-garden-app/android/app/src/main/AndroidManifest.xml Warning:
+	activity#expo.modules.imagepicker.ExpoCropImageActivity@android:exported was tagged at AndroidManifest.xml:0 to replace other declarations but no other declaration present
+
+> Task :app:compileReleaseJavaWithJavac
+
+> Task :app:expoReleaseOverrideMaxSdkConflicts
+[33m---------- Expo Max Sdk Override Plugin ----------[0m
+[33m>>> WARNING: Found 2 permission(s) with conflicting 'android:maxSdkVersion' declarations.[0m
+[33m    - android.permission.READ_EXTERNAL_STORAGE[0m
+[33m      > Defined WITH `android:maxSdkVersion` in: /home/runner/work/eden-garden-app/eden-garden-app/android/app/src/main/AndroidManifest.xml[0m
+[33m      > Defined WITHOUT `android:maxSdkVersion` in: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4be089c372870e24833af85197a1cb3e/transformed/expo.modules.filesystem-58.0.13/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/dfcdc506acdbc834ee4a56906cca861b/transformed/expo.modules.image-58.0.18/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/04fa7291c6f94f601720b93490fd8fc3/transformed/expo.modules.imagepicker-58.0.10/AndroidManifest.xml[0m
+[33m    - android.permission.WRITE_EXTERNAL_STORAGE[0m
+[33m      > Defined WITH `android:maxSdkVersion` in: /home/runner/work/eden-garden-app/eden-garden-app/android/app/src/main/AndroidManifest.xml[0m
+[33m      > Defined WITHOUT `android:maxSdkVersion` in: /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-blob-util/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4be089c372870e24833af85197a1cb3e/transformed/expo.modules.filesystem-58.0.13/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/04fa7291c6f94f601720b93490fd8fc3/transformed/expo.modules.imagepicker-58.0.10/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-webview/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/354153ab37c4f91e45f8ce7a0a210d49/transformed/expo.modules.sharing-58.0.23/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/50d57912b485be40da588997256c868b/transformed/expo.modules.webbrowser-58.0.8/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/fa5c79efe734e531462e4c4c7518cbd3/transformed/android-image-cropper-4.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/643a8f4757d1852673b62d91ae8fca77/transformed/play-services-maps-19.1.0/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-community/datetimepicker/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-modules-core/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/935b58836841f662336af6b42ca58b47/transformed/expo.modules.video-58.0.14/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4f55465c5584d1629e712a53000cc8af/transformed/expo.modules.clipboard-58.0.4/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/db7b4cfe9f5132c6dee6779e58417904/transformed/expo.modules.location-58.0.22/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/67da3adab568b8be318a64d3267f313e/transformed/expo.modules.notifications-58.1.9/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f1615e5538c84ad611b51331a63daa8a/transformed/expo.modules.taskmanager-58.0.14/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a307c50a935c109588137da8e8c6356f/transformed/play-services-location-21.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9468db015af5b9ded25fef0483b1fba3/transformed/android-maps-utils-3.10.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/dfac6dc1a7233bb612a601ce4b558ed2/transformed/material-1.13.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/74e9ab064b7fae5435dc661ed1842521/transformed/play-services-mlkit-barcode-scanning-18.3.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/c487c3878da454fe63e433a6ba39831b/transformed/play-services-mlkit-text-recognition-common-19.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/86776c55e2dcf56aa39eb7d7f7ed0d0c/transformed/vision-common-17.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/0e2c6848f45ad52e69fd07eb33448c36/transformed/common-18.11.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a573d1961aa95cd27ea5f11152b56f41/transformed/constraintlayout-2.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/66432b454b74688e61a06c252e7a7df7/transformed/firebase-messaging-25.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/69e851397c342c8eea744460c5b7145d/transformed/play-services-base-18.5.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e07c56085de8cb16076b5cd5bcb55a32/transformed/firebase-installations-18.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2f7566108f1214fdcb94e63a2d803776/transformed/firebase-common-22.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f05c162d5e25728289cc09b49a439d94/transformed/firebase-iid-interop-17.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/78fba646de3a0f52ae560e76658f1556/transformed/window-1.5.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/776759b25ed20aca52c31d6eb8178d85/transformed/work-runtime-2.10.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2ddf06bca027110b19dc119349898898/transformed/play-services-stats-17.0.2/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/bc6439dfee033c365056270fc7a8f096/transformed/emoji2-1.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/820dc67585fba909b9a3dda54427e307/transformed/okhttp3-integration-5.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/20e6f7dad00168ada9694a6421c4baca/transformed/core-1.18.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ea36257e7a661b7f60dbca1a265a79fb/transformed/lifecycle-process-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/fa3617076453209da4b23dc648ec6113/transformed/room-runtime-2.6.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/399ad9fb5897088d288a6b8c64a0ea9a/transformed/play-services-tasks-18.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/dd0bff3b6a0c63068596840e82c604ad/transformed/firebase-measurement-connector-19.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d901090b07e4206c50067a5ab89ca746/transformed/play-services-basement-18.4.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/bec035558798cf5cc3f8d8ae42c88f86/transformed/profileinstaller-1.4.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/11c4939e4f24737b3456f6c1fad7de3f/transformed/startup-runtime-1.1.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/fd0c65f568930380d348eeda3cacb317/transformed/firebase-datatransport-18.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f06577a11964f1992c6dd304a13f5af5/transformed/transport-backend-cct-3.1.9/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9d08fac2f858e073f4ce98ab34de5a33/transformed/transport-runtime-3.1.9/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9abd6a1d68e1da9e8c434dbb6b3bc67d/transformed/versionedparcelable-1.1.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/25f18784c70ffe700b4939b2bbf52b26/transformed/soloader-0.12.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/bf28681c052f83506f88a42ebb099f1a/transformed/installreferrer-2.2/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1a80930895b7d7c58eabc35ecd39433f/transformed/BlurView-version-3.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e33094f6d2da29197bf47f1b7eeff9a3/transformed/image-1.0.0-beta1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a5c80851842540ab1f6e0a6d0f61550c/transformed/avif-1.1.1.14d8e3c4/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-gesture-handler/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-maps/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pager-view/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-reanimated/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-safe-area-context/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-screens/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-worklets/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-async-storage/async-storage/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/barcode-scanning/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@react-native-ml-kit/text-recognition/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/@shopify/react-native-skia/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-pdf/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/react-native-svg/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/node_modules/@expo/log-box/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d5bf5b72396a2d8a144f7224f031cba2/transformed/expo.modules.asset-58.0.21/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4814a4dd3327cc5f37c1eeaad1a80328/transformed/expo.modules.backgroundtask-58.0.13/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/992213bb104058bef7de6d5413201ca9/transformed/expo.modules.font-58.0.12/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/dfcdc506acdbc834ee4a56906cca861b/transformed/expo.modules.image-58.0.18/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/20baa42541ae1e8a77c54b7c43712eaa/transformed/expo.modules.splashscreen-58.0.14/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/82887516fe8e95b32c9969496c25a603/transformed/expo.modules.systemui-58.0.7/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/bcfc2170c25c75750535267f58d7c040/transformed/expo-modules-v2-react-0.2.7/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/c6ae5b0c2fc0919c70d824e952264611/transformed/react-android-0.88.1-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/95d8c5ac968c353ad49653d35ce3a22e/transformed/animated-gif-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8fb4cc3eb6757fa7f97d591a9cbecaca/transformed/webpsupport-3.7.0/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo/node_modules/@expo/dom-webview/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/node_modules/expo-constants/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/work/eden-garden-app/eden-garden-app/modules/firebase-init/android/build/intermediates/merged_manifest/release/processReleaseManifest/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/478c7119abf323fde92f01057d85dc32/transformed/expo.modules.application-58.1.2/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f051315e48f373a8c0a750cbcd15988c/transformed/expo.modules.audio-58.0.12/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/3a409fbf1e0b5cdd22d602dabed0980c/transformed/expo.modules.blur-58.0.6/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/46f06944c9b793d9dd196e65ef0f0bc5/transformed/expo.modules.haptics-58.0.8/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ab545ca72b59b5449514448d55e6a10d/transformed/expo.modules.imageloader-58.0.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4e35f979b8e8ceeba76e34941d8e3d44/transformed/expo.modules.imagemanipulator-58.0.16/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/49446bbe4251af0f5c2454d79a91628c/transformed/expo.modules.keepawake-58.0.4/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/134867dad085d597c6ae7175a357844d/transformed/expo.modules.lineargradient-58.0.4/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/98b794c982be155231f126ae02abfefa/transformed/expo.modules.linking-58.0.17/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/0d78384f8161513e675d351759352010/transformed/expo.modules.statusbar-58.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d33c6014ce3f5d3ddc59f9be4273cfeb/transformed/org.unimodules.apploader-58.0.2/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2e1cbefba97a9785271ddaeeb9279452/transformed/AndroidPdfViewer-4.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ce6066551eeff941f28dcc2d6d76fc30/transformed/pdfiumandroid-1.0.32/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/43766b0b3dbb770bab26f8a3bf0af86b/transformed/barcode-scanning-17.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/35e9e7a8b0a2ccc41ea1066fbba80fe5/transformed/text-recognition-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/81bca9ad58216de8ee399ab85499c637/transformed/text-recognition-chinese-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1dba0e3551932fc3370cc4332cd65cb8/transformed/text-recognition-devanagari-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/426914a139b9223ca831b2078edd78af/transformed/text-recognition-japanese-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b96e53e6f74ce618e5d7477ca47807bc/transformed/text-recognition-korean-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/834c057b034dc053fd130de510b08ab8/transformed/barcode-scanning-common-17.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f43e5ee4500be15eb7b5b50a75adda7a/transformed/text-recognition-bundled-common-17.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f81cce45a761d7eca62d5576cee0d0d5/transformed/play-services-mlkit-text-recognition-19.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a84ba06233aaf0d83800b3715423ad19/transformed/play-services-mlkit-text-recognition-chinese-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f9e77f503adcc345feb793157939bd2d/transformed/play-services-mlkit-text-recognition-devanagari-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/91152d1f772ac5deaa13787f1cf3b673/transformed/play-services-mlkit-text-recognition-japanese-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/66a1fd41c41ec992ac0c59c063a4ab41/transformed/play-services-mlkit-text-recognition-korean-16.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6171f7920afe3893a2a9f0521ae08d51/transformed/glide-plugin-3.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/35159f5049eefde1c2541427557fe864/transformed/core-splashscreen-1.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/92d0e2838e31766623565018b30b36b2/transformed/appcompat-resources-1.7.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/cc5fb21a16b329d5db201f0fa940eaeb/transformed/awebp-3.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e450db1cb091d110ff265c71be55d893/transformed/apng-3.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e0fa53b197be83191465500040634829/transformed/gif-3.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/278f7a0d30380e75c447a93748fff794/transformed/avif-3.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/c131c0e307991d8d6963cb41449b0810/transformed/frameanimation-3.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4a8ab76c974ee9d6e503bbfcee08ec4a/transformed/appcompat-1.7.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/643f6485c788fe9f768058f68c7aed92/transformed/vision-interfaces-16.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/64561ca4034818c7147b29fa40e158fc/transformed/play-services-cloud-messaging-17.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d0a6436129458b696e82be5dd152ff0b/transformed/window-core/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/26339c36555ddef81b2dbb8162b2cad0/transformed/animation-core-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9d8e53eb2fe7895cd97a151d358988c3/transformed/animation-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/5f9368fe35215ec5af0d40f871333a70/transformed/foundation-layout-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e53df9db62d7420a7d758dda9d8e03db/transformed/foundation-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/5a9408317a69fdebdc9354d9ec526782/transformed/ui-unit-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1d43c5bbf7e045c50c1ca7138a7efa20/transformed/ui-graphics-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/993a8c60a1d659d03cddf44ad25360bf/transformed/ui-geometry-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b88bd5d6aace38e1a3bdebf47e72876f/transformed/ui-util-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f1d10c8786dc270b58c8d552d5762d79/transformed/ui-text-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/7d99d5bc1011642488ce580c1af0c273/transformed/ui-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/695f883ec31cb19c16a6d09872cb3165/transformed/work-runtime-ktx-2.10.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ec1cbc156e2d6e496848df95de4dc230/transformed/activity-1.11.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a69521a114b2943331bb3466ba07f73a/transformed/activity-ktx-1.11.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f3c84420934e55b936e300af610dc0b9/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/368a02ea8819bdbbf5e63fcf01477187/transformed/loader-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a013a8659a595fe695b1dd9ab17d26e5/transformed/coordinatorlayout-1.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/30a4e6fb05123ed68c7ebb0d641ee6ff/transformed/swiperefreshlayout-1.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/3ec7c99a4f7110f48d33f8fbefec14ca/transformed/webkit-1.14.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/975852e97c5d6562857df3eeea21180f/transformed/autofill-1.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/06f79637511f5c3d0fe7c55a51e35040/transformed/animated-gif-lite-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a3c4017cb6427c8326d5d81db7cacfd5/transformed/animated-base-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e3dbcad6d97b944d8b9e35bc2189c3cc/transformed/animated-drawable-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/39150423d1f33e4dbaba7cfa7c0d5183/transformed/vito-provider-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d7db815e056e1249c04cf0eaab408515/transformed/vito-core-impl-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/083f70cd9a056d2b21b53d24fa986ec8/transformed/vito-core-java-impl-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1c1a80ff1e25d8dc45a9670167303870/transformed/vito-drawee-support-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9413d5a76132ebd59d6b7e6da927256d/transformed/vito-core-common-impl-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d370197fd05191072d3451ca588cc933/transformed/vito-core-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d4d9b0154c953ec081b8ee2fbbfba6b7/transformed/fresco-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f00c9bf9358345d3e9a1da262b83043b/transformed/imagepipeline-okhttp3-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b269f86208303c600379ec9e0001c59f/transformed/vito-options-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/82d9b8eddd06c88ac6b780ceb834fb5b/transformed/drawee-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6423d216a785ff8cd5662fd11401bb04/transformed/nativeimagefilters-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e5b6e95a5dad665707b69d3e1404cb65/transformed/memory-type-native-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8357f06efd2a6bbfbbd5f9d1eb9347b8/transformed/memory-type-java-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/10cd79bda139af0ca9ffea1d3fdb5097/transformed/imagepipeline-native-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ff39a55327cce89bef235be621cab031/transformed/memory-type-ashmem-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/dfbf4733e0b25a331fc0975f1767599f/transformed/imagepipeline-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b007a7d44fd7f1ef4c79becb5f01288c/transformed/nativeimagetranscoder-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9fdcb1023c9b94eca4b47a0912770f44/transformed/imagepipeline-base-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/d628273d8aed82d408111c34a1c11fd1/transformed/urimod-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8c7557253c97f7343f5945c1214c8179/transformed/vito-source-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/0ecaeb87ee0d3604ebd3539bf73a5e88/transformed/middleware-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/cf8c6e37a458df35a9b597f1bba37048/transformed/ui-common-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/85bb0add85e40a5aa95a4a74945aec7d/transformed/soloader-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a2163e861c2a63d8f59fc13f61028232/transformed/fbcore-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/17b77af5b1d4550b56533bc288d89e91/transformed/media3-exoplayer-dash-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6a9630be63a19e8f21c8c51ba7e18ac1/transformed/media3-exoplayer-hls-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/338b7b77f8cab7d1dcbf925688d500d2/transformed/media3-exoplayer-smoothstreaming-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/48c4eee8fce609268333a24d4665b0bf/transformed/media3-exoplayer-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/bb1d69bba92b59564a9de435a8e8c501/transformed/media3-datasource-okhttp-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/049b476c5f85725c3bdad383291373c0/transformed/media3-datasource-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ddd06da30007e9517d617d059c46df3f/transformed/media3-ui-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/77fc317b65d4779e066c13fd5dce89a7/transformed/media3-extractor-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1c03c9e129e407c5c88560f423a04a7d/transformed/media3-container-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/7ad8f771757eb8d740990780f6ee403a/transformed/media3-decoder-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/da25b1b50ff64ec3af591590ae629cf1/transformed/media3-database-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6d6acf0b59dd77554324ffb6132832e9/transformed/media3-common-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/7bb2e65b13ce754b6f05d623cebd7306/transformed/media3-session-1.9.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/68569d5ea72df9fd958f76babf77bcf5/transformed/documentfile-1.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/66c215ae8035a5482782dd66277f3e40/transformed/browser-1.6.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/7fd8b26d435ef8bd8c38842700965e27/transformed/emoji2-views-helper-1.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/cc0fe042a4c50a6b3f7151fee35ca931/transformed/drawerlayout-1.1.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8342bfb108cd3daeab109164447117ad/transformed/transition-ktx-1.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/cc00a31a2e285b1ac5c4f8c0f0388fcb/transformed/transition-1.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9874a5d2661947084e3f1249f2c53af9/transformed/dynamicanimation-1.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a2fa168f643e58120fdfe06ed6272329/transformed/avif-integration-5.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/3133a4faab7ce7cae5ac0f13e0062ab3/transformed/glide-transformations-4.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b190a0886875b81c02281467878541a5/transformed/glide-5.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/aaf447f2f0ad1cd152ecbd2e2af47ab1/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/ef458eead880b1f267dee4a025a44cea/transformed/vectordrawable-1.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/78d214f7c95b4dbfe0de64759b178857/transformed/viewpager2-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/84f7c1ce8afad92a3883c51cce0a383e/transformed/media-1.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1a8c7ac3d6215930796657964530ad4d/transformed/recyclerview-1.3.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/cd971ec00480619139038a540ea29728/transformed/viewpager-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8fbab3713463fc20c275c3bc61ebdab7/transformed/customview-1.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9e6ad3fa1115e39028b8b711ed7a08e0/transformed/graphics-path-1.0.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/57e4637ce19a61e5e3dd1b5abbe1e7e8/transformed/runtime-annotation/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/64bec9a31311a0a0b1ac22b97db15a7a/transformed/savedstate-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/fd32cdf4ddf514458b8372a9301bfdfb/transformed/savedstate-ktx-1.3.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a4acd4be9edb5a9721bf53af5fb50630/transformed/savedstate-compose-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1d452c542d6d28b348be57138312333c/transformed/runtime/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/14bb202b0e19b009e237e476d69575f6/transformed/runtime-saveable/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/98d602739f6f72339c10ed5dfbb2cfdb/transformed/lifecycle-runtime-compose-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/908ce4c72071831530ff8cd3bcf72536/transformed/lifecycle-viewmodel-savedstate-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/211597239d72cc25e735f952d545a9eb/transformed/lifecycle-viewmodel-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/59684c85124cf047eb57bf9d4dff3d71/transformed/lifecycle-viewmodel-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8ec133a14c916087ab7246e5e3a27078/transformed/lifecycle-runtime-ktx/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8344ed8f9021b899610d26e0a8859b8a/transformed/lifecycle-service-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/5a7ffd0b7e3b8408dae044a00d95dc09/transformed/lifecycle-livedata-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b03efe007112159ae685663f1dd6390f/transformed/lifecycle-livedata-core-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/1258bcfc6d1a9137169bd6d43c53e51f/transformed/lifecycle-viewmodel-ktx-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6a3433189f9a49e31f5594256c37c2ba/transformed/lifecycle-livedata-core-ktx-2.9.3/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/33a267d01ce74558cc842680fb06fb46/transformed/lifecycle-runtime-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2aeac816829e24682f018ecfa1072509/transformed/room-ktx-2.6.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/7e36df7f3833e92f839ac16ad3059066/transformed/datastore-core-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4167273cdb2a260d35d6c04bdd18db7c/transformed/datastore-preferences-core-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6e44507b31bcb3b56d1b868f2569212f/transformed/datastore-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/669ee7126f47d71c625738e81a633e5a/transformed/datastore-preferences-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/60cbe1bc7f8b44ed2389bad2f5d86b76/transformed/firebase-installations-interop-17.1.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e96be6444030bb7156f4c9a993fd9495/transformed/fragment-1.8.9/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/50dd7c5d73fb1e1c3faa00edb2437050/transformed/fragment-ktx-1.8.9/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/67e31b8bebe39ebe008965c69b5eba70/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/330aa341af6ee4afa4a3a0743f2892a8/transformed/graphics-shapes-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/e33183858c8e78be553c64f1daed3457/transformed/core-ktx-1.18.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/64a8dc15661d2a771d726a4ac9d0f274/transformed/zstd-kmp-okio-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f2ed31bac152ab99abba472f8ac03e99/transformed/tracing-1.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/8096c28e34d1a96631107bd5404d86e9/transformed/tracing-ktx-1.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/893b29d2f7f3129fe14a2eaa07172b29/transformed/hermes-android-260318099.0.5-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/36124969755849eb0dde556d0904fdf8/transformed/exifinterface-1.4.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/325e0629bad3ba5219c0bd492ea8b368/transformed/cursoradapter-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/acd90fd0308a9cea0848f846f9887538/transformed/cardview-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/189bf9938f3a1d6d63ab998aadcc1dd6/transformed/interpolator-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/6dcdd5020bdc34d2f57f290b01ba4889/transformed/firebase-components-19.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/b06a8567c5d5cd93171310d20a267ed6/transformed/firebase-encoders-json-18.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/a7ff15a721164237d3d28afa7e5d7269/transformed/transport-api-3.1.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/44f45422bf39f260d93c429813bc7c4f/transformed/gifdecoder-5.0.5/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/08f3b88e5e8c172952aa8f5a4ce06777/transformed/viewbinding-8.5.2/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4ef924360141f3e666933caa0d24aa12/transformed/core-runtime-2.2.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/c4e5a24efc0afb3deeb97246598c3626/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/c25d6db7828e4bfa0319762dee0e00a8/transformed/print-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/0d249d26c9de54c2476a252d6004e9a9/transformed/sqlite-2.4.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/11a1e331097b5a23583f4e5e21ec8a3c/transformed/sqlite-framework-2.4.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/fa5f3217103f4c5ef497a4f520687f0a/transformed/ui-core-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/faeb0028005ea5693f02a98aba42ceb2/transformed/annotation-experimental-1.4.1/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/c55d5111c767af67d25a42cf7eb7300b/transformed/kolibri-android-0.2.4/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/f07e3394b57ae3513b4657a0a8cb855c/transformed/core-viewtree-1.0.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/aad61652d31684572cc91455a510c8f3/transformed/vito-renderer-3.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2cdf7358a72de4c7c777d410dc414817/transformed/zstd-kmp-release/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/9a7aaffc445f73bf411ce35589ac8a41/transformed/fbjni-0.7.0/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2c76894c688086187d9a01994d4077a7/transformed/androidsvg-aar-1.4/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/2340c973a0273043285c77261dd90a5e/transformed/ShortcutBadger-1.1.22/AndroidManifest.xml, /home/runner/.gradle/caches/9.4.1/transforms/4f2df63bb25bbe2e043e9ad9c752d615/transformed/disklrucache-5.0.5/AndroidManifest.xml[0m
+[33m>>> Removing 'android:maxSdkVersion' from these permissions in the final manifest to prevent runtime issues.[0m
+[33m>>> Removed 'android:maxSdkVersion' from 2 instance(s) in the final manifest.[0m
+[33m--------------------------------------------------[0m
+
+> Task :app:processReleaseManifest
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile
+> Task :app:processReleaseManifestForPackage
+> Task :app:mergeReleaseNativeDebugMetadata
+> Task :app:processReleaseResources
+> Task :app:mergeExtDexRelease
+> Task :app:dexBuilderRelease
+> Task :app:mergeReleaseArtProfile
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:mergeReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:extractProguardFiles
+> Task :app:compressReleaseAssets
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:processReleaseJavaRes
+> Task :app:mergeReleaseJavaResource
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:validateSigningRelease
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:processApplicationManifestReleaseForBundle
+> Task :app:optimizeReleaseResources
+> Task :app:configureReleaseDependencies
+> Task :app:parseReleaseIntegrityConfig
+> Task :app:bundleReleaseResources
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease
+> Task :app:lintVitalRelease
+> Task :app:mergeDexRelease
+> Task :app:buildReleasePreBundle
+> Task :app:compileReleaseArtProfile
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+> Task :app:packageReleaseBundle
+> Task :app:signReleaseBundle
+> Task :app:produceReleaseBundleIdeListingFile
+> Task :app:createReleaseBundleListingFileRedirect
+> Task :app:bundleRelease
+
+[Incubating] Problems report is available at: file:///home/runner/work/eden-garden-app/eden-garden-app/android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.4.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 24m 33s
+1051 actionable tasks: 1051 executed
