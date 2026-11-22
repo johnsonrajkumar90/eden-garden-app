@@ -124,6 +124,7 @@ function TodayTab({ home, pets, changed }: { home: { data: J | null; loading: bo
   const list = (bs: J[]) => bs.map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={changed} /></Appear>);
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
+      {!pets && ['host', 'admin'].includes(Api.session?.user?.role || '') ? <><PrimaryButton text="Book a guest" icon="person-add-alt" onPress={() => Nav.navigate('bookguest')} /><Gap h={12} /></> : null}
       {req.length ? <><SectionTitle text="Waiting for your answer" sub="Approve or decline before the time runs out" />{list(req)}<Gap h={6} /></> : null}
       {admin ? <><AdminCards a={admin} /><Gap h={10} /></> : null}
       <SectionTitle text="Today" sub={longDay(today())} />
@@ -630,7 +631,7 @@ function AgentPortal() {
         {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your summary.'} onRetry={l.reload} /> : (
           <>
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <PrimaryButton text="Book for a guest" icon="person-add-alt" onPress={() => Nav.openSite('/referral/new-booking', 'Book for a guest')} style={{ flex: 1 }} />
+              <PrimaryButton text="Book for a guest" icon="person-add-alt" onPress={() => Nav.navigate('bookguest')} style={{ flex: 1 }} />
               <OutlineButton text="Finance" icon="account-balance-wallet" onPress={() => Nav.openSite('/referral/commission', 'Finance & payouts')} style={{ flex: 1 }} />
             </View>
             <Gap />
@@ -653,7 +654,7 @@ function AgentPortal() {
                         {text(p, 'offer') ? <View style={{ borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 2 }}><Txt k="labelSmall" bold>{text(p, 'offer')}</Txt></View> : null}
                       </View>
                     </View>
-                    {bool(p, 'bookable') ? <OutlineButton text="Book" onPress={() => Nav.openSite('/referral/new-booking?property=' + int(p, 'id'), 'Book for a guest')} /> : <Txt k="labelSmall" color={Brand.Warn}>Closed</Txt>}
+                    {bool(p, 'bookable') ? <OutlineButton text="Book" onPress={() => Nav.navigate('bookguest?property=' + int(p, 'id'))} /> : <Txt k="labelSmall" color={Brand.Warn}>Closed</Txt>}
                   </View>
                 ))}
               </Card>

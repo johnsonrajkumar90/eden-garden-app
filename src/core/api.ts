@@ -84,6 +84,11 @@ class ApiClient {
   async postSite(path: string, body: Record<string, any>): Promise<J> {
     return this.withCsrf((t) => this.send(this.url(path), { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': t }, body: JSON.stringify(clean(body)) }));
   }
+  /** POST a website form (as a browser would) and get its JSON answer: the host's and the agent's booking forms. */
+  async postSiteForm(path: string, fields: Record<string, string | number>): Promise<J> {
+    return this.withCsrf((t) => this.send(this.url(path), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': t },
+      body: Object.entries(fields).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v ?? ''))).join('&') }));
+  }
   async postMultipart(path: string, fields: [string, string][], files: Upload[]): Promise<J> { return this.multipart(this.url('api/' + path), fields, files); }
   async postSiteMultipart(path: string, fields: [string, string][], files: Upload[]): Promise<J> { return this.multipart(this.url(path), fields, files); }
 
@@ -184,8 +189,13 @@ class ApiClient {
 
   async logout() {
     try { const { unregisterPush } = require('./push'); await unregisterPush(); } catch {}
-    try { await fetch(this.url('logout'), { credentials: 'include', headers: { 'User-Agent': userAgent } }); } catch {}
-    try { await this.refreshSession(); } catch { this.setSession(null); }
+    // the website signs out only with this session's token (a link from elsewhere can't sign anyone out)
+    const t = this.session?.csrf || '';
+    try { await fetch(this.url('logout' + (t ? '?t=' + encodeURIComponent(t) : '')), { credentials: 'include', headers: { 'User-Agent': userAgent } }); } catch {}
+    try {
+      const s = await this.refreshSession();
+      if (s.user) this.setSession({ ...s, user: null });   // never stay signed in on the phone after "Sign out"
+    } catch { this.setSession(null); }
   }
 
   /**

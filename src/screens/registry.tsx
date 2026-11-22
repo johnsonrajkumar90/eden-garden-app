@@ -4,6 +4,7 @@ import type { RouteName } from '../nav';
 import ExploreScreen from './Explore';
 import PetSearchScreen from './PetSearch';
 import ChargersScreen from './Chargers';
+import BookGuestScreen from './BookGuest';
 import PlannerScreen, { MyPlacesScreen, PlaceEditScreen, SavedPlanScreen, SavedPlansScreen } from './Planner';
 import { GroupJoinScreen, GroupsHub } from './Groups';
 import GroupTripScreen from './TripHub';
@@ -72,6 +73,7 @@ export const SCREENS: Record<RouteName, ComponentType<any>> = {
   'hostkyc': HostKycScreen,
   'become-pet-host': BecomePetHostScreen,
   'hosting': HostingScreen,
+  'bookguest?property={property}': BookGuestScreen,
   'site?path={path}&title={title}': SiteScreen,
   'hostcheckin/{id}': HostCheckinScreen,
   'hostchats': HostChatsScreen,
