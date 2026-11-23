@@ -49,8 +49,11 @@ adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1; shot welcome 18
 adb shell input tap 856 652; sleep 1         # the system "Viewing full screen" hint (when shown)
 adb shell input keyevent KEYCODE_BACK; sleep 7   # back closes the welcome screen ("Look around first")
 adb shell input keyevent KEYCODE_BACK; sleep 2   # …and the offer popup that opens after it
-# if the backs closed the app (no hint / no popup this time), bring it back on Explore
-adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 6
+# if the backs closed the app (no hint / no popup this time), bring it back; on the welcome screen tap "Look around first"
+if ! adb shell dumpsys activity activities | grep -q "mResumedActivity.*$PKG"; then
+  adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; sleep 8
+  adb shell input tap 540 2124; sleep 6   # "Look around first" (Pixel 6, 1080x2400)
+fi
 shot explore 4
 up; shot explore-2 3; up; shot explore-3 3; up; shot explore-4 3
 # the tab dock: the open tab is wider, so each tap position is worked out for the tab before it
