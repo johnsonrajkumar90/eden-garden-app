@@ -15,7 +15,7 @@ import { DateRangeField, Field, Segmented, Stepper } from '../ui/inputs';
 import { Nav, useParams } from '../nav';
 import { DOCK_SPACE } from '../ui/dock';
 
-type Stay = { id: number; title: string; sub: string; image: string | null; price: string; attrs: J };
+type Stay = { id: number; title: string; sub: string; image: string | null; price: string; attrs: J; mine?: boolean };
 
 export default function BookGuestScreen() {
   const p = useParams();
@@ -49,7 +49,8 @@ export default function BookGuestScreen() {
       try {
         const j = await Api.getSite('panel/picker', { type: 'stay', q });
         if (off) return;
-        const list = objs(j, 'items').map((x) => ({ id: num(x, 'id') || 0, title: text(x, 'title'), sub: text(x, 'sub'), image: str(x, 'image'), price: text(x, 'price'), attrs: obj(x, 'attrs') || {} }));
+        const list = objs(j, 'items').map((x) => ({ id: num(x, 'id') || 0, title: text(x, 'title'), sub: text(x, 'sub'), image: str(x, 'image'), price: text(x, 'price'), attrs: obj(x, 'attrs') || {}, mine: x.connected === true }))
+          .sort((a, b) => Number(b.mine) - Number(a.mine));   // agents: their connected hosts' stays first
         setStays(list); setLoadErr(null);
         if (!stay && p.property) { const f = list.find((x) => String(x.id) === p.property); if (f) choose(f); }
       } catch (e) { if (!off) setLoadErr(errorText(e)); }
@@ -144,12 +145,21 @@ export default function BookGuestScreen() {
           <>
             <Field label="Search your stays" value={q} onChange={setQ} placeholder="Name or town" />
             <Gap h={8} />
-            {loadErr ? <Notice tone="bad" text={loadErr} /> : !stays ? <Loading /> : !stays.length ? <Notice text="No stays found." /> : stays.slice(0, 30).map((x) => (
-              <Pressable key={x.id} onPress={() => choose(x)} style={[st.row, { gap: 12, padding: 10, marginBottom: 8, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.92)', borderWidth: 1, borderColor: Brand.Line }]}>
-                <Photo url={x.image} style={{ width: 54, height: 54 }} corner={12} />
-                <View style={{ flex: 1 }}><Txt k="titleSmall" numberOfLines={1}>{x.title}</Txt><Txt k="bodySmall" color={Brand.Muted} numberOfLines={1}>{x.sub}</Txt></View>
-                <Txt k="labelLarge" color={Brand.Blue}>{x.price}</Txt>
-              </Pressable>
+            {loadErr ? <Notice tone="bad" text={loadErr} /> : !stays ? <Loading /> : !stays.length ? <Notice text="No stays found." /> : stays.slice(0, 40).map((x, i, all) => (
+              <React.Fragment key={x.id}>
+                {/* agents: a heading over their connected hosts' stays, and one where the other stays start */}
+                {agent && i === 0 && x.mine ? <Txt k="labelLarge" color="#0B6B3A" style={{ marginBottom: 6 }}>Your connected hosts</Txt> : null}
+                {agent && !x.mine && (i === 0 || all[i - 1].mine) ? <Txt k="labelLarge" color={Brand.Muted} style={{ marginTop: i ? 10 : 0, marginBottom: 6 }}>{i ? 'Other stays (not connected to you)' : 'No connected hosts yet — stays open to all agents'}</Txt> : null}
+                <Pressable onPress={() => choose(x)} style={[st.row, { gap: 12, padding: 10, marginBottom: 8, borderRadius: 18, backgroundColor: x.mine ? '#F2FBF5' : 'rgba(255,255,255,0.92)', borderWidth: 1, borderColor: x.mine ? '#BFE6CC' : Brand.Line }]}>
+                  <Photo url={x.image} style={{ width: 54, height: 54 }} corner={12} />
+                  <View style={{ flex: 1 }}>
+                    <Txt k="titleSmall" numberOfLines={1}>{x.title}</Txt>
+                    <Txt k="bodySmall" color={Brand.Muted} numberOfLines={1}>{x.sub}</Txt>
+                    {agent && x.mine ? <View style={[st.row, { gap: 4, marginTop: 2 }]}><Icon name="handshake" size={13} color="#0B6B3A" /><Txt k="labelSmall" color="#0B6B3A">Your host</Txt></View> : null}
+                  </View>
+                  <Txt k="labelLarge" color={Brand.Blue}>{x.price}</Txt>
+                </Pressable>
+              </React.Fragment>
             ))}
           </>
         )}
