@@ -55,6 +55,7 @@ const config: ExpoConfig = {
     'expo-sharing',
     'expo-image',
     '@react-native-community/datetimepicker',
+    './plugins/optional-features',   // Google Play: portrait screen, Wi-Fi, camera, GPS are not required to install
   ],
   // hasMapsKey: only whether a key was built in (never the key itself)
   extra: { siteUrl: 'https://triparro.com', hasMapsKey: !!(process.env.MAPS_API_KEY || '').trim() },
