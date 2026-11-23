@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Image } from 'expo-image';
-import { Api, Upload, errorText } from '../core/api';
+import { Api, ApiError, Upload, errorText } from '../core/api';
 import { useLoader } from '../core/state';
 import { J, int, num, objs, str, text } from '../core/json';
 import { Picked, pickPhoto, shrinkPhoto } from '../core/files';
@@ -167,7 +167,7 @@ export function HostCheckinScreen() {
   const types = objs(d, 'id_types').map((x) => [text(x, 'key'), text(x, 'label')] as [string, string]);
   const scanFront = async (i: number, picked: Picked) => {
     upd(i, { front: picked.uri, scanning: true, note: null });
-    const r = await readId(picked);
+    const r = await readId(picked).catch(() => null);   // reading never blocks the check-in: the photo is kept as it is
     setGuests((gs) => gs.map((g, j) => {
       if (j !== i) return g;
       if (!r) return { ...g, scanning: false };
@@ -185,23 +185,38 @@ export function HostCheckinScreen() {
   const scanBack = async (i: number, picked: Picked) => {
     upd(i, { back: picked.uri });
     // the back of an Aadhaar card has the number and a QR code too
-    if (guests[i]?.type === 'aadhaar') { const r = await readId(picked); if (r?.masked) upd(i, { back: r.photo }); }
+    if (guests[i]?.type === 'aadhaar') { const r = await readId(picked).catch(() => null); if (r?.masked) upd(i, { back: r.photo }); }
   };
   const submit = async () => {
     setBusy(true); setErr(null);
-    try {
-      const fields: [string, string][] = [['guests_arrived', arrived], ['notes', notes]];
-      if (verified) fields.push(['verified', '1']); if (noId) fields.push(['no_id', '1']); if (collected) fields.push(['collected', '1']);
+    const fields: [string, string][] = [['guests_arrived', arrived], ['notes', notes]];
+    if (verified) fields.push(['verified', '1']); if (noId) fields.push(['no_id', '1']); if (collected) fields.push(['collected', '1']);
+    guests.forEach((g, i) => {
+      fields.push([`name_${i}`, g.name], [`type_${i}`, g.type], [`number_${i}`, g.number]);
+      if (g.online !== null && !g.front) fields.push([`online_${i}`, String(g.online)]);
+    });
+    // the ID photos as small JPEG files (a card stays readable at 1800 px); a slow or strict connection gets a smaller copy on the retry
+    const photos = async (px: number) => {
       const files: Upload[] = [];
       for (let i = 0; i < guests.length; i++) {
-        const g = guests[i];
-        fields.push([`name_${i}`, g.name], [`type_${i}`, g.type], [`number_${i}`, g.number]);
-        if (g.online !== null && !g.front) fields.push([`online_${i}`, String(g.online)]);
-        if (g.front) { const s = await shrinkPhoto({ uri: g.front }, 2400); files.push({ field: `front_${i}`, uri: s.uri, name: `hidf${i}.jpg`, type: 'image/jpeg' }); }
-        if (g.back) { const s = await shrinkPhoto({ uri: g.back }, 2400); files.push({ field: `back_${i}`, uri: s.uri, name: `hidb${i}.jpg`, type: 'image/jpeg' }); }
+        for (const [side, uri] of [['front', guests[i].front], ['back', guests[i].back]] as const) {
+          if (!uri) continue;
+          const s = await shrinkPhoto({ uri }, px);
+          files.push({ field: `${side}_${i}`, uri: s.uri.startsWith('/') ? 'file://' + s.uri : s.uri, name: `hid${side[0]}${i}.jpg`, type: 'image/jpeg' });
+        }
       }
-      setDone(text(await Api.postMultipart(`hostapp/checkin/${id}`, fields, files), 'message', 'Checked in.'));
-    } catch (e) { setErr(errorText(e)); }
+      return files;
+    };
+    try {
+      let files = await photos(1800);
+      try { setDone(text(await Api.postMultipart(`hostapp/checkin/${id}`, fields, files), 'message', 'Checked in.')); }
+      catch (e) {
+        // the upload itself failed (connection dropped / too large for the server): once more with smaller photos
+        if (!files.length || !(e instanceof ApiError) || !(e.status === 0 || e.status === 413 || e.status >= 500)) throw e;
+        files = await photos(1100);
+        setDone(text(await Api.postMultipart(`hostapp/checkin/${id}`, fields, files), 'message', 'Checked in.'));
+      }
+    } catch (e) { setErr(e instanceof ApiError && e.status === 413 ? 'The ID photos are too large for the website — retake them a little further away.' : errorText(e)); }
     setBusy(false);
   };
   const scanning = guests.some((g) => g.scanning);

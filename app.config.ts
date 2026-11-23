@@ -28,6 +28,15 @@ const PROGUARD = `
 -keep class com.google.android.play.core.** { *; }
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
+-keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }
+-keep class * implements com.facebook.react.ReactPackage { *; }
+-keep class * extends com.facebook.react.bridge.BaseJavaModule { *; }
+-keep class * extends com.facebook.react.uimanager.ViewManager { *; }
+-keep class * implements com.facebook.react.turbomodule.core.interfaces.TurboModule { *; }
+-keep class com.rnmlkit.** { *; }
+-keep class com.google.mlkit.** { *; }
+-keep class com.shopify.** { *; }
+-keep class com.reactnativemlkit.** { *; }
 -keepclassmembers class * { @com.facebook.react.bridge.ReactMethod *; @com.facebook.proguard.annotations.DoNotStrip *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
 -dontwarn com.facebook.**
