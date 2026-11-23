@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { WebView } from 'react-native-webview';
 import { Api, errorText } from '../core/api';
 import { AppState, useLoader } from '../core/state';
 import { J, arr, bool, int, num, obj, objs, priceLines, str, strings, text } from '../core/json';
@@ -101,6 +102,12 @@ export default function PropertyScreen() {
                   </View>
                 ))}
               </ScrollView>
+            </DetailSection>
+          ) : null}
+          {coords.length === 2 ? (
+            <DetailSection title="Where you'll be" icon="map">
+              <StayMap lat={coords[0]} lng={coords[1]} title={text(p, 'title')} />
+              <Txt k="bodySmall" color={Brand.InkSoft} style={{ marginTop: 8 }}>{text(p, 'location')}</Txt>
             </DetailSection>
           ) : null}
           {times ? (
@@ -313,3 +320,24 @@ function ListingOfferDialog({ k, title, price, o, book }: { k: string; title: st
     </Dialog>
   );
 }
+
+/** Google Maps on the stay page: the stay's spot, which the guest can move and zoom; the button opens Google Maps. */
+function StayMap({ lat, lng, title }: { lat: number; lng: number; title: string }) {
+  const [ok, setOk] = useState(true);
+  const url = `https://maps.google.com/maps?q=${lat},${lng}&z=14&hl=en&output=embed`;
+  return (
+    <View style={{ height: 220, borderRadius: 18, overflow: 'hidden', backgroundColor: '#EDE7E3' }}>
+      {ok ? (
+        <WebView source={{ uri: url }} style={{ flex: 1, backgroundColor: '#EDE7E3' }} originWhitelist={['https://*']} javaScriptEnabled domStorageEnabled
+          setSupportMultipleWindows={false} nestedScrollEnabled onError={() => setOk(false)}
+          // taps that leave the map (e.g. "View larger map") open Google Maps instead of loading inside the box
+          onShouldStartLoadWithRequest={(r) => { if (r.url.startsWith(url) || /maps\.google\.com\/maps\?q=|google\.com\/maps\/embed|gstatic|googleapis/.test(r.url) || r.url === 'about:blank') return true; openMaps(lat, lng, title); return false; }} />
+      ) : (
+        <Pressable onPress={() => openMaps(lat, lng, title)} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <Icon name="map" size={30} color={Brand.Blue} /><Txt k="labelLarge" color={Brand.Blue}>Open in Google Maps</Txt>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
