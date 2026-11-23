@@ -31,6 +31,7 @@ jobs:
         run: |
           mkdir -p /tmp/out && cd /tmp/out
           find "$GITHUB_WORKSPACE/in" -name '*.apk' -exec cp {} . \;
+          find "$GITHUB_WORKSPACE/in" -name 'mapping.txt' -exec cp {} . \;   # R8: lets Google Play show readable crash reports
           AAB=$(find "$GITHUB_WORKSPACE/in" -name '*.aab' | head -1)
           [ -n "$AAB" ] && split -b 90m -d "$AAB" triparro.aab.part-
           sha256sum * > SHA256SUMS.txt

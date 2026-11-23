@@ -3,6 +3,29 @@ import type { ExpoConfig } from 'expo/config';
 // Build number from the GitHub build (BUILD_NUMBER); the app keeps the same Android ID as the native app, so it installs as an update.
 const build = Number(process.env.BUILD_NUMBER || 1);
 
+// R8 keep rules: classes the app finds by name at run time must not be renamed or removed.
+// React Native, Hermes, Reanimated, Screens and Firebase ship their own rules inside their libraries.
+const PROGUARD = `
+-keep class com.rnmaps.** { *; }
+-keep class com.google.android.gms.maps.** { *; }
+-keep class com.reactnativecommunity.** { *; }
+-keep class com.reactcommunity.** { *; }
+-keep class com.ReactNativeBlobUtil.** { *; }
+-keep class com.reactnativepagerview.** { *; }
+-keep class expo.modules.** { *; }
+-keep class host.exp.exponent.** { *; }
+-keep class triparro.com.** { *; }
+-keepclassmembers class * { @com.facebook.react.bridge.ReactMethod *; @com.facebook.proguard.annotations.DoNotStrip *; }
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
+-dontwarn com.facebook.**
+-dontwarn expo.modules.**
+-dontwarn com.google.**
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+`;
+
 const config: ExpoConfig = {
   name: 'TripArro',
   slug: 'triparro',
@@ -43,7 +66,7 @@ const config: ExpoConfig = {
     ],
   },
   plugins: [
-    ['expo-build-properties', { android: { minSdkVersion: 24, targetSdkVersion: 36, useLegacyPackaging: true, enableMinifyInReleaseBuilds: false, enableShrinkResourcesInReleaseBuilds: false } }],   // compressed native libraries: a much smaller APK
+    ['expo-build-properties', { android: { minSdkVersion: 24, targetSdkVersion: 36, useLegacyPackaging: true, enableMinifyInReleaseBuilds: true, enableShrinkResourcesInReleaseBuilds: false, extraProguardRules: PROGUARD } }],   // R8: smaller, faster code (Google Play's DEX optimization)   // compressed native libraries: a much smaller APK
     ['expo-splash-screen', { image: './assets/splash-logo.png', imageWidth: 220, backgroundColor: '#C41E2E' }],
     ['expo-notifications', { color: '#D7192A', sounds: ['./assets/force_ring.wav'] }],   // Force search: the host's phone rings with this tune
     ['expo-audio', { recordAudioAndroid: false, microphonePermission: false, enableBackgroundPlayback: false }],   // only the short message sound: no microphone, no background audio
