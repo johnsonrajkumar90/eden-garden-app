@@ -117,6 +117,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
   const ins = useSafeAreaInsets();
   const [where, setWhere] = useState<'gps' | 'place'>('gps');
   const [place, setPlace] = useState('');
+  const [picked, setPicked] = useState<J | null>(null);   // a town / area TripArro has stays in, chosen from the list
   const [fix, setFix] = useState<{ lat: number; lng: number } | null>(null);
   const [locMsg, setLocMsg] = useState<string | null>(null);
   const [guests, setGuests] = useState(2);
@@ -136,7 +137,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
     if (r.kind !== 'found') { setFix(null); setArea(''); setLocMsg(Loc.locMessage(r)); return; }
     setFix({ lat: r.lat, lng: r.lng }); setLocMsg('Your location is set');
     const name = await townOf(r.lat, r.lng);
-    if (name) { setArea(name); setLocMsg(name); if (!place.trim()) setPlace(name); }
+    if (name) { setArea(name); setLocMsg(name); }
   };
   useEffect(() => { if (where === 'gps' && !fix) locate(); }, [where]);
 
@@ -146,7 +147,8 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
     try {
       let pt = fix;
       let name = area || 'Your location';
-      if (where === 'place') {
+      if (where === 'place' && picked) { pt = { lat: num(picked, 'lat') || 0, lng: num(picked, 'lng') || 0 }; name = text(picked, 'name'); }
+      else if (where === 'place') {
         const g = await Api.get('geocode', { q: place.trim() });
         const la = num(g, 'lat'), ln = num(g, 'lng');
         if (la === null || ln === null) throw new Error('That place was not found — try a town name.');
@@ -160,7 +162,10 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
 
   const types: string[] = (arr(opts, 'stay_types') as any[]).map(String);
   const reasons = objs(opts, 'reasons');
-  const placed = where === 'gps' ? !!fix : place.trim().length > 1;
+  const placed = where === 'gps' ? !!fix : !!picked || place.trim().length > 1;
+  const allPlaces = objs(opts, 'places');
+  const qq = place.trim().toLowerCase();
+  const matches = picked ? [] : (qq ? allPlaces.filter((x) => text(x, 'name').toLowerCase().includes(qq)) : allPlaces).slice(0, 8);
   const ready = !!reason && placed;
 
   return (
@@ -188,7 +193,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
         <View style={{ marginTop: -26, marginHorizontal: 12, padding: 18, borderRadius: 28, backgroundColor: '#fff', shadowColor: '#5A0A12', shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 6 }}>
           <Step n={1} title="Where are you?" done={placed}>
             <View style={{ flexDirection: 'row', padding: 4, borderRadius: 50, backgroundColor: '#F6EEEB' }}>
-              {([['gps', 'my-location', 'Use my location'], ['place', 'search', 'Type a place']] as const).map(([v, ic, l]) => (
+              {([['gps', 'my-location', 'Use my location'], ['place', 'location-city', 'Choose a town']] as const).map(([v, ic, l]) => (
                 <Pressable key={v} onPress={() => setWhere(v)} style={[st.row, { flex: 1, justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 50, backgroundColor: where === v ? '#fff' : 'transparent', elevation: where === v ? 2 : 0 }]}>
                   <Icon name={ic} size={17} color={where === v ? RED : Brand.Muted} /><Txt k="labelLarge" color={where === v ? Brand.Ink : Brand.Muted}>{l}</Txt>
                 </Pressable>
@@ -201,7 +206,28 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
                 <View style={{ flex: 1 }}><Txt k={fix && area ? 'labelLarge' : 'bodySmall'} color={fix ? '#0B6B3A' : '#7A4A00'} numberOfLines={1}>{locMsg || 'Finding you…'}</Txt>{fix && area ? <Txt k="labelSmall" color="#3E7D57">Town and area found from your location</Txt> : null}</View>
                 <Txt k="labelMedium" color={RED}>Refresh</Txt>
               </Pressable>
-            ) : <Field label="Town, area or landmark" value={place} onChange={setPlace} placeholder="e.g. Ooty bus stand" />}
+            ) : picked ? (
+              <Pressable onPress={() => { setPicked(null); setPlace(''); }} style={[st.row, { gap: 10, padding: 12, borderRadius: 16, backgroundColor: '#EAF7EF' }]}>
+                <Icon name="location-city" color="#0B8F4D" />
+                <View style={{ flex: 1 }}><Txt k="labelLarge" color="#0B6B3A">{text(picked, 'name')}</Txt><Txt k="labelSmall" color="#3E7D57">{int(picked, 'stays')} TripArro stay{int(picked, 'stays') > 1 ? 's' : ''} here</Txt></View>
+                <Txt k="labelMedium" color={RED}>Change</Txt>
+              </Pressable>
+            ) : (
+              <View>
+                <Field label="Search a town or area" value={place} onChange={setPlace} placeholder="e.g. Ooty, RS Puram" />
+                {/* the towns and areas where TripArro has stays */}
+                <View style={{ marginTop: 6, borderRadius: 16, borderWidth: 1, borderColor: '#F1E5E1', backgroundColor: '#fff', overflow: 'hidden' }}>
+                  {matches.length ? matches.map((x, i) => (
+                    <Pressable key={text(x, 'name')} onPress={() => { setPicked(x); setPlace(text(x, 'name')); }}
+                      style={({ pressed }) => [st.row, { gap: 10, paddingHorizontal: 12, paddingVertical: 11, borderTopWidth: i ? 1 : 0, borderColor: '#F6EEEB', backgroundColor: pressed ? '#FFF1EE' : '#fff' }]}>
+                      <Icon name="place" size={18} color={RED} />
+                      <Txt k="bodyMedium" style={{ flex: 1 }} numberOfLines={1}>{text(x, 'name')}</Txt>
+                      <Txt k="labelSmall" color={Brand.Muted}>{int(x, 'stays')} stay{int(x, 'stays') > 1 ? 's' : ''}</Txt>
+                    </Pressable>
+                  )) : <Txt k="bodySmall" color={Brand.Muted} style={{ padding: 12 }}>{allPlaces.length ? 'No TripArro town by that name — the search will look around the place you typed.' : 'Type the town or area.'}</Txt>}
+                </View>
+              </View>
+            )}
           </Step>
 
           <Step n={2} title="Who and for how long?" done>
