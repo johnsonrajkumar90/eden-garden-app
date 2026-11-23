@@ -225,7 +225,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
             <Txt k="titleMedium" color="#fff">{Api.session?.user ? 'Start Force search' : 'Sign in and start'}</Txt>
           </LinearGradient>
         </Pressable>
-        <Txt k="labelSmall" color={Brand.Muted} center style={{ marginTop: 6 }}>{ready ? `Rings hosts within ${num(opts, 'radius_km') || 10} km · runs ${num(opts, 'minutes') || 30} minutes` : !placed ? 'Set where you are' : 'Choose what happened'}</Txt>
+        <Txt k="labelSmall" color={Brand.Muted} center style={{ marginTop: 6 }}>{ready ? `Rings hosts within ${num(opts, 'radius_km') || 10} km, then ${num(opts, 'wide_km') || 20} km · runs ${num(opts, 'minutes') || 30} minutes` : !placed ? 'Set where you are' : 'Choose what happened'}</Txt>
       </View>
     </View>
   );
@@ -368,7 +368,8 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
   const blips = Array.from({ length: Math.min(hosts, 8) }, (_, i) => { const a = (i * 137.5 + 40) * Math.PI / 180, r = R * (0.35 + ((i * 53) % 50) / 100); return [R + Math.cos(a) * r, R + Math.sin(a) * r]; });
   const steps: [string, string, boolean, boolean][] = [
     ['send', 'Request sent', true, false],
-    ['notifications-active', hosts ? `Ringing ${hosts} host${hosts > 1 ? 's' : ''} with a free stay` : 'Looking for free stays nearby', hosts > 0, !hosts],
+    ['notifications-active', hosts ? `Ringing ${hosts} host${hosts > 1 ? 's' : ''} within ${num(s, 'radius_km') || 10} km` : `Looking for free stays within ${num(s, 'radius_km') || 10} km`, hosts > 0, !hosts],
+    ...(bool(s, 'widened') ? [['open-in-full', `No one closer yet — widened to ${num(s, 'radius_km')} km`, true, false] as [string, string, boolean, boolean]] : []),
     ['how-to-reg', 'Waiting for a host to accept', false, hosts > 0],
   ];
   return (
@@ -410,7 +411,7 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
                   <Icon name={done ? 'check' : ic} size={17} color={done ? '#fff' : live ? '#5A1A00' : '#E7C3BC'} />
                 </View>
                 <Txt k="bodyMedium" color={done || live ? '#fff' : '#D8AFA7'} style={{ flex: 1 }}>{l}</Txt>
-                {i === 2 ? <Txt k="labelLarge" color="#FFD36B">{mmss(left)}</Txt> : null}
+                {i === steps.length - 1 ? <Txt k="labelLarge" color="#FFD36B">{mmss(left)}</Txt> : null}
               </View>
             ))}
           </View>
@@ -555,7 +556,7 @@ export function ForceHostCard() {
               </LinearGradient>
               <View style={{ padding: 20 }}>
                 {[
-                  ['notifications-active', 'Your phone rings', `A guest needs a stay tonight (stranded, arrived late, family or medical emergency). If you have a free stay within ${num(d, 'radius_km')} km, your phone rings with a soft tune.`],
+                  ['notifications-active', 'Your phone rings', `A guest needs a stay tonight (stranded, arrived late, family or medical emergency). If you have a free stay within ${num(d, 'radius_km')} km — or a little further when nobody closer accepts — your phone rings with a soft tune.`],
                   ['visibility', 'You see the request', 'Guests, nights, stay type, the reason and the distance — never their exact location or phone number.'],
                   ['touch-app', 'Accept or ignore', 'The first host to accept gets the guest and the other phones stop. A guest you ignore — or who says no to your stay — is not shown to you again for 24 hours.'],
                   ['payments', 'Normal booking, normal price', 'The guest sees your stay at its normal price and books it in the app — the usual payment and invoice.'],
