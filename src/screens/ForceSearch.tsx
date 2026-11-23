@@ -432,21 +432,35 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
   );
 }
 
-/** The floating Force search button (main tabs). */
+/** The floating Force search button (main tabs): a round radar icon with signal waves rippling out behind it. */
 export function ForceFab({ bottom }: { bottom: number }) {
   const p = useRef(new Animated.Value(0)).current;
-  useEffect(() => { const a = Animated.loop(Animated.timing(p, { toValue: 1, duration: 1800, easing: Easing.out(Easing.quad), useNativeDriver: true })); a.start(); return () => a.stop(); }, []);
+  const spin = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const a = Animated.loop(Animated.timing(p, { toValue: 1, duration: 2400, easing: Easing.linear, useNativeDriver: true }));
+    const b = Animated.loop(Animated.timing(spin, { toValue: 1, duration: 3200, easing: Easing.linear, useNativeDriver: true }));
+    a.start(); b.start();
+    return () => { a.stop(); b.stop(); };
+  }, []);
+  const S = 60;
+  const wave = (k: number) => {
+    const v = Animated.modulo(Animated.add(p, k), 1);
+    return (
+      <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: S, height: S, borderRadius: S / 2, borderWidth: 2, borderColor: RED, backgroundColor: 'rgba(215,25,42,0.12)',
+        opacity: v.interpolate({ inputRange: [0, 0.15, 1], outputRange: [0, 0.7, 0] }), transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 2.1] }) }] }} />
+    );
+  };
   return (
-    <View style={{ position: 'absolute', right: 16, bottom, alignItems: 'flex-end' }}>
+    <View pointerEvents="box-none" style={{ position: 'absolute', right: 10, bottom: bottom - 14, width: S * 2.2, height: S * 2.2, alignItems: 'center', justifyContent: 'center', marginRight: -S * 0.4 }}>
+      {[0, 1 / 3, 2 / 3].map(wave)}
       <Pressable onPress={() => Nav.navigate('force')} accessibilityRole="button" accessibilityLabel="Force search — find a stay right now"
-        style={{ borderRadius: 50, elevation: 12, shadowColor: RED, shadowOpacity: 0.4, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } }}>
-        <LinearGradient colors={['#B3122A', RED, '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[st.row, { gap: 8, paddingLeft: 8, paddingRight: 16, height: 54, borderRadius: 50, borderWidth: 2.5, borderColor: '#fff' }]}>
-          <View style={{ width: 38, height: 38, alignItems: 'center', justifyContent: 'center' }}>
-            <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFC42E',
-              opacity: p.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0] }), transform: [{ scale: p.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1.5] }) }] }} />
-            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}><Icon name="radar" color="#fff" size={22} /></View>
-          </View>
-          <Txt k="labelLarge" color="#fff">Stay now</Txt>
+        style={{ width: S, height: S, borderRadius: S / 2, elevation: 12, shadowColor: RED, shadowOpacity: 0.45, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } }}>
+        <LinearGradient colors={['#B3122A', RED, '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, borderRadius: S / 2, borderWidth: 2.5, borderColor: '#fff', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          {/* a radar sweep turning inside the button */}
+          <Animated.View pointerEvents="none" style={{ position: 'absolute', width: S, height: S, transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
+            <View style={{ position: 'absolute', left: S / 2 - 1, top: 4, width: 2, height: S / 2 - 4, borderRadius: 1, backgroundColor: 'rgba(255,214,107,0.85)' }} />
+          </Animated.View>
+          <Icon name="radar" color="#fff" size={30} />
         </LinearGradient>
       </Pressable>
     </View>
