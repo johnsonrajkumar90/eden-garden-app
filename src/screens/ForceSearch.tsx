@@ -306,7 +306,6 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
     } catch (e: any) { setErr(e?.message || errorText(e)); }
     setBusy('');
   };
-  const call = () => { if (Api.session?.supportPhone) Linking.openURL('tel:' + Api.session.supportPhone).catch(() => {}); };
 
   /* ----- a host accepted: the stay ----- */
   if (status === 'accepted' && offer) {
@@ -400,7 +399,7 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
           {ended ? (status === 'expired' ? 'No host accepted in time' : status === 'booked' ? 'You are booked' : 'Search stopped') : 'Finding you a stay…'}
         </Txt>
         <Txt k="bodyMedium" color="#F3CFC8" center style={{ marginTop: 4, paddingHorizontal: 28 }}>
-          {ended ? (status === 'expired' ? 'Try a nearby town or another stay type — or call us and we will help you find one.' : '') : `${text(s, 'place') || 'Your location'} · ${int(s, 'guests')} guest${int(s, 'guests') > 1 ? 's' : ''} · ${int(s, 'nights')} night${int(s, 'nights') > 1 ? 's' : ''}`}
+          {ended ? (status === 'expired' ? 'Try a nearby town or another stay type.' : '') : `${text(s, 'place') || 'Your location'} · ${int(s, 'guests')} guest${int(s, 'guests') > 1 ? 's' : ''} · ${int(s, 'nights')} night${int(s, 'nights') > 1 ? 's' : ''}`}
         </Txt>
 
         {!ended ? (
@@ -423,11 +422,6 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
               <Icon name="close" size={18} color="#FFB4A8" /><Txt k="labelLarge" color="#FFB4A8">{busy === 'cancel' ? 'Stopping…' : 'Stop searching'}</Txt>
             </Pressable>
           )}
-          {Api.session?.supportPhone ? (
-            <Pressable onPress={call} style={[st.row, { justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' }]}>
-              <Icon name="call" size={18} color="#fff" /><Txt k="labelLarge" color="#fff">Call TripArro support</Txt>
-            </Pressable>
-          ) : null}
         </View>
       </ScrollView>
     </LinearGradient>
