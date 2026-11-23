@@ -14,6 +14,7 @@ import { AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { Api, errorText, userAgent } from '../core/api';
 import { AppState, useSession } from '../core/state';
 import * as Loc from '../core/location';
+import * as Location from 'expo-location';
 import { J, arr, bool, int, num, obj, objs, str, text } from '../core/json';
 import { Brand } from '../theme';
 import { BackBar, Card, Gap, Icon, Loading, Notice, OutlineButton, Photo, PrimaryButton, Txt, money, st } from '../ui/kit';
@@ -25,6 +26,16 @@ const RED = '#D7192A';
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.max(0, s % 60)).padStart(2, '0')}`;
 
 /* ===================== Guest ===================== */
+
+/** The area and town of a GPS spot from the phone's own map data, e.g. "RS Puram, Coimbatore" ('' if unknown). */
+async function townOf(lat: number, lng: number): Promise<string> {
+  try {
+    const a = (await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng }))[0];
+    if (!a) return '';
+    const parts = [a.district || a.subregion, a.city].filter((x): x is string => !!x && /[a-z]/i.test(x));
+    return [...new Set(parts)].join(', ').slice(0, 80) || a.region || '';
+  } catch { return ''; }
+}
 
 const DARK = ['#1E0609', '#4A0A14', '#8E0F1D'] as const;
 const REASON_ICON: Record<string, string> = { stranded: 'train', late: 'nightlight', medical: 'local-hospital', family: 'family-restroom', safety: 'shield', other: 'more-horiz' };
@@ -118,10 +129,14 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
   const glow = useRef(new Animated.Value(0)).current;
   useEffect(() => { const a = Animated.loop(Animated.timing(glow, { toValue: 1, duration: 2000, easing: Easing.out(Easing.quad), useNativeDriver: true })); a.start(); return () => a.stop(); }, []);
 
+  const [area, setArea] = useState('');   // the town / area of the GPS spot, filled in by itself
   const locate = async () => {
     setLocMsg('Finding you…');
     const r = await Loc.current(15000, true);
-    if (r.kind === 'found') { setFix({ lat: r.lat, lng: r.lng }); setLocMsg('Your location is set'); } else { setFix(null); setLocMsg(Loc.locMessage(r)); }
+    if (r.kind !== 'found') { setFix(null); setArea(''); setLocMsg(Loc.locMessage(r)); return; }
+    setFix({ lat: r.lat, lng: r.lng }); setLocMsg('Your location is set');
+    const name = await townOf(r.lat, r.lng);
+    if (name) { setArea(name); setLocMsg(name); if (!place.trim()) setPlace(name); }
   };
   useEffect(() => { if (where === 'gps' && !fix) locate(); }, [where]);
 
@@ -130,7 +145,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
     setBusy(true); setErr(null);
     try {
       let pt = fix;
-      let name = 'Your location';
+      let name = area || 'Your location';
       if (where === 'place') {
         const g = await Api.get('geocode', { q: place.trim() });
         const la = num(g, 'lat'), ln = num(g, 'lng');
@@ -183,7 +198,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
             {where === 'gps' ? (
               <Pressable onPress={locate} style={[st.row, { gap: 10, padding: 12, borderRadius: 16, backgroundColor: fix ? '#EAF7EF' : '#FFF6E5' }]}>
                 <Icon name={fix ? 'check-circle' : 'location-searching'} color={fix ? '#0B8F4D' : '#B26A00'} />
-                <Txt k="bodySmall" color={fix ? '#0B6B3A' : '#7A4A00'} style={{ flex: 1 }}>{locMsg || 'Finding you…'}</Txt>
+                <View style={{ flex: 1 }}><Txt k={fix && area ? 'labelLarge' : 'bodySmall'} color={fix ? '#0B6B3A' : '#7A4A00'} numberOfLines={1}>{locMsg || 'Finding you…'}</Txt>{fix && area ? <Txt k="labelSmall" color="#3E7D57">Town and area found from your location</Txt> : null}</View>
                 <Txt k="labelMedium" color={RED}>Refresh</Txt>
               </Pressable>
             ) : <Field label="Town, area or landmark" value={place} onChange={setPlace} placeholder="e.g. Ooty bus stand" />}
