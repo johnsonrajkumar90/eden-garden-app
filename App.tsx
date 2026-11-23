@@ -104,7 +104,7 @@ function Shell() {
   const isTab = (TABS as readonly string[]).includes(current);
   const dockH = 68 + DOCK_GAP + Math.max(insets.bottom, 10);   // the floating tab dock's height (pages leave room for it)
   // the floating menu is on every page, except full-screen viewers, chats (their own message box) and sign-in / payment
-  const NO_DOCK = ['photo', 'video', 'pdf', 'chat/', 'chatt/', 'groupchat/', 'hostchat/', 'checkin', 'site', 'login', 'signup', 'pay'];
+  const NO_DOCK = ['photo', 'video', 'pdf', 'chat/', 'chatt/', 'groupchat/', 'hostchat/', 'checkin', 'site', 'login', 'signup', 'pay', 'force'];   // full-screen pages: no menu bar
   const showDock = isTab || !NO_DOCK.some((n) => current.startsWith(n));
   Dock.h = showDock ? dockH : 0;   // floating bars (the price bar) sit just above the menu
   const showWelcome = !welcomeDone && !!session && !session.user && startLink === null && current === 'explore';
@@ -133,7 +133,7 @@ function Shell() {
         {['explore', 'pets', 'account'].includes(current) ? <ForceFab bottom={dockH + 12} /> : null}
         <ForceRinger />
       </View>
-      {showDock ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
+      {showDock ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : current.startsWith('force') ? null /* Force search draws to the bottom edge itself */ : <View style={{ height: insets.bottom }} />}
       {showWelcome ? (
         <Welcome welcome={session?.welcome || null}
           onEmail={() => { setWelcomeDone(true); Nav.navigate('login'); }}

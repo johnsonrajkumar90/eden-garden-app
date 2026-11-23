@@ -3,7 +3,7 @@
  * "You got ₹200!" when a reward lands in the wallet (shown once per reward).
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, AppState as RNAppState, Easing, Linking, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, AppState as RNAppState, Easing, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Application from 'expo-application';
 import { Api } from '../core/api';
 import { Image } from 'expo-image';
@@ -143,40 +143,61 @@ export function RewardPopup({ reward, openWallet }: { reward: J | null; openWall
 }
 
 /**
- * Google Play updates: the website (Admin → Settings → Mobile app updates) says which version is the latest and which
- * is the oldest that still works. Below the minimum the app asks to update before going on; below the latest it offers
- * the update once per version (again after 3 days). Checked on start and when the app comes back to the front.
+ * App updates. Google Play itself says when a newer version is published (Play In-App Updates), so a new release is
+ * offered without any admin step; the website (Admin → Settings → Mobile app updates) can still set the minimum version
+ * that works (below it the app must update) and a "What's new" note — and covers phones that installed the APK directly.
+ * Optional updates are offered once per version (again after 3 days). Checked on start and when the app comes back.
  */
 const cmpVer = (a: string, b: string) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; } return 0; };
+type PlayUpdates = typeof import('expo-in-app-updates');
+const play = (): PlayUpdates | null => { if (Platform.OS !== 'android') return null; try { return require('expo-in-app-updates'); } catch { return null; } };
 export function UpdatePrompt() {
-  const [info, setInfo] = useState<{ must: boolean; latest: string; note: string; url: string } | null>(null);
+  const [info, setInfo] = useState<{ must: boolean; latest: string; note: string; url: string; viaPlay: boolean } | null>(null);
+  const [busy, setBusy] = useState(false);
   useEffect(() => {
     const mine = Application.nativeApplicationVersion || '0';
     let last = 0;
     const check = async () => {
       if (Date.now() - last < 30 * 60_000) return;   // at most every half hour
       last = Date.now();
-      try {
-        const j = await Api.get('app/version');
-        const latest = str(j, 'latest'), min = str(j, 'min');
-        const url = str(j, 'url') || 'https://play.google.com/store/apps/details?id=triparro.com';
-        if (min && cmpVer(mine, min) < 0) { setInfo({ must: true, latest: latest || min, note: str(j, 'note') || '', url }); return; }
-        if (latest && cmpVer(mine, latest) < 0) {
-          const seen = await AsyncStorage.getItem('update_seen_' + latest);
-          if (seen && Date.now() - Number(seen) < 3 * 86400_000) return;
-          setInfo({ must: false, latest, note: str(j, 'note') || '', url });
-        }
-      } catch {}
+      let j: any = {};
+      try { j = await Api.get('app/version'); } catch {}
+      const min = str(j, 'min'), note = str(j, 'note') || '';
+      const url = str(j, 'url') || 'https://play.google.com/store/apps/details?id=triparro.com';
+      // Google Play: is a newer version published? (fails on APKs not installed from Play — then the website's number decides)
+      let playVer: string | null = null, viaPlay = false;
+      try { const u = await play()?.checkForUpdate(); if (u?.updateAvailable) { viaPlay = true; playVer = u.storeVersion || null; } } catch {}
+      const latest = playVer || str(j, 'latest') || '';
+      const must = !!min && cmpVer(mine, min) < 0;
+      const newer = viaPlay || (!!latest && cmpVer(mine, latest) < 0);
+      if (!must && !newer) { setInfo(null); return; }
+      const key = latest || 'play';
+      if (!must) {
+        const seen = await AsyncStorage.getItem('update_seen_' + key);
+        if (seen && Date.now() - Number(seen) < 3 * 86400_000) return;
+      }
+      setInfo({ must, latest: key === 'play' ? '' : key, note, url, viaPlay });
     };
     check();
     const s = RNAppState.addEventListener('change', (st) => { if (st === 'active') check(); });
-    return () => s.remove();
+    // a flexible update finished downloading: Play restarts the app on the new version
+    const off = play()?.addUpdateListener?.('updateCancelled', () => setBusy(false));
+    return () => { s.remove(); off?.(); };
   }, []);
   if (!info) return null;
-  const later = async () => { await AsyncStorage.setItem('update_seen_' + info.latest, String(Date.now())).catch(() => {}); setInfo(null); };
-  const update = () => {
+  const later = async () => { await AsyncStorage.setItem('update_seen_' + (info.latest || 'play'), String(Date.now())).catch(() => {}); setInfo(null); };
+  const store = () => {
     const id = (info.url.match(/[?&]id=([\w.]+)/) || [])[1];
     Linking.openURL(id ? 'market://details?id=' + id : info.url).catch(() => Linking.openURL(info.url).catch(() => {}));
+  };
+  const update = async () => {
+    // inside the app with Google Play's own update screen; a required update is the full-screen kind
+    if (info.viaPlay) {
+      setBusy(true);
+      try { if (await play()?.startUpdate(info.must)) { if (!info.must) setInfo(null); return; } } catch {}
+      setBusy(false);
+    }
+    store();
   };
   return (
     <Modal visible transparent animationType="fade" onRequestClose={info.must ? () => {} : later}>
@@ -186,13 +207,13 @@ export function UpdatePrompt() {
             <LinearGradient colors={['#B50F22', '#D7192A', '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 22, alignItems: 'center' }}>
               <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FFC42E', alignItems: 'center', justifyContent: 'center' }}><Icon name="system-update" color="#4A3400" size={32} /></View>
               <Txt k="titleLarge" bold color="#fff" style={{ marginTop: 10 }}>{info.must ? 'Please update TripArro' : 'A new version is ready'}</Txt>
-              <Txt k="bodySmall" color="#FFE3DC">Version {info.latest} on Google Play</Txt>
+              <Txt k="bodySmall" color="#FFE3DC">{info.latest ? `Version ${info.latest} on Google Play` : 'On Google Play'}</Txt>
             </LinearGradient>
             <View style={{ padding: 20 }}>
-              <Txt k="bodyMedium" color={Brand.InkSoft} center>{info.must ? 'This version of the app no longer works with TripArro. Update to keep booking and managing your trips.' : 'Update for the newest features and fixes.'}</Txt>
+              <Txt k="bodyMedium" color={Brand.InkSoft} center>{info.must ? 'This version of the app no longer works with TripArro. Update to keep booking and managing your trips.' : info.viaPlay ? 'It downloads in the background while you keep using the app, then TripArro restarts on the new version.' : 'Update for the newest features and fixes.'}</Txt>
               {info.note ? <Txt k="bodySmall" center color={Brand.Ink} style={{ marginTop: 8 }}>{info.note}</Txt> : null}
               <Gap />
-              <PrimaryButton text="Update now" icon="shop" onPress={update} />
+              <PrimaryButton text="Update now" icon="system-update" loading={busy} onPress={update} />
               {!info.must ? <LinkButton text="Later" color={Brand.InkSoft} onPress={later} /> : null}
             </View>
           </View>

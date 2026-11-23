@@ -25,6 +25,7 @@ const PROGUARD = `
 -keep class * extends android.content.BroadcastReceiver { <init>(); }
 -keep class * extends android.app.Service { <init>(); }
 -keep class com.google.android.gms.** { *; }
+-keep class com.google.android.play.core.** { *; }
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
 -keepclassmembers class * { @com.facebook.react.bridge.ReactMethod *; @com.facebook.proguard.annotations.DoNotStrip *; }
