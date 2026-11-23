@@ -5,11 +5,11 @@
  *          shows the request full screen; accept or ignore). See the website's Eden/lib/force_search.php.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, AppState as RNAppState, Easing, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
+import { Animated, AppState as RNAppState, Easing, Image, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Notifications from 'expo-notifications';
 import { AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
-import { Api, errorText } from '../core/api';
+import { Api, errorText, userAgent } from '../core/api';
 import { AppState, useSession } from '../core/state';
 import * as Loc from '../core/location';
 import { J, arr, bool, int, num, obj, objs, str, text } from '../core/json';
@@ -32,20 +32,10 @@ export default function ForceSearchScreen() {
 
   useEffect(() => {
     Api.get('force/options').then(setOpts).catch(() => setOpts({}));
-    if (!s?.user) { setLoading(false); return; }
+    if (!s?.user) { setLoading(false); return; }   // signed out: the form shows, Start asks to sign in
     Api.get('force/current').then((j) => setSearch(obj(j, 'search'))).catch(() => {}).finally(() => setLoading(false));
   }, [s?.user?.id]);
 
-  if (!s?.user) return (
-    <View style={{ flex: 1 }}>
-      <BackBar title="Force search" onBack={Nav.back} />
-      <View style={{ padding: 16 }}>
-        <Intro />
-        <Gap />
-        <PrimaryButton text="Sign in to start" onPress={() => { AppState.set({ authMessage: 'Sign in to use Force search.' }); Nav.navigate('login'); }} />
-      </View>
-    </View>
-  );
   if (loading) return <View style={{ flex: 1 }}><BackBar title="Force search" onBack={Nav.back} /><Loading /></View>;
   if (search) return <Radar initial={search} onDone={() => setSearch(null)} />;
   return <ForceForm opts={opts || {}} onStarted={setSearch} />;
@@ -86,6 +76,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
   useEffect(() => { if (where === 'gps' && !fix) locate(); }, [where]);
 
   const start = async () => {
+    if (!Api.session?.user) { AppState.set({ authMessage: 'Sign in to start your Force search — it takes a minute.' }); Nav.navigate('login'); return; }
     setBusy(true); setErr(null);
     try {
       let pt = fix;
@@ -149,9 +140,42 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
         <Field label="Anything hosts should know? (optional)" value={note} onChange={setNote} lines={2} maxLength={300} />
         <Gap />
         {err ? <><Notice tone="bad" text={err} /><Gap h={8} /></> : null}
-        <PrimaryButton text="Start Force search" icon="radar" loading={busy} disabled={!ready} onPress={start} />
+        <PrimaryButton text={Api.session?.user ? 'Start Force search' : 'Sign in and start Force search'} icon="radar" loading={busy} disabled={!ready} onPress={start} />
         <Txt k="labelSmall" color={Brand.Muted} center style={{ marginTop: 8 }}>Hosts see the area and distance — never your exact location or phone number. The search runs for {num(opts, 'minutes') || 30} minutes.</Txt>
       </ScrollView>
+    </View>
+  );
+}
+
+/** A small map from OpenStreetMap tiles (no map key needed): the guest (yellow) and the accepted stay (red). */
+function MiniMap({ you, stay, height = 170 }: { you: number[]; stay: number[]; height?: number }) {
+  const [w, setW] = useState(0);
+  const T = 256;
+  const world = (lat: number, lng: number, z: number) => {
+    const n = T * 2 ** z, s = Math.sin((lat * Math.PI) / 180);
+    return [((lng + 180) / 360) * n, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n];
+  };
+  let z = 16;
+  if (w) while (z > 9) {   // the closest zoom that shows both pins with some room
+    const [ax, ay] = world(you[0], you[1], z), [bx, by] = world(stay[0], stay[1], z);
+    if (Math.abs(ax - bx) < w - 70 && Math.abs(ay - by) < height - 70) break;
+    z--;
+  }
+  const [ax, ay] = world(you[0], you[1], z), [bx, by] = world(stay[0], stay[1], z);
+  const cx = (ax + bx) / 2, cy = (ay + by) / 2, left = cx - w / 2, top = cy - height / 2;
+  const tiles: [number, number][] = [];
+  if (w) for (let x = Math.floor(left / T); x <= Math.floor((left + w) / T); x++) for (let y = Math.floor(top / T); y <= Math.floor((top + height) / T); y++) tiles.push([x, y]);
+  const pin = (x: number, y: number, bg: string, icon: string) => (
+    <View style={{ position: 'absolute', left: x - left - 16, top: y - top - 34, alignItems: 'center' }}>
+      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: bg, borderWidth: 3, borderColor: '#fff', alignItems: 'center', justifyContent: 'center', elevation: 4 }}><Icon name={icon} size={16} color={bg === RED ? '#fff' : '#5A1A00'} /></View>
+      <View style={{ width: 3, height: 6, backgroundColor: bg }} />
+    </View>
+  );
+  return (
+    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height, borderRadius: 18, overflow: 'hidden', backgroundColor: '#E8E4DE' }}>
+      {tiles.map(([x, y]) => <Image key={x + ':' + y} source={{ uri: `https://tile.openstreetmap.org/${z}/${x}/${y}.png`, headers: { 'User-Agent': userAgent, Referer: Api.base + '/' } }} style={{ position: 'absolute', left: x * T - left, top: y * T - top, width: T, height: T }} />)}
+      {w ? <>{pin(ax, ay, '#FFC42E', 'person')}{pin(bx, by, RED, 'home')}</> : null}
+      <Txt k="labelSmall" color="#5a5450" style={{ position: 'absolute', right: 6, bottom: 3, fontSize: 9 }}>© OpenStreetMap</Txt>
     </View>
   );
 }
@@ -218,6 +242,9 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
               <Txt color={Brand.InkSoft}>{text(offer, 'type')} · {text(offer, 'location')} · {num(offer, 'km')} km away</Txt>
               {num(obj(offer, 'price'), 'total') ? <Txt k="titleMedium" style={{ marginTop: 6 }}>{money(num(obj(offer, 'price'), 'total') || 0)} for {int(s, 'nights')} night{int(s, 'nights') > 1 ? 's' : ''}</Txt> : null}
               <Txt k="bodySmall" color={Brand.Muted}>{int(s, 'guests')} guest{int(s, 'guests') > 1 ? 's' : ''} · from tonight · hold ends in {mmss(left)}</Txt>
+              <Gap h={10} />
+              <MiniMap you={arr(s, 'coords') as number[]} stay={arr(offer, 'coords') as number[]} />
+              <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 4 }}>📍 You  ·  🏠 {text(offer, 'title')}</Txt>
               <Gap />
               {err ? <><Notice tone="bad" text={err} /><Gap h={8} /></> : null}
               <PrimaryButton text="Accept and book" icon="event-available" loading={busy === 'book'} onPress={book} />
@@ -355,8 +382,9 @@ function ForceRequest({ r, done, compact }: { r: J; done: () => void; compact?: 
       <Txt k={compact ? 'titleSmall' : 'titleLarge'}>{int(r, 'guests')} guest{int(r, 'guests') > 1 ? 's' : ''} · {int(r, 'nights')} night{int(r, 'nights') > 1 ? 's' : ''} from tonight</Txt>
       <Txt k="bodySmall" color={Brand.InkSoft}>{text(r, 'reason')} · {text(r, 'stay_type')} · {num(r, 'km')} km away · {text(r, 'area')}</Txt>
       {str(r, 'note') ? <Txt k="bodySmall" color={Brand.Ink} style={{ marginTop: 4 }}>“{str(r, 'note')}”</Txt> : null}
+      {stays.length > 1 ? <Txt k="labelMedium" color={Brand.InkSoft} style={{ marginTop: 8 }}>Which stay will you offer?</Txt> : null}
       {stays.length > 1 ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 6 }}>
           {stays.map((p) => (
             <Pressable key={int(p, 'id')} onPress={() => setPick(int(p, 'id'))} style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 50, borderWidth: 1.5, borderColor: pick === int(p, 'id') ? RED : Brand.Line, backgroundColor: '#fff', marginRight: 6, marginBottom: 6 }}>
               <Txt k="labelMedium" color={pick === int(p, 'id') ? RED : Brand.InkSoft}>{text(p, 'title')} · {num(p, 'km')} km</Txt>
