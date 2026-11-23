@@ -73,7 +73,7 @@ export function tripWhen(start: string, end: string): string | null {
 const AvatarColors = ['#FFC72C', '#FF8A7A', '#8C9BF2', '#5CC29A'];
 
 /** One trip in "Your trips": a frosted-glass card — the trip photo with when it is, then the name, place and dates, and who is going. */
-export function TripCard({ g, onOpen, onShare }: { g: J; onOpen: () => void; onShare: () => void }) {
+export function TripCard({ g, onOpen, onShare, onRemove }: { g: J; onOpen: () => void; onShare: () => void; onRemove?: () => void }) {
   const w = tripWhen(text(g, 'start_date'), text(g, 'end_date'));
   const people = arr<string>(g, 'people').map(String);
   const going = int(g, 'members');
@@ -88,9 +88,17 @@ export function TripCard({ g, onOpen, onShare }: { g: J; onOpen: () => void; onS
             {w && !bool(g, 'ended') ? <View style={[st.row, { borderRadius: 50, backgroundColor: w === 'On now' ? '#7CE0A3' : Brand.Sun, paddingHorizontal: 10, paddingVertical: 5 }]}><Icon name={w === 'On now' ? 'flight-takeoff' : 'event'} size={14} color={Brand.Ink} /><Txt k="labelMedium" bold> {w}</Txt></View> : null}
             {text(g, 'role') === 'owner' ? <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" bold color="#fff">Your trip</Txt></View> : null}
           </View>
-          <Pressable onPress={onShare} hitSlop={6} style={{ position: 'absolute', top: 8, right: 8, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.88)', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Share this trip's link">
-            <Icon name="share" size={19} color={Brand.Blue} />
-          </Pressable>
+          <View style={{ position: 'absolute', top: 8, right: 8, flexDirection: 'row', gap: 8 }}>
+            {onRemove ? (
+              <Pressable onPress={onRemove} hitSlop={6} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.88)', alignItems: 'center', justifyContent: 'center' }}
+                accessibilityLabel={text(g, 'role') === 'owner' ? "Delete this trip" : 'Leave this trip'}>
+                <Icon name={text(g, 'role') === 'owner' ? 'delete-outline' : 'logout'} size={20} color={Brand.Danger} />
+              </Pressable>
+            ) : null}
+            <Pressable onPress={onShare} hitSlop={6} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.88)', alignItems: 'center', justifyContent: 'center' }} accessibilityLabel="Share this trip's link">
+              <Icon name="share" size={19} color={Brand.Blue} />
+            </Pressable>
+          </View>
           {int(g, 'items') > 0 ? <View style={{ position: 'absolute', bottom: 10, right: 10, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.9)', paddingHorizontal: 9, paddingVertical: 4 }}><Txt k="labelSmall" bold>{int(g, 'items')} in the plan</Txt></View> : null}
         </View>
         <View style={{ paddingHorizontal: 10, paddingTop: 12, paddingBottom: 8 }}>

@@ -36,7 +36,15 @@ export function GroupTripsList() {
   const [joining, setJoining] = useState(false);
   const [sharing, setSharing] = useState<J | null>(null);
   const [made, setMade] = useState<J | null>(null);
+  const [removing, setRemoving] = useState<J | null>(null);   // a trip you are deleting (you made it) or leaving
+  const [removeErr, setRemoveErr] = useState<string | null>(null);
   const data = l.data;
+  const remove = async () => {
+    if (!removing) return;
+    const id = int(removing, 'id'), mine = text(removing, 'role') === 'owner';
+    try { await Api.post(mine ? `trip-groups/${id}/delete` : `trip-groups/${id}/leave`); setRemoving(null); AppState.bump(); }
+    catch (e) { setRemoveErr(errorText(e)); }
+  };
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       <MakeTripCard onNew={(idea) => { setNewIdea(idea); setCreating(true); }} onJoin={() => setJoining(true)} />
@@ -55,12 +63,24 @@ export function GroupTripsList() {
               <Pressable onPress={() => setJoining(true)} style={[st.row, { marginRight: 8, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: Brand.Line, paddingHorizontal: 10, paddingVertical: 5 }]} accessibilityLabel="Join a trip with a code"><Icon name="vpn-key" size={15} color={Brand.Blue} /><Txt k="labelMedium" semi color={Brand.Blue}> Join with code</Txt></Pressable>
               <View style={{ borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold>{objs(data, 'items').length}</Txt></View>
             </View>
-            {objs(data, 'items').map((g) => <TripCard key={int(g, 'id')} g={g} onOpen={() => Nav.navigate(`group/${int(g, 'id')}`)} onShare={() => setSharing(g)} />)}
+            {objs(data, 'items').map((g) => <TripCard key={int(g, 'id')} g={g} onOpen={() => Nav.navigate(`group/${int(g, 'id')}`)} onShare={() => setSharing(g)} onRemove={() => { setRemoveErr(null); setRemoving(g); }} />)}
           </>
         )}
       {creating ? <NewGroupDialog idea={newIdea} onClose={() => setCreating(false)} onMade={(g) => { setCreating(false); AppState.bump(); setMade(g); }} /> : null}
       {made ? <ShareTripDialog g={made} justMade onClose={() => { const id = int(made, 'id'); setMade(null); Nav.navigate(`group/${id}`); }} /> : null}
       {sharing ? <ShareTripDialog g={sharing} justMade={false} onClose={() => setSharing(null)} /> : null}
+      {removing ? (() => {
+        const mine = text(removing, 'role') === 'owner', others = int(removing, 'members') - 1;
+        return (
+          <Dialog open onClose={() => setRemoving(null)} title={mine ? `Delete “${text(removing, 'title')}”?` : `Leave “${text(removing, 'title')}”?`}
+            text={mine
+              ? (others > 0 ? `The plan, posts, photos, expenses and chat are deleted for everyone — ${others} other ${others === 1 ? 'person is' : 'people are'} told. This cannot be undone.` : 'The plan, posts, photos, expenses and chat are deleted. This cannot be undone.')
+              : 'The trip leaves your list and you stop getting its updates. You can join again later with its code.'}
+            actions={[['Cancel', () => setRemoving(null)], [mine ? 'Delete trip' : 'Leave trip', remove, Brand.Danger]]}>
+            {removeErr ? <><Gap h={8} /><Notice tone="bad" text={removeErr} /></> : null}
+          </Dialog>
+        );
+      })() : null}
       {joining ? <JoinCodeDialog onClose={() => setJoining(false)} onCode={(c) => { setJoining(false); Nav.navigate(`groupjoin/${c}`); }} /> : null}
     </ScrollView>
   );
