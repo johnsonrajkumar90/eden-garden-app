@@ -47,7 +47,7 @@ export default function ReserveScreen() {
     setBusy(true); setErr(null); setFieldErr({});
     try {
       if (!session?.user && session?.loginToBook !== false) { setBusy(false); Nav.navigate('login'); return; }
-      const base: Record<string, any> = { kind: d.kind, id: d.id, check_in: d.checkIn, check_out: d.checkOut, adults: d.adults, food: d.food ? 1 : 0, coupon: d.coupon || null,
+      const base: Record<string, any> = { force_search: d.forceSearch || null, kind: d.kind, id: d.id, check_in: d.checkIn, check_out: d.checkOut, adults: d.adults, food: d.food ? 1 : 0, coupon: d.coupon || null,
         room_id: d.roomId, plan_id: d.planId, rooms: d.rooms, name: name.trim(), email: email.trim(), phone: phone.trim(), requests: requests.trim(), arrival_time: arrival.trim(),
         agree: true, expected_total: num(d.quote, 'total') };
       let r;

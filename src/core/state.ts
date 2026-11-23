@@ -6,6 +6,7 @@ import { J } from './json';
 export type ReserveDraft = {
   kind: string; id: number; title: string; image: string | null; checkIn: string; checkOut: string;
   adults: number; ages: number[]; food: boolean; coupon: string; roomId: number | null; planId: number | null; rooms: number; quote: J;
+  forceSearch?: number;   // booked from a Force search a host accepted
 };
 export type PaymentForm = { action: string; fields: J; title: string };
 

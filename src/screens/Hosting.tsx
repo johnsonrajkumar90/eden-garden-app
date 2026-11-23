@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, Switch, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Api, ApiError, errorText } from '../core/api';
+import { ForceHostCard } from './ForceSearch';
 import { useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
@@ -124,6 +125,7 @@ function TodayTab({ home, pets, changed }: { home: { data: J | null; loading: bo
   const list = (bs: J[]) => bs.map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={changed} /></Appear>);
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
+      {!pets && Api.session?.user?.role === 'host' ? <ForceHostCard /> : null}
       {!pets && ['host', 'admin'].includes(Api.session?.user?.role || '') ? <><PrimaryButton text="Book a guest" icon="person-add-alt" onPress={() => Nav.navigate('bookguest')} /><Gap h={12} /></> : null}
       {req.length ? <><SectionTitle text="Waiting for your answer" sub="Approve or decline before the time runs out" />{list(req)}<Gap h={6} /></> : null}
       {admin ? <><AdminCards a={admin} /><Gap h={10} /></> : null}

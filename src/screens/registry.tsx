@@ -5,6 +5,7 @@ import ExploreScreen from './Explore';
 import PetSearchScreen from './PetSearch';
 import ChargersScreen from './Chargers';
 import BookGuestScreen from './BookGuest';
+import ForceSearchScreen from './ForceSearch';
 import PlannerScreen, { MyPlacesScreen, PlaceEditScreen, SavedPlanScreen, SavedPlansScreen } from './Planner';
 import { GroupJoinScreen, GroupsHub } from './Groups';
 import GroupTripScreen from './TripHub';
@@ -74,6 +75,7 @@ export const SCREENS: Record<RouteName, ComponentType<any>> = {
   'become-pet-host': BecomePetHostScreen,
   'hosting': HostingScreen,
   'bookguest?property={property}': BookGuestScreen,
+  'force': ForceSearchScreen,
   'site?path={path}&title={title}': SiteScreen,
   'hostcheckin/{id}': HostCheckinScreen,
   'hostchats': HostChatsScreen,

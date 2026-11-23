@@ -24,6 +24,9 @@ Notifications.setNotificationHandler({
 export async function createChannels() {
   if (Platform.OS !== 'android') return;
   await Notifications.setNotificationChannelAsync(CHANNEL, { name: 'Booking updates', importance: Notifications.AndroidImportance.DEFAULT, sound: 'default', vibrationPattern: [0, 200], lightColor: '#D7192A' });
+  // Force search: a guest needs a stay now — loud, its own soft tune, on the lock screen
+  await Notifications.setNotificationChannelAsync('force_search', { name: 'Force search (guests needing a stay now)', importance: Notifications.AndroidImportance.MAX, sound: 'force_ring.wav',
+    vibrationPattern: [0, 400, 250, 400, 250, 400], lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, bypassDnd: false, lightColor: '#D7192A' });
   await Notifications.setNotificationChannelAsync(CHANNEL_MSG, { name: 'Messages', importance: Notifications.AndroidImportance.HIGH, sound: 'default', vibrationPattern: [0, 250, 150, 250], lightColor: '#D7192A' });
 }
 

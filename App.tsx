@@ -5,6 +5,7 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, AppState as RNAppState, Easing, Linking, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ForceFab, ForceRinger } from './src/screens/ForceSearch';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -73,6 +74,7 @@ function Shell() {
     const open = (r: Notifications.NotificationResponse | null) => {
       if (!r) return;
       const d: any = r.notification.request.content.data || {};
+      if (d.kind === 'force_search') { Nav.navigate(Api.session?.user?.role === 'host' && d.for === 'host' ? 'hosting' : 'force'); return; }   // Force search: the ring / the radar
       if (d.id) Api.post('notifications/read', { id: d.id }).then((j) => Notifier.setUnread(int(j, 'unread'))).catch(() => {});
       if (d.link) handleIncomingLink(String(d.link).startsWith('/') ? Api.url(d.link) : d.link); else Nav.navigate('notifications');
     };
@@ -127,7 +129,9 @@ function Shell() {
             {ROUTES.map((r) => <Stack.Screen key={r} name={r} component={SCREENS[r]} />)}
           </Stack.Navigator>
         </NavigationContainer>
-        {/* the floating Group trips button was removed: Group trips is in the bottom menu */}
+        {/* the floating Force search button (guests who need a stay right now) */}
+        {['explore', 'pets', 'account'].includes(current) ? <ForceFab bottom={dockH + 12} /> : null}
+        <ForceRinger />
       </View>
       {showDock ? <TabBar current={current} unread={unread} bottom={insets.bottom} /> : <View style={{ height: insets.bottom }} />}
       {showWelcome ? (
