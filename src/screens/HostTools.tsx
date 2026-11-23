@@ -17,6 +17,7 @@ import { Appear, Card, ColorHeader, ErrorBox, Gap, Icon, Loading, Notice, Outlin
 import { CheckRow, Choice, Field } from '../ui/inputs';
 import { Nav, intParam, useParams } from '../nav';
 import { DOCK_SPACE } from '../ui/dock';
+import { CalDay, DayPills, LaneDay, LaneKey, LaneMonth, MonthTitle, bookedPct, laneColor } from './HostCalendar';
 
 const toolIcon = (k: string) => ({
   visitors: 'visibility', finance: 'payments', earnings: 'payments', payouts: 'payments', reports: 'bar-chart', revenue: 'bar-chart', petstats: 'bar-chart',
@@ -84,55 +85,37 @@ export function weeks<T>(lead: number, days: T[]): (T | null)[][] { const cells:
 export function AllListingsCalendar({ d, month, onMonth, onListing }: { d: J; month: string; onMonth: (m: string) => void; onListing: (tag: string) => void }) {
   const [picked, setPicked] = useState<string | null>(null);
   useEffect(() => setPicked(null), [month]);
-  const t = today();
-  const days = objs(d, 'days');
-  const day = days.find((x) => text(x, 'date') === picked);
+  const tags = objs(d, 'listings').map((x) => text(x, 'tag'));
+  const colors = tags.map((_, i) => laneColor(i));
+  const toLane = (x?: J): LaneDay => ({ state: x ? text(x, 'state') : 'free', key: x ? (str(x, 'ref') || text(x, 'state') + '|' + text(x, 'label')) : '' });
+  const days: CalDay[] = objs(d, 'days').map((c) => { const items = objs(c, 'items'); return { date: text(c, 'date'), lanes: tags.map((t) => toLane(items.find((x) => text(x, 'tag') === t))) }; });
+  const before = objs(d, 'before');
+  const prevLast = tags.map((t) => toLane(before.find((x) => text(x, 'tag') === t)));
+  const day = objs(d, 'days').find((x) => text(x, 'date') === picked);
   return (
     <View>
-      <Card padding={12}>
-        <MonthHead label={text(d, 'label')} sub={`All ${objs(d, 'listings').length} listings`} month={month} onMonth={onMonth} />
-        <WeekHead />
-        {weeks(days.length ? leadDays(text(days[0], 'date')) : 0, days).map((w, wi) => (
-          <View key={wi} style={{ flexDirection: 'row', paddingVertical: 2 }}>
-            {Array.from({ length: 7 }, (_, i) => {
-              const c = w[i];
-              return (
-                <View key={i} style={{ flex: 1, aspectRatio: 0.78, padding: 2 }}>
-                  {c ? (() => {
-                    const date = text(c, 'date'); const busy = int(c, 'busy'); const total = busy + int(c, 'free'); const sel = picked === date;
-                    return (
-                      <Press onPress={() => setPicked(date)} scaleTo={0.9} style={{ flex: 1, borderRadius: 14, backgroundColor: sel ? Brand.Sun : busy === 0 ? '#FFFFFF' : '#FFE6E3', borderWidth: date === t ? 2 : 1, borderColor: date === t ? Brand.Blue : busy === 0 ? '#F1E4E0' : '#F7C9C4', padding: 3, alignItems: 'center', justifyContent: 'center' }}>
-                        <Txt k="labelLarge" bold={date === t} color={date < t ? Brand.Muted : Brand.Ink}>{parseIso(date)?.getDate()}</Txt>
-                        <View style={{ flexDirection: 'row', gap: 2 }}>{objs(c, 'items').slice(0, 6).map((x, k) => <View key={k} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: text(x, 'state') === 'free' ? '#00875A33' : stateColor(text(x, 'state')) }} />)}</View>
-                        {total > 0 ? <Txt k="labelSmall" color={Brand.InkSoft}>{busy}/{total}</Txt> : null}
-                      </Press>
-                    );
-                  })() : null}
-                </View>
-              );
-            })}
-          </View>
-        ))}
-        <Gap h={8} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-          {[['free', 'Free'], ['booked', 'Booked'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed'], ['some', 'Some rooms left']].map(([k, l]) => <View key={k} style={st.row}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(k), borderWidth: 1, borderColor: '#E7D9D4' }} /><Txt k="labelSmall" color={Brand.InkSoft}> {l}</Txt></View>)}
-        </ScrollView>
-      </Card>
+      <MonthTitle label={text(d, 'label')} pct={bookedPct(days)} month={month} onMonth={onMonth} />
+      <DayPills />
+      <LaneMonth days={days} colors={colors} prevLast={prevLast} onDay={(c) => setPicked(c.date === picked ? null : c.date)} selected={(x) => x === picked} />
+      <LaneKey />
       <Gap />
-      {!day ? <Txt k="bodySmall" color={Brand.Muted}>Each day shows how many of your listings are taken (booked / all). Tap a day to see who is staying where.</Txt> : (
+      {!day ? <Txt k="bodySmall" color={Brand.Muted}>Each colour is one of your listings. Tap a day to see who is staying where; tap a listing to close nights or change prices.</Txt> : (
         <Card>
           <Txt k="titleMedium">{prettyDate(text(day, 'date'))}</Txt>
           <Gap h={6} />
-          {objs(day, 'items').map((x, i) => (
-            <Pressable key={i} onPress={() => onListing(text(x, 'tag'))} style={[st.row, { paddingVertical: 8 }]}>
-              <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(text(x, 'state')) }} />
-              <View style={{ flex: 1, paddingLeft: 10 }}>
-                <Txt numberOfLines={1}>{text(x, 'title')}</Txt>
-                <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1}>{str(x, 'label') || ({ free: 'Free', closed: 'Closed', booked: 'Booked' } as Record<string, string>)[text(x, 'state')] || text(x, 'state')}</Txt>
-              </View>
-              <Icon name="chevron-right" color={Brand.Muted} />
-            </Pressable>
-          ))}
+          {objs(day, 'items').map((x, i) => {
+            const li = tags.indexOf(text(x, 'tag'));
+            return (
+              <Pressable key={i} onPress={() => onListing(text(x, 'tag'))} style={[st.row, { paddingVertical: 8 }]}>
+                <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: laneColor(Math.max(0, li)) }} />
+                <View style={{ flex: 1, paddingLeft: 10 }}>
+                  <Txt numberOfLines={1}>{text(x, 'title')}</Txt>
+                  <Txt k="labelSmall" color={text(x, 'state') === 'free' ? '#0B6B3A' : Brand.Muted} numberOfLines={1}>{str(x, 'label') || ({ free: 'Free', closed: 'Closed', booked: 'Booked', request: 'Request', platform: 'Other platform' } as Record<string, string>)[text(x, 'state')] || text(x, 'state')}</Txt>
+                </View>
+                <Icon name="chevron-right" color={Brand.Muted} />
+              </Pressable>
+            );
+          })}
         </Card>
       )}
     </View>

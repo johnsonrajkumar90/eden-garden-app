@@ -18,6 +18,7 @@ import { RED_GRAD, SUN_GRAD } from '../ui/cards';
 import { Nav } from '../nav';
 import { ChatList } from './Chat';
 import { AllListingsCalendar, HostToolsTab, MonthHead, WeekHead, addMonths, leadDays, stateColor, thisMonth, weeks } from './HostTools';
+import { CalDay, DayPills, LaneDay, LaneKey, LaneMonth, MonthTitle, bookedPct, laneColor } from './HostCalendar';
 
 const longDay = (iso: string) => parseIso(iso)?.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) || iso;
 
@@ -398,9 +399,12 @@ function CalendarTab() {
   const cur = obj(d, 'listing');
   const tag = text(cur, 'tag', listing);
   const pick = (t: string) => { setListing(t); setFirst(null); setLast(null); };
-  const chip = (key: string, label: string, on: boolean, onPress: () => void) => (
+  const chip = (key: string, label: string, on: boolean, onPress: () => void, dot?: string) => (
     <Press key={key} onPress={onPress}>
-      <View style={{ borderRadius: 50, paddingHorizontal: 14, paddingVertical: 8, backgroundColor: on ? Brand.Blue : 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: on ? Brand.Blue : 'rgba(255,255,255,0.95)' }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft} numberOfLines={1}>{label}</Txt></View>
+      <View style={[st.row, { gap: 7, borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: on ? '#1D1B1A' : 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: on ? '#1D1B1A' : '#F1E7E3' }]}>
+        <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: dot || (on ? '#fff' : Brand.Ink) }} />
+        <Txt k="labelLarge" color={on ? '#fff' : Brand.Ink} numberOfLines={1} style={{ maxWidth: 140 }}>{label}</Txt>
+      </View>
     </Press>
   );
   const days = objs(d, 'days');
@@ -410,54 +414,35 @@ function CalendarTab() {
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {ls.length > 1 ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-          {chip('all', 'All in one', all, () => pick('all'))}
-          {ls.map((x) => chip(text(x, 'tag'), text(x, 'title'), !all && text(x, 'tag') === tag, () => pick(text(x, 'tag'))))}
+          {chip('all', 'All', all, () => pick('all'))}
+          {ls.map((x, i) => chip(text(x, 'tag'), text(x, 'title'), !all && text(x, 'tag') === tag, () => pick(text(x, 'tag')), laneColor(i)))}
         </ScrollView>
       ) : null}
       <Gap h={12} />
       {all ? <AllListingsCalendar d={d} month={month} onMonth={setMonth} onListing={pick} /> : (
         <>
-          <Card padding={12}>
-            <MonthHead label={text(d, 'label')} month={month} onMonth={setMonth} />
-            <WeekHead />
-            {weeks(days.length ? leadDays(text(days[0], 'date')) : 0, days).map((w, wi) => (
-              <View key={wi} style={{ flexDirection: 'row', paddingVertical: 2 }}>
-                {Array.from({ length: 7 }, (_, i) => {
-                  const c = w[i];
-                  return (
-                    <View key={i} style={{ flex: 1, aspectRatio: 0.82, padding: 2 }}>
-                      {c ? (() => {
-                        const date = text(c, 'date'); const s = text(c, 'state');
-                        const sel = !!first && date >= first && date <= (last || first);
-                        const past = date < t0;
-                        const bg = sel ? Brand.Sun : stateColor(s === 'free' ? '' : s);
-                        const fg = ['booked', 'platform', 'closed', 'request'].includes(s) && !sel ? '#fff' : Brand.Ink;
-                        const isToday = date === t0;
-                        const p = num(c, 'price');
-                        return (
-                          <Press scaleTo={0.9} onPress={() => {
-                            if (past) return;
-                            if (s === 'closed' && int(c, 'block_id') > 0) { setFirst(null); setLast(null); act('hostapp/calendar/open', { block_id: int(c, 'block_id') }); }
-                            else if (s !== 'free') { if (str(c, 'ref')) setOpenRef(str(c, 'ref')); else setMsg([str(c, 'label') || 'Booked', true]); }
-                            else if (!first || last || date < first) { setFirst(date); setLast(null); }
-                            else setLast(date);
-                          }} style={{ flex: 1, borderRadius: 14, backgroundColor: bg, opacity: past ? 0.4 : 1, alignItems: 'center', justifyContent: 'center',
-                            borderWidth: isToday ? 2 : 1, borderColor: isToday ? Brand.Blue : s === 'free' && !sel ? '#F1E4E0' : 'transparent' }}>
-                            <Txt k="labelLarge" bold={date === t0} color={fg}>{parseIso(date)?.getDate()}</Txt>
-                            {p != null ? <Txt k="labelSmall" color={fg} style={{ opacity: 0.85 }}>₹{p >= 1000 ? (p / 1000).toFixed(1) + 'k' : Math.round(p)}</Txt> : null}
-                          </Press>
-                        );
-                      })() : null}
-                    </View>
-                  );
-                })}
-              </View>
-            ))}
-            <Gap h={8} />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-              {[['free', 'Free'], ['booked', 'Booked (tap for details)'], ['request', 'Request'], ['platform', 'Other platform'], ['closed', 'Closed (tap to open)']].map(([k, lb]) => <View key={k} style={st.row}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: stateColor(k), borderWidth: 1, borderColor: '#E7D9D4' }} /><Txt k="labelSmall" color={Brand.InkSoft}> {lb}</Txt></View>)}
-            </ScrollView>
-          </Card>
+          {(() => {
+            const li = Math.max(0, ls.findIndex((x) => text(x, 'tag') === tag));
+            const lane = (c?: J | null): LaneDay => ({ state: c ? text(c, 'state') : 'free', key: c ? (str(c, 'ref') || text(c, 'state') + '|' + text(c, 'label')) : '' });
+            const cal: CalDay[] = days.map((c) => { const p = num(c, 'price'); return { date: text(c, 'date'), lanes: [lane(c)], extra: kind === 'stay' && p != null ? '₹' + (p >= 1000 ? (p / 1000).toFixed(1) + 'k' : Math.round(p)) : kind === 'resort' ? `${int(c, 'rooms_free')}/${int(c, 'rooms_total')}` : null }; });
+            return (
+              <>
+                <MonthTitle label={text(d, 'label')} pct={bookedPct(cal)} month={month} onMonth={setMonth} />
+                <DayPills />
+                <LaneMonth days={cal} colors={[laneColor(li)]} prevLast={[lane(obj(d, 'before'))]} selected={(x) => !!first && x >= first && x <= (last || first)}
+                  onDay={(cd) => {
+                    const c = days.find((x) => text(x, 'date') === cd.date); if (!c) return;
+                    const date = cd.date, s = text(c, 'state');
+                    if (date < t0) return;
+                    if (s === 'closed' && int(c, 'block_id') > 0) { setFirst(null); setLast(null); act('hostapp/calendar/open', { block_id: int(c, 'block_id') }); }
+                    else if (s !== 'free') { if (str(c, 'ref')) setOpenRef(str(c, 'ref')); else setMsg([str(c, 'label') || 'Booked', true]); }
+                    else if (!first || last || date < first) { setFirst(date); setLast(null); }
+                    else setLast(date);
+                  }} />
+                <LaneKey />
+              </>
+            );
+          })()}
           <Gap h={12} />
           {first && kind === 'stay' ? (
             <>
