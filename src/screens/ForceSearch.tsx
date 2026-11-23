@@ -5,8 +5,9 @@
  *          shows the request full screen; accept or ignore). See the website's Eden/lib/force_search.php.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, AppState as RNAppState, Easing, Image, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
+import { AccessibilityInfo, Animated, AppState as RNAppState, Easing, Image, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 import { AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
@@ -432,38 +433,56 @@ function Radar({ initial, onDone }: { initial: J; onDone: () => void }) {
   );
 }
 
-/** The floating Force search button (main tabs): a round radar icon with signal waves rippling out behind it. */
+/**
+ * The floating Force search button (main tabs), kept calm: a small round button with one soft signal wave every few
+ * seconds (none when the phone asks for less motion). Long-press tucks it to the screen edge as a small tab; tap the
+ * tab to bring it back. The choice is remembered.
+ */
 export function ForceFab({ bottom }: { bottom: number }) {
-  const p = useRef(new Animated.Value(0)).current;
-  const spin = useRef(new Animated.Value(0)).current;
+  const S = 50;
+  const wave = useRef(new Animated.Value(0)).current;
+  const slide = useRef(new Animated.Value(0)).current;   // 0 = out, 1 = tucked at the edge
+  const [tucked, setTucked] = useState(false);
   useEffect(() => {
-    const a = Animated.loop(Animated.timing(p, { toValue: 1, duration: 2400, easing: Easing.linear, useNativeDriver: true }));
-    const b = Animated.loop(Animated.timing(spin, { toValue: 1, duration: 3200, easing: Easing.linear, useNativeDriver: true }));
-    a.start(); b.start();
-    return () => { a.stop(); b.stop(); };
+    AsyncStorage.getItem('force_fab_tucked').then((v) => { if (v === '1') { setTucked(true); slide.setValue(1); } }).catch(() => {});
+    let loop: Animated.CompositeAnimation | null = null;
+    AccessibilityInfo.isReduceMotionEnabled().then((less) => {
+      if (less) return;
+      loop = Animated.loop(Animated.sequence([
+        Animated.timing(wave, { toValue: 1, duration: 1800, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(wave, { toValue: 0, duration: 0, useNativeDriver: true }),
+        Animated.delay(6000),
+      ]));
+      loop.start();
+    }).catch(() => {});
+    return () => loop?.stop();
   }, []);
-  const S = 60;
-  const wave = (k: number) => {
-    const v = Animated.modulo(Animated.add(p, k), 1);
-    return (
-      <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: S, height: S, borderRadius: S / 2, borderWidth: 2, borderColor: RED, backgroundColor: 'rgba(215,25,42,0.12)',
-        opacity: v.interpolate({ inputRange: [0, 0.15, 1], outputRange: [0, 0.7, 0] }), transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 2.1] }) }] }} />
-    );
+  const tuck = (v: boolean) => {
+    setTucked(v);
+    AsyncStorage.setItem('force_fab_tucked', v ? '1' : '0').catch(() => {});
+    Animated.spring(slide, { toValue: v ? 1 : 0, useNativeDriver: true, speed: 14, bounciness: 6 }).start();
   };
+  const tx = slide.interpolate({ inputRange: [0, 1], outputRange: [0, S + 16] });   // tucked: only the tab shows at the edge
   return (
-    <View pointerEvents="box-none" style={{ position: 'absolute', right: 10, bottom: bottom - 14, width: S * 2.2, height: S * 2.2, alignItems: 'center', justifyContent: 'center', marginRight: -S * 0.4 }}>
-      {[0, 1 / 3, 2 / 3].map(wave)}
-      <Pressable onPress={() => Nav.navigate('force')} accessibilityRole="button" accessibilityLabel="Force search — find a stay right now"
-        style={{ width: S, height: S, borderRadius: S / 2, elevation: 12, shadowColor: RED, shadowOpacity: 0.45, shadowRadius: 12, shadowOffset: { width: 0, height: 5 } }}>
-        <LinearGradient colors={['#B3122A', RED, '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, borderRadius: S / 2, borderWidth: 2.5, borderColor: '#fff', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-          {/* a radar sweep turning inside the button */}
-          <Animated.View pointerEvents="none" style={{ position: 'absolute', width: S, height: S, transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
-            <View style={{ position: 'absolute', left: S / 2 - 1, top: 4, width: 2, height: S / 2 - 4, borderRadius: 1, backgroundColor: 'rgba(255,214,107,0.85)' }} />
-          </Animated.View>
-          <Icon name="radar" color="#fff" size={30} />
+    <Animated.View pointerEvents="box-none" style={{ position: 'absolute', right: 14, bottom, width: S, height: S, transform: [{ translateX: tx }] }}>
+      {/* one soft wave now and then */}
+      {!tucked ? <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, width: S, height: S, borderRadius: S / 2, borderWidth: 2, borderColor: RED,
+        opacity: wave.interpolate({ inputRange: [0, 0.1, 1], outputRange: [0, 0.35, 0] }), transform: [{ scale: wave.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) }] }} /> : null}
+      <Pressable onPress={() => Nav.navigate('force')} onLongPress={() => tuck(true)} delayLongPress={450} disabled={tucked}
+        accessibilityRole="button" accessibilityLabel="Force search — find a stay right now" accessibilityHint="Long-press to tuck it to the side"
+        style={{ width: S, height: S, borderRadius: S / 2, elevation: 8, shadowColor: RED, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+        <LinearGradient colors={['#B3122A', RED, '#FF6A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, borderRadius: S / 2, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="radar" color="#fff" size={25} />
         </LinearGradient>
       </Pressable>
-    </View>
+      {/* tucked: a small tab at the edge brings it back */}
+      {tucked ? (
+        <Pressable onPress={() => tuck(false)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Show the Force search button"
+          style={{ position: 'absolute', left: -24, top: 7, width: 24, height: 36, borderTopLeftRadius: 12, borderBottomLeftRadius: 12, backgroundColor: RED, alignItems: 'center', justifyContent: 'center', elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4 }}>
+          <Icon name="chevron-left" color="#fff" size={18} />
+        </Pressable>
+      ) : null}
+    </Animated.View>
   );
 }
 
