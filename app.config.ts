@@ -15,6 +15,18 @@ const PROGUARD = `
 -keep class expo.modules.** { *; }
 -keep class host.exp.exponent.** { *; }
 -keep class triparro.com.** { *; }
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
+-keep class androidx.work.** { *; }
+-keep class androidx.startup.** { *; }
+-keep class * implements androidx.startup.Initializer { <init>(); }
+-keep class * extends androidx.work.ListenableWorker { <init>(...); }
+-keep class * extends android.app.Application { <init>(); }
+-keep class * extends android.content.ContentProvider { <init>(); }
+-keep class * extends android.content.BroadcastReceiver { <init>(); }
+-keep class * extends android.app.Service { <init>(); }
+-keep class com.google.android.gms.** { *; }
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
 -keepclassmembers class * { @com.facebook.react.bridge.ReactMethod *; @com.facebook.proguard.annotations.DoNotStrip *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
 -dontwarn com.facebook.**
