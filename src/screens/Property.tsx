@@ -81,6 +81,19 @@ export default function PropertyScreen() {
             </DetailSection>
           ) : null}
           {str(p, 'description') ? <DetailSection title="About this place" icon="info-outline"><ExpandText text={str(p, 'description')!} /></DetailSection> : null}
+          {objs(obj(p, 'beds'), 'rooms').length ? (
+            <DetailSection title="Where you'll sleep" icon="bed" sub={(() => { const t = text(obj(p, 'beds'), 'summary'); return t.charAt(0).toUpperCase() + t.slice(1); })()}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+                {objs(obj(p, 'beds'), 'rooms').map((r, i) => (
+                  <View key={i} style={{ width: 150, borderRadius: 18, backgroundColor: Brand.Page, padding: 14 }}>
+                    <Icon name="king-bed" size={24} color={Brand.Blue} />
+                    <Txt k="titleSmall" style={{ marginTop: 6 }}>{text(r, 'name')}</Txt>
+                    {objs(r, 'beds').map((b, j) => <Txt key={j} k="bodySmall" color={Brand.InkSoft}>{int(b, 'count')} {text(b, 'label').toLowerCase()}</Txt>)}
+                  </View>
+                ))}
+              </ScrollView>
+            </DetailSection>
+          ) : null}
           {amen.length ? <DetailSection title="What this place offers" icon="checklist"><AmenityGrid items={amen} /></DetailSection> : null}
           {rooms.length ? (
             <DetailSection title="Rooms" icon="bed" sub="Choose your room and plan when you book">

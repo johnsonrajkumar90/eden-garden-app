@@ -12,7 +12,7 @@ import { useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
 import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, plural, shortDate, st, today, TopBar } from '../ui/kit';
-import { Field } from '../ui/inputs';
+import { Field, Stepper } from '../ui/inputs';
 import { Dialog, Sheet, dial } from '../ui/sheets';
 import { RED_GRAD, SUN_GRAD } from '../ui/cards';
 import { Nav } from '../nav';
@@ -482,6 +482,10 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
   const [hEdit, setHEdit] = useState<J | null>(null);   // hourly booking: price per hour and cleaning gap
   const [hPrice, setHPrice] = useState('');
   const [hGap, setHGap] = useState('60');
+  const [bEdit, setBEdit] = useState<J | null>(null);   // beds in each bedroom
+  const [bRooms, setBRooms] = useState<Record<string, number>[]>([]);
+  const openBeds = (x: J) => { const b = obj(x, 'beds'); const n = int(b, 'bedrooms'); const l = ((b?.layout as any[]) || []).map((r) => (r && !Array.isArray(r) ? { ...r } : {})); while (l.length < n) l.push({}); setBRooms(l.slice(0, Math.max(n, 0))); setBEdit(x); };
+  const bedText = (r: Record<string, number>, types: J[]) => { const p = types.filter((t) => r[text(t, 'type')] > 0).map((t) => `${r[text(t, 'type')]} ${text(t, 'label').toLowerCase()}${r[text(t, 'type')] > 1 ? (text(t, 'type') === 'mattress' ? 'es' : 's') : ''}`); return p.length > 1 ? p.slice(0, -1).join(', ') + ' & ' + p[p.length - 1] : p[0] || 'No beds chosen yet'; };
   const openHourly = (x: J) => { const h = obj(x, 'hourly'); setHPrice(num(h, 'price') ? String(Math.round(num(h, 'price')!)) : ''); setHGap(String(int(h, 'gap', 60))); setHEdit(x); };
   const save = async (x: J, body: Record<string, any>) => {
     setMsg(null);
@@ -524,6 +528,16 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
                       </View>
                     ) : null}
                   </View>
+                  {obj(x, 'beds') ? (
+                    <Press onPress={() => openBeds(x)} style={[st.row, { marginTop: 10, borderRadius: 14, backgroundColor: Brand.Page, paddingHorizontal: 12, paddingVertical: 8 }]}>
+                      <Icon name="king-bed" size={20} color={Brand.Blue} />
+                      <View style={{ flex: 1, paddingLeft: 10 }}>
+                        <Txt k="titleSmall" bold>{plural(int(obj(x, 'beds'), 'bedrooms'), 'bedroom')}</Txt>
+                        <Txt k="labelSmall" color={Brand.Muted} numberOfLines={2}>{text(obj(x, 'beds'), 'summary') || 'Add the beds in each bedroom'}</Txt>
+                      </View>
+                      <Icon name="chevron-right" size={20} color={Brand.Muted} />
+                    </Press>
+                  ) : null}
                   {obj(x, 'hourly') ? (() => { const h = obj(x, 'hourly')!; const on = bool(h, 'on'); return (
                     <View style={[st.row, { marginTop: 10, borderRadius: 14, backgroundColor: on ? '#FDECEC' : Brand.Page, paddingHorizontal: 12, paddingVertical: 8 }]}>
                       <Press onPress={() => openHourly(x)} style={{ flex: 1 }}>
@@ -539,6 +553,27 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
             </Appear>
           );
         })}
+      <Sheet open={!!bEdit} onClose={() => setBEdit(null)} title="Beds in each bedroom">
+        {bEdit ? (() => { const types = objs(obj(bEdit, 'beds'), 'types'); return (
+          <>
+            <Txt k="bodySmall" color={Brand.Muted}>{text(bEdit, 'title')} — e.g. Bedroom 1: 1 double cot bed, Bedroom 2: 2 single cot beds.</Txt>
+            <Gap h={8} />
+            <Stepper label="Bedrooms" value={bRooms.length} min={0} max={20} onChange={(n) => setBRooms((l) => { const c = l.slice(0, n); while (c.length < n) c.push({}); return c; })} />
+            {bRooms.map((r, i) => (
+              <View key={i} style={{ marginTop: 10, borderRadius: 18, borderWidth: 1, borderColor: '#EFDCD5', backgroundColor: '#FFFAF7', padding: 12 }}>
+                <Txt k="titleSmall" bold>Bedroom {i + 1}</Txt>
+                <Txt k="labelSmall" color={Brand.Muted}>{bedText(r, types)}</Txt>
+                {types.map((t) => { const k = text(t, 'type'); return (
+                  <Stepper key={k} label={`${text(t, 'icon')} ${text(t, 'label')}`} value={r[k] || 0} min={0} max={10}
+                    onChange={(n) => setBRooms((l) => l.map((x, j) => { if (j !== i) return x; const y = { ...x, [k]: n }; if (!n) delete y[k]; return y; }))} />
+                ); })}
+              </View>
+            ))}
+            <Gap />
+            <PrimaryButton text="Save beds" onPress={() => { const x = bEdit; setBEdit(null); save(x, { bedrooms: bRooms.length, bed_layout: bRooms }); }} />
+          </>
+        ); })() : null}
+      </Sheet>
       <Dialog open={!!hEdit} onClose={() => setHEdit(null)} title="Hourly booking" text={text(hEdit, 'title')}
         actions={[['Cancel', () => setHEdit(null)], ['Save', () => { const x = hEdit!; setHEdit(null); save(x, { hourly_on: true, hourly_price: parseInt(hPrice, 10) || 0, hourly_gap: parseInt(hGap, 10) }); }]]}>
         <Field label="Price per hour (₹)" value={hPrice} onChange={(v) => setHPrice(v.replace(/\D/g, '').slice(0, 6))} keyboard="number-pad" />
