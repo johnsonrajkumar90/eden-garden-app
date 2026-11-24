@@ -593,7 +593,7 @@ export function ForceHostCard() {
                 {[
                   ['notifications-active', 'Your phone rings', `A guest needs a stay tonight (stranded, arrived late, family or medical emergency). If you have a free stay within ${num(d, 'radius_km')} km — or a little further when nobody closer accepts — your phone rings with a soft tune.`],
                   ['visibility', 'You see the request', 'Guests, nights, stay type, the reason and the distance — never their exact location or phone number.'],
-                  ['touch-app', 'Accept or ignore', 'The first host to accept gets the guest and the other phones stop. A guest you ignore — or who says no to your stay — is not shown to you again for 24 hours.'],
+                  ['touch-app', 'Accept or ignore', 'The first host to accept gets the guest and the other phones stop. A guest you ignore is not shown to you again for 24 hours.'],
                   ['payments', 'Normal booking, normal price', 'The guest sees your stay at its normal price and books it in the app — the usual payment and invoice.'],
                   ['percent', `${num(d, 'extra_pct')}% extra commission`, `Only on bookings that come from Force search, on top of your usual commission.`],
                   ['event-busy', 'Only free stays ring', 'A stay that is booked or closed for those nights is never shown.'],
