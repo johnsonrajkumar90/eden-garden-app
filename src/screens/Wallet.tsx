@@ -1,11 +1,12 @@
 // The guest's TripArro wallet (balance, how rewards are earned, refer & earn, history) and notification settings.
 import React, { useEffect, useState } from 'react';
-import { FlatList, ScrollView, Switch, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, Switch, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Api, errorText } from '../core/api';
 import { useLoader } from '../core/state';
 import { J, bool, num, obj, objs, str, text } from '../core/json';
 import * as Notifier from '../core/notifier';
+import { pushProblem, registerPush } from '../core/push';
 import { Brand } from '../theme';
 import { BackBar, ErrorBox, Gap, Icon, Loading, Notice, PrimaryButton, Txt, money, shareLink, st } from '../ui/kit';
 import { Nav } from '../nav';
@@ -86,7 +87,9 @@ export function NotifyPrefsScreen() {
   const [err, setErr] = useState<string | null>(null);
   const [allowed, setAllowed] = useState(true);
   const [snd, setSnd] = useState(true);
-  useEffect(() => { Notifier.canPost().then(setAllowed); Notifier.soundOn().then(setSnd); }, []);
+  const [push, setPush] = useState<[boolean, string | null] | null>(null);   // closed-app notifications (Firebase) on this phone
+  const checkPush = async () => { setPush(null); const ok = await registerPush(); setPush([ok, ok ? null : await pushProblem()]); };
+  useEffect(() => { Notifier.canPost().then(setAllowed); Notifier.soundOn().then(setSnd); checkPush(); }, []);
   const list = topics || l.data;
   return (
     <View style={{ flex: 1 }}>
@@ -94,6 +97,11 @@ export function NotifyPrefsScreen() {
       {!list && l.loading ? <Loading /> : !list ? <ErrorBox message={l.error || 'Could not load your settings.'} onRetry={l.reload} /> : (
         <ScrollView contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: DOCK_SPACE }}>
           {!allowed ? <Notice tone="warn" text="Notifications are switched off for TripArro on this phone — allow them in the phone's settings to get these." /> : null}
+          <View style={{ borderRadius: 18, backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Txt semi>Notifications when the app is closed</Txt>
+            <Txt k="labelSmall" color={!push ? Brand.Muted : push[0] ? Brand.TealDark : Brand.Warn}>{!push ? 'Checking…' : push[0] ? '✓ This phone is registered — notifications arrive even when TripArro is closed.' : (push[1] || 'Not working on this phone yet.')}</Txt>
+            {push && !push[0] ? <Pressable onPress={checkPush} style={{ marginTop: 6 }}><Txt k="labelLarge" color={Brand.Blue}>Try again</Txt></Pressable> : null}
+          </View>
           <Txt k="bodySmall" color={Brand.Muted}>Choose what reaches your phone. Everything still shows in Notifications in the app.</Txt>
           <View style={[st.row, { borderRadius: 18, backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 10 }]}>
             <View style={{ flex: 1 }}><Txt semi>Sound</Txt><Txt k="labelSmall" color={Brand.Muted}>Play a sound for new messages and updates</Txt></View>

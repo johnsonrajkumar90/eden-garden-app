@@ -21,7 +21,7 @@ import { BackBar, Card, Gap, Icon, Loading, Notice, OutlineButton, Photo, Primar
 import { CheckRow, Field, Stepper } from '../ui/inputs';
 import { Nav } from '../nav';
 import { DOCK_SPACE } from '../ui/dock';
-import { pushOn, registerPush } from '../core/push';
+import { pushOn, pushProblem, registerPush } from '../core/push';
 
 const RED = '#D7192A';
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.max(0, s % 60)).padStart(2, '0')}`;
@@ -529,10 +529,12 @@ export function ForceFab({ bottom }: { bottom: number }) {
 /** Can the phone ring while the app is closed? Push (Firebase) and notification permission, or a nudge to fix them. */
 function RingCheck() {
   const [state, setState] = useState<'ok' | 'perm' | 'push' | null>(null);
+  const [why, setWhy] = useState<string | null>(null);
   const test = async () => {
     const perm = (await Notifications.getPermissionsAsync()).granted;
     if (!perm) { setState('perm'); return; }
-    setState((await registerPush()) || (await pushOn()) ? 'ok' : 'push');
+    const ok = (await registerPush()) || (await pushOn());
+    setWhy(await pushProblem()); setState(ok ? 'ok' : 'push');
   };
   useEffect(() => { test(); }, []);
   if (!state || state === 'ok') return null;
@@ -540,7 +542,8 @@ function RingCheck() {
     <View style={{ paddingHorizontal: 12, paddingTop: 12 }}>
       <Notice tone="warn" text={state === 'perm'
         ? 'Allow TripArro notifications, or your phone cannot ring while the app is closed.'
-        : 'Your phone can ring only while TripArro is open: push notifications are not set up yet. Ask TripArro support to switch on push notifications.'} />
+        : `Your phone can ring only while TripArro is open. ${why || 'Push notifications are not set up yet.'}`} />
+      {state === 'push' ? <><Gap h={6} /><OutlineButton text="Try again" icon="refresh" onPress={test} /></> : null}
       {state === 'perm' ? <><Gap h={6} /><OutlineButton text="Allow notifications" icon="notifications-active" onPress={async () => { const p = await Notifications.requestPermissionsAsync(); if (!p.granted) Linking.openSettings().catch(() => {}); test(); }} /></> : null}
     </View>
   );
