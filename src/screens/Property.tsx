@@ -81,16 +81,24 @@ export default function PropertyScreen() {
             </DetailSection>
           ) : null}
           {str(p, 'description') ? <DetailSection title="About this place" icon="info-outline"><ExpandText text={str(p, 'description')!} /></DetailSection> : null}
-          {objs(obj(p, 'beds'), 'rooms').length ? (
-            <DetailSection title="Where you'll sleep" icon="bed" sub={(() => { const t = text(obj(p, 'beds'), 'summary'); return t.charAt(0).toUpperCase() + t.slice(1); })()}>
+          {objs(obj(p, 'beds'), 'rooms').length || int(obj(obj(p, 'beds'), 'baths'), 'common') > 0 ? (
+            <DetailSection title="Where you'll sleep" icon="bed" sub={(() => { const t = [text(obj(p, 'beds'), 'summary'), text(obj(obj(p, 'beds'), 'baths'), 'text')].filter(Boolean).join(' · '); return t.charAt(0).toUpperCase() + t.slice(1); })()}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {objs(obj(p, 'beds'), 'rooms').map((r, i) => (
                   <View key={i} style={{ width: 150, borderRadius: 18, backgroundColor: Brand.Page, padding: 14 }}>
                     <Icon name="king-bed" size={24} color={Brand.Blue} />
                     <Txt k="titleSmall" style={{ marginTop: 6 }}>{text(r, 'name')}</Txt>
                     {objs(r, 'beds').map((b, j) => <Txt key={j} k="bodySmall" color={Brand.InkSoft}>{int(b, 'count')} {text(b, 'label').toLowerCase()}</Txt>)}
+                    {bool(r, 'bath') ? <Txt k="labelSmall" bold color={Brand.TealDark} style={{ marginTop: 4 }}>🚿 Attached bathroom</Txt> : null}
                   </View>
                 ))}
+                {int(obj(obj(p, 'beds'), 'baths'), 'common') > 0 ? (
+                  <View style={{ width: 150, borderRadius: 18, borderWidth: 1, borderStyle: 'dashed', borderColor: Brand.Line, padding: 14 }}>
+                    <Icon name="shower" size={24} color={Brand.Blue} />
+                    <Txt k="titleSmall" style={{ marginTop: 6 }}>{plural(int(obj(obj(p, 'beds'), 'baths'), 'common'), 'common bathroom')}</Txt>
+                    <Txt k="bodySmall" color={Brand.InkSoft}>Shared, outside the bedrooms</Txt>
+                  </View>
+                ) : null}
               </ScrollView>
             </DetailSection>
           ) : null}

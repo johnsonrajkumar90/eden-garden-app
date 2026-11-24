@@ -484,8 +484,9 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
   const [hGap, setHGap] = useState('60');
   const [bEdit, setBEdit] = useState<J | null>(null);   // beds in each bedroom
   const [bRooms, setBRooms] = useState<Record<string, number>[]>([]);
-  const openBeds = (x: J) => { const b = obj(x, 'beds'); const n = int(b, 'bedrooms'); const l = ((b?.layout as any[]) || []).map((r) => (r && !Array.isArray(r) ? { ...r } : {})); while (l.length < n) l.push({}); setBRooms(l.slice(0, Math.max(n, 0))); setBEdit(x); };
-  const bedText = (r: Record<string, number>, types: J[]) => { const p = types.filter((t) => r[text(t, 'type')] > 0).map((t) => `${r[text(t, 'type')]} ${text(t, 'label').toLowerCase()}${r[text(t, 'type')] > 1 ? (text(t, 'type') === 'mattress' ? 'es' : 's') : ''}`); return p.length > 1 ? p.slice(0, -1).join(', ') + ' & ' + p[p.length - 1] : p[0] || 'No beds chosen yet'; };
+  const [bCommon, setBCommon] = useState(0);
+  const openBeds = (x: J) => { const b = obj(x, 'beds'); const n = int(b, 'bedrooms'); const l = ((b?.layout as any[]) || []).map((r) => (r && !Array.isArray(r) ? { ...r } : {})); while (l.length < n) l.push({}); setBRooms(l.slice(0, Math.max(n, 0))); setBCommon(int(b, 'common_baths')); setBEdit(x); };
+  const bedText = (r: Record<string, number>, types: J[]): string => { const p = types.filter((t) => r[text(t, 'type')] > 0).map((t) => `${r[text(t, 'type')]} ${text(t, 'label').toLowerCase()}${r[text(t, 'type')] > 1 ? (text(t, 'type') === 'mattress' ? 'es' : 's') : ''}`); return p.length > 1 ? p.slice(0, -1).join(', ') + ' & ' + p[p.length - 1] : p[0] || 'No beds chosen yet'; };
   const openHourly = (x: J) => { const h = obj(x, 'hourly'); setHPrice(num(h, 'price') ? String(Math.round(num(h, 'price')!)) : ''); setHGap(String(int(h, 'gap', 60))); setHEdit(x); };
   const save = async (x: J, body: Record<string, any>) => {
     setMsg(null);
@@ -553,24 +554,36 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
             </Appear>
           );
         })}
-      <Sheet open={!!bEdit} onClose={() => setBEdit(null)} title="Beds in each bedroom">
+      <Sheet open={!!bEdit} onClose={() => setBEdit(null)} title="Bedrooms & bathrooms">
         {bEdit ? (() => { const types = objs(obj(bEdit, 'beds'), 'types'); return (
           <>
             <Txt k="bodySmall" color={Brand.Muted}>{text(bEdit, 'title')} — e.g. Bedroom 1: 1 double cot bed, Bedroom 2: 2 single cot beds.</Txt>
             <Gap h={8} />
-            <Stepper label="Bedrooms" value={bRooms.length} min={0} max={20} onChange={(n) => setBRooms((l) => { const c = l.slice(0, n); while (c.length < n) c.push({}); return c; })} />
             {bRooms.map((r, i) => (
               <View key={i} style={{ marginTop: 10, borderRadius: 18, borderWidth: 1, borderColor: '#EFDCD5', backgroundColor: '#FFFAF7', padding: 12 }}>
-                <Txt k="titleSmall" bold>Bedroom {i + 1}</Txt>
+                <View style={st.row}>
+                  <Txt k="titleSmall" bold style={{ flex: 1 }}>Bedroom {i + 1}</Txt>
+                  <Pressable onPress={() => setBRooms((l) => l.filter((_, j) => j !== i))} hitSlop={8} accessibilityLabel={`Remove bedroom ${i + 1}`}><Icon name="close" size={20} color={Brand.Muted} /></Pressable>
+                </View>
                 <Txt k="labelSmall" color={Brand.Muted}>{bedText(r, types)}</Txt>
                 {types.map((t) => { const k = text(t, 'type'); return (
                   <Stepper key={k} label={`${text(t, 'icon')} ${text(t, 'label')}`} value={r[k] || 0} min={0} max={10}
                     onChange={(n) => setBRooms((l) => l.map((x, j) => { if (j !== i) return x; const y = { ...x, [k]: n }; if (!n) delete y[k]; return y; }))} />
                 ); })}
+                <Pressable onPress={() => setBRooms((l) => l.map((x, j) => { if (j !== i) return x; const y = { ...x }; if (y.bath) delete y.bath; else y.bath = 1; return y; }))}
+                  style={[st.row, { marginTop: 6, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#ECD9D2' }]} accessibilityRole="checkbox" accessibilityState={{ checked: !!r.bath }}>
+                  <Icon name={r.bath ? 'check-box' : 'check-box-outline-blank'} size={22} color={r.bath ? Brand.Blue : Brand.Muted} />
+                  <Txt k="titleSmall" style={{ marginLeft: 8 }}>🚿 Attached bathroom</Txt>
+                </Pressable>
               </View>
             ))}
+            <Gap h={10} />
+            <OutlineButton text="＋ Add a bedroom" onPress={() => setBRooms((l) => (l.length < 50 ? [...l, {}] : l))} />
+            <Gap h={6} />
+            <Stepper label="🚿 Common bathrooms" note="Shared, not inside a bedroom" value={bCommon} min={0} max={20} onChange={setBCommon} />
+            <Txt k="labelSmall" color={Brand.Muted}>{plural(bRooms.length, 'bedroom')} · {plural(bRooms.filter((r) => r.bath).length + bCommon, 'bathroom')} in all</Txt>
             <Gap />
-            <PrimaryButton text="Save beds" onPress={() => { const x = bEdit; setBEdit(null); save(x, { bedrooms: bRooms.length, bed_layout: bRooms }); }} />
+            <PrimaryButton text="Save rooms" onPress={() => { const x = bEdit; setBEdit(null); save(x, { bedrooms: bRooms.length, bed_layout: bRooms, common_baths: bCommon }); }} />
           </>
         ); })() : null}
       </Sheet>
