@@ -25,15 +25,16 @@ export function OverlayTag({ text: t }: { text: string }) {
   return <View style={{ alignSelf: 'flex-start', borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.94)', paddingHorizontal: 10, paddingVertical: 5 }}><Txt k="labelMedium" semi>{t}</Txt></View>;
 }
 type Tag = { text: string; bg: string; fg: string; icon?: string };
-const T_VERIFIED: Tag = { text: 'Verified', bg: '#FFFFFFF2', fg: '#0B6B3A', icon: 'verified' };
+const T_VERIFIED: Tag = { text: '', bg: '#FFFFFFF2', fg: '#0B6B3A', icon: 'verified' };
 const T_REFUND: Tag = { text: 'Refundable', bg: '#0B6B3AE6', fg: '#fff' };
-const T_PROPERTY: Tag = { text: 'Pay Full on Property', bg: Brand.Sun, fg: Brand.Ink, icon: 'payments' };
+const T_PROPERTY: Tag = { text: '', bg: Brand.Sun, fg: Brand.Ink, icon: 'payments' };
 
-function TagChip({ t }: { t: Tag }) {
+function TagChip({ t: t0, compact }: { t: Tag; compact?: boolean }) {
+  const t = compact && t0.icon ? { ...t0, text: '' } : t0;   // narrow cards: icons only, so nothing runs into the rating
   return (
-    <View style={[st.row, { alignSelf: 'flex-start', borderRadius: 50, backgroundColor: t.bg, paddingHorizontal: 8, paddingVertical: 3.5 }]}>
-      {t.icon ? <Icon name={t.icon} size={12} color={t.fg} style={{ marginRight: 3 }} /> : null}
-      <Txt k="labelSmall" bold color={t.fg}>{t.text}</Txt>
+    <View style={[st.row, { alignSelf: 'flex-start', borderRadius: 50, backgroundColor: t.bg, paddingHorizontal: t.text ? 8 : 5, paddingVertical: t.text ? 3.5 : 4 }]}>
+      {t.icon ? <Icon name={t.icon} size={13} color={t.fg} style={t.text ? { marginRight: 3 } : undefined} /> : null}
+      {t.text ? <Txt k="labelSmall" bold color={t.fg}>{t.text}</Txt> : null}
     </View>
   );
 }
@@ -52,13 +53,12 @@ export function GlassListingCard({ image, title, place, price, unit, was, tags, 
       {/* the photo fills the whole card; the words sit on a dark fade at the bottom */}
       <LivePhoto url={image} corner={0} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} label={title} />
       <LinearGradient pointerEvents="none" colors={['#00000055', '#00000000', '#00000000', '#000000D9']} locations={[0, 0.25, 0.45, 1]} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
-      <View style={{ position: 'absolute', top: 10, left: 10, right: 56, gap: 4 }}>{tags.map((t, i) => <TagChip key={i} t={t} />)}</View>
+      <View style={{ position: 'absolute', top: 10, left: 10, right: 60, flexDirection: 'row', gap: 4, overflow: 'hidden' }}>{tags.map((t, i) => <TagChip key={i} t={t} compact={!wide} />)}</View>
       {rating && rating > 0 ? (
         <View style={[st.row, { position: 'absolute', top: 10, right: 10, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 7, paddingVertical: 3.5 }]}>
           <Icon name="star" size={13} color={Brand.SunDark} /><Txt k="labelSmall" bold> {rating.toFixed(1)}</Txt>
         </View>
       ) : null}
-      {offer ? <View style={{ position: 'absolute', right: 10, top: rating && rating > 0 ? 38 : 10, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 8, paddingVertical: 3.5 }}><Txt k="labelSmall" bold color={Brand.Ink}>{offer}</Txt></View> : null}
       <View style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }}>
         <Txt k={wide ? 'titleLarge' : 'titleSmall'} color="#fff" numberOfLines={2} style={{ textShadowColor: '#00000080', textShadowRadius: 4 }}>{title}</Txt>
         <View style={[st.row, { marginTop: 2 }]}><Icon name="place" size={12} color={Brand.Sun} /><Txt k="labelSmall" color="#FFFFFFE6" numberOfLines={1} style={{ flex: 1 }}> {place}</Txt></View>
@@ -67,6 +67,7 @@ export function GlassListingCard({ image, title, place, price, unit, was, tags, 
             <View style={{ borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 10, paddingVertical: 4 }}><Txt k="labelMedium" bold color="#fff">{price}</Txt></View>
             <Txt k="labelSmall" color="#FFFFFFD9"> {unit}</Txt>
             {was ? <Txt k="labelSmall" color="#FFFFFFAA" style={{ textDecorationLine: 'line-through', marginLeft: 4 }}>{was}</Txt> : null}
+            {offer ? <View style={{ marginLeft: 5, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 6, paddingVertical: 1.5 }}><Txt k="labelSmall" bold color={Brand.Ink} style={{ fontSize: 9.5 }}>{offer}</Txt></View> : null}
           </View>
         ) : null}
         {note ? <Txt k="labelSmall" color={noteTone === 'warn' ? '#FFD38A' : '#9DF0C4'} numberOfLines={1} style={{ marginTop: 4 }}>{note}</Txt> : null}
@@ -82,10 +83,9 @@ export function listingTags(p: J): Tag[] {
   if (bool(badges, 'sponsored')) out.push({ text: 'Sponsored', bg: '#000000AA', fg: '#fff' });
   if (bool(badges, 'verified')) out.push(T_VERIFIED);
   if (bool(badges, 'favourite')) out.push({ text: '★', bg: Brand.Sun, fg: '#4A3400' });   // guest favourite: just the star
-  if (p && p.refundable === true) out.push(T_REFUND);
   if (bool(p, 'pay_at_property')) out.push(T_PROPERTY);
-  if (obj(p, 'hourly')) out.push({ text: `⏱️ ${money(num(obj(p, 'hourly'), 'price'))}/hr`, bg: '#fff', fg: '#A3141D' });   // book by the hour
-  return out.slice(0, 4);
+  if (obj(p, 'hourly')) out.push({ text: `${money(num(obj(p, 'hourly'), 'price'))}/hr`, bg: '#fff', fg: '#A3141D', icon: 'schedule' });   // book by the hour
+  return out.slice(0, 5);
 }
 export { T_VERIFIED, T_REFUND, T_PROPERTY };
 
@@ -160,7 +160,7 @@ export function GridPropertyCard({ p, onPress }: { p: J; onPress: () => void }) 
       price={total ? money(num(total, 'amount')) : money(offer ?? nightly)} unit={total ? `· ${int(total, 'nights')}n` : '/night'}
       was={!total && offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
       offer={offer !== null && nightly !== null && offer < nightly ? `${Math.round((1 - offer / nightly) * 100)}% OFF` : null}
-      tags={listingTags(p)} rating={num(p, 'rating')} note={null} noteTone="warn" onPress={onPress} />
+      tags={listingTags(p)} rating={num(p, 'rating')} note={p && p.refundable === true ? '✓ Refundable' : null} noteTone="ok" onPress={onPress} />
   );
 }
 
