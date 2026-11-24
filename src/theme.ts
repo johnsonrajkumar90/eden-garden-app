@@ -20,17 +20,17 @@ const P = { m: 'poppins_medium', s: 'poppins_semibold', b: 'poppins_bold' };
 const I = { r: 'inter_regular', m: 'inter_medium', s: 'inter_semibold', b: 'inter_bold' };
 
 export const T: Record<string, TextStyle> = {
-  displaySmall: { fontFamily: P.b, fontSize: 32, lineHeight: 38, letterSpacing: -0.6, color: Brand.Ink },
-  headlineMedium: { fontFamily: P.b, fontSize: 28, lineHeight: 34, letterSpacing: -0.5, color: Brand.Ink },
-  headlineSmall: { fontFamily: P.b, fontSize: 23, lineHeight: 29, letterSpacing: -0.3, color: Brand.Ink },
-  titleLarge: { fontFamily: P.s, fontSize: 18, lineHeight: 24, letterSpacing: -0.2, color: Brand.Ink },
-  titleMedium: { fontFamily: I.s, fontSize: 16, lineHeight: 22, color: Brand.Ink },
-  titleSmall: { fontFamily: I.s, fontSize: 14, lineHeight: 20, color: Brand.Ink },
-  bodyLarge: { fontFamily: I.r, fontSize: 16, lineHeight: 24, color: Brand.Ink },
-  bodyMedium: { fontFamily: I.r, fontSize: 14, lineHeight: 21, color: Brand.Ink },
-  bodySmall: { fontFamily: I.r, fontSize: 12.5, lineHeight: 18, color: Brand.Ink },
-  labelLarge: { fontFamily: I.s, fontSize: 15, color: Brand.Ink },
-  labelMedium: { fontFamily: I.m, fontSize: 12, lineHeight: 16, color: Brand.Ink },
-  labelSmall: { fontFamily: I.s, fontSize: 11, lineHeight: 14, color: Brand.Ink },
+  displaySmall: { fontFamily: P.b, fontSize: 27, lineHeight: 33, letterSpacing: -0.6, color: Brand.Ink },
+  headlineMedium: { fontFamily: P.b, fontSize: 23, lineHeight: 29, letterSpacing: -0.5, color: Brand.Ink },
+  headlineSmall: { fontFamily: P.b, fontSize: 19.5, lineHeight: 25, letterSpacing: -0.3, color: Brand.Ink },
+  titleLarge: { fontFamily: P.s, fontSize: 16, lineHeight: 21, letterSpacing: -0.2, color: Brand.Ink },
+  titleMedium: { fontFamily: I.s, fontSize: 14.5, lineHeight: 20, color: Brand.Ink },
+  titleSmall: { fontFamily: I.s, fontSize: 13, lineHeight: 18, color: Brand.Ink },
+  bodyLarge: { fontFamily: I.r, fontSize: 14.5, lineHeight: 21, color: Brand.Ink },
+  bodyMedium: { fontFamily: I.r, fontSize: 13, lineHeight: 19, color: Brand.Ink },
+  bodySmall: { fontFamily: I.r, fontSize: 11.5, lineHeight: 16, color: Brand.Ink },
+  labelLarge: { fontFamily: I.s, fontSize: 13.5, color: Brand.Ink },
+  labelMedium: { fontFamily: I.m, fontSize: 11.5, lineHeight: 15, color: Brand.Ink },
+  labelSmall: { fontFamily: I.s, fontSize: 10.5, lineHeight: 13, color: Brand.Ink },
 };
 export const Fonts = { ...P, ...I, bold: I.b, semi: I.s, medium: I.m, regular: I.r };

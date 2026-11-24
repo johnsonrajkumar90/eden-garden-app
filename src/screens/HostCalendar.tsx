@@ -6,7 +6,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Brand } from '../theme';
-import { Icon, Txt, parseIso, today } from '../ui/kit';
+import { Icon, Txt, parseIso, st, today } from '../ui/kit';
 
 const thisMonth = () => today().slice(0, 7);
 const addMonths = (ym: string, n: number) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
@@ -25,7 +25,7 @@ const CHECKOUT = '#9E9E9E';
 export function MonthTitle({ label, pct, month, onMonth }: { label: string; pct?: number | null; month: string; onMonth: (m: string) => void }) {
   const canBack = month > thisMonth();
   const arrow = (icon: string, on: boolean, f: () => void, a: string) => (
-    <Pressable onPress={f} disabled={!on} accessibilityLabel={a} hitSlop={6} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.85)', borderWidth: 1, borderColor: '#EFE3DF', alignItems: 'center', justifyContent: 'center', opacity: on ? 1 : 0.35 }}>
+    <Pressable onPress={f} disabled={!on} accessibilityLabel={a} hitSlop={6} style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#FFE9E1', alignItems: 'center', justifyContent: 'center', opacity: on ? 1 : 0.35 }}>
       <Icon name={icon} size={20} color={Brand.Ink} />
     </Pressable>
   );
@@ -128,5 +128,92 @@ export const LaneKey = () => (
       [<View style={{ width: 18, height: 5, borderRadius: 3, backgroundColor: '#E35D5D', opacity: 0.5 }} />, 'Request'],
       [<View style={{ width: 18, height: 5, borderRadius: 3, backgroundColor: '#CFC6C2' }} />, 'Closed'],
     ].map(([el, l], i) => <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>{el as React.ReactNode}<Txt k="labelSmall" color={Brand.InkSoft}>{l as string}</Txt></View>)}
+  </View>
+);
+
+/* ---------- One listing's month: a friendly night calendar ---------- */
+export type NightDay = { date: string; state: string; key: string; label?: string | null; price?: string | null };
+
+const bandColor = (s: string, col: string) => (s === 'closed' ? '#CFC6C2' : col);
+const shortName = (l?: string | null) => (l || '').replace(/^⏳\s*Request\s*·\s*/u, '').split(/[·,]/)[0].trim().split(' ')[0];
+
+/**
+ * A night per cell: the day number, then the night's price when it is free — or a soft coloured ribbon when it is
+ * booked (the guest's name where the stay begins), requested (lighter) or closed (grey). Ribbons run on across the
+ * week, so a stay reads as one piece.
+ */
+export function NightMonth({ days, color, onDay, selected }: { days: NightDay[]; color: string; onDay: (d: NightDay) => void; selected?: (date: string) => boolean }) {
+  const t0 = today();
+  const lead = days.length ? (parseIso(days[0].date)?.getDay() ?? 0) : 0;
+  const cells: (NightDay | null)[] = [...Array(lead).fill(null), ...days];
+  while (cells.length % 7) cells.push(null);
+  const rows: (NightDay | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+  const on = (d?: NightDay | null) => !!d && d.state !== 'free';
+  const same = (a?: NightDay | null, b?: NightDay | null) => on(a) && on(b) && a!.key === b!.key;
+  return (
+    <View>
+      {rows.map((w, wi) => (
+        <View key={wi} style={{ flexDirection: 'row', marginBottom: 6 }}>
+          {w.map((c, i) => {
+            if (!c) return <View key={i} style={{ flex: 1, height: 66 }} />;
+            const idx = days.indexOf(c);
+            const prev = days[idx - 1], next = days[idx + 1];
+            const isToday = c.date === t0, past = c.date < t0, sel = selected?.(c.date);
+            const dn = parseIso(c.date)?.getDate();
+            const startHere = on(c) && (!same(prev, c) || i === 0);
+            const endHere = on(c) && (!same(c, next) || i === 6);
+            const fade = c.state === 'request' ? 0.5 : c.state === 'platform' || c.state === 'some' ? 0.7 : 1;
+            return (
+              <Pressable key={i} onPress={() => onDay(c)} style={({ pressed }) => ({ flex: 1, height: 66, alignItems: 'center', opacity: pressed ? 0.7 : 1 })}
+                accessibilityLabel={`${dn}${isToday ? ', today' : ''}${on(c) ? ', ' + (c.state === 'closed' ? 'closed' : c.state === 'request' ? 'request' : 'booked') : c.price ? ', ' + c.price : ''}`}>
+                <View style={{ width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 4,
+                  backgroundColor: sel ? Brand.Sun : isToday ? '#1D1B1A' : 'transparent' }}>
+                  <Txt k="titleSmall" color={sel ? '#4A3400' : isToday ? '#fff' : past ? '#BDB3AE' : Brand.Ink}>{dn}</Txt>
+                </View>
+                {on(c) ? (
+                  <View style={{ alignSelf: 'stretch', height: 22, marginTop: 4, marginLeft: startHere ? 3 : 0, marginRight: endHere ? 3 : 0, justifyContent: 'center',
+                    backgroundColor: bandColor(c.state, color), opacity: past ? fade * 0.55 : fade,
+                    borderTopLeftRadius: startHere ? 11 : 0, borderBottomLeftRadius: startHere ? 11 : 0, borderTopRightRadius: endHere ? 11 : 0, borderBottomRightRadius: endHere ? 11 : 0 }}>
+                    {startHere ? <Txt k="labelSmall" color={c.state === 'closed' ? '#5E5450' : '#2B211D'} numberOfLines={1} style={{ paddingLeft: 7, fontSize: 10 }}>
+                      {c.state === 'closed' ? 'Closed' : c.state === 'request' ? 'Request' : shortName(c.label) || 'Booked'}
+                    </Txt> : null}
+                  </View>
+                ) : (
+                  <Txt k="labelSmall" color={past ? '#CFC6C2' : '#8C817C'} style={{ marginTop: 8, fontSize: 10 }} numberOfLines={1}>{past ? '' : c.price || ''}</Txt>
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** "12 booked · 18 free" with a soft progress bar. */
+export function MonthMeter({ days, color }: { days: NightDay[]; color: string }) {
+  const open = days.filter((d) => d.state !== 'closed');
+  const busy = open.filter((d) => d.state !== 'free').length;
+  const pct = open.length ? Math.round((busy / open.length) * 100) : 0;
+  return (
+    <View style={{ borderRadius: 18, backgroundColor: '#ffffffd9', padding: 12, marginBottom: 12 }}>
+      <View style={[st.row, { marginBottom: 8 }]}>
+        <Txt k="titleSmall" style={{ flex: 1 }}>🛏️ {busy} booked · {open.length - busy} free{days.length - open.length ? ` · ${days.length - open.length} closed` : ''}</Txt>
+        <Txt k="titleSmall" color={Brand.Blue}>{pct}%</Txt>
+      </View>
+      <View style={{ height: 8, borderRadius: 4, backgroundColor: '#F3ECE8', overflow: 'hidden' }}><View style={{ width: `${pct}%`, height: 8, borderRadius: 4, backgroundColor: color }} /></View>
+    </View>
+  );
+}
+
+export const NightKey = ({ color }: { color: string }) => (
+  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+    {[[color, 1, 'Booked'], [color, 0.5, 'Request'], ['#CFC6C2', 1, 'Closed']].map(([c, o, l]) => (
+      <View key={l as string} style={[st.row, { gap: 5, borderRadius: 50, backgroundColor: '#ffffffd9', paddingHorizontal: 10, paddingVertical: 5 }]}>
+        <View style={{ width: 16, height: 8, borderRadius: 4, backgroundColor: c as string, opacity: o as number }} /><Txt k="labelSmall" color={Brand.InkSoft}>{l as string}</Txt>
+      </View>
+    ))}
+    <View style={[st.row, { gap: 5, borderRadius: 50, backgroundColor: '#ffffffd9', paddingHorizontal: 10, paddingVertical: 5 }]}><Txt k="labelSmall" color="#8C817C">₹ Free · price</Txt></View>
   </View>
 );

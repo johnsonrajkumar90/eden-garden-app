@@ -29,11 +29,11 @@ export function KycBanner() {
   const s = text(k, 'status', 'approved');
   if (!k || s === 'approved' || !bool(k, 'on')) return null;
   const [bg, fg, icon] = TONE[s] || TONE.none;
-  const msg = s === 'submitted' ? 'Your KYC is being checked — usually within 1–2 working days.' : s === 'rejected' ? 'Your KYC needs changes — tap to see what to fix.' : 'Complete your KYC verification — ID, PAN, address and property proof. About 5 minutes.';
+  const [title, sub] = s === 'submitted' ? ['KYC is being checked', 'Usually within 1–2 working days'] : s === 'rejected' ? ['KYC needs a fix', 'Tap to see what to change'] : ['Finish your KYC', 'ID, PAN, address & property proof · 5 min'];
   return (
-    <Pressable onPress={() => Nav.navigate('hostkyc')} style={[st.row, { marginHorizontal: 16, marginTop: 4, marginBottom: 8, borderRadius: 18, backgroundColor: bg, padding: 12 }]} accessibilityRole="button">
-      <Icon name={icon} color={fg} />
-      <Txt k="bodyMedium" color={fg} style={{ flex: 1, paddingHorizontal: 10 }}>{msg}</Txt>
+    <Pressable onPress={() => Nav.navigate('hostkyc')} style={[st.row, { marginHorizontal: 16, marginTop: 2, marginBottom: 6, borderRadius: 18, backgroundColor: bg, paddingHorizontal: 12, paddingVertical: 9 }]} accessibilityRole="button">
+      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#ffffffaa', alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} size={18} color={fg} /></View>
+      <View style={{ flex: 1, paddingHorizontal: 10 }}><Txt k="titleSmall" color={fg}>{title}</Txt><Txt k="labelSmall" color={fg} style={{ opacity: 0.8 }}>{sub}</Txt></View>
       <Icon name="chevron-right" color={fg} />
     </Pressable>
   );

@@ -62,7 +62,7 @@ export default function PropertyScreen() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
               <RatingBadge rating={num(p, 'rating')} count={int(p, 'reviews')} />
               {bool(badges, 'verified') ? <Pill text="✓ Verified" tone="ok" /> : null}
-              {bool(badges, 'favourite') ? <Pill text="Guest favourite" tone="info" /> : null}
+              {bool(badges, 'favourite') ? <View accessibilityLabel="Guest favourite" style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: Brand.Sun, alignItems: 'center', justifyContent: 'center' }}><Icon name="star" size={16} color="#4A3400" /></View> : null}
               <RefundTag refundable={canc ? isRefundable(canc) : true} />
               {canc && canc.refundable === false ? <Pill text="🚫 Non-refundable" tone="bad" /> : null}
             </View>

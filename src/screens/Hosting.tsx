@@ -18,7 +18,7 @@ import { RED_GRAD, SUN_GRAD } from '../ui/cards';
 import { Nav } from '../nav';
 import { ChatList } from './Chat';
 import { AllListingsCalendar, HostToolsTab, MonthHead, WeekHead, addMonths, leadDays, stateColor, thisMonth, weeks } from './HostTools';
-import { CalDay, DayPills, LaneDay, LaneKey, LaneMonth, MonthTitle, bookedPct, laneColor } from './HostCalendar';
+import { CalDay, DayPills, LaneDay, LaneKey, LaneMonth, MonthMeter, MonthTitle, NightDay, NightKey, NightMonth, bookedPct, laneColor } from './HostCalendar';
 
 const longDay = (iso: string) => parseIso(iso)?.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) || iso;
 
@@ -41,70 +41,88 @@ export default function HostingScreen() {
 import { KycBanner } from './HostKyc';
 import { DOCK_SPACE } from '../ui/dock';
 
-function HStat({ label, value, flex }: { label: string; value: string; flex: number }) {
+/** Soft colours for the dashboard's tiles (one per idea, the same everywhere). */
+export const PASTEL = {
+  peach: ['#FFE9E1', '#C2410C'], mint: ['#DDF6E9', '#047857'], lavender: ['#EDE7FF', '#5B3FC4'], sky: ['#E1F0FF', '#1D5FB4'],
+  butter: ['#FFF4C7', '#8A5A00'], rose: ['#FFE3E8', '#BE1840'],
+} as const;
+type Tone = keyof typeof PASTEL;
+
+function greet() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+
+function StatTile({ emoji, value, label, tone }: { emoji: string; value: string; label: string; tone: Tone }) {
+  const [bg, fg] = PASTEL[tone];
   return (
-    <View style={{ flex, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.08)', padding: 12 }}>
-      <Txt k="titleLarge" color="#fff" numberOfLines={1}>{value}</Txt>
-      <Txt k="labelSmall" color="#ffffffa6" numberOfLines={1}>{label}</Txt>
+    <View style={{ flex: 1, borderRadius: 22, backgroundColor: bg, paddingHorizontal: 12, paddingVertical: 11 }}>
+      <Txt style={{ fontSize: 18 }}>{emoji}</Txt>
+      <Txt k="titleLarge" color={fg} numberOfLines={1} style={{ marginTop: 2 }}>{value}</Txt>
+      <Txt k="labelSmall" color={fg} numberOfLines={1} style={{ opacity: 0.85 }}>{label}</Txt>
     </View>
   );
 }
 
 function HostDashboard({ role }: { role: string }) {
   const pets = role === 'pethost';
-  const tabs: [string, string, string][] = [['today', 'Today', 'today'], ['bookings', 'Bookings', 'list-alt']];
-  if (!pets) tabs.push(['calendar', 'Calendar', 'calendar-month']);
-  tabs.push(['listings', 'Listings', 'home'], ['money', 'Money', 'payments']);
-  if (!pets) tabs.push(['chats', 'Messages', 'chat-bubble-outline']);
-  tabs.push(['more', 'More', 'apps']);
+  const tabs: [string, string, string, Tone][] = [['today', 'Today', 'wb-sunny', 'butter'], ['bookings', 'Bookings', 'event-note', 'sky']];
+  if (!pets) tabs.push(['calendar', 'Calendar', 'calendar-month', 'mint']);
+  tabs.push(['listings', pets ? 'Listings' : 'Stays', 'home', 'peach'], ['money', 'Money', 'account-balance-wallet', 'lavender']);
+  if (!pets) tabs.push(['chats', 'Chats', 'chat-bubble-outline', 'rose']);
+  tabs.push(['more', 'More', 'widgets', 'sky']);
   const [tab, setTab] = useState('today');
   const [tick, setTick] = useState(0);
   const home = useLoader(() => Api.get('hostapp/home'), [tick]);
   const h = home.data;
   const changed = () => setTick((t) => t + 1);
   const m = obj(h, 'month') || {};
+  const name = (text(h, 'name') || Api.session?.user?.name || '').split(' ')[0];
+  const title = pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting';
   return (
     <View style={{ flex: 1 }}>
-      <TopBar style={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 14, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-        <HeadButton icon="arrow-back" label="Back" onPress={Nav.back} />
-        <View style={{ paddingTop: 10 }}>
-          <View>
-            <Txt k="headlineMedium" color="#fff">{pets ? 'Pet hosting' : role === 'resort' ? 'My resort' : role === 'admin' ? 'Admin dashboard' : 'My hosting'}</Txt>
-            <Txt k="bodyMedium" color="#FFE3E1" numberOfLines={1}>Hi {text(h, 'name').split(' ')[0]} — everything for your guests, here in the app</Txt>
+      <LinearGradient colors={['#E8474B', '#F2675A', '#FF9466']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 14, paddingTop: 8, paddingBottom: 12, borderBottomLeftRadius: 26, borderBottomRightRadius: 26, overflow: 'hidden' }}>
+        {/* soft bubbles */}
+        <View pointerEvents="none" style={{ position: 'absolute', right: -40, top: -30, width: 150, height: 150, borderRadius: 75, backgroundColor: '#ffffff22' }} />
+        <View pointerEvents="none" style={{ position: 'absolute', right: 70, bottom: -40, width: 90, height: 90, borderRadius: 45, backgroundColor: '#FFC72C55' }} />
+        <View style={st.row}>
+          <Pressable onPress={Nav.back} accessibilityLabel="Back" hitSlop={8} style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#ffffff33', alignItems: 'center', justifyContent: 'center' }}><Icon name="arrow-back" size={18} color="#fff" /></Pressable>
+          <View style={{ flex: 1, paddingHorizontal: 10 }}>
+            <Txt k="labelSmall" color="#FFE7E1">{greet()}{name ? `, ${name}` : ''} 👋</Txt>
+            <Txt k="titleLarge" color="#fff" numberOfLines={1}>{title}</Txt>
+          </View>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#FFC72C' }}>
+            <Txt k="titleSmall" bold color={Brand.Blue}>{(name || '?').slice(0, 1).toUpperCase()}</Txt>
           </View>
         </View>
-      </TopBar>
-      <View style={{ margin: 16, marginBottom: 8, borderRadius: 26, backgroundColor: Brand.Ink, padding: 8, overflow: 'hidden' }}>
-        <View pointerEvents="none" style={{ position: 'absolute', right: -30, top: -50, width: 140, height: 120, borderTopLeftRadius: 70, borderTopRightRadius: 70, backgroundColor: Brand.Sun, opacity: 0.9 }} />
-        <View style={{ flexDirection: 'row', gap: 6 }}>
-          <HStat label={`Earnings · ${text(m, 'label', 'this month')}`} value={money(num(m, 'earnings') || 0)} flex={1.4} />
-          <HStat label="Bookings" value={String(int(m, 'bookings'))} flex={1} />
-          <HStat label={pets ? 'Pets now' : 'Staying now'} value={String(int(h, 'staying'))} flex={1} />
+        {/* this month, at a glance */}
+        <View style={{ flexDirection: 'row', marginTop: 12, borderRadius: 20, backgroundColor: '#ffffff2e', paddingVertical: 9 }}>
+          {[['💰', money(num(m, 'earnings') || 0), `Earned · ${text(m, 'label', 'this month').split(' ')[0].slice(0, 3)}`], ['🧳', String(int(m, 'bookings')), 'Bookings'], [pets ? '🐾' : '🛏️', String(int(h, 'staying')), pets ? 'Pets now' : 'Staying now']].map(([e, v, l], i) => (
+            <View key={l} style={{ flex: i ? 1 : 1.3, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: '#ffffff44' }}>
+              <Txt k="titleMedium" bold color="#fff" numberOfLines={1}>{e} {v}</Txt>
+              <Txt k="labelSmall" color="#FFE7E1" numberOfLines={1}>{l}</Txt>
+            </View>
+          ))}
         </View>
-      </View>
+      </LinearGradient>
+      <Gap h={8} />
       {role === 'host' ? <KycBanner /> : null}
-      <View style={{ borderBottomWidth: 1, borderBottomColor: Brand.Line }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10, gap: 8 }}>
-          {tabs.map(([k, label, icon]) => {
-            const on = tab === k;
-            const badge = k === 'bookings' ? objs(h, 'requests').length : k === 'chats' ? int(h, 'unread_chats') : 0;
-            const inner = (
-              <>
-                <Icon name={icon} size={18} color={on ? Brand.Sun : Brand.InkSoft} />
-                <Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}> {label}</Txt>
-                {badge > 0 ? <View style={{ marginLeft: 6, minWidth: 20, height: 20, borderRadius: 10, backgroundColor: Brand.Blue, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}><Txt k="labelSmall" color="#fff">{badge}</Txt></View> : null}
-              </>
-            );
-            return (
-              <Press key={k} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: on }}>
-                <View style={[st.row, { borderRadius: 50, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: on ? Brand.Blue : 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: on ? Brand.Blue : 'rgba(255,255,255,0.95)' }]}>{inner}</View>
-              </Press>
-            );
-          })}
-        </ScrollView>
+      {/* the sections: one row of round icons, always all in view */}
+      <View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 2, paddingVertical: 6, borderRadius: 24, backgroundColor: '#ffffffcc' }}>
+        {tabs.map(([k, label, icon, tone]) => {
+          const on = tab === k;
+          const badge = k === 'bookings' ? objs(h, 'requests').length : k === 'chats' ? int(h, 'unread_chats') : 0;
+          const [bg, fg] = PASTEL[tone];
+          return (
+            <Pressable key={k} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label} style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: on ? fg : bg, alignItems: 'center', justifyContent: 'center', transform: [{ scale: on ? 1.06 : 1 }] }}>
+                <Icon name={icon} size={20} color={on ? '#fff' : fg} />
+                {badge > 0 ? <View style={{ position: 'absolute', top: -4, right: -6, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: Brand.Blue, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}><Txt k="labelSmall" color="#fff" style={{ fontSize: 9, lineHeight: 11 }}>{badge > 9 ? '9+' : badge}</Txt></View> : null}
+              </View>
+              <Txt k="labelSmall" color={on ? Brand.Ink : Brand.Muted} style={{ marginTop: 3, fontSize: 10.5 }} numberOfLines={1}>{label}</Txt>
+            </Pressable>
+          );
+        })}
       </View>
       <View style={{ flex: 1 }}>
-        {tab === 'today' ? <TodayTab home={home} pets={pets} changed={changed} />
+        {tab === 'today' ? <TodayTab home={home} pets={pets} changed={changed} go={setTab} />
           : tab === 'bookings' ? <BookingsTab pets={pets} changed={changed} />
           : tab === 'calendar' ? <CalendarTab />
           : tab === 'listings' ? <ListingsTab pets={pets} changed={changed} />
@@ -116,32 +134,72 @@ function HostDashboard({ role }: { role: string }) {
   );
 }
 
+/** A heading with a little emoji bubble. */
+function Head({ emoji, text: t, sub, tone = 'butter' }: { emoji: string; text: string; sub?: string; tone?: Tone }) {
+  return (
+    <View style={[st.row, { marginTop: 6, marginBottom: 10 }]}>
+      <View style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: PASTEL[tone][0], alignItems: 'center', justifyContent: 'center' }}><Txt style={{ fontSize: 17 }}>{emoji}</Txt></View>
+      <View style={{ flex: 1, paddingLeft: 10 }}><Txt k="titleLarge">{t}</Txt>{sub ? <Txt k="labelSmall" color={Brand.Muted}>{sub}</Txt> : null}</View>
+    </View>
+  );
+}
+
+/** Nothing to show — said kindly. */
+function Quiet({ emoji, text: t }: { emoji: string; text: string }) {
+  return (
+    <View style={[st.row, { borderRadius: 20, backgroundColor: '#ffffffd9', borderWidth: 1, borderColor: '#F3E9E4', borderStyle: 'dashed', padding: 14, marginBottom: 6 }]}>
+      <Txt style={{ fontSize: 22 }}>{emoji}</Txt><Txt k="bodyMedium" color={Brand.Muted} style={{ flex: 1, paddingLeft: 10 }}>{t}</Txt>
+    </View>
+  );
+}
+
+function QuickAction({ emoji, label, tone, onPress, badge }: { emoji: string; label: string; tone: Tone; onPress: () => void; badge?: number }) {
+  const [bg] = PASTEL[tone];
+  return (
+    <View style={{ flex: 1, minWidth: 0, alignItems: 'center' }}><Press onPress={onPress} style={{ alignItems: 'center', width: '100%' }} accessibilityLabel={label}>
+      <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' }}>
+        <Txt style={{ fontSize: 22 }}>{emoji}</Txt>
+        {badge ? <View style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: Brand.Blue, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }}><Txt k="labelSmall" color="#fff" style={{ fontSize: 9, lineHeight: 11 }}>{badge > 9 ? '9+' : badge}</Txt></View> : null}
+      </View>
+      <Txt k="labelSmall" color={Brand.InkSoft} center numberOfLines={2} style={{ marginTop: 5, fontSize: 10.5, width: '100%' }}>{label}</Txt>
+    </Press></View>
+  );
+}
+
 /* ---------- Today ---------- */
-function TodayTab({ home, pets, changed }: { home: { data: J | null; loading: boolean; error: string | null; reload: () => void }; pets: boolean; changed: () => void }) {
+function TodayTab({ home, pets, changed, go }: { home: { data: J | null; loading: boolean; error: string | null; reload: () => void }; pets: boolean; changed: () => void; go: (t: string) => void }) {
   const h = home.data;
   if (!h && home.loading) return <Loading />;
   if (!h) return <View style={{ padding: 16 }}><ErrorBox message={home.error || 'Could not load your dashboard.'} onRetry={home.reload} /></View>;
   const req = objs(h, 'requests'); const tod = objs(h, 'today'); const tom = objs(h, 'tomorrow'); const up = objs(h, 'upcoming');
   const admin = obj(h, 'admin');
+  const role = Api.session?.user?.role || '';
   const list = (bs: J[]) => bs.map((b, i) => <Appear key={text(b, 'kind') + int(b, 'id')} index={i} style={{ marginBottom: 10 }}><BookingCard b={b} changed={changed} /></Appear>);
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
-      {!pets && Api.session?.user?.role === 'host' ? <ForceHostCard /> : null}
-      {!pets && ['host', 'admin'].includes(Api.session?.user?.role || '') ? <><PrimaryButton text="Book a guest" icon="person-add-alt" onPress={() => Nav.navigate('bookguest')} /><Gap h={12} /></> : null}
-      {req.length ? <><SectionTitle text="Waiting for your answer" sub="Approve or decline before the time runs out" />{list(req)}<Gap h={6} /></> : null}
+    <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 10, paddingBottom: DOCK_SPACE }}>
+      {/* quick things a host does every day */}
+      <View style={{ flexDirection: 'row', marginBottom: 14, borderRadius: 24, backgroundColor: '#ffffffd9', paddingVertical: 12, paddingHorizontal: 4 }}>
+        {!pets && ['host', 'admin'].includes(role) ? <QuickAction emoji="🙋" label="Book a guest" tone="rose" onPress={() => Nav.navigate('bookguest')} /> : null}
+        {!pets ? <QuickAction emoji="📅" label="Close dates" tone="mint" onPress={() => go('calendar')} /> : null}
+        {role === 'host' ? <QuickAction emoji="🏡" label="Add a stay" tone="peach" onPress={() => Nav.navigate('listingform/stay')} /> : null}
+        {pets ? <QuickAction emoji="🐶" label="Add boarding" tone="peach" onPress={() => Nav.navigate('listingform/pet')} /> : null}
+        <QuickAction emoji="💬" label="Messages" tone="sky" badge={int(h, 'unread_chats')} onPress={() => (pets ? Nav.navigate('messages') : go('chats'))} />
+        <QuickAction emoji="💰" label="Money" tone="lavender" onPress={() => go('money')} />
+      </View>
+      {req.length ? <><Head emoji="🔔" text="Waiting for your answer" sub="Approve or decline before the time runs out" tone="rose" />{list(req)}<Gap h={4} /></> : null}
       {admin ? <><AdminCards a={admin} /><Gap h={10} /></> : null}
-      <SectionTitle text="Today" sub={longDay(today())} />
-      {!tod.length ? <Notice text={pets ? 'No pets arriving or leaving today.' : 'Nobody is arriving or leaving today.'} /> : null}
+      <Head emoji="🏡" text="Today" sub={longDay(today())} tone="butter" />
+      {!tod.length ? <Quiet emoji="☕" text={pets ? 'No pets arriving or leaving today — enjoy a calm day.' : 'Nobody arriving or leaving today — enjoy a calm day.'} /> : null}
       {list(tod)}
-      <Gap h={10} />
-      <SectionTitle text="Arriving tomorrow" sub={longDay(addDays(today(), 1))} />
-      {!tom.length ? <Notice text={pets ? 'No pets arriving tomorrow.' : 'Nobody is arriving tomorrow.'} /> : null}
+      <Gap h={8} />
+      <Head emoji="🌙" text="Arriving tomorrow" sub={longDay(addDays(today(), 1))} tone="lavender" />
+      {!tom.length ? <Quiet emoji="🌿" text={pets ? 'No pets arriving tomorrow.' : 'Nobody arriving tomorrow.'} /> : null}
       {list(tom)}
-      <Gap h={10} />
-      <SectionTitle text="Coming up" />
-      {!up.length ? <Notice text="No upcoming bookings yet." /> : null}
+      <Gap h={8} />
+      <Head emoji="📆" text="Coming up" tone="sky" />
+      {!up.length ? <Quiet emoji="✨" text="No upcoming bookings yet. Keep your calendar open and prices fresh." /> : null}
       {list(up)}
-      {!pets && int(h, 'unread_chats') > 0 ? <><Gap h={6} /><PrimaryButton text={`${int(h, 'unread_chats')} unread guest messages`} icon="chat-bubble-outline" onPress={() => Nav.navigate('hostchats')} /></> : null}
+      {!pets && role === 'host' ? <><Gap h={8} /><Head emoji="📡" text="Force search" sub="Guests who need a stay tonight" tone="rose" /><ForceHostCard /></> : null}
     </ScrollView>
   );
 }
@@ -151,26 +209,27 @@ function AdminCards({ a }: { a: J }) {
   const m = obj(a, 'month') || {};
   const w = obj(a, 'wallet');
   const waiting = objs(a, 'waiting');
+  const tiles: [string, string, string, Tone][] = [['🧳', String(int(m, 'bookings')), 'Bookings', 'sky'], ['💎', money(num(m, 'bookings_value') || 0), 'Booking value', 'lavender'],
+    ['🏦', money(num(m, 'platform') || 0), 'Fee + commission', 'mint'], ['🙂', String(int(m, 'new_guests')), 'New guests', 'peach']];
   return (
     <View>
-      <SectionTitle text="This month" sub="All stays and resorts" />
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        {[['Bookings', String(int(m, 'bookings'))], ['Value', money(num(m, 'bookings_value') || 0)], ['Fee + commission', money(num(m, 'platform') || 0)], ['New guests', String(int(m, 'new_guests'))]].map(([k, v]) => (
-          <View key={k} style={{ flex: 1, borderRadius: 16, backgroundColor: '#fff', padding: 10 }}>
-            <Txt bold numberOfLines={1}>{v}</Txt><Txt k="labelSmall" color={Brand.Muted} numberOfLines={2}>{k}</Txt>
-          </View>
-        ))}
+      <Head emoji="📊" text="This month" sub="All stays and resorts" tone="lavender" />
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {tiles.map(([e, v, k, t]) => <View key={k} style={{ flexBasis: '47%', flexGrow: 1 }}><StatTile emoji={e} value={v} label={k} tone={t} /></View>)}
       </View>
-      {w ? <Txt k="bodySmall" color={Brand.Muted} style={{ marginTop: 6 }}>Guest wallets: {money(num(w, 'in_wallets') || 0)} unused · {money(num(w, 'used') || 0)} used on bookings</Txt> : null}
+      {w ? <Txt k="bodySmall" color={Brand.Muted} style={{ marginTop: 8 }}>👛 Guest wallets: {money(num(w, 'in_wallets') || 0)} unused · {money(num(w, 'used') || 0)} used on bookings</Txt> : null}
       {waiting.length ? (
         <>
-          <Gap h={12} /><SectionTitle text="Waiting for you" />
-          {waiting.map((x, i) => (
-            <Pressable key={i} onPress={() => Linking.openURL(Api.url(text(x, 'link'))).catch(() => {})} style={[st.row, { marginBottom: 6, borderRadius: 14, backgroundColor: Brand.SunSoft, padding: 12 }]}>
-              <Txt semi style={{ flex: 1 }}>{text(x, 'label')}</Txt>
-              <Txt bold color={Brand.SunInk}>{int(x, 'count')}</Txt>
-            </Pressable>
-          ))}
+          <Gap h={12} /><Head emoji="📝" text="Waiting for you" sub="Opens the website's admin page" tone="butter" />
+          <View style={{ borderRadius: 20, backgroundColor: '#fff', overflow: 'hidden' }}>
+            {waiting.map((x, i) => (
+              <Pressable key={i} onPress={() => Linking.openURL(Api.url(text(x, 'link'))).catch(() => {})} style={[st.row, { padding: 13, borderTopWidth: i ? 1 : 0, borderTopColor: '#F3EEEA' }]}>
+                <Txt semi style={{ flex: 1 }}>{text(x, 'label')}</Txt>
+                <View style={{ minWidth: 28, borderRadius: 14, backgroundColor: PASTEL.butter[0], paddingHorizontal: 8, paddingVertical: 3, alignItems: 'center' }}><Txt bold color={PASTEL.butter[1]}>{int(x, 'count')}</Txt></View>
+                <Icon name="chevron-right" size={18} color={Brand.Muted} />
+              </Pressable>
+            ))}
+          </View>
         </>
       ) : null}
     </View>
@@ -197,7 +256,7 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
     setBusy(null);
   };
   const state = text(b, 'state');
-  const [tone, accent] = state === 'request' ? ['warn', Brand.Sun] : state === 'checked_in' ? ['ok', Brand.Teal] : state === 'cancelled' ? ['bad', Brand.Danger] : ['info', Brand.Blue];
+  const stTone: Tone = state === 'request' ? 'butter' : state === 'checked_in' ? 'mint' : state === 'cancelled' ? 'rose' : state === 'checked_out' ? 'lavender' : 'sky';
   const pet = text(b, 'kind') === 'pet';
   const who = pet ? `${int(b, 'pets')} pet${int(b, 'pets') === 1 ? '' : 's'}` : `${int(b, 'guests')} guest${int(b, 'guests') === 1 ? '' : 's'}`;
   const acts = strings(b, 'actions');
@@ -205,30 +264,40 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
   const [details, setDetails] = useState(false);
   const due = (num(b, 'balance') || 0) > 0 && state !== 'cancelled';
   return (
-    <View style={{ borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.95)', borderWidth: 1.5, borderColor: '#fff', overflow: 'hidden', elevation: 4, shadowColor: '#D93338', shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
-      <View style={{ height: 5, backgroundColor: accent }} />
-      {/* always in front: what the guest pays */}
-      <Pressable onPress={() => setDetails(true)} accessibilityRole="button" accessibilityLabel={`Guest pays ${money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}. Open booking details`}>
-        <LinearGradient colors={due ? ['#FFF6D6', '#FFEFC2'] : ['#E9F7EF', '#DDF3E5']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[st.row, { paddingHorizontal: 14, paddingVertical: 10 }]}>
-          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: due ? Brand.Sun : '#7CE0A3', alignItems: 'center', justifyContent: 'center' }}><Icon name="payments" size={19} color={Brand.Ink} /></View>
-          <View style={{ flex: 1, paddingLeft: 10 }}>
-            <Txt k="labelSmall" color={Brand.InkSoft}>Guest pays</Txt>
-            <Txt k="titleMedium" bold>{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
+    <View style={{ borderRadius: 26, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
+      <Pressable onPress={() => setDetails(true)} style={{ padding: 14 }} accessibilityRole="button" accessibilityLabel={`${text(b, 'guest')}, ${text(b, 'state_label')}. Open booking details`}>
+        <View style={st.row}>
+          <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: PASTEL[stTone][0], alignItems: 'center', justifyContent: 'center' }}>
+            <Txt k="titleLarge" color={PASTEL[stTone][1]}>{(text(b, 'guest') || '?').slice(0, 1).toUpperCase()}</Txt>
           </View>
-          <Txt k="labelSmall" semi color={due ? Brand.SunInk : '#0B6B3A'} numberOfLines={2} style={{ maxWidth: '52%', textAlign: 'right' }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt>
-        </LinearGradient>
-      </Pressable>
-      <Pressable onPress={() => setDetails(true)} style={{ flexDirection: 'row', padding: 14 }} accessibilityLabel="Booking details">
-        <Photo url={str(b, 'image')} style={{ width: 64, height: 64 }} corner={16} />
-        <View style={{ flex: 1, paddingLeft: 12 }}>
-          <View style={st.row}><Txt k="titleMedium" numberOfLines={1} style={{ flex: 1 }}>{text(b, 'guest')}</Txt><Pill text={text(b, 'state_label')} tone={tone} /></View>
-          <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1}>{text(b, 'listing')}</Txt>
-          <Txt k="bodySmall" color={Brand.Muted}>{obj(b, 'hourly') ? `⏱️ ${shortDate(str(b, 'check_in'))} · ${text(obj(b, 'hourly'), 'label')}` : `${shortDate(str(b, 'check_in'))} → ${shortDate(str(b, 'check_out'))} · ${int(b, 'nights')}n`} · {who}</Txt>
-          {text(b, 'payment') ? <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ marginTop: 4 }}>{text(b, 'payment')}</Txt> : null}
-          {str(b, 'requests') ? <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3} style={{ marginTop: 4 }}>“{str(b, 'requests')}”</Txt> : null}
-          {str(b, 'arrival_time') ? <Txt k="labelMedium" color={Brand.TealDark}>Arriving around {str(b, 'arrival_time')}</Txt> : null}
-          <Txt k="labelMedium" semi color={Brand.Blue} style={{ marginTop: 4 }}>View details ›</Txt>
+          <View style={{ flex: 1, paddingHorizontal: 10 }}>
+            <Txt k="titleMedium" numberOfLines={1}>{text(b, 'guest')}</Txt>
+            <Txt k="labelMedium" color={Brand.Muted} numberOfLines={1}>{text(b, 'listing')}</Txt>
+          </View>
+          <View style={{ borderRadius: 50, backgroundColor: PASTEL[stTone][0], paddingHorizontal: 10, paddingVertical: 4 }}><Txt k="labelSmall" color={PASTEL[stTone][1]}>{text(b, 'state_label')}</Txt></View>
         </View>
+        {/* when */}
+        {obj(b, 'hourly') ? (
+          <View style={[st.row, { gap: 6, marginTop: 12 }]}>
+            <View style={[st.row, { flex: 1, borderRadius: 16, backgroundColor: PASTEL.butter[0], padding: 10 }]}><Txt>⏱️</Txt><View style={{ paddingLeft: 8 }}><Txt k="labelSmall" color={PASTEL.butter[1]}>Hourly · {shortDate(str(b, 'check_in'))}</Txt><Txt k="titleSmall">{text(obj(b, 'hourly'), 'label')}</Txt></View></View>
+          </View>
+        ) : (
+          <View style={[st.row, { gap: 6, marginTop: 12 }]}>
+            <View style={{ flex: 1, borderRadius: 16, backgroundColor: PASTEL.mint[0], paddingHorizontal: 10, paddingVertical: 8 }}><Txt k="labelSmall" color={PASTEL.mint[1]}>Check-in</Txt><Txt k="titleSmall">{shortDate(str(b, 'check_in'))}{str(b, 'arrival_time') ? ` · ${str(b, 'arrival_time')}` : ''}</Txt></View>
+            <View style={{ alignItems: 'center' }}><Txt k="labelSmall" color={Brand.Muted}>🌙 {int(b, 'nights')}</Txt><Icon name="arrow-forward" size={16} color={Brand.Muted} /></View>
+            <View style={{ flex: 1, borderRadius: 16, backgroundColor: PASTEL.peach[0], paddingHorizontal: 10, paddingVertical: 8 }}><Txt k="labelSmall" color={PASTEL.peach[1]}>Check-out</Txt><Txt k="titleSmall">{shortDate(str(b, 'check_out'))}</Txt></View>
+          </View>
+        )}
+        {/* who and money */}
+        <View style={[st.row, { marginTop: 10 }]}>
+          <Txt k="labelMedium" color={Brand.InkSoft} style={{ flex: 1 }}>{pet ? '🐾' : '👥'} {who}</Txt>
+          <View style={[st.row, { borderRadius: 50, backgroundColor: due ? PASTEL.butter[0] : PASTEL.mint[0], paddingHorizontal: 10, paddingVertical: 4 }]}>
+            <Txt k="labelSmall" color={due ? PASTEL.butter[1] : PASTEL.mint[1]}>{due ? 'Due ' : 'Guest pays '}</Txt>
+            <Txt k="titleSmall" color={due ? PASTEL.butter[1] : PASTEL.mint[1]}>{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
+          </View>
+        </View>
+        {text(b, 'guest_pays_note') || text(b, 'payment') ? <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ marginTop: 4, textAlign: 'right' }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt> : null}
+        {str(b, 'requests') ? <View style={{ marginTop: 8, borderRadius: 14, backgroundColor: '#F8F5F2', padding: 10 }}><Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3}>💭 “{str(b, 'requests')}”</Txt></View> : null}
       </Pressable>
       {acts.length || phone ? (
         <View style={[st.row, { gap: 8, paddingHorizontal: 14, paddingBottom: 14 }]}>
@@ -357,14 +426,14 @@ function BookingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
   const [tick, setTick] = useState(0);
   const l = useLoader(() => Api.get('hostapp/bookings', { which }), [which, tick]);
   const d = l.data;
-  const opts: [string, string][] = [['upcoming', 'Upcoming'], ['requests', 'Requests'], ['today', 'Today'], ['in_house', pets ? 'Pets now' : 'Staying now'], ['past', 'Past']];
+  const opts: [string, string][] = [['upcoming', '📆 Upcoming'], ['requests', '🔔 Requests'], ['today', '🏡 Today'], ['in_house', pets ? '🐾 Pets now' : '🛏️ Staying now'], ['past', '🕰️ Past']];
   return (
     <View style={{ flex: 1 }}>
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 8 }}>
           {opts.map(([k, lab]) => {
             const on = which === k;
-            return <Press key={k} onPress={() => setWhich(k)} style={{ borderRadius: 50, backgroundColor: on ? Brand.Matte : '#fff', borderWidth: 1, borderColor: on ? Brand.Matte : Brand.Line, paddingHorizontal: 14, paddingVertical: 8 }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{lab}</Txt></Press>;
+            return <Press key={k} onPress={() => setWhich(k)} style={{ borderRadius: 50, backgroundColor: on ? PASTEL.sky[1] : '#fff', borderWidth: 1, borderColor: on ? PASTEL.sky[1] : '#EFE7E3', paddingHorizontal: 14, paddingVertical: 8 }}><Txt k="labelLarge" color={on ? '#fff' : Brand.InkSoft}>{lab}</Txt></Press>;
           })}
         </ScrollView>
       </View>
@@ -389,6 +458,7 @@ function CalendarTab() {
   const [price, setPrice] = useState('');
   const [busy, setBusy] = useState(false);
   const [openRef, setOpenRef] = useState<string | null>(null);   // a booked night tapped: that booking's details
+  const [reopen, setReopen] = useState<J | null>(null);   // a closed night tapped: open it again?
   const l = useLoader(() => Api.get('hostapp/calendar', { listing: listing || null, month }), [listing, month, tick]);
   const d = l.data;
   useEffect(() => { if (!listing) { const t = str(obj(d, 'listing'), 'tag'); if (t) setListing(t); } }, [d]);
@@ -427,42 +497,52 @@ function CalendarTab() {
         <>
           {(() => {
             const li = Math.max(0, ls.findIndex((x) => text(x, 'tag') === tag));
-            const lane = (c?: J | null): LaneDay => ({ state: c ? text(c, 'state') : 'free', key: c ? (str(c, 'ref') || text(c, 'state') + '|' + text(c, 'label')) : '' });
-            const cal: CalDay[] = days.map((c) => { const p = num(c, 'price'); return { date: text(c, 'date'), lanes: [lane(c)], extra: kind === 'stay' && p != null ? '₹' + (p >= 1000 ? (p / 1000).toFixed(1) + 'k' : Math.round(p)) : kind === 'resort' ? `${int(c, 'rooms_free')}/${int(c, 'rooms_total')}` : null }; });
+            const col = laneColor(li);
+            const nd: NightDay[] = days.map((c) => { const p = num(c, 'price'); return { date: text(c, 'date'), state: text(c, 'state', 'free'), key: str(c, 'ref') || text(c, 'state') + '|' + text(c, 'label'), label: str(c, 'label'),
+              price: kind === 'stay' && p != null ? '₹' + (p >= 1000 ? (p / 1000).toFixed(p % 1000 ? 1 : 0) + 'k' : Math.round(p)) : kind === 'resort' ? `${int(c, 'rooms_free')}/${int(c, 'rooms_total')}` : null }; });
             return (
               <>
-                <MonthTitle label={text(d, 'label')} pct={bookedPct(cal)} month={month} onMonth={setMonth} />
-                <DayPills />
-                <LaneMonth days={cal} colors={[laneColor(li)]} prevLast={[lane(obj(d, 'before'))]} selected={(x) => !!first && x >= first && x <= (last || first)}
-                  onDay={(cd) => {
-                    const c = days.find((x) => text(x, 'date') === cd.date); if (!c) return;
-                    const date = cd.date, s = text(c, 'state');
-                    if (date < t0) return;
-                    if (s === 'closed' && int(c, 'block_id') > 0) { setFirst(null); setLast(null); act('hostapp/calendar/open', { block_id: int(c, 'block_id') }); }
-                    else if (s !== 'free') { if (str(c, 'ref')) setOpenRef(str(c, 'ref')); else setMsg([str(c, 'label') || 'Booked', true]); }
-                    else if (!first || last || date < first) { setFirst(date); setLast(null); }
-                    else setLast(date);
-                  }} />
-                <LaneKey />
+                <MonthTitle label={text(d, 'label')} month={month} onMonth={setMonth} />
+                <MonthMeter days={nd} color={col} />
+                <View style={{ borderRadius: 24, backgroundColor: '#fff', paddingHorizontal: 6, paddingTop: 8, paddingBottom: 2 }}>
+                  <View style={{ flexDirection: 'row', marginBottom: 2 }}>{['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((x, i) => <Txt key={i} k="labelSmall" color={i === 0 || i === 6 ? Brand.Blue : Brand.Muted} center style={{ flex: 1 }}>{x}</Txt>)}</View>
+                  <NightMonth days={nd} color={col} selected={(x) => !!first && x >= first && x <= (last || first)}
+                    onDay={(cd) => {
+                      const c = days.find((x) => text(x, 'date') === cd.date); if (!c) return;
+                      const date = cd.date, s = text(c, 'state');
+                      if (date < t0) return;
+                      if (s === 'closed' && int(c, 'block_id') > 0) { setFirst(null); setLast(null); setReopen(c); }
+                      else if (s !== 'free') { if (str(c, 'ref')) setOpenRef(str(c, 'ref')); else setMsg([str(c, 'label') || 'Booked', true]); }
+                      else if (!first || last || date < first) { setFirst(date); setLast(null); }
+                      else setLast(date);
+                    }} />
+                </View>
+                <NightKey color={col} />
               </>
             );
           })()}
           <Gap h={12} />
           {first && kind === 'stay' ? (
-            <>
-              <Txt k="titleSmall">Selected: {shortDate(first)}{last && last !== first ? ` → ${shortDate(last)}` : ''}</Txt>
-              <Gap h={8} />
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <PrimaryButton text="Close these nights" loading={busy} style={{ flex: 1 }} onPress={() => act('hostapp/calendar/close', { listing: tag, first, last: last || first, reason: 'Closed in the app' })} />
-                <OutlineButton text="Set price" style={{ flex: 1 }} onPress={() => { const p = num(cur, 'price'); setPrice(p ? String(Math.round(p)) : ''); setPriceAsk(true); }} />
+            <View style={{ borderRadius: 22, backgroundColor: '#FFF4C7', padding: 14 }}>
+              <View style={st.row}>
+                <Txt k="titleSmall" color="#8A5A00" style={{ flex: 1 }}>✨ {shortDate(first)}{last && last !== first ? ` → ${shortDate(last)}` : ''} selected</Txt>
+                <Pressable onPress={() => { setFirst(null); setLast(null); }} hitSlop={8}><Txt k="labelLarge" color="#8A5A00">Clear</Txt></Pressable>
               </View>
-            </>
-          ) : kind === 'stay' ? <Txt k="bodySmall" color={Brand.Muted}>Tap a free night (then another to pick a range) to close it or change its price. Tap a grey night to open it again.</Txt>
+              {!last ? <Txt k="labelSmall" color="#8A5A00" style={{ marginTop: 2 }}>Tap another night to pick a range</Txt> : null}
+              <Gap h={10} />
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <PrimaryButton text="🔒 Close" loading={busy} style={{ flex: 1 }} onPress={() => act('hostapp/calendar/close', { listing: tag, first, last: last || first, reason: 'Closed in the app' })} />
+                <OutlineButton text="₹ Set price" style={{ flex: 1 }} onPress={() => { const p = num(cur, 'price'); setPrice(p ? String(Math.round(p)) : ''); setPriceAsk(true); }} />
+              </View>
+            </View>
+          ) : kind === 'stay' ? <View style={{ borderRadius: 18, backgroundColor: '#ffffffd9', padding: 12 }}><Txt k="bodySmall" color={Brand.InkSoft}>👆 Tap a free night — then another for a range — to close it or change its price. Tap a booked night to see the guest, or a grey one to open it again.</Txt></View>
             : kind === 'resort' ? <Txt k="bodySmall" color={Brand.Muted}>Each day shows how many rooms are still free.</Txt> : null}
         </>
       )}
       {msg ? <><Gap h={8} /><Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} /></> : null}
       <BookingByRef refCode={openRef} onClose={() => setOpenRef(null)} changed={() => setTick((t) => t + 1)} />
+      <Dialog open={!!reopen} onClose={() => setReopen(null)} title="Open these nights again?" text={reopen ? `${text(reopen, 'label') || 'Closed'} — guests can book them again.` : ''}
+        actions={[['Keep closed', () => setReopen(null)], ['Open again', () => { const c = reopen!; setReopen(null); act('hostapp/calendar/open', { block_id: int(c, 'block_id') }); }, Brand.TealDark]]} />
       <Dialog open={priceAsk} onClose={() => setPriceAsk(false)} title="Price per night"
         actions={[['Cancel', () => setPriceAsk(false)], ['Save', () => { setPriceAsk(false); act('hostapp/calendar/price', { listing: tag, first, last: last || first, price: parseInt(price, 10) || null }); }]]}>
         <Field label="Price (₹)" value={price} onChange={(v) => setPrice(v.replace(/\D/g, '').slice(0, 7))} keyboard="number-pad" />
@@ -522,7 +602,7 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
             <Appear key={text(x, 'kind') + int(x, 'id')} index={i} style={{ marginBottom: 12 }}>
               <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
                 <View>
-                  <Photo url={str(x, 'image')} style={{ width: '100%', aspectRatio: 2.2 }} corner={0} />
+                  <Photo url={str(x, 'image')} style={{ width: '100%', aspectRatio: 3.2 }} corner={0} />
                   <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
                     <Pill text={active ? 'Live' : ({ pending: 'Being checked', rejected: 'Not approved', draft: 'Draft' } as Record<string, string>)[text(x, 'approval')] || 'Paused'} tone={active ? 'ok' : 'warn'} />
                     {bool(x, 'verified') ? <Pill text="Verified" tone="info" /> : null}
@@ -732,10 +812,10 @@ function AgentPortal() {
       <ColorHeader title="TripArro Agent" sub="Book for your guests and earn on every stay" onBack={Nav.back} />
       <View>
         {d ? (
-          <View style={{ flexDirection: 'row', gap: 6, marginHorizontal: 16, padding: 8, borderRadius: 26, backgroundColor: Brand.Blue }}>
-            <HStat label="Commission earned" value={money(num(t, 'earned') || 0)} flex={1.3} />
-            <HStat label="Payout due" value={money(num(t, 'pending_payout') || 0)} flex={1.1} />
-            <HStat label="Bookings" value={String(int(t, 'bookings'))} flex={0.8} />
+          <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 16, marginTop: 12 }}>
+            <StatTile emoji="💰" value={money(num(t, 'earned') || 0)} label="Commission earned" tone="mint" />
+            <StatTile emoji="🏦" value={money(num(t, 'pending_payout') || 0)} label="Payout due" tone="lavender" />
+            <StatTile emoji="🧳" value={String(int(t, 'bookings'))} label="Bookings" tone="sky" />
           </View>
         ) : null}
       </View>

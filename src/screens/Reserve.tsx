@@ -57,8 +57,14 @@ export default function ReserveScreen() {
         if (idBack) files.push(await uploadOf('id_back', idBack, 'id-back', 2000));
         const fields: [string, string][] = Object.entries(base).filter(([, v]) => v !== null && v !== undefined && String(v) !== '').map(([k, v]) => [k, typeof v === 'boolean' ? (v ? '1' : '0') : String(v)]);
         fields.push(['children_ages', d.ages.join(',')], ['id_type', idType]);
-        r = await Api.postMultipart('bookings', fields, files);
-      } else r = await Api.post('bookings', { ...base, children_ages: d.ages });
+        try { r = await Api.postMultipart('bookings', fields, files); }
+        catch (e) { if (e instanceof ApiError && e.status === 0) r = await Api.postMultipart('bookings', fields, files); else throw e; }
+      } else {
+        // a slow network can drop the answer after the booking was saved: send it once more — the website answers with
+        // the same booking (never "booked by someone else")
+        try { r = await Api.post('bookings', { ...base, children_ages: d.ages }); }
+        catch (e) { if (e instanceof ApiError && e.status === 0) r = await Api.post('bookings', { ...base, children_ages: d.ages }); else throw e; }
+      }
       const ref = text(r, 'ref');
       AppState.bump();
       if (text(r, 'next') === 'payment') {

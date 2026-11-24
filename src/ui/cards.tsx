@@ -81,6 +81,7 @@ export function listingTags(p: J): Tag[] {
   const out: Tag[] = [];
   if (bool(badges, 'sponsored')) out.push({ text: 'Sponsored', bg: '#000000AA', fg: '#fff' });
   if (bool(badges, 'verified')) out.push(T_VERIFIED);
+  if (bool(badges, 'favourite')) out.push({ text: '★', bg: Brand.Sun, fg: '#4A3400' });   // guest favourite: just the star
   if (p && p.refundable === true) out.push(T_REFUND);
   if (bool(p, 'pay_at_property')) out.push(T_PROPERTY);
   if (obj(p, 'hourly')) out.push({ text: `⏱️ ${money(num(obj(p, 'hourly'), 'price'))}/hr`, bg: '#fff', fg: '#A3141D' });   // book by the hour
