@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Api, errorText } from '../core/api';
 import { useAppState, useLoader, useSession } from '../core/state';
-import { J, int, objs, str, text } from '../core/json';
+import { J, int, obj, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
 import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, LivePhoto, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar } from '../ui/kit';
 import { DateRangeField, Stepper } from '../ui/inputs';
@@ -34,6 +34,7 @@ export default function ExploreScreen() {
   const session = useSession();
   const unread = useAppState('unread');
   const first = session?.user?.name?.split(' ')[0];
+  const hourlyOn = !!obj(session?.raw, 'features')?.hourly;   // hourly booking is on (Admin → Settings)
   // "Where to next?": suggestions while typing — places, and stays / resorts by name
   const [typing, setTyping] = useState(false);
   const [sugg, setSugg] = useState<{ places: J[]; listings: J[] }>({ places: [], listings: [] });
@@ -51,7 +52,7 @@ export default function ExploreScreen() {
   const search = async (p = 1, k = kind, query = q) => {
     setSearched(true); setLoading(true); setError(null);
     try {
-      const r = await Api.get('properties', { q: query.trim(), kind: k !== 'all' ? k : null, check_in: checkIn || null, check_out: checkOut || null, adults, page: p, per_page: 20 });
+      const r = await Api.get('properties', { q: query.trim(), kind: k === 'hourly' ? 'stay' : k !== 'all' ? k : null, hourly: k === 'hourly' ? 1 : null, check_in: checkIn || null, check_out: checkOut || null, adults, page: p, per_page: 20 });
       setResults((old) => (p === 1 ? objs(r, 'items') : [...old, ...objs(r, 'items')]));
       setTotal(int(r, 'total')); setPage(int(r, 'page', p)); setPages(int(r, 'pages', 1));
       if (str(r, 'date_error')) setError(str(r, 'date_error'));
@@ -110,8 +111,8 @@ export default function ExploreScreen() {
             <DateRangeField checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); }} />
             <Gap h={4} />
             <Stepper label="Guests" value={adults} onChange={setAdults} min={1} max={30} />
-            <View style={{ flexDirection: 'row', gap: 8, paddingVertical: 6 }}>
-              {[['all', 'All'], ['stay', 'Homestays'], ['resort', 'Resorts']].map(([k, l]) => (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 6 }}>
+              {[['all', 'All'], ['stay', 'Homestays'], ['resort', 'Resorts'], ...(hourlyOn ? [['hourly', '⏱️ Hourly']] : [])].map(([k, l]) => (
                 <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Blue : 'rgba(255,255,255,0.95)', backgroundColor: kind === k ? Brand.Blue : 'rgba(255,255,255,0.8)', paddingHorizontal: 14, paddingVertical: 7 }}>
                   <Txt k="labelLarge" color={kind === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
                 </Pressable>
@@ -125,6 +126,7 @@ export default function ExploreScreen() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 18, gap: 2 }}>
         <Shortcut icon="cottage" label="Homestays" tint={Brand.Blue} bg={Brand.Sky} i={2} onPress={() => { setKind('stay'); search(1, 'stay'); }} />
         <Shortcut icon="pool" label="Resorts" tint={Brand.TealDark} bg={Brand.TealSoft} i={3} onPress={() => { setKind('resort'); search(1, 'resort'); }} />
+        {hourlyOn ? <Shortcut icon="schedule" label="By the hour" tint={Brand.Blue} bg={Brand.SunSoft} i={4} onPress={() => { setKind('hourly'); search(1, 'hourly'); }} /> : null}
         <Shortcut icon="pets" label="Pet services" tint={Brand.CoralDark} bg={Brand.Sky} i={4} onPress={() => Nav.navigate('pets')} />
         <Shortcut icon="auto-awesome" label="Ask AI" tint={Brand.SunInk} bg={Brand.SunSoft} i={5} onPress={() => Nav.navigate('ai')} />
         <Shortcut icon="ev-station" label="EV chargers" tint="#00704A" bg={Brand.TealSoft} i={6} onPress={() => Nav.navigate('chargers')} />

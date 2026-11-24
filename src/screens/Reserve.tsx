@@ -47,7 +47,8 @@ export default function ReserveScreen() {
     setBusy(true); setErr(null); setFieldErr({});
     try {
       if (!session?.user && session?.loginToBook !== false) { setBusy(false); Nav.navigate('login'); return; }
-      const base: Record<string, any> = { force_search: d.forceSearch || null, kind: d.kind, id: d.id, check_in: d.checkIn, check_out: d.checkOut, adults: d.adults, food: d.food ? 1 : 0, coupon: d.coupon || null,
+      const hr = d.hourly ? { hourly: 1, date: d.hourly.date, start: d.hourly.start, hours: d.hourly.hours } : {};   // book by the hour
+      const base: Record<string, any> = { ...hr, force_search: d.forceSearch || null, kind: d.kind, id: d.id, check_in: d.checkIn, check_out: d.checkOut, adults: d.adults, food: d.food ? 1 : 0, coupon: d.coupon || null,
         room_id: d.roomId, plan_id: d.planId, rooms: d.rooms, name: name.trim(), email: email.trim(), phone: phone.trim(), requests: requests.trim(), arrival_time: arrival.trim(),
         agree: true, expected_total: num(d.quote, 'total') };
       let r;
@@ -89,7 +90,7 @@ export default function ReserveScreen() {
             <Photo url={d.image} style={{ width: 96, aspectRatio: 1.2 }} />
             <View style={{ paddingLeft: 12, flex: 1 }}>
               <Txt k="titleMedium">{d.title}</Txt>
-              <Txt k="bodySmall" color={Brand.InkSoft}>{prettyDate(d.checkIn)} → {prettyDate(d.checkOut)}</Txt>
+              <Txt k="bodySmall" color={Brand.InkSoft}>{d.hourly ? `⏱️ ${prettyDate(d.checkIn)} · ${d.hourly.label} (${plural(d.hourly.hours, 'hour')})` : `${prettyDate(d.checkIn)} → ${prettyDate(d.checkOut)}`}</Txt>
               <Txt k="bodySmall" color={Brand.InkSoft}>{plural(d.adults, 'adult') + (d.ages.length ? ' · ' + plural(d.ages.length, 'child') : '') + (d.kind === 'resort' ? ' · ' + plural(d.rooms, 'room') : '')}</Txt>
             </View>
           </View>
@@ -115,8 +116,8 @@ export default function ReserveScreen() {
         <Gap h={6} />
         <Field label="Mobile number" value={phone} onChange={setPhone} keyboard="phone-pad" error={fieldErr.phone} />
         <Gap h={6} />
-        <Field label="Arrival time (optional)" value={arrival} onChange={setArrival} placeholder="e.g. 3 pm" />
-        <Gap h={6} />
+        {!d.hourly ? <><Field label="Arrival time (optional)" value={arrival} onChange={setArrival} placeholder="e.g. 3 pm" />
+        <Gap h={6} /></> : null}
         <Field label="Requests for the host (optional)" value={requests} onChange={setRequests} lines={3} />
         {isRequest ? (
           <>

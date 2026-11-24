@@ -7,8 +7,8 @@ import { Api, errorText } from '../core/api';
 import { AppState, useLoader } from '../core/state';
 import { J, arr, bool, int, num, obj, objs, priceLines, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
-import { Avatar, BackBar, Bordered, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, Photo, Pill, PriceTable, PrimaryButton, RoundAction, Stars, Txt, initialsOf, money, shareLink, st } from '../ui/kit';
-import { CheckRow, DateRangeField, Field, Stepper } from '../ui/inputs';
+import { Avatar, BackBar, Bordered, ErrorBox, Gap, Icon, LinkButton, Loading, Notice, Photo, Pill, PriceTable, PrimaryButton, RoundAction, Stars, Txt, initialsOf, money, plural, shareLink, shortDate, st, today } from '../ui/kit';
+import { CheckRow, DateRangeField, DateRangeSheet, Field, Segmented, Stepper } from '../ui/inputs';
 import { AmenityGrid, DetailSection, ExpandRow, FactTiles, HeroGallery, PRICE_BAR_SPACE, PriceBar, RatingBadge, RefundTimeline, TimeTiles, TitleCard } from '../ui/detail';
 import { RefundTag, isRefundable } from '../ui/cards';
 import { Dialog, ExpandText, Sheet, copyText, openMaps } from '../ui/sheets';
@@ -177,7 +177,7 @@ export default function PropertyScreen() {
         </View>
       </ScrollView>
       <PriceBar price={money(offer ?? nightly)} unit={kind === 'resort' ? '/ room night' : '/ night'} was={offer !== null && nightly !== null && offer < nightly ? money(nightly) : null}
-        note={str(p, 'cancellation') || str(canc, 'label')}
+        note={obj(p, 'hourly_booking') ? `Also by the hour · ${money(num(obj(p, 'hourly_booking'), 'price_guest'))}/hour` : str(p, 'cancellation') || str(canc, 'label')}
         button={(
           <Pressable onPress={() => setSheet(true)} style={[st.redShadow, { borderRadius: 50, backgroundColor: Brand.Blue, paddingHorizontal: 26, paddingVertical: 15 }]}>
             <Txt k="labelLarge" bold color="#fff">{text(p, 'booking_mode') === 'request' ? 'Request to book' : 'Reserve'}</Txt>
@@ -193,7 +193,88 @@ function GuestStat({ value, label }: { value: string; label: string }) {
 }
 
 /** Dates, guests (with children's ages), rooms and plans for resorts, food and coupon → the live price, then "Reserve". */
+/** "14:30" → "2:30 pm" */
+export const hm12 = (t: string) => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+const addHours = (t: string, n: number) => { const [h, m] = t.split(':').map(Number); const x = h * 60 + m + n * 60; return `${String(Math.floor(x / 60)).padStart(2, '0')}:${String(x % 60).padStart(2, '0')}`; };
+
+/** Book by the hour: a day, how many hours, a free start time → the price, then "Reserve". */
+function HourlyPart({ kind, id, p, h, onClose }: { kind: string; id: number; p: J; h: J; onClose: () => void }) {
+  const [date, setDate] = useState(today());
+  const [pick, setPick] = useState(today());
+  const [dayOpen, setDayOpen] = useState(false);
+  const min = int(h, 'min') || 2; const max = int(h, 'max_hours') || 14; const dayAfter = int(h, 'day_after') || 8;
+  const [hours, setHours] = useState(min);
+  const [adults, setAdults] = useState(2);
+  const [start, setStart] = useState('');
+  const [starts, setStarts] = useState<string[] | null>(null);
+  const [quote, setQuote] = useState<J | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const g = obj(p, 'guests');
+  // the free start times for the day and hours, and the price once a start is chosen
+  useEffect(() => {
+    let off = false;
+    setBusy(true); setErr(null); setQuote(null);
+    Api.get('availability', { kind, id, hourly: 1, date, hours, start: start || null, adults })
+      .then((q) => {
+        if (off) return;
+        const list = (obj(q, 'hourly')?.starts as string[]) || [];
+        setStarts(list);
+        if (start && !list.includes(start)) { setStart(''); return; }
+        if (bool(q, 'available')) setQuote(q); else if (start || !list.length) setErr(text(q, 'message', 'Not free.'));
+      })
+      .catch((e) => !off && setErr(errorText(e)))
+      .finally(() => !off && setBusy(false));
+    return () => { off = true; };
+  }, [date, hours, start, adults]);
+  return (
+    <>
+      <Bordered onPress={() => { setPick(date); setDayOpen(true); }}>
+        <View style={st.row}><Icon name="calendar-today" color={Brand.Teal} size={20} />
+          <View style={{ marginLeft: 10 }}><Txt k="bodySmall" color={Brand.Muted}>Day</Txt><Txt k="titleSmall">{shortDate(date)}{date === today() ? ' · today' : ''}</Txt></View></View>
+      </Bordered>
+      <DateRangeSheet open={dayOpen} single start={pick} end="" title="Which day?" onClose={() => setDayOpen(false)} onPick={(a) => setPick(a)} onDone={() => { if (pick) { setDate(pick); setStart(''); } setDayOpen(false); }} />
+      <Gap h={8} />
+      <Stepper label="Hours" value={hours} onChange={(n) => setHours(n)} min={min} max={max}
+        note={hours > dayAfter ? `More than ${plural(dayAfter, 'hour')}: charged as one day` : `${money(num(h, 'price_guest'))} an hour · over ${dayAfter} hours costs one day`} />
+      <Stepper label="Guests" value={adults} onChange={setAdults} min={1} max={int(g, 'max') || 20} />
+      <Gap h={8} />
+      <Txt k="titleSmall">Start time</Txt>
+      <Gap h={6} />
+      {starts === null ? <Loading /> : starts.length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          {starts.map((t) => (
+            <Pressable key={t} onPress={() => setStart(t)} style={{ width: '31.5%', alignItems: 'center', borderRadius: 12, borderWidth: 1.5, borderColor: start === t ? Brand.Blue : Brand.Line, backgroundColor: start === t ? Brand.Blue : '#fff', paddingVertical: 9 }}>
+              <Txt k="labelMedium" bold color={start === t ? '#fff' : Brand.Ink}>{hm12(t)}</Txt>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      <Gap h={8} />
+      {err ? <><Notice text={err} tone="bad" /><Gap h={8} /></> : null}
+      {quote && start ? (
+        <>
+          <Bordered>
+            <Txt k="titleSmall" color={Brand.BlueDark}>⏱️ {shortDate(date)} · {hm12(start)} – {hm12(addHours(start, hours))}</Txt>
+            <Gap h={6} />
+            <PriceTable lines={priceLines(quote)} total={num(quote, 'total')} />
+            {str(obj(quote, 'cancellation'), 'label') ? <Txt k="bodySmall" color={Brand.TealDark} style={{ marginTop: 4 }}>{str(obj(quote, 'cancellation'), 'label')}</Txt> : null}
+          </Bordered>
+          <Gap />
+          <PrimaryButton text={text(quote, 'booking_mode') === 'request' ? 'Request to book' : 'Reserve these hours'} onPress={() => {
+            AppState.set({ reserve: { kind, id, title: text(p, 'title'), image: str(p, 'image'), checkIn: date, checkOut: date, adults, ages: [], food: false, coupon: '',
+              roomId: null, planId: null, rooms: 1, quote, hourly: { date, start, hours, label: `${hm12(start)} – ${hm12(addHours(start, hours))}` } } });
+            onClose(); Nav.navigate('reserve');
+          }} />
+        </>
+      ) : !start && starts?.length ? <Notice text="Choose a start time to see the price." /> : busy && start ? <Loading /> : null}
+    </>
+  );
+}
+
 function BookingSheet({ kind, id, p, onClose }: { kind: string; id: number; p: J; onClose: () => void }) {
+  const hb = obj(p, 'hourly_booking');
+  const [mode, setMode] = useState('night');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [adults, setAdults] = useState(2);
@@ -226,6 +307,8 @@ function BookingSheet({ kind, id, p, onClose }: { kind: string; id: number; p: J
 
   return (
     <Sheet open onClose={onClose} title="Your trip">
+      {hb ? <><Segmented options={[['night', 'By the night'], ['hour', 'By the hour']]} value={mode} onChange={setMode} /><Gap h={10} /></> : null}
+      {hb && mode === 'hour' ? <><HourlyPart kind={kind} id={id} p={p} h={hb} onClose={onClose} /><Gap h={6} /><LinkButton text="Close" onPress={onClose} color={Brand.InkSoft} /></> : <>
       {/* the host's promotions (apply by themselves) and pay-at-property stays */}
       {objs(p, 'promotions').length ? (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
@@ -288,6 +371,7 @@ function BookingSheet({ kind, id, p, onClose }: { kind: string; id: number; p: J
       ) : <PrimaryButton text="Check the price" onPress={check} loading={busy} />}
       <Gap h={6} />
       <LinkButton text="Close" onPress={onClose} color={Brand.InkSoft} />
+      </>}
     </Sheet>
   );
 }

@@ -11,7 +11,7 @@ import { ForceHostCard } from './ForceSearch';
 import { useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
-import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, shortDate, st, today, TopBar } from '../ui/kit';
+import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, plural, shortDate, st, today, TopBar } from '../ui/kit';
 import { Field } from '../ui/inputs';
 import { Dialog, Sheet, dial } from '../ui/sheets';
 import { RED_GRAD, SUN_GRAD } from '../ui/cards';
@@ -223,7 +223,7 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
         <View style={{ flex: 1, paddingLeft: 12 }}>
           <View style={st.row}><Txt k="titleMedium" numberOfLines={1} style={{ flex: 1 }}>{text(b, 'guest')}</Txt><Pill text={text(b, 'state_label')} tone={tone} /></View>
           <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={1}>{text(b, 'listing')}</Txt>
-          <Txt k="bodySmall" color={Brand.Muted}>{shortDate(str(b, 'check_in'))} → {shortDate(str(b, 'check_out'))} · {int(b, 'nights')}n · {who}</Txt>
+          <Txt k="bodySmall" color={Brand.Muted}>{obj(b, 'hourly') ? `⏱️ ${shortDate(str(b, 'check_in'))} · ${text(obj(b, 'hourly'), 'label')}` : `${shortDate(str(b, 'check_in'))} → ${shortDate(str(b, 'check_out'))} · ${int(b, 'nights')}n`} · {who}</Txt>
           {text(b, 'payment') ? <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ marginTop: 4 }}>{text(b, 'payment')}</Txt> : null}
           {str(b, 'requests') ? <Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3} style={{ marginTop: 4 }}>“{str(b, 'requests')}”</Txt> : null}
           {str(b, 'arrival_time') ? <Txt k="labelMedium" color={Brand.TealDark}>Arriving around {str(b, 'arrival_time')}</Txt> : null}
@@ -296,9 +296,13 @@ function BookingDetails({ b, open, onClose }: { b: J; open: boolean; onClose: ()
           </LinearGradient>
           <Gap h={12} />
           <Txt k="titleSmall">Stay</Txt>
+          {obj(b, 'hourly') ? <>
+            {row('schedule', 'Hourly booking', `${shortDate(str(b, 'check_in'))} · ${text(obj(b, 'hourly'), 'label')}`)}
+          </> : <>
           {row('event', 'Check-in', `${shortDate(str(b, 'check_in'))}${str(b, 'arrival_time') ? ' · around ' + str(b, 'arrival_time') : ''}`)}
           {row('event-available', 'Check-out', `${shortDate(str(b, 'check_out'))}${str(b, 'checkout_time') ? ' · ' + str(b, 'checkout_time') : ''}`)}
           {row('nights-stay', 'Nights', String(int(b, 'nights')))}
+          </>}
           {row(pet ? 'pets' : 'group', pet ? 'Pets' : 'Guests', ppl)}
           {row('login', 'Checked in', str(b, 'checked_in_at') ? shortDate(str(b, 'checked_in_at')!.slice(0, 10)) : null)}
           {row('logout', 'Checked out', str(b, 'checked_out_at') ? shortDate(str(b, 'checked_out_at')!.slice(0, 10)) : null)}
@@ -468,12 +472,17 @@ function CalendarTab() {
 }
 
 /* ---------- Listings ---------- */
+const hm12 = (t: string) => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}${m ? ':' + String(m).padStart(2, '0') : ''} ${h < 12 ? 'am' : 'pm'}`; };
 function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) {
   const [tick, setTick] = useState(0);
   const l = useLoader(() => Api.get('hostapp/home'), [tick]);
   const [msg, setMsg] = useState<[string, boolean] | null>(null);
   const [edit, setEdit] = useState<J | null>(null);
   const [price, setPrice] = useState('');
+  const [hEdit, setHEdit] = useState<J | null>(null);   // hourly booking: price per hour and cleaning gap
+  const [hPrice, setHPrice] = useState('');
+  const [hGap, setHGap] = useState('60');
+  const openHourly = (x: J) => { const h = obj(x, 'hourly'); setHPrice(num(h, 'price') ? String(Math.round(num(h, 'price')!)) : ''); setHGap(String(int(h, 'gap', 60))); setHEdit(x); };
   const save = async (x: J, body: Record<string, any>) => {
     setMsg(null);
     try { setMsg([text(await Api.post(`hostapp/listings/${text(x, 'kind')}/${int(x, 'id')}`, body), 'message', 'Saved.'), true]); setTick((t) => t + 1); changed(); } catch (e) { setMsg([errorText(e), false]); }
@@ -515,11 +524,35 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
                       </View>
                     ) : null}
                   </View>
+                  {obj(x, 'hourly') ? (() => { const h = obj(x, 'hourly')!; const on = bool(h, 'on'); return (
+                    <View style={[st.row, { marginTop: 10, borderRadius: 14, backgroundColor: on ? '#FDECEC' : Brand.Page, paddingHorizontal: 12, paddingVertical: 8 }]}>
+                      <Press onPress={() => openHourly(x)} style={{ flex: 1 }}>
+                        <Txt k="titleSmall" bold color={on ? Brand.BlueDark : Brand.InkSoft}>⏱️ Hourly booking{on ? ` · ${money(num(h, 'price') || 0)} / hour` : ''}</Txt>
+                        {/* the price per hour and gap show only once hourly booking is on */}
+                        <Txt k="labelSmall" color={Brand.Muted}>{on ? `${int(h, 'gap') ? `${int(h, 'gap')} min cleaning gap · ` : ''}Tap to change` : 'Let guests book a few hours'}</Txt>
+                      </Press>
+                      <Switch value={on} onValueChange={(v) => (v && !num(h, 'price') ? openHourly(x) : save(x, { hourly_on: v }))} trackColor={{ true: Brand.Teal }} accessibilityLabel="Hourly booking" />
+                    </View>
+                  ); })() : null}
                 </View>
               </View>
             </Appear>
           );
         })}
+      <Dialog open={!!hEdit} onClose={() => setHEdit(null)} title="Hourly booking" text={text(hEdit, 'title')}
+        actions={[['Cancel', () => setHEdit(null)], ['Save', () => { const x = hEdit!; setHEdit(null); save(x, { hourly_on: true, hourly_price: parseInt(hPrice, 10) || 0, hourly_gap: parseInt(hGap, 10) }); }]]}>
+        <Field label="Price per hour (₹)" value={hPrice} onChange={(v) => setHPrice(v.replace(/\D/g, '').slice(0, 6))} keyboard="number-pad" />
+        <Gap h={8} />
+        <Txt k="labelMedium" color={Brand.InkSoft}>Cleaning gap between bookings</Txt>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+          {[['0', 'None'], ['30', '30 min'], ['60', '1 h'], ['90', '1½ h'], ['120', '2 h'], ['180', '3 h']].map(([v, l]) => (
+            <Pressable key={v} onPress={() => setHGap(v)} style={{ borderRadius: 50, borderWidth: 1.2, borderColor: hGap === v ? Brand.Blue : Brand.Line, backgroundColor: hGap === v ? Brand.Blue : '#fff', paddingHorizontal: 12, paddingVertical: 6 }}>
+              <Txt k="labelMedium" color={hGap === v ? '#fff' : Brand.InkSoft}>{l}</Txt>
+            </Pressable>
+          ))}
+        </View>
+        {hEdit ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 6 }}>Guests book between {hm12(text(obj(hEdit, 'hourly'), 'from', '08:00'))} and {hm12(text(obj(hEdit, 'hourly'), 'to', '22:00'))}, at least {plural(int(obj(hEdit, 'hourly'), 'min', 2), 'hour')}. More than {plural(int(obj(hEdit, 'hourly'), 'day_after', 8), 'hour')} is charged as one night's price.</Txt> : null}
+      </Dialog>
       <Dialog open={!!edit} onClose={() => setEdit(null)} title="Standard price per night" text={text(edit, 'title')}
         actions={[['Cancel', () => setEdit(null)], ['Save', () => { const x = edit!; setEdit(null); save(x, { price: parseInt(price, 10) || null }); }]]}>
         <Field label="Price (₹)" value={price} onChange={(v) => setPrice(v.replace(/\D/g, '').slice(0, 7))} keyboard="number-pad" />

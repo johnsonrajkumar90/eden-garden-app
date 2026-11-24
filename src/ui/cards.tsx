@@ -83,7 +83,8 @@ export function listingTags(p: J): Tag[] {
   if (bool(badges, 'verified')) out.push(T_VERIFIED);
   if (p && p.refundable === true) out.push(T_REFUND);
   if (bool(p, 'pay_at_property')) out.push(T_PROPERTY);
-  return out.slice(0, 3);
+  if (obj(p, 'hourly')) out.push({ text: `⏱️ ${money(num(obj(p, 'hourly'), 'price'))}/hr`, bg: '#fff', fg: '#A3141D' });   // book by the hour
+  return out.slice(0, 4);
 }
 export { T_VERIFIED, T_REFUND, T_PROPERTY };
 

@@ -54,7 +54,7 @@ function TripsList({ tab, setTab, l }: { tab: number; setTab: (n: number) => voi
     const all: Trip[] = [];
     const mk = (b: J, pet: boolean): Trip => ({ ref: text(b, 'ref'), pet, title: text(obj(b, 'listing'), 'title'), image: str(obj(b, 'listing'), 'image'), checkIn: text(b, 'check_in'), checkOut: text(b, 'check_out'),
       status: text(b, 'status'), statusLabel: text(b, 'status_label'), tone: text(b, 'status_tone'),
-      sub: pet ? 'Pet services · ' + plural(int(b, 'pets_count'), 'pet') : plural(int(b, 'nights'), 'night') + ' · ' + plural(int(b, 'guests'), 'guest') });
+      sub: pet ? 'Pet services · ' + plural(int(b, 'pets_count'), 'pet') : (obj(b, 'hourly') ? '⏱️ ' + text(obj(b, 'hourly'), 'label') : plural(int(b, 'nights'), 'night')) + ' · ' + plural(int(b, 'guests'), 'guest') });
     [...objs(stays, 'upcoming'), ...objs(stays, 'past'), ...objs(stays, 'cancelled')].forEach((b) => all.push(mk(b, false)));
     ['upcoming', 'active', 'completed', 'cancelled'].forEach((k) => objs(pets, k).forEach((b) => all.push(mk(b, true))));
     let shown = all.filter((t) => {
@@ -158,9 +158,15 @@ export function BookingScreen() {
           {str(li, 'room') ? <Txt color={Brand.InkSoft}>{str(li, 'room')}</Txt> : null}
           <Txt k="bodySmall" color={Brand.Muted}>{text(li, 'location')}</Txt>
           <Gap h={8} />
+          {obj(b, 'hourly') ? <>
+            <KeyValue k="Hourly booking" v={prettyDate(str(b, 'check_in'))} />
+            <KeyValue k="Hours" v={text(obj(b, 'hourly'), 'label')} />
+            <KeyValue k="Guests" v={plural(int(b, 'guests'), 'guest')} />
+          </> : <>
           <KeyValue k="Check-in" v={prettyDate(str(b, 'check_in'))} />
           <KeyValue k="Check-out" v={prettyDate(str(b, 'check_out'))} />
           <KeyValue k="Guests" v={plural(int(b, 'guests'), 'guest') + ' · ' + plural(int(b, 'nights'), 'night')} />
+          </>}
           <KeyValue k="Reference" v={ref} />
         </Card>
         {approval ? <><Gap /><Notice tone={approval === 'approved' || approval === 'requested' ? 'info' : 'warn'} text={
