@@ -8,7 +8,7 @@ import { Linking, Pressable, ScrollView, Switch, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Api, ApiError, errorText } from '../core/api';
 import { ForceHostCard } from './ForceSearch';
-import { useLoader, useSession } from '../core/state';
+import { useAppState, useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
 import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, plural, shortDate, st, today, TopBar } from '../ui/kit';
@@ -474,7 +474,9 @@ function CalendarTab() {
 /* ---------- Listings ---------- */
 const hm12 = (t: string) => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}${m ? ':' + String(m).padStart(2, '0') : ''} ${h < 12 ? 'am' : 'pm'}`; };
 function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) {
-  const [tick, setTick] = useState(0);
+  const [tick0, setTick] = useState(0);
+  const refresh = useAppState('refreshTick');   // a listing added or edited in the form screen
+  const tick = tick0 + (refresh || 0) * 1000;
   const l = useLoader(() => Api.get('hostapp/home'), [tick]);
   const [msg, setMsg] = useState<[string, boolean] | null>(null);
   const [edit, setEdit] = useState<J | null>(null);
@@ -493,9 +495,24 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
     try { setMsg([text(await Api.post(`hostapp/listings/${text(x, 'kind')}/${int(x, 'id')}`, body), 'message', 'Saved.'), true]); setTick((t) => t + 1); changed(); } catch (e) { setMsg([errorText(e), false]); }
   };
   const d = l.data;
+  // add / edit listings (stays, services, pet boarding) — what this account may add, and its services
+  const fm = useLoader(() => Api.get('hostapp/forms').catch(() => null), [tick]);
+  const can = obj(fm.data, 'can') || {};
+  const addBtn = (k: string, label: string, icon: string) => (
+    <Press key={k} onPress={() => Nav.navigate(`listingform/${k}`)} style={{ flexGrow: 1, flexBasis: '45%', flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 16, borderWidth: 1.5, borderColor: Brand.Blue, borderStyle: 'dashed', backgroundColor: '#FFF6F5', paddingHorizontal: 12, paddingVertical: 11 }}>
+      <Icon name={icon} size={20} color={Brand.Blue} /><Txt k="titleSmall" bold color={Brand.BlueDark}>{label}</Txt>
+    </Press>
+  );
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }}>
       {msg ? <><Notice text={msg[0]} tone={msg[1] ? 'ok' : 'bad'} /><Gap h={10} /></> : null}
+      {bool(can, 'stay') || bool(can, 'service') || bool(can, 'pet') ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+          {bool(can, 'stay') && !pets ? addBtn('stay', 'Add a stay', 'add-home') : null}
+          {bool(can, 'pet') ? addBtn('pet', 'Add pet boarding', 'pets') : null}
+          {bool(can, 'service') && !pets ? addBtn('service', 'Add a service', 'local-taxi') : null}
+        </View>
+      ) : null}
       {!d && l.loading ? <Loading /> : !d ? <ErrorBox message={l.error || 'Could not load your listings.'} onRetry={l.reload} />
         : !objs(d, 'listings').length ? <EmptyBox title="No listings yet" text="Your listings show here once they are added." icon="home" />
         : objs(d, 'listings').map((x, i) => {
@@ -512,8 +529,17 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
                   </View>
                 </View>
                 <View style={{ padding: 14 }}>
-                  <Txt k="titleMedium">{text(x, 'title')}</Txt>
-                  <Txt k="bodySmall" color={Brand.Muted}>{text(x, 'location')}</Txt>
+                  <View style={st.row}>
+                    <View style={{ flex: 1 }}>
+                      <Txt k="titleMedium">{text(x, 'title')}</Txt>
+                      <Txt k="bodySmall" color={Brand.Muted}>{text(x, 'location')}</Txt>
+                    </View>
+                    {text(x, 'kind') !== 'resort' ? (
+                      <Press onPress={() => Nav.navigate(`listingform/${text(x, 'kind')}?id=${int(x, 'id')}`)} style={[st.row, { borderRadius: 50, borderWidth: 1.2, borderColor: Brand.Line, paddingHorizontal: 12, paddingVertical: 7, marginLeft: 8 }]}>
+                        <Icon name="edit" size={16} color={Brand.Ink} /><Txt k="labelLarge"> Edit</Txt>
+                      </Press>
+                    ) : null}
+                  </View>
                   {bool(x, 'hidden_for_dues') ? <Txt k="labelMedium" color={Brand.Danger}>Hidden: a settlement is overdue (Money tab).</Txt> : null}
                   <View style={[st.row, { marginTop: 10 }]}>
                     {p != null ? (
@@ -554,6 +580,24 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
             </Appear>
           );
         })}
+      {!pets && objs(fm.data, 'services').length ? (
+        <>
+          <Gap h={6} />
+          <Txt k="titleLarge">Your services</Txt>
+          <Gap h={8} />
+          {objs(fm.data, 'services').map((sv) => (
+            <Press key={int(sv, 'id')} onPress={() => Nav.navigate(`listingform/service?id=${int(sv, 'id')}`)} style={[st.row, { borderRadius: 18, backgroundColor: '#fff', padding: 10, marginBottom: 8, elevation: 2, shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } }]}>
+              <Photo url={str(sv, 'image')} style={{ width: 56, height: 56 }} corner={12} />
+              <View style={{ flex: 1, paddingLeft: 10 }}>
+                <Txt k="titleSmall" numberOfLines={1}>{text(sv, 'title')}</Txt>
+                <Txt k="bodySmall" color={Brand.Muted} numberOfLines={1}>{[text(sv, 'category'), text(sv, 'location')].filter(Boolean).join(' · ')}</Txt>
+                <Txt k="labelSmall" color={bool(sv, 'active') ? Brand.TealDark : Brand.Warn}>{!bool(sv, 'approved') ? 'Waiting for approval' : bool(sv, 'active') ? 'Live' : 'Hidden'}</Txt>
+              </View>
+              <Icon name="edit" size={18} color={Brand.Muted} />
+            </Press>
+          ))}
+        </>
+      ) : null}
       <Sheet open={!!bEdit} onClose={() => setBEdit(null)} title="Bedrooms & bathrooms">
         {bEdit ? (() => { const types = objs(obj(bEdit, 'beds'), 'types'); return (
           <>
