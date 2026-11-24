@@ -21,6 +21,7 @@ import { BackBar, Card, Gap, Icon, Loading, Notice, OutlineButton, Photo, Primar
 import { CheckRow, Field, Stepper } from '../ui/inputs';
 import { Nav } from '../nav';
 import { DOCK_SPACE } from '../ui/dock';
+import { pushOn, registerPush } from '../core/push';
 
 const RED = '#D7192A';
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.max(0, s % 60)).padStart(2, '0')}`;
@@ -525,6 +526,26 @@ export function ForceFab({ bottom }: { bottom: number }) {
 /* ===================== Host ===================== */
 
 /** Hosting dashboard: switch Force search on (after reading how it works) and the guests searching nearby. */
+/** Can the phone ring while the app is closed? Push (Firebase) and notification permission, or a nudge to fix them. */
+function RingCheck() {
+  const [state, setState] = useState<'ok' | 'perm' | 'push' | null>(null);
+  const test = async () => {
+    const perm = (await Notifications.getPermissionsAsync()).granted;
+    if (!perm) { setState('perm'); return; }
+    setState((await registerPush()) || (await pushOn()) ? 'ok' : 'push');
+  };
+  useEffect(() => { test(); }, []);
+  if (!state || state === 'ok') return null;
+  return (
+    <View style={{ paddingHorizontal: 12, paddingTop: 12 }}>
+      <Notice tone="warn" text={state === 'perm'
+        ? 'Allow TripArro notifications, or your phone cannot ring while the app is closed.'
+        : 'Your phone can ring only while TripArro is open: push notifications are not set up yet. Ask TripArro support to switch on push notifications.'} />
+      {state === 'perm' ? <><Gap h={6} /><OutlineButton text="Allow notifications" icon="notifications-active" onPress={async () => { const p = await Notifications.requestPermissionsAsync(); if (!p.granted) Linking.openSettings().catch(() => {}); test(); }} /></> : null}
+    </View>
+  );
+}
+
 export function ForceHostCard() {
   const [d, setD] = useState<J | null>(null);
   const [explain, setExplain] = useState(false);
@@ -566,6 +587,7 @@ export function ForceHostCard() {
         </Pressable>
       </LinearGradient>
       {on && !int(d, 'stays_on_map') ? <View style={{ padding: 12 }}><Notice tone="warn" text="Add the map location to your stays (My listings) — Force search only finds stays on the map." /></View> : null}
+      {on ? <RingCheck /> : null}
       {on ? (
         <View style={{ padding: 14 }}>
           <View style={[st.row, { justifyContent: 'space-between' }]}>

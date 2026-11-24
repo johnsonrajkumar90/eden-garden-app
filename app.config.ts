@@ -90,7 +90,7 @@ const config: ExpoConfig = {
   plugins: [
     ['expo-build-properties', { android: { minSdkVersion: 24, targetSdkVersion: 36, useLegacyPackaging: true, enableMinifyInReleaseBuilds: true, enableShrinkResourcesInReleaseBuilds: false, extraProguardRules: PROGUARD } }],   // R8: smaller, faster code (Google Play's DEX optimization)   // compressed native libraries: a much smaller APK
     ['expo-splash-screen', { image: './assets/splash-logo.png', imageWidth: 220, backgroundColor: '#C41E2E' }],
-    ['expo-notifications', { color: '#D7192A', sounds: ['./assets/force_ring.wav'] }],   // Force search: the host's phone rings with this tune
+    ['expo-notifications', { color: '#D7192A', sounds: ['./assets/force_ring.wav', './assets/force_ring_long.wav'] }],   // Force search: the host's phone rings with this tune
     ['expo-audio', { recordAudioAndroid: false, microphonePermission: false, enableBackgroundPlayback: false }],   // only the short message sound: no microphone, no background audio
     ['expo-location', { locationWhenInUsePermission: 'TripArro uses your location to name the place you are at and to find chargers near you.' }],
     ['expo-image-picker', { photosPermission: 'TripArro lets you choose photos for trips, posts and favourites.', cameraPermission: 'TripArro uses the camera for trip photos, receipts and guest ID scans.' }],

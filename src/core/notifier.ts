@@ -27,6 +27,9 @@ export async function createChannels() {
   // Force search: a guest needs a stay now — loud, its own soft tune, on the lock screen
   await Notifications.setNotificationChannelAsync('force_search', { name: 'Force search (guests needing a stay now)', importance: Notifications.AndroidImportance.MAX, sound: 'force_ring.wav',
     vibrationPattern: [0, 400, 250, 400, 250, 400], lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, bypassDnd: false, lightColor: '#D7192A' });
+  // the same, ringing longer (like a call) — the channel the website uses from app 3.0.100 on
+  await Notifications.setNotificationChannelAsync('force_search_ring', { name: 'Force search ringing', importance: Notifications.AndroidImportance.MAX, sound: 'force_ring_long.wav',
+    vibrationPattern: [0, 600, 300, 600, 300, 600, 300, 600, 300, 600], lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, bypassDnd: false, lightColor: '#D7192A', enableVibrate: true });
   await Notifications.setNotificationChannelAsync(CHANNEL_MSG, { name: 'Messages', importance: Notifications.AndroidImportance.HIGH, sound: 'default', vibrationPattern: [0, 250, 150, 250], lightColor: '#D7192A' });
 }
 

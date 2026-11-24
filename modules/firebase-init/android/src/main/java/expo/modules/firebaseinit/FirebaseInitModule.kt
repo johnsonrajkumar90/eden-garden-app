@@ -20,6 +20,8 @@ class FirebaseInitModule : Module() {
 
     Function("initialize") { apiKey: String, appId: String, projectId: String, senderId: String ->
       val ctx = appContext.reactContext ?: return@Function false
+      // kept, so Firebase starts by itself next time — even when Android wakes the closed app for a push
+      FirebaseInitStore.save(ctx.applicationContext, apiKey, appId, projectId, senderId)
       if (FirebaseApp.getApps(ctx).isNotEmpty()) return@Function true
       val options = FirebaseOptions.Builder()
         .setApiKey(apiKey)
