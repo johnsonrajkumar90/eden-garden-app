@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, View } from 'react-native';
-import { Api, errorText } from '../core/api';
+import { Api, ApiError, errorText } from '../core/api';
 import { useSession } from '../core/state';
 import { J, num, obj, objs, str, text } from '../core/json';
 import { Brand } from '../theme';
@@ -41,6 +41,7 @@ export default function BookGuestScreen() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState<J | null>(null);
+  const [fieldErr, setFieldErr] = useState<Record<string, string>>({});
 
   // the stays this person may book
   useEffect(() => {
@@ -77,11 +78,13 @@ export default function BookGuestScreen() {
   }, [stay?.id, ci, co, guests]);
 
   const payOptions: [string, string][] = agent ? [['link', 'Payment link'], ['due', 'Pays at property']] : [['paid', 'Paid'], ['due', 'At property'], ['link', 'Payment link']];
-  const ready = !!stay && !!ci && !!co && name.trim().length > 1 && phone.trim().length >= 7;
+  const digits = phone.replace(/\D/g, '').length;
+  const phoneErr = phone.trim() && (digits < 7 || digits > 15) ? 'Enter the full mobile number (10 digits, or with +91).' : fieldErr.phone || null;
+  const ready = !!stay && !!ci && !!co && name.trim().length > 1 && digits >= 7 && digits <= 15;
 
   const submit = async () => {
     if (!stay) return;
-    setBusy(true); setErr(null);
+    setBusy(true); setErr(null); setFieldErr({});
     try {
       const f: Record<string, string | number> = {
         property: stay.id, check_in: ci, check_out: co, guests, name: name.trim(), phone: phone.trim(), email: email.trim(), notes: notes.trim(), payment: pay,
@@ -90,7 +93,7 @@ export default function BookGuestScreen() {
       if (!agent) { f.rate = rate || String(num(stay.attrs, 'rate') || ''); f.paid_method = method; }
       else if (rate && num(stay.attrs, 'redit')) f.rate = rate;
       setDone(await Api.postSiteForm(form, f));
-    } catch (e) { setErr(errorText(e)); }
+    } catch (e) { setErr(errorText(e)); if (e instanceof ApiError) setFieldErr(e.errors); }
     setBusy(false);
   };
 
@@ -192,7 +195,7 @@ export default function BookGuestScreen() {
           <Gap h={8} />
           <Field label="Full name" value={name} onChange={setName} autoCapitalize="words" />
           <Gap h={8} />
-          <Field label="Mobile number" value={phone} onChange={setPhone} keyboard="phone-pad" />
+          <Field label="Guest's mobile number" value={phone} onChange={(v) => setPhone(v.replace(/[^\d+ ]/g, ' ').replace(/(?!^)\+/g, '').replace(/\s{2,}/g, ' ').slice(0, 20))} keyboard="phone-pad" placeholder="e.g. 98765 43210" error={phoneErr || undefined} />
           <Gap h={8} />
           <Field label={pay === 'link' && !agent ? 'Email (needed for the payment link)' : 'Email (optional)'} value={email} onChange={setEmail} keyboard="email-address" autoCapitalize="none" />
           <Gap h={8} />
