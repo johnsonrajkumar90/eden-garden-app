@@ -529,20 +529,40 @@ function CalendarTab() {
             );
           })()}
           <Gap h={12} />
-          {first && kind === 'stay' ? (
-            <View style={{ borderRadius: 22, backgroundColor: '#FFF4C7', padding: 14 }}>
-              <View style={st.row}>
-                <Txt k="titleSmall" color="#8A5A00" style={{ flex: 1 }}>✨ {shortDate(first)}{last && last !== first ? ` → ${shortDate(last)}` : ''} selected</Txt>
-                <Pressable onPress={() => { setFirst(null); setLast(null); }} hitSlop={8}><Txt k="labelLarge" color="#8A5A00">Clear</Txt></Pressable>
+          {first && kind === 'stay' ? (() => {
+            const end = last || first;
+            const nights = Math.round(((parseIso(end)?.getTime() || 0) - (parseIso(first)?.getTime() || 0)) / 86400000) + 1;
+            const stayId = parseInt(tag.split(':')[1] || '', 10);
+            const out = addDays(end, 1);   // the morning after the last night
+            return (
+              <View style={{ borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.78)', borderWidth: 1.2, borderColor: '#fff', padding: 14, overflow: 'hidden', shadowColor: Brand.Blue, shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 4 }}>
+                <View style={st.row}>
+                  <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: Brand.Blue, alignItems: 'center', justifyContent: 'center' }}><Txt k="titleMedium" bold color="#fff">{nights}</Txt></View>
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <Txt k="titleSmall">{nights === 1 ? '1 night' : `${nights} nights`} picked</Txt>
+                    <Txt k="bodySmall" color={Brand.Muted}>Check-in {shortDate(first)} · check-out {shortDate(out)}</Txt>
+                  </View>
+                  <Pressable onPress={() => { setFirst(null); setLast(null); }} hitSlop={8} accessibilityLabel="Clear" style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#F4EEEB', alignItems: 'center', justifyContent: 'center' }}><Icon name="close" size={18} color={Brand.InkSoft} /></Pressable>
+                </View>
+                {!last ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 6 }}>👆 Tap another night to make it longer</Txt> : null}
+                <Gap h={12} />
+                {stayId && (Api.session?.user?.role || '') !== 'pethost' ? <PrimaryButton text="Book a guest for these nights" icon="person-add-alt" onPress={() => Nav.navigate(`bookguest?property=${stayId}&check_in=${first}&check_out=${out}`)} /> : null}
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+                  <OutlineButton text="🔒 Close nights" style={{ flex: 1 }} disabled={busy} onPress={() => act('hostapp/calendar/close', { listing: tag, first, last: end, reason: 'Closed in the app' })} />
+                  <OutlineButton text="₹ Set price" style={{ flex: 1 }} onPress={() => { const p = num(cur, 'price'); setPrice(p ? String(Math.round(p)) : ''); setPriceAsk(true); }} />
+                </View>
               </View>
-              {!last ? <Txt k="labelSmall" color="#8A5A00" style={{ marginTop: 2 }}>Tap another night to pick a range</Txt> : null}
-              <Gap h={10} />
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <PrimaryButton text="🔒 Close" loading={busy} style={{ flex: 1 }} onPress={() => act('hostapp/calendar/close', { listing: tag, first, last: last || first, reason: 'Closed in the app' })} />
-                <OutlineButton text="₹ Set price" style={{ flex: 1 }} onPress={() => { const p = num(cur, 'price'); setPrice(p ? String(Math.round(p)) : ''); setPriceAsk(true); }} />
-              </View>
+            );
+          })() : kind === 'stay' ? (
+            <View style={{ borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.72)', borderWidth: 1, borderColor: '#fff', padding: 12, gap: 8 }}>
+              {[['touch-app', 'Tap a green night, then another, to pick dates'], ['person-add-alt', 'Book a guest, close the nights or change the price'], ['event-busy', 'Tap a coloured band to see the guest; a grey one to open it again']].map(([ic, t]) => (
+                <View key={t} style={[st.row, { gap: 10 }]}>
+                  <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: '#FFF0EE', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic} size={17} color={Brand.Blue} /></View>
+                  <Txt k="bodySmall" color={Brand.InkSoft} style={{ flex: 1 }}>{t}</Txt>
+                </View>
+              ))}
             </View>
-          ) : kind === 'stay' ? <View style={{ borderRadius: 18, backgroundColor: '#ffffffd9', padding: 12 }}><Txt k="bodySmall" color={Brand.InkSoft}>👆 Tap a free night — then another for a range — to close it or change its price. Tap a booked night to see the guest, or a grey one to open it again.</Txt></View>
+          )
             : kind === 'resort' ? <Txt k="bodySmall" color={Brand.Muted}>Each day shows how many rooms are still free.</Txt> : null}
         </>
       )}

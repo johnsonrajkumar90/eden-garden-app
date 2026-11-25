@@ -30,7 +30,7 @@ export default function BookGuestScreen() {
   const [stay, setStay] = useState<Stay | null>(null);
   const [picking, setPicking] = useState(!p.property);
   const [booked, setBooked] = useState<string[]>([]);
-  const [ci, setCi] = useState(''); const [co, setCo] = useState('');
+  const [ci, setCi] = useState(p.check_in || ''); const [co, setCo] = useState(p.check_out || '');   // from the host calendar: the nights picked there
   const [guests, setGuests] = useState(2);
   const [name, setName] = useState(''); const [phone, setPhone] = useState(''); const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
@@ -38,6 +38,7 @@ export default function BookGuestScreen() {
   const [method, setMethod] = useState('cash');
   const [rate, setRate] = useState('');
   const [quote, setQuote] = useState<J | null>(null);
+  const [pricing, setPricing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState<J | null>(null);
@@ -70,12 +71,17 @@ export default function BookGuestScreen() {
   useEffect(() => {
     if (!stay || !ci || !co) { setQuote(null); return; }
     let off = false;
+    setPricing(true);
+    // hosts: priced with the price per night they type (the same sum as the website's New booking form)
+    const typed = rate.replace(/[^\d.]/g, '');
     const t = setTimeout(() => {
-      Api.get('availability', { kind: 'stay', id: stay.id, check_in: ci, check_out: co, adults: guests, partner: agent ? 1 : 0, ...(rate && num(stay.attrs, 'redit') ? { rate } : {}) })
-        .then((j) => { if (!off) setQuote(j); }).catch(() => { if (!off) setQuote(null); });
-    }, 300);
+      Api.get('availability', { kind: 'stay', id: stay.id, check_in: ci, check_out: co, adults: guests, partner: agent ? 1 : 0, host: agent ? 0 : 1,
+        ...(typed && (!agent || num(stay.attrs, 'redit')) ? { rate: typed } : {}) })
+        .then((j) => { if (!off) setQuote(j); }).catch(() => { if (!off) setQuote(null); })
+        .finally(() => { if (!off) setPricing(false); });
+    }, 400);
     return () => { off = true; clearTimeout(t); };
-  }, [stay?.id, ci, co, guests]);
+  }, [stay?.id, ci, co, guests, rate]);
 
   const payOptions: [string, string][] = agent ? [['link', 'Payment link'], ['due', 'Pays at property']] : [['paid', 'Paid'], ['due', 'At property'], ['link', 'Payment link']];
   const digits = phone.replace(/\D/g, '').length;
@@ -173,7 +179,7 @@ export default function BookGuestScreen() {
           <DateRangeField checkIn={ci} checkOut={co} onChange={(a, b) => { setCi(a); setCo(b); }} booked={booked} label="Check-in → check-out" />
           <Gap h={10} />
           <Stepper label="Guests" value={guests} onChange={setGuests} min={1} max={num(stay.attrs, 'cap') || 20} note={`${num(stay.attrs, 'inc') || 1} included in the price`} />
-          {(!agent || num(stay.attrs, 'redit')) ? <><Gap h={10} /><Field label="Price per night (₹)" value={rate} onChange={setRate} keyboard="numeric" /></> : null}
+          {(!agent || num(stay.attrs, 'redit')) ? <><Gap h={10} /><Field label="Price per night (₹)" value={rate} onChange={(v) => setRate(v.replace(/[^\d.]/g, '').slice(0, 9))} keyboard="numeric" /></> : null}
 
           {/* the price */}
           {quote ? (
@@ -182,9 +188,9 @@ export default function BookGuestScreen() {
                 {objs(quote, 'lines').map((l, i) => (
                   <View key={i} style={[st.row, { justifyContent: 'space-between', paddingVertical: 3 }]}><Txt k="bodySmall" color={Brand.InkSoft} style={{ flex: 1 }}>{text(l, 'label')}</Txt><Txt k="bodySmall">{(num(l, 'amount') || 0) < 0 ? '− ' : ''}{money(Math.abs(num(l, 'amount') || 0))}</Txt></View>
                 ))}
-                <View style={[st.row, { justifyContent: 'space-between', marginTop: 6 }]}><Txt k="titleSmall">Guest pays</Txt><Txt k="titleMedium">{money(num(quote, 'total') || 0)}</Txt></View>
+                <View style={[st.row, { justifyContent: 'space-between', marginTop: 6 }]}><Txt k="titleSmall">Guest pays{pricing ? ' · updating…' : ''}</Txt><Txt k="titleMedium" style={{ opacity: pricing ? 0.5 : 1 }}>{money(num(quote, 'total') || 0)}</Txt></View>
                 {agent && obj(quote, 'partner') ? <Txt k="labelMedium" color="#0B6B3A" style={{ marginTop: 4 }}>Your commission {money(num(obj(quote, 'partner'), 'commission') || 0)}</Txt> : null}
-                {!agent ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 4 }}>The final price uses the price per night above.</Txt> : null}
+                {!agent ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 4 }}>Worked out from the price per night above — change it and the total updates.</Txt> : null}
               </>}
             </Card>
           ) : null}

@@ -76,7 +76,7 @@ export const SCREENS: Record<RouteName, ComponentType<any>> = {
   'hostkyc': HostKycScreen,
   'become-pet-host': BecomePetHostScreen,
   'hosting': HostingScreen,
-  'bookguest?property={property}': BookGuestScreen,
+  'bookguest?property={property}&check_in={check_in}&check_out={check_out}': BookGuestScreen,
   'force': ForceSearchScreen,
   'site?path={path}&title={title}': SiteScreen,
   'hostcheckin/{id}': HostCheckinScreen,

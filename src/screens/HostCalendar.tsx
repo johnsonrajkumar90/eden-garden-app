@@ -164,12 +164,21 @@ export function NightMonth({ days, color, onDay, selected }: { days: NightDay[];
             const startHere = on(c) && (!same(prev, c) || i === 0);
             const endHere = on(c) && (!same(c, next) || i === 6);
             const fade = c.state === 'request' ? 0.5 : c.state === 'platform' || c.state === 'some' ? 0.7 : 1;
+            const freeNow = !on(c) && !past;
+            // the picked nights: one red band across the row, rounded at its ends
+            const selPrev = !!sel && i > 0 && !!prev && !!selected?.(prev.date);
+            const selNext = !!sel && i < 6 && !!next && !!selected?.(next.date);
             return (
-              <Pressable key={i} onPress={() => onDay(c)} style={({ pressed }) => ({ flex: 1, height: 66, alignItems: 'center', opacity: pressed ? 0.7 : 1 })}
-                accessibilityLabel={`${dn}${isToday ? ', today' : ''}${on(c) ? ', ' + (c.state === 'closed' ? 'closed' : c.state === 'request' ? 'request' : 'booked') : c.price ? ', ' + c.price : ''}`}>
+              <Pressable key={i} onPress={() => onDay(c)} style={({ pressed }) => ({ flex: 1, height: 66, alignItems: 'center', opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.95 : 1 }] })}
+                accessibilityLabel={`${dn}${isToday ? ', today' : ''}${sel ? ', selected' : ''}${on(c) ? ', ' + (c.state === 'closed' ? 'closed' : c.state === 'request' ? 'request' : 'booked') : c.price ? ', free, ' + c.price : ''}`}>
+                {freeNow ? (
+                  <View pointerEvents="none" style={{ position: 'absolute', top: 1, bottom: on(c) ? 28 : 3, left: selPrev ? 0 : 2, right: selNext ? 0 : 2,
+                    backgroundColor: sel ? Brand.Blue : 'rgba(18,140,96,0.07)', borderWidth: sel ? 0 : 1, borderColor: 'rgba(18,140,96,0.16)',
+                    borderTopLeftRadius: selPrev ? 0 : 14, borderBottomLeftRadius: selPrev ? 0 : 14, borderTopRightRadius: selNext ? 0 : 14, borderBottomRightRadius: selNext ? 0 : 14 }} />
+                ) : null}
                 <View style={{ width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginTop: 4,
-                  backgroundColor: sel ? Brand.Sun : isToday ? '#1D1B1A' : 'transparent' }}>
-                  <Txt k="titleSmall" color={sel ? '#4A3400' : isToday ? '#fff' : past ? '#BDB3AE' : Brand.Ink}>{dn}</Txt>
+                  backgroundColor: sel && !freeNow ? Brand.Sun : isToday && !sel ? '#fff' : 'transparent', borderWidth: isToday && !sel ? 2 : 0, borderColor: Brand.Blue }}>
+                  <Txt k="titleSmall" color={sel ? (freeNow ? '#fff' : '#4A3400') : isToday ? Brand.Blue : past ? '#BDB3AE' : Brand.Ink}>{dn}</Txt>
                 </View>
                 {on(c) ? (
                   <View style={{ alignSelf: 'stretch', height: 22, marginTop: 4, marginLeft: startHere ? 3 : 0, marginRight: endHere ? 3 : 0, justifyContent: 'center',
@@ -180,7 +189,7 @@ export function NightMonth({ days, color, onDay, selected }: { days: NightDay[];
                     </Txt> : null}
                   </View>
                 ) : (
-                  <Txt k="labelSmall" color={past ? '#CFC6C2' : '#8C817C'} style={{ marginTop: 8, fontSize: 10 }} numberOfLines={1}>{past ? '' : c.price || ''}</Txt>
+                  <Txt k="labelSmall" color={sel ? '#FFE9A8' : past ? '#CFC6C2' : '#128C60'} style={{ marginTop: 6, fontSize: 10, fontWeight: '600' }} numberOfLines={1}>{past ? '' : c.price || (isToday ? 'Today' : 'Free')}</Txt>
                 )}
               </Pressable>
             );
@@ -214,6 +223,7 @@ export const NightKey = ({ color }: { color: string }) => (
         <View style={{ width: 16, height: 8, borderRadius: 4, backgroundColor: c as string, opacity: o as number }} /><Txt k="labelSmall" color={Brand.InkSoft}>{l as string}</Txt>
       </View>
     ))}
-    <View style={[st.row, { gap: 5, borderRadius: 50, backgroundColor: '#ffffffd9', paddingHorizontal: 10, paddingVertical: 5 }]}><Txt k="labelSmall" color="#8C817C">₹ Free · price</Txt></View>
+    <View style={[st.row, { gap: 5, borderRadius: 50, backgroundColor: '#ffffffd9', paddingHorizontal: 10, paddingVertical: 5 }]}><View style={{ width: 14, height: 10, borderRadius: 4, backgroundColor: 'rgba(18,140,96,0.12)', borderWidth: 1, borderColor: 'rgba(18,140,96,0.3)' }} /><Txt k="labelSmall" color="#128C60">Free · price a night</Txt></View>
+    <View style={[st.row, { gap: 5, borderRadius: 50, backgroundColor: '#ffffffd9', paddingHorizontal: 10, paddingVertical: 5 }]}><View style={{ width: 14, height: 10, borderRadius: 4, backgroundColor: Brand.Blue }} /><Txt k="labelSmall" color={Brand.InkSoft}>Picked</Txt></View>
   </View>
 );
