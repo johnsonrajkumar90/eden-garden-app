@@ -13,6 +13,13 @@ class FirebaseInitModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("FirebaseInit")
 
+    /** Stop a Force search ring that is still sounding (the app is open now and shows its own ringing screen). */
+    Function("stopRing") {
+      val ctx = appContext.reactContext ?: return@Function false
+      Ringer.stop(ctx.applicationContext)
+      true
+    }
+
     Function("isReady") {
       val ctx = appContext.reactContext ?: return@Function false
       FirebaseApp.getApps(ctx).isNotEmpty()

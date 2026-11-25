@@ -22,7 +22,7 @@ import { BackBar, Card, Gap, Icon, Loading, Notice, OutlineButton, Photo, Primar
 import { CheckRow, Field, Stepper } from '../ui/inputs';
 import { Nav } from '../nav';
 import { DOCK_SPACE } from '../ui/dock';
-import { pushOn, pushProblem, registerPush } from '../core/push';
+import { pushOn, pushProblem, registerPush, stopClosedAppRing } from '../core/push';
 
 const RED = '#D7192A';
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.max(0, s % 60)).padStart(2, '0')}`;
@@ -539,7 +539,27 @@ function RingCheck() {
     setWhy(await pushProblem()); setState(ok ? 'ok' : 'push');
   };
   useEffect(() => { test(); }, []);
-  if (!state || state === 'ok') return null;
+  const [tips, setTips] = useState(false);
+  if (!state) return null;
+  if (state === 'ok') return (
+    <View style={{ paddingHorizontal: 12, paddingTop: 10 }}>
+      <Pressable onPress={() => setTips(!tips)} accessibilityRole="button" style={[st.row, { gap: 6 }]}>
+        <Icon name="phonelink-ring" size={18} color={Brand.Blue} />
+        <Txt k="labelLarge" color={Brand.Blue} style={{ flex: 1 }}>Phone not ringing when TripArro is closed?</Txt>
+        <Icon name={tips ? 'expand-less' : 'expand-more'} size={20} color={Brand.Blue} />
+      </Pressable>
+      {tips ? (
+        <View style={{ marginTop: 8, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.72)', borderWidth: 1, borderColor: '#fff', padding: 12, gap: 6 }}>
+          <Txt k="bodySmall">Some phones stop apps in the background to save battery, so the ring cannot reach TripArro. In your phone's settings for TripArro:</Txt>
+          <Txt k="bodySmall">• <Txt k="bodySmall" bold>Battery</Txt>: choose "No restrictions" / "Unrestricted" (or allow high background power use).</Txt>
+          <Txt k="bodySmall">• <Txt k="bodySmall" bold>Autostart / Auto-launch</Txt>: turn it on (Vivo, iQOO, Xiaomi, Redmi, Oppo, Realme, OnePlus).</Txt>
+          <Txt k="bodySmall">• <Txt k="bodySmall" bold>Notifications → Force search calls</Txt>: allowed, with sound.</Txt>
+          <Txt k="bodySmall">• Don't use "Force stop" or clear TripArro from a "boost/cleaner" app — swiping it away is fine.</Txt>
+          <OutlineButton text="Open TripArro settings" icon="settings" onPress={() => Linking.openSettings().catch(() => {})} />
+        </View>
+      ) : null}
+    </View>
+  );
   return (
     <View style={{ paddingHorizontal: 12, paddingTop: 12 }}>
       <Notice tone="warn" text={state === 'perm'
@@ -805,6 +825,7 @@ export function ForceRinger() {
   };
   const check = async () => {
     if (!host) return;
+    stopClosedAppRing();
     try {
       const d = await Api.get('force/host');
       if (!bool(d, 'on')) { setReq(null); stopRing(); return; }

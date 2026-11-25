@@ -11,7 +11,10 @@ import { Platform } from 'react-native';
 import { Api } from './api';
 import { bool, obj, text } from './json';
 
-const FirebaseInit = requireOptionalNativeModule<{ initialize(apiKey: string, appId: string, projectId: string, senderId: string): boolean; isReady(): boolean }>('FirebaseInit');
+const FirebaseInit = requireOptionalNativeModule<{ initialize(apiKey: string, appId: string, projectId: string, senderId: string): boolean; isReady(): boolean; stopRing?(): boolean }>('FirebaseInit');
+
+/** The app is open: stop the call-like Force search ring that was sounding while it was closed (the app shows its own). */
+export function stopClosedAppRing() { try { FirebaseInit?.stopRing?.(); } catch { /* older app */ } }
 
 export async function pushOn(): Promise<boolean> { return (await AsyncStorage.getItem('fcm_on')) === '1'; }
 
