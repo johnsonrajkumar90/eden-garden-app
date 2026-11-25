@@ -1,0 +1,278 @@
++ PKG=triparro.com
++ mkdir -p screens
++ adb install -r app.apk
+Performing Streamed Install
+Success
++ adb shell pm disable-user --user 0 com.google.android.apps.nexuslauncher
+Package com.google.android.apps.nexuslauncher new state: disabled-user
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
+Broadcasting: Intent { act=android.intent.action.CLOSE_SYSTEM_DIALOGS flg=0x400000 }
+Broadcast completed: result=0
++ adb shell pm grant triparro.com android.permission.POST_NOTIFICATIONS
++ adb shell pm grant triparro.com android.permission.ACCESS_FINE_LOCATION
++ adb shell settings put secure location_mode 3
++ adb emu geo fix 76.9558 11.0168
+OK
++ n=0
++ read STAY RESORT PET
+++ python3 -
++ echo 'stay=22 resort=0 pet=3'
+stay=22 resort=0 pet=3
++ adb shell monkey -p triparro.com -c android.intent.category.LAUNCHER 1
+  bash arg: -p
+  bash arg: triparro.com
+  bash arg: -c
+  bash arg: android.intent.category.LAUNCHER
+  bash arg: 1
+args: [-p, triparro.com, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "triparro.com"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="triparro.com"
+data="android.intent.category.LAUNCHER"
+Events injected: 1
+## Network stats: elapsed time=128ms (0ms mobile, 0ms wifi, 128ms not connected)
++ shot welcome 18
++ sleep 18
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=1
++ adb exec-out screencap -p
+++ printf %02d 1
++ adb shell input tap 856 652
++ sleep 1
++ adb shell input keyevent KEYCODE_BACK
++ sleep 7
++ adb shell input keyevent KEYCODE_BACK
++ sleep 2
++ adb shell dumpsys activity activities
++ grep -q 'mResumedActivity.*triparro.com'
++ adb shell monkey -p triparro.com -c android.intent.category.LAUNCHER 1
++ sleep 8
++ adb shell input tap 540 2124
++ sleep 6
++ shot explore 4
++ sleep 4
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=2
++ adb exec-out screencap -p
+++ printf %02d 2
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot explore-2 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=3
++ adb exec-out screencap -p
+++ printf %02d 3
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot explore-3 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=4
++ adb exec-out screencap -p
+++ printf %02d 4
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot explore-4 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=5
++ adb exec-out screencap -p
+++ printf %02d 5
++ adb shell input tap 378 2252
++ shot pets 7
++ sleep 7
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=6
++ adb exec-out screencap -p
+++ printf %02d 6
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot pets-2 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=7
++ adb exec-out screencap -p
+++ printf %02d 7
++ adb shell input tap 549 2252
++ shot trips 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=8
++ adb exec-out screencap -p
+++ printf %02d 8
++ adb shell input tap 721 2252
++ shot ai 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=9
++ adb exec-out screencap -p
+++ printf %02d 9
++ adb shell input tap 892 2252
++ shot account 5
++ sleep 5
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=10
++ adb exec-out screencap -p
+++ printf %02d 10
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot account-2 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=11
++ adb exec-out screencap -p
+++ printf %02d 11
++ '[' 22 '!=' 0 ']'
++ link https://triparro.com/stays/22
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/stays/22 triparro.com
++ sleep 9
++ adb shell input keyevent KEYCODE_BACK
++ shot stay 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=12
++ adb exec-out screencap -p
+++ printf %02d 12
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot stay-2 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=13
++ adb exec-out screencap -p
+++ printf %02d 13
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot stay-3 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=14
++ adb exec-out screencap -p
+++ printf %02d 14
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot stay-4 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=15
++ adb exec-out screencap -p
+++ printf %02d 15
++ adb shell input keyevent KEYCODE_BACK
++ '[' 0 '!=' 0 ']'
++ '[' 3 '!=' 0 ']'
++ link https://triparro.com/pet-boarding/3
++ adb shell am start -W -a android.intent.action.VIEW -d https://triparro.com/pet-boarding/3 triparro.com
++ shot pet-host 10
++ sleep 10
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=16
++ adb exec-out screencap -p
+++ printf %02d 16
++ up
++ adb shell input swipe 540 1800 540 600 600
++ shot pet-host-2 3
++ sleep 3
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=17
++ adb exec-out screencap -p
+++ printf %02d 17
++ adb shell input keyevent KEYCODE_BACK
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://groups
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://groups triparro.com
++ shot groups 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=18
++ adb exec-out screencap -p
+++ printf %02d 18
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://login
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://login triparro.com
++ shot login 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=19
++ adb exec-out screencap -p
+++ printf %02d 19
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://signup
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://signup triparro.com
++ shot signup 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=20
++ adb exec-out screencap -p
+++ printf %02d 20
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://become-host
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://become-host triparro.com
++ shot become-host 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=21
++ adb exec-out screencap -p
+++ printf %02d 21
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://hosting
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://hosting triparro.com
++ shot hosting 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=22
++ adb exec-out screencap -p
+++ printf %02d 22
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://notifications
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://notifications triparro.com
++ shot notifications 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=23
++ adb exec-out screencap -p
+++ printf %02d 23
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://messages
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://messages triparro.com
++ shot messages 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=24
++ adb exec-out screencap -p
+++ printf %02d 24
++ for r in groups login signup become-host hosting notifications messages page/privacy
++ link triparro-app://page/privacy
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://page/privacy triparro.com
++ shot page-privacy 6
++ sleep 6
++ adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
++ n=25
++ adb exec-out screencap -p
+++ printf %02d 25
++ adb shell monkey -p triparro.com -c android.intent.category.LAUNCHER 1
+  bash arg: -p
+  bash arg: triparro.com
+  bash arg: -c
+  bash arg: android.intent.category.LAUNCHER
+  bash arg: 1
+args: [-p, triparro.com, -c, android.intent.category.LAUNCHER, 1]
+ arg: "-p"
+ arg: "triparro.com"
+ arg: "-c"
+ arg: "android.intent.category.LAUNCHER"
+ arg: "1"
+data="triparro.com"
+data="android.intent.category.LAUNCHER"
+Events injected: 1
+## Network stats: elapsed time=20ms (0ms mobile, 0ms wifi, 20ms not connected)
++ sleep 3
++ link triparro-app://login
++ adb shell am start -W -a android.intent.action.VIEW -d triparro-app://login triparro.com
++ sleep 4
++ adb shell input keyevent KEYCODE_BACK
++ adb logcat -d -s ReactNativeJS:V AndroidRuntime:E
