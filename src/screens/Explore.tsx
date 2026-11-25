@@ -1,6 +1,6 @@
 // Explore: find homestays, villas and resorts (search, dates, guests), with favourites and places on the home view.
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Api, errorText } from '../core/api';
@@ -8,7 +8,7 @@ import { useAppState, useLoader, useSession } from '../core/state';
 import { J, int, obj, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
 import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, LivePhoto, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar } from '../ui/kit';
-import { DateRangeField, Stepper } from '../ui/inputs';
+import { GlassChip, GlassDates, GlassGuests, WaterGlass } from '../ui/glass';
 import { GridRow, PlaceCard, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
 import { Nav } from '../nav';
 import { DOCK_SPACE } from '../ui/dock';
@@ -80,9 +80,14 @@ export default function ExploreScreen() {
           <Appear><Txt k="displaySmall" style={{ maxWidth: 280 }}>{first ? `Hi ${first}, where to next?` : 'Where to next?'}</Txt></Appear>
           <Txt color={Brand.Muted} style={{ marginTop: 6, maxWidth: 300 }}>Verified homestays, villas and resorts — the full price before you pay.</Txt>
           <Gap h={20} />
-          <Appear index={1} style={[st.card, { borderRadius: 28, padding: 14, shadowOpacity: 0.08, shadowRadius: 18, elevation: 6 }]}>
-            <View style={[st.row, { borderRadius: 18, backgroundColor: Brand.Field, paddingHorizontal: 14 }]}>
-              <Icon name="search" color={Brand.Ink} />
+          <Appear index={1}><WaterGlass>
+            <View style={[st.row, { marginBottom: 10, paddingHorizontal: 4 }]}>
+              <Icon name="water-drop" size={16} color={Brand.Sun} />
+              <Txt k="labelLarge" color="#fff" style={{ marginLeft: 6, flex: 1 }}>Find your stay</Txt>
+              <Txt k="labelSmall" color="rgba(255,255,255,0.8)">Verified · full price</Txt>
+            </View>
+            <View style={[st.row, { borderRadius: 20, backgroundColor: '#fff', paddingHorizontal: 14, shadowColor: '#7A0A14', shadowOpacity: 0.18, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 3 }]}>
+              <Icon name="search" color={Brand.Blue} />
               <TextInput value={q} onChangeText={(v) => { setQ(v); setTyping(true); }} onFocus={() => setTyping(true)} onBlur={() => setTimeout(() => setTyping(false), 200)}
                 placeholder="Where to? Ooty, Munnar, Goa…" placeholderTextColor="#A59C97" returnKeyType="search" onSubmitEditing={() => { setTyping(false); search(); }}
                 style={{ flex: 1, fontFamily: Fonts.regular, fontSize: 16, color: Brand.Ink, paddingVertical: 14, paddingLeft: 8 }} accessibilityLabel="Where to" />
@@ -108,19 +113,19 @@ export default function ExploreScreen() {
               </View>
             ) : null}
             <Gap h={10} />
-            <DateRangeField checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); }} />
-            <Gap h={4} />
-            <Stepper label="Guests" value={adults} onChange={setAdults} min={1} max={30} />
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 6 }}>
-              {[['all', 'All'], ['stay', 'Homestays'], ['resort', 'Resorts'], ...(hourlyOn ? [['hourly', '⏱️ Hourly']] : [])].map(([k, l]) => (
-                <Pressable key={k} onPress={() => setKind(k)} style={{ borderRadius: 50, borderWidth: 1, borderColor: kind === k ? Brand.Blue : 'rgba(255,255,255,0.95)', backgroundColor: kind === k ? Brand.Blue : 'rgba(255,255,255,0.8)', paddingHorizontal: 14, paddingVertical: 7 }}>
-                  <Txt k="labelLarge" color={kind === k ? '#fff' : Brand.InkSoft}>{l}</Txt>
-                </Pressable>
+            <GlassDates checkIn={checkIn} checkOut={checkOut} onChange={(a, b) => { setCheckIn(a); setCheckOut(b); }} />
+            <Gap h={10} />
+            <GlassGuests value={adults} onChange={setAdults} min={1} max={30} />
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 12 }}>
+              {[['all', 'All', 'apps'], ['stay', 'Homestays', 'cottage'], ['resort', 'Resorts', 'pool'], ...(hourlyOn ? [['hourly', 'Hourly', 'schedule']] : [])].map(([k, l, ic]) => (
+                <GlassChip key={k} label={l} icon={ic} on={kind === k} onPress={() => setKind(k)} />
               ))}
             </View>
-            <Gap h={4} />
-            <PrimaryButton text="Search stays" icon="search" onPress={() => search()} loading={loading && page === 1} />
-          </Appear>
+            <Press onPress={() => search()} disabled={loading && page === 1} accessibilityRole="button" accessibilityLabel="Search stays"
+              style={{ minHeight: 54, borderRadius: 27, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', shadowColor: '#7A0A14', shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 6 }}>
+              {loading && page === 1 ? <ActivityIndicator color={Brand.Blue} /> : <><View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: Brand.Sun, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}><Icon name="search" size={18} color={Brand.Ink} /></View><Txt k="titleMedium" color={Brand.Blue}>Search stays</Txt></>}
+            </Press>
+          </WaterGlass></Appear>
         </View>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 18, gap: 2 }}>
