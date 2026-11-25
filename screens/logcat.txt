@@ -1,0 +1,7 @@
+--------- beginning of main
+11-25 11:28:53.975  4249  4286 I ReactNativeJS: Running "main"
+11-25 11:28:53.986  4249  4249 I ReactNative: [GESTURE HANDLER] Initialize gesture handler for root view kv4{becc60a V.E...... ......ID 0,0-1080,2400 #1}
+11-25 11:28:54.228  4249  4286 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-25 11:28:54.229  4249  4286 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.
+11-25 11:30:07.156  4249  4286 W ReactNativeJS: You have selected the "dimezisBlurView" blur method, but the `blurTarget` prop has not been configured. The blur view will fallback to "none" blur method to avoid errors. You can learn more about the new BlurView API at: https://docs.expo.dev/versions/latest/sdk/blur-view/
+11-25 11:30:07.160  4249  4286 W ReactNativeJS: The `experimentalBlurMethod` prop has been deprecated. Please use the `blurMethod` prop instead.
