@@ -12,7 +12,7 @@ import { ForceHostCard } from './ForceSearch';
 import { useAppState, useLoader, useSession } from '../core/state';
 import { J, bool, int, num, obj, objs, str, strings, text } from '../core/json';
 import { Brand } from '../theme';
-import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, plural, shortDate, st, today, TopBar } from '../ui/kit';
+import { Appear, Card, HeadButton, ColorHeader, EmptyBox, ErrorBox, Gap, Icon, Loading, Notice, OutlineButton, Photo, Pill, Press, PrimaryButton, SectionTitle, Txt, addDays, money, parseIso, plural, shortDate, st, today, TopBar, GlassSheen } from '../ui/kit';
 import { Field, Stepper } from '../ui/inputs';
 import { Dialog, Sheet, dial } from '../ui/sheets';
 import { RED_GRAD, SUN_GRAD } from '../ui/cards';
@@ -108,7 +108,8 @@ function HostDashboard({ role }: { role: string }) {
       <Gap h={8} />
       {role === 'host' ? <KycBanner /> : null}
       {/* the sections: one row of round icons, always all in view */}
-      <View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 2, paddingVertical: 6, borderRadius: 24, backgroundColor: '#ffffffcc' }}>
+      <View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 2, paddingVertical: 6, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', overflow: 'hidden' }}>
+        <GlassSheen />
         {tabs.map(([k, label, icon, tone]) => {
           const on = tab === k;
           const badge = k === 'bookings' ? objs(h, 'requests').length : k === 'chats' ? int(h, 'unread_chats') : 0;
@@ -182,7 +183,8 @@ function TodayTab({ home, pets, changed, go }: { home: { data: J | null; loading
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 10, paddingBottom: DOCK_SPACE }}>
       {/* quick things a host does every day */}
-      <View style={{ flexDirection: 'row', marginBottom: 14, borderRadius: 24, backgroundColor: '#ffffffd9', paddingVertical: 12, paddingHorizontal: 4 }}>
+      <View style={{ flexDirection: 'row', marginBottom: 14, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', paddingVertical: 12, paddingHorizontal: 4, overflow: 'hidden' }}>
+        <GlassSheen />
         {!pets && ['host', 'admin'].includes(role) ? <QuickAction emoji="🙋" label="Book a guest" tone="rose" onPress={() => Nav.navigate('bookguest')} /> : null}
         {!pets ? <QuickAction emoji="📅" label="Close dates" tone="mint" onPress={() => go('calendar')} /> : null}
         {role === 'host' ? <QuickAction emoji="🏡" label="Add a stay" tone="peach" onPress={() => Nav.navigate('listingform/stay')} /> : null}
@@ -225,7 +227,7 @@ function AdminCards({ a }: { a: J }) {
       {waiting.length ? (
         <>
           <Gap h={12} /><Head emoji="📝" text="Waiting for you" sub="Opens the website's admin page" tone="butter" />
-          <View style={{ borderRadius: 20, backgroundColor: '#fff', overflow: 'hidden' }}>
+          <View style={{ borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', overflow: 'hidden' }}>
             {waiting.map((x, i) => (
               <Pressable key={i} onPress={() => Linking.openURL(Api.url(text(x, 'link'))).catch(() => {})} style={[st.row, { padding: 13, borderTopWidth: i ? 1 : 0, borderTopColor: '#F3EEEA' }]}>
                 <Txt semi style={{ flex: 1 }}>{text(x, 'label')}</Txt>
@@ -268,7 +270,7 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
   const [details, setDetails] = useState(false);
   const due = (num(b, 'balance') || 0) > 0 && state !== 'cancelled';
   return (
-    <View style={{ borderRadius: 26, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
+    <View style={{ borderRadius: 26, backgroundColor: 'rgba(255,255,255,0.74)', borderWidth: 1.2, borderColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
       <Pressable onPress={() => setDetails(true)} style={{ padding: 14 }} accessibilityRole="button" accessibilityLabel={`${text(b, 'guest')}, ${text(b, 'state_label')}. Open booking details`}>
         <View style={st.row}>
           <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: PASTEL[stTone][0], alignItems: 'center', justifyContent: 'center' }}>
@@ -605,7 +607,7 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
           const p = num(x, 'price');
           return (
             <Appear key={text(x, 'kind') + int(x, 'id')} index={i} style={{ marginBottom: 12 }}>
-              <View style={{ borderRadius: 22, backgroundColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.74)', borderWidth: 1.2, borderColor: '#fff', overflow: 'hidden', elevation: 3, shadowColor: '#1A1410', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }}>
                 <View>
                   <Photo url={str(x, 'image')} style={{ width: '100%', aspectRatio: 3.2 }} corner={0} />
                   <View style={{ position: 'absolute', top: 10, left: 10, flexDirection: 'row', gap: 6 }}>
@@ -671,7 +673,7 @@ function ListingsTab({ pets, changed }: { pets: boolean; changed: () => void }) 
           <Txt k="titleLarge">Your services</Txt>
           <Gap h={8} />
           {objs(fm.data, 'services').map((sv) => (
-            <Press key={int(sv, 'id')} onPress={() => Nav.navigate(`listingform/service?id=${int(sv, 'id')}`)} style={[st.row, { borderRadius: 18, backgroundColor: '#fff', padding: 10, marginBottom: 8, elevation: 2, shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } }]}>
+            <Press key={int(sv, 'id')} onPress={() => Nav.navigate(`listingform/service?id=${int(sv, 'id')}`)} style={[st.row, { borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', padding: 10, marginBottom: 8, elevation: 2, shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } }]}>
               <Photo url={str(sv, 'image')} style={{ width: 56, height: 56 }} corner={12} />
               <View style={{ flex: 1, paddingLeft: 10 }}>
                 <Txt k="titleSmall" numberOfLines={1}>{text(sv, 'title')}</Txt>

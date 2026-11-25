@@ -138,6 +138,12 @@ export function HeadButton({ icon, label, onPress, tint = '#fff' }: { icon: stri
 
 /** The filled top bar every screen has: red with a soft gradient, white text and buttons. */
 export const BAR_GRAD = ['#C8242B', '#D93338', '#EE4F4F'] as const;
+/** Frosted-glass surface: see-through white, a bright edge and a soft light along the top. Use as a card background. */
+export const GLASS_SURFACE = { backgroundColor: 'rgba(255,255,255,0.62)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)' } as const;
+export function GlassSheen({ radius = 24 }: { radius?: number }) {
+  return <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.75)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 0.3, y: 1 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '55%', borderTopLeftRadius: radius, borderTopRightRadius: radius }} />;
+}
+
 export function TopBar({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return (
     <LinearGradient colors={BAR_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ paddingHorizontal: 12, paddingVertical: 8, overflow: 'hidden' }, style]}>
@@ -350,10 +356,10 @@ export const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
   bar: { flexDirection: 'row', alignItems: 'center', minHeight: 60, paddingHorizontal: 12, paddingVertical: 8 },
   barBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22 },
-  barRound: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
+  barRound: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.2)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.6)' },
   headBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.8)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
-  card: { backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.07, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
-  glass: { backgroundColor: 'rgba(255,255,255,0.9)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
+  card: { backgroundColor: 'rgba(255,255,255,0.72)', borderRadius: 24, borderWidth: 1.2, borderColor: 'rgba(255,255,255,1)', shadowColor: '#D93338', shadowOpacity: 0.09, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  glass: { backgroundColor: 'rgba(255,255,255,0.68)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', shadowColor: '#D93338', shadowOpacity: 0.1, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
   shadow: { shadowColor: '#000', shadowOpacity: 0.14, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 4 },
   sunShadow: { shadowColor: '#1A1410', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   redShadow: { shadowColor: '#D93338', shadowOpacity: 0.28, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },

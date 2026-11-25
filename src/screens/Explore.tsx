@@ -7,7 +7,7 @@ import { Api, errorText } from '../core/api';
 import { useAppState, useLoader, useSession } from '../core/state';
 import { J, int, obj, objs, str, text } from '../core/json';
 import { Brand, Fonts } from '../theme';
-import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, LivePhoto, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar } from '../ui/kit';
+import { Appear, EmptyBox, ErrorBox, Gap, HeadButton, Icon, Loading, OutlineButton, LivePhoto, Photo, Press, PrimaryButton, SectionTitle, Txt, st, TopBar, GlassSheen } from '../ui/kit';
 import { GlassChip, GlassDates, GlassGuests, WaterGlass } from '../ui/glass';
 import { GridRow, PlaceCard, SkeletonGrid, WalletChip, chunk } from '../ui/cards';
 import { Nav } from '../nav';
@@ -208,7 +208,8 @@ function Shortcut({ icon, label, tint, bg, i, onPress }: { icon: string; label: 
   return (
     <Appear index={i}>
       <Press onPress={onPress} style={{ width: 82, alignItems: 'center', paddingVertical: 4 }} accessibilityLabel={label}>
-        <View style={{ width: 60, height: 56, borderTopLeftRadius: 30, borderTopRightRadius: 30, borderBottomLeftRadius: 14, borderBottomRightRadius: 14, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 60, height: 56, borderTopLeftRadius: 30, borderTopRightRadius: 30, borderBottomLeftRadius: 14, borderBottomRightRadius: 14, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.95)', overflow: 'hidden', shadowColor: tint, shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}>
+          <GlassSheen radius={30} />
           <Icon name={icon} size={26} color={tint} />
         </View>
         <Txt k="labelMedium" numberOfLines={1} style={{ marginTop: 6 }}>{label}</Txt>
