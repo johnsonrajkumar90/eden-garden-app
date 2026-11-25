@@ -303,6 +303,7 @@ export function BookingCard({ b, changed }: { b: J; changed: () => void }) {
           </View>
         </View>
         {text(b, 'guest_pays_note') || text(b, 'payment') ? <Txt k="labelSmall" color={Brand.Muted} numberOfLines={1} style={{ marginTop: 4, textAlign: 'right' }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt> : null}
+        {b.gst !== undefined ? <View style={{ alignItems: 'flex-end' }}><GstTag b={b} light /></View> : null}
         {str(b, 'requests') ? <View style={{ marginTop: 8, borderRadius: 14, backgroundColor: '#F8F5F2', padding: 10 }}><Txt k="bodySmall" color={Brand.InkSoft} numberOfLines={3}>💭 “{str(b, 'requests')}”</Txt></View> : null}
       </Pressable>
       {acts.length || phone ? (
@@ -361,6 +362,7 @@ function BookingDetails({ b, open, onClose }: { b: J; open: boolean; onClose: ()
             <Txt k="labelMedium" color="#FFE3E1">Guest pays</Txt>
             <Txt k="displaySmall" color="#fff">{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
             <Txt k="bodyMedium" color="#fff" style={{ marginTop: 2 }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt>
+            {b.gst !== undefined ? <GstTag b={b} /> : null}
             <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
               {[['Paid', money(num(b, 'paid') || 0)], ['Balance', money(num(b, 'balance') || 0)]].map(([l, v]) => (
                 <View key={l} style={{ flex: 1, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.18)', padding: 8 }}>
@@ -410,6 +412,21 @@ function BookingDetails({ b, open, onClose }: { b: J; open: boolean; onClose: ()
         </View>
       ) : null}
     </Sheet>
+  );
+}
+
+/** GST on a booking: a sun-yellow tag with the amount, or a clear "No GST". */
+function GstTag({ b, light }: { b: J; light?: boolean }) {
+  const g = num(b, 'gst') || 0, r = num(b, 'gst_rate');
+  const byHost = ['host', 'admin', 'owner'].includes(text(b, 'source'));
+  return g > 0 ? (
+    <View style={[st.row, { alignSelf: 'flex-start', gap: 5, marginTop: 8, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 4 }]}>
+      <Txt style={{ fontSize: 12 }}>🧾</Txt><Txt k="labelMedium" bold color="#3A2900">Includes GST {money(g)}{r ? ` (${r}%)` : ''}</Txt>
+    </View>
+  ) : (
+    <View style={[st.row, { alignSelf: 'flex-start', gap: 5, marginTop: 8, borderRadius: 50, backgroundColor: light ? '#E8F6EF' : 'rgba(255,255,255,0.92)', borderWidth: light ? 1 : 0, borderColor: '#BFE6D2', paddingHorizontal: 10, paddingVertical: 4 }]}>
+      <Txt style={{ fontSize: 12 }}>🚫</Txt><Txt k="labelMedium" bold color="#0B6B3A">No GST{byHost ? ' · booked by host' : ''}</Txt>
+    </View>
   );
 }
 
