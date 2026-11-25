@@ -425,7 +425,7 @@ function GstTag({ b, light }: { b: J; light?: boolean }) {
     </View>
   ) : (
     <View style={[st.row, { alignSelf: 'flex-start', gap: 5, marginTop: 8, borderRadius: 50, backgroundColor: light ? '#E8F6EF' : 'rgba(255,255,255,0.92)', borderWidth: light ? 1 : 0, borderColor: '#BFE6D2', paddingHorizontal: 10, paddingVertical: 4 }]}>
-      <Txt style={{ fontSize: 12 }}>🚫</Txt><Txt k="labelMedium" bold color="#0B6B3A">No GST{byHost ? ' · booked by host' : ''}</Txt>
+      <Txt style={{ fontSize: 12 }}>🚫</Txt><Txt k="labelMedium" bold color="#0B6B3A">No GST{byHost ? ' · pay at property' : ''}</Txt>
     </View>
   );
 }

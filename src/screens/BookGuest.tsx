@@ -190,7 +190,9 @@ export default function BookGuestScreen() {
                 ))}
                 <View style={[st.row, { justifyContent: 'space-between', marginTop: 6 }]}><Txt k="titleSmall">Guest pays{pricing ? ' · updating…' : ''}</Txt><Txt k="titleMedium" style={{ opacity: pricing ? 0.5 : 1 }}>{money(num(quote, 'total') || 0)}</Txt></View>
                 {agent && obj(quote, 'partner') ? <Txt k="labelMedium" color="#0B6B3A" style={{ marginTop: 4 }}>Your commission {money(num(obj(quote, 'partner'), 'commission') || 0)}</Txt> : null}
-                {!agent ? <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: '#E8F6EF', borderWidth: 1, borderColor: '#BFE6D2', paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold color="#0B6B3A">🚫 No GST — you are booking for the guest</Txt></View> : (num(quote, 'breakup.gst') || objs(quote, 'lines').some((l) => /GST/.test(text(l, 'label')))) ? <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold color="#3A2900">🧾 Includes GST</Txt></View> : null}
+                {objs(quote, 'lines').some((l) => /GST/.test(text(l, 'label')))
+                  ? <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: Brand.Sun, paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold color="#3A2900">🧾 Includes GST{obj(quote, 'host') ? ' ' + money(num(obj(quote, 'host'), 'gst') || 0) : ''}</Txt></View>
+                  : !agent ? <View style={{ alignSelf: 'flex-start', marginTop: 6, borderRadius: 50, backgroundColor: '#E8F6EF', borderWidth: 1, borderColor: '#BFE6D2', paddingHorizontal: 10, paddingVertical: 3 }}><Txt k="labelMedium" bold color="#0B6B3A">🚫 No GST — this stay is "Pay at property"</Txt></View> : null}
                 {!agent ? <Txt k="labelSmall" color={Brand.Muted} style={{ marginTop: 4 }}>Worked out from the price per night above — change it and the total updates.</Txt> : null}
               </>}
             </Card>
