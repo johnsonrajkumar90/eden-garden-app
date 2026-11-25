@@ -18,6 +18,6 @@ dependencies {
   // the same Firebase Messaging that expo-notifications uses (one copy in the app)
   implementation 'com.google.firebase:firebase-messaging:25.0.1'
   // Force search ringing hands every other message back to expo-notifications' service
-  implementation project(':expo-notifications')
+  compileOnly 'host.exp.exponent:expo.modules.notifications:58.1.9'
   implementation 'androidx.core:core-ktx:1.13.1'
 }
