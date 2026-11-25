@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from '../ui/liquid';
 import { Api, ApiError, Upload, errorText } from '../core/api';
 import { AppState, useAppState, useLoader, useSession } from '../core/state';
 import { J, int, num, obj, objs, str, strings, text } from '../core/json';
@@ -98,7 +99,8 @@ export default function PlannerScreen() {
       <BackBar title="Travel planner" onBack={Nav.back} actions={<Pressable onPress={() => Nav.navigate('myplaces')} style={st.barBtn} accessibilityLabel="My places"><Icon name="star" color="#fff" /></Pressable>} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: DOCK_SPACE }} keyboardShouldPersistTaps="handled">
-          <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 }}>
+          <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 , overflow: 'hidden' }}>
+            <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
             <Txt k="headlineSmall" bold color="#fff">Plan your drive</Txt>
             <Txt color="#FFE3DE">Restaurants, coffee, petrol pumps and EV chargers on the way — each with directions, and TripArro AI to guide you.</Txt>
           </LinearGradient>
@@ -205,7 +207,8 @@ function PlanView({ plan, savedId, onBack, onDeleted, tripInfo }: { plan: J; sav
                   <Txt bold color={Brand.Blue}>{text(ti, 'status') === 'finished' ? 'View' : 'Go'}</Txt>
                 </Press>
               ) : null}
-              <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 }}>
+              <LinearGradient colors={RUN_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 24, padding: 18 , overflow: 'hidden' }}>
+                <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
                 <Txt k="titleMedium" bold color="#fff">{text(obj(plan, 'from'), 'name')}  →  {text(to, 'name')}</Txt>
                 {str(to, 'kind_label') ? <Txt k="labelMedium" color="#FFE3DE">{str(to, 'kind_label')}</Txt> : null}
                 <View style={{ flexDirection: 'row', gap: 18, marginTop: 10 }}>

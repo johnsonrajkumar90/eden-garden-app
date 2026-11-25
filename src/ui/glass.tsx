@@ -1,8 +1,8 @@
 // Glass search panel: a coral "water" backdrop with slow rolling waves and rising bubbles, and frosted-glass controls on top.
-import React, { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Pressable, StyleProp, View, ViewStyle } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, StyleProp, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Path } from 'react-native-svg';
+import { Bubble, Wave, useReduceMotion } from './liquid';
 import { Icon, Txt, addDays, shortDate } from './kit';
 import { DateRangeSheet } from './inputs';
 
@@ -13,58 +13,6 @@ export const GLASS = {
   text: '#FFFFFF',
   soft: 'rgba(255,255,255,0.78)',
 };
-
-function useReduceMotion() {
-  const [r, setR] = useState(false);
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setR).catch(() => {});
-    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setR);
-    return () => sub.remove();
-  }, []);
-  return r;
-}
-
-/** A looping value 0→1 (native driver), or a still 0 when motion is reduced. */
-function useLoop(ms: number, still: boolean, delay = 0) {
-  const v = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (still) { v.setValue(0); return; }
-    const a = Animated.loop(Animated.sequence([Animated.delay(delay), Animated.timing(v, { toValue: 1, duration: ms, easing: Easing.linear, useNativeDriver: true })]));
-    a.start();
-    return () => a.stop();
-  }, [still]);
-  return v;
-}
-
-/** Two sine periods side by side, so sliding left by one period loops seamlessly. */
-function wavePath(w: number, h: number, amp: number) {
-  const m = amp + 2;
-  return `M0 ${m} Q ${w / 4} ${m - amp} ${w / 2} ${m} T ${w} ${m} T ${w * 1.5} ${m} T ${w * 2} ${m} L ${w * 2} ${h} L 0 ${h} Z`;
-}
-
-function Wave({ w, h, amp, color, ms, still, bottom, reverse }: { w: number; h: number; amp: number; color: string; ms: number; still: boolean; bottom: number; reverse?: boolean }) {
-  const t = useLoop(ms, still);
-  const bob = useLoop(ms * 0.8, still);
-  const x = t.interpolate({ inputRange: [0, 1], outputRange: reverse ? [-w, 0] : [0, -w] });
-  const y = bob.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -6, 0] });
-  return (
-    <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 0, bottom, width: w * 2, height: h, transform: [{ translateX: x }, { translateY: y }] }}>
-      <Svg width={w * 2} height={h}><Path d={wavePath(w, h, amp)} fill={color} /></Svg>
-    </Animated.View>
-  );
-}
-
-function Bubble({ left, size, ms, delay, rise, still }: { left: number; size: number; ms: number; delay: number; rise: number; still: boolean }) {
-  const t = useLoop(ms, still, delay);
-  if (still) return null;
-  return (
-    <Animated.View pointerEvents="none" style={{
-      position: 'absolute', left, bottom: 8, width: size, height: size, borderRadius: size / 2, borderWidth: 1, borderColor: 'rgba(255,255,255,0.75)', backgroundColor: 'rgba(255,255,255,0.18)',
-      opacity: t.interpolate({ inputRange: [0, 0.15, 0.8, 1], outputRange: [0, 0.9, 0.6, 0] }),
-      transform: [{ translateY: t.interpolate({ inputRange: [0, 1], outputRange: [0, -rise] }) }, { translateX: t.interpolate({ inputRange: [0, 0.33, 0.66, 1], outputRange: [0, 5, -4, 2] }) }],
-    }} />
-  );
-}
 
 /** The panel: deep coral water, waves rolling along the bottom, bubbles rising, a glass sheen on top. */
 export function WaterGlass({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {

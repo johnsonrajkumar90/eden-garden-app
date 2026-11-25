@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from './src/ui/liquid';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import * as Notifications from 'expo-notifications';
@@ -165,7 +166,8 @@ function TabBar({ current, unread, bottom }: { current: string; unread: number; 
             <Pressable key={t} onPress={() => (t === 'explore' ? Nav.home() : Nav.navigate(t))} style={{ flex: on ? 1.7 : 1, height: 50 }}
               accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t === 'account' && unread > 0 ? `${label}, ${unread} new` : label}>
               <LinearGradient colors={on ? ['#F0555A', '#D93338'] : ['transparent', 'transparent']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={{ flex: 1, flexDirection: 'row', borderRadius: 25, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>
+                style={{ flex: 1, flexDirection: 'row', borderRadius: 25, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, overflow: 'hidden' }}>
+                {on ? <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.16)', h: 0.5, amp: 4, ms: 5200, reverse: true }, { color: 'rgba(130,10,20,0.2)', h: 0.3, amp: 4, ms: 3800 }]} /> : null}
                 <View>
                   <Icon name={icon} color={on ? Brand.Sun : Brand.InkSoft} size={23} />
                   {t === 'account' && unread > 0 ? (
@@ -234,6 +236,8 @@ function GlassBackdrop() {
       {blob([1.0, 0.75], [0.3, 0.4], w * 0.7, '#FFC72C', 0.3, b, a, 2)}
       {blob([0.15, 0.4], [0.68, 0.58], w * 0.6, '#FFC72C', 0.18, b, a, 3)}
       {blob([0.95, 0.7], [0.9, 0.84], w * 0.7, '#D93338', 0.18, a, b, 4)}
+      {/* a faint tide along the bottom and bubbles drifting up the page */}
+      <LiquidLayer waves={[{ color: 'rgba(255,87,87,0.06)', h: 0.2, amp: 14, ms: 14000, reverse: true, bob: 6 }, { color: 'rgba(255,199,44,0.08)', h: 0.13, amp: 12, ms: 10000, bob: 5 }]} bubbles={7} bubbleColor="rgba(217,51,56,0.28)" />
     </View>
   );
 }

@@ -7,6 +7,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, AppState as RNAppState, Easing, Image, Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from '../ui/liquid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
@@ -174,6 +175,7 @@ function ForceForm({ opts, onStarted }: { opts: J; onStarted: (s: J) => void }) 
       <ScrollView contentContainerStyle={{ paddingBottom: 150 + ins.bottom }} keyboardShouldPersistTaps="handled">
         {/* the dark top: what Force search is */}
         <LinearGradient colors={DARK} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingBottom: 46, overflow: 'hidden' }}>
+          <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
           <DarkBar title="Force search" />
           <View style={{ position: 'absolute', right: -60, top: 30, width: 240, height: 240, alignItems: 'center', justifyContent: 'center' }}>
             {[240, 170, 100].map((d) => <View key={d} style={{ position: 'absolute', width: d, height: d, borderRadius: d / 2, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }} />)}
@@ -609,7 +611,8 @@ export function ForceHostCard() {
         <View style={{ flex: 1, backgroundColor: 'rgba(20,10,12,0.55)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '92%', overflow: 'hidden' }}>
             <ScrollView>
-              <LinearGradient colors={DARK} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 20 }}>
+              <LinearGradient colors={DARK} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 20, overflow: 'hidden' }}>
+                <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
                 <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: 'rgba(255,196,46,0.2)', alignItems: 'center', justifyContent: 'center' }}><Icon name="radar" color="#FFC42E" size={28} /></View>
                 <Txt k="headlineSmall" color="#fff" style={{ marginTop: 10 }}>How Force search works</Txt>
                 <Txt k="bodyMedium" color="#F3CFC8">Guests near you who need a stay tonight — sent straight to your phone.</Txt>

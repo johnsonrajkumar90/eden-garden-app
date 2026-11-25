@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from './liquid';
 import { Brand, T, Fonts } from '../theme';
 
 /* ---------- Formatting ---------- */
@@ -139,7 +140,8 @@ export function HeadButton({ icon, label, onPress, tint = '#fff' }: { icon: stri
 export const BAR_GRAD = ['#C8242B', '#D93338', '#EE4F4F'] as const;
 export function TopBar({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return (
-    <LinearGradient colors={BAR_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]}>
+    <LinearGradient colors={BAR_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ paddingHorizontal: 12, paddingVertical: 8, overflow: 'hidden' }, style]}>
+      <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.10)', h: 0.55, amp: 5, ms: 11000, reverse: true }, { color: 'rgba(120,8,20,0.13)', h: 0.34, amp: 6, ms: 7500, bob: 2 }, { color: 'rgba(255,255,255,0.08)', h: 0.2, amp: 4, ms: 5200, reverse: true }]} bubbles={3} />
       {children}
     </LinearGradient>
   );
@@ -286,6 +288,7 @@ export function PrimaryButton({ text, onPress, disabled, loading, icon, style }:
   return (
     <Press onPress={onPress} disabled={!on} style={[{ minHeight: 54, borderRadius: 27, overflow: 'hidden', backgroundColor: on || loading ? Brand.Blue : '#E7E5E2' }, on ? st.redShadow : null, style]} accessibilityRole="button" accessibilityLabel={text} accessibilityState={{ disabled: !on, busy: !!loading }}>
       <LinearGradient colors={on || loading ? ['#F0555A', '#D93338'] : ['#E7E5E2', '#E7E5E2']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, minHeight: 54, paddingHorizontal: 20, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' }}>
+        {on ? <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.13)', h: 0.5, amp: 4, ms: 6000, reverse: true }, { color: 'rgba(140,10,20,0.18)', h: 0.32, amp: 4, ms: 4200 }]} /> : null}
         {loading ? <ActivityIndicator color="#fff" /> : <View style={st.row}>{icon ? <Icon name={icon} size={19} color={on ? Brand.Sun : tint} style={{ marginRight: 8 }} /> : null}<Txt k="labelLarge" bold color={tint}>{text}</Txt></View>}
       </LinearGradient>
     </Press>

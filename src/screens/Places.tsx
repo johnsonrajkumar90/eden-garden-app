@@ -2,6 +2,7 @@
 import React from 'react';
 import { Linking, ScrollView, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from '../ui/liquid';
 import { Api } from '../core/api';
 import { useLoader } from '../core/state';
 import { J, arr, int, num, obj, objs, str, text } from '../core/json';
@@ -26,7 +27,8 @@ export default function PlaceScreen() {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: DOCK_SPACE }}>
       {photos.length ? <HeroGallery urls={photos} actions={<RoundAction icon="arrow-back" label="Back" onPress={Nav.back} />} /> : (
-        <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ height: 220 }}>
+        <LinearGradient colors={RED_GRAD as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.5 }} style={{ height: 220 , overflow: 'hidden' }}>
+          <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
           <View style={{ padding: 12 }}><RoundAction icon="arrow-back" label="Back" onPress={Nav.back} /></View>
           <Floaty distance={10} style={{ position: 'absolute', alignSelf: 'center', top: 70 }}><Text style={{ fontSize: 72 }}>{catEmoji[text(p, 'cat')] || '📍'}</Text></Floaty>
         </LinearGradient>
@@ -76,7 +78,8 @@ export function WeatherCard({ w }: { w: J }) {
   const now = obj(w, 'now') || {};
   return (
     <View style={[{ borderRadius: 24, backgroundColor: '#fff', overflow: 'hidden' }, st.shadow]}>
-      <LinearGradient colors={top as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 16 }}>
+      <LinearGradient colors={top as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ padding: 16 , overflow: 'hidden' }}>
+        <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
         <View style={st.row}>
           <Floaty distance={4}><Text style={{ fontSize: 46 }}>{weatherEmoji(str(now, 'icon'))}</Text></Floaty>
           <View style={{ flex: 1, paddingLeft: 12 }}>

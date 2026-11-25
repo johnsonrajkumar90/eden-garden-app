@@ -7,6 +7,7 @@ import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, FlatList, Linking, Modal, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from '../ui/liquid';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle as SvgCircle } from 'react-native-svg';
 import { Api, Upload, errorText } from '../core/api';
@@ -523,7 +524,8 @@ function ExpensesSheet({ id, g, add, del, act }: { id: number; g: J; add: (b: Re
   return (
     <View>
       <Txt k="titleLarge">Trip expenses</Txt>
-      <LinearGradient colors={['#C8242B', '#E8474B', '#FF8A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[st.row, { marginTop: 10, borderRadius: 22, padding: 18 }]}>
+      <LinearGradient colors={['#C8242B', '#E8474B', '#FF8A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[st.row, { marginTop: 10, borderRadius: 22, padding: 18, overflow: 'hidden' }]}>
+        <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
         <View style={{ flex: 1 }}>
           <Txt k="labelMedium" color="#FFE3E1">Spent so far</Txt>
           <Text style={{ color: '#fff', fontSize: 30, fontFamily: Fonts.b }}>{money(num(ex, 'total') || 0)}</Text>

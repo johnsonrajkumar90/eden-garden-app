@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, Switch, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from '../ui/liquid';
 import { Api, ApiError, errorText } from '../core/api';
 import { ForceHostCard } from './ForceSearch';
 import { useAppState, useLoader, useSession } from '../core/state';
@@ -53,7 +54,8 @@ function greet() { const h = new Date().getHours(); return h < 12 ? 'Good mornin
 function StatTile({ emoji, value, label, tone }: { emoji: string; value: string; label: string; tone: Tone }) {
   const [bg, fg] = PASTEL[tone];
   return (
-    <View style={{ flex: 1, borderRadius: 22, backgroundColor: bg, paddingHorizontal: 12, paddingVertical: 11 }}>
+    <View style={{ flex: 1, borderRadius: 22, backgroundColor: bg, paddingHorizontal: 12, paddingVertical: 11, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)' }}>
+      <LiquidLayer waves={[{ color: fg + '14', h: 0.5, amp: 5, ms: 8000, reverse: true }, { color: fg + '1F', h: 0.32, amp: 5, ms: 5600 }]} />
       <Txt style={{ fontSize: 18 }}>{emoji}</Txt>
       <Txt k="titleLarge" color={fg} numberOfLines={1} style={{ marginTop: 2 }}>{value}</Txt>
       <Txt k="labelSmall" color={fg} numberOfLines={1} style={{ opacity: 0.85 }}>{label}</Txt>
@@ -79,6 +81,7 @@ function HostDashboard({ role }: { role: string }) {
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient colors={['#E8474B', '#F2675A', '#FF9466']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 14, paddingTop: 8, paddingBottom: 12, borderBottomLeftRadius: 26, borderBottomRightRadius: 26, overflow: 'hidden' }}>
+        <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.12)', h: 0.5, amp: 9, ms: 10000, reverse: true, bob: 4 }, { color: 'rgba(150,12,24,0.16)', h: 0.34, amp: 10, ms: 7000, bob: 3 }, { color: 'rgba(255,255,255,0.10)', h: 0.2, amp: 6, ms: 5200, reverse: true }]} bubbles={6} />
         {/* soft bubbles */}
         <View pointerEvents="none" style={{ position: 'absolute', right: -40, top: -30, width: 150, height: 150, borderRadius: 75, backgroundColor: '#ffffff22' }} />
         <View pointerEvents="none" style={{ position: 'absolute', right: 70, bottom: -40, width: 90, height: 90, borderRadius: 45, backgroundColor: '#FFC72C55' }} />
@@ -93,7 +96,7 @@ function HostDashboard({ role }: { role: string }) {
           </View>
         </View>
         {/* this month, at a glance */}
-        <View style={{ flexDirection: 'row', marginTop: 12, borderRadius: 20, backgroundColor: '#ffffff2e', paddingVertical: 9 }}>
+        <View style={{ flexDirection: 'row', marginTop: 12, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)', paddingVertical: 9 }}>
           {[['💰', money(num(m, 'earnings') || 0), `Earned · ${text(m, 'label', 'this month').split(' ')[0].slice(0, 3)}`], ['🧳', String(int(m, 'bookings')), 'Bookings'], [pets ? '🐾' : '🛏️', String(int(h, 'staying')), pets ? 'Pets now' : 'Staying now']].map(([e, v, l], i) => (
             <View key={l} style={{ flex: i ? 1 : 1.3, alignItems: 'center', borderLeftWidth: i ? 1 : 0, borderLeftColor: '#ffffff44' }}>
               <Txt k="titleMedium" bold color="#fff" numberOfLines={1}>{e} {v}</Txt>
@@ -158,6 +161,7 @@ function QuickAction({ emoji, label, tone, onPress, badge }: { emoji: string; la
   return (
     <View style={{ flex: 1, minWidth: 0, alignItems: 'center' }}><Press onPress={onPress} style={{ alignItems: 'center', width: '100%' }} accessibilityLabel={label}>
       <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' }}>
+        <LiquidLayer style={{ borderRadius: 27 }} waves={[{ color: 'rgba(255,255,255,0.7)', h: 0.42, amp: 3, ms: 4600 }]} />
         <Txt style={{ fontSize: 22 }}>{emoji}</Txt>
         {badge ? <View style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: Brand.Blue, borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' }}><Txt k="labelSmall" color="#fff" style={{ fontSize: 9, lineHeight: 11 }}>{badge > 9 ? '9+' : badge}</Txt></View> : null}
       </View>
@@ -350,7 +354,8 @@ function BookingDetails({ b, open, onClose }: { b: J; open: boolean; onClose: ()
             <Pill text={text(b, 'state_label')} tone={text(b, 'state') === 'cancelled' ? 'bad' : text(b, 'state') === 'request' ? 'warn' : 'info'} />
           </View>
           <Gap h={12} />
-          <LinearGradient colors={['#C8242B', '#E8474B', '#FF8A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 22, padding: 16 }}>
+          <LinearGradient colors={['#C8242B', '#E8474B', '#FF8A5C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 22, padding: 16, overflow: 'hidden' }}>
+            <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.12)', h: 0.45, amp: 7, ms: 9000, reverse: true }, { color: 'rgba(120,8,20,0.16)', h: 0.3, amp: 7, ms: 6200 }]} bubbles={4} />
             <Txt k="labelMedium" color="#FFE3E1">Guest pays</Txt>
             <Txt k="displaySmall" color="#fff">{money(num(b, 'guest_pays') ?? num(b, 'total') ?? 0)}</Txt>
             <Txt k="bodyMedium" color="#fff" style={{ marginTop: 2 }}>{text(b, 'guest_pays_note') || text(b, 'payment')}</Txt>

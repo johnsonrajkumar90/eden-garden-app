@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LiquidLayer } from '../ui/liquid';
 import { WebView } from 'react-native-webview';
 import { Api, errorText } from '../core/api';
 import { AppState, useLoader } from '../core/state';
@@ -406,7 +407,8 @@ function ListingOfferDialog({ k, title, price, o, book }: { k: string; title: st
   const code = text(o, 'code'); const nightly = num(price, 'offer_nightly') || 0;
   return (
     <Dialog open={open} onClose={() => setOpen(false)}>
-      <LinearGradient colors={['#D93338', '#E8474B', '#FF5757']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ margin: -20, marginBottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 22 }}>
+      <LinearGradient colors={['#D93338', '#E8474B', '#FF5757']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ margin: -20, marginBottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 22, overflow: 'hidden' }}>
+        <LiquidLayer waves={[{ color: 'rgba(255,255,255,0.11)', h: 0.45, amp: 8, ms: 10000, reverse: true, bob: 3 }, { color: 'rgba(255,199,44,0.12)', h: 0.3, amp: 8, ms: 7000 }, { color: 'rgba(255,255,255,0.08)', h: 0.18, amp: 5, ms: 5000, reverse: true }]} bubbles={4} />
         <Txt k="labelLarge" color="#FFFFFFE6">✨ We have a special offer for you</Txt>
         <Txt k="headlineMedium" color="#fff" style={{ marginTop: 6 }}>{text(o, 'badge')}</Txt>
         <Txt color="#FFFFFFE6">at {title}</Txt>
