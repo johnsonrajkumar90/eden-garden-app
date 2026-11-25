@@ -1,0 +1,15 @@
+android/app/build/outputs/apk/release/:
+total 135268
+drwxr-xr-x 3 runner runner     4096 Nov 25 11:26 .
+drwxr-xr-x 3 runner runner     4096 Nov 25 11:26 ..
+-rw-r--r-- 1 runner runner 46927410 Nov 25 11:26 app-arm64-v8a-release.apk
+-rw-r--r-- 1 runner runner 43427450 Nov 25 11:26 app-armeabi-v7a-release.apk
+-rw-r--r-- 1 runner runner 48138544 Nov 25 11:26 app-x86_64-release.apk
+drwxr-xr-x 4 runner runner     4096 Nov 25 11:26 baselineProfiles
+-rw-r--r-- 1 runner runner     1613 Nov 25 11:26 output-metadata.json
+
+android/app/build/outputs/bundle/release/:
+total 144868
+drwxr-xr-x 2 runner runner      4096 Nov 25 11:26 .
+drwxr-xr-x 3 runner runner      4096 Nov 25 11:26 ..
+-rw-r--r-- 1 runner runner 148335410 Nov 25 11:26 app-release.aab
